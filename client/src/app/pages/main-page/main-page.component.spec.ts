@@ -1,25 +1,20 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Location } from '@angular/common';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { routes } from '@app/modules/app-routing.module';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
-import { CommunicationService } from '@app/services/communication.service';
-import { of } from 'rxjs';
-import SpyObj = jasmine.SpyObj;
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
     let fixture: ComponentFixture<MainPageComponent>;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let router: Router;
+    let location: Location;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['basicGet', 'basicPost']);
-        communicationServiceSpy.basicGet.and.returnValue(of({ title: '', body: '' }));
-        communicationServiceSpy.basicPost.and.returnValue(of(new HttpResponse<string>({ status: 201, statusText: 'Created' })));
-
         await TestBed.configureTestingModule({
-            imports: [RouterTestingModule, HttpClientModule],
-            declarations: [MainPageComponent],
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
+            imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes)],
         }).compileComponents();
     });
 
@@ -27,9 +22,30 @@ describe('MainPageComponent', () => {
         fixture = TestBed.createComponent(MainPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        router = TestBed.inject(Router);
+        location = TestBed.inject(Location);
+        router.initialNavigation();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should link to game', fakeAsync(() => {
+        fixture.debugElement.query(By.css('#game')).nativeElement.click();
+        tick();
+        expect(location.path()).toBe('/game');
+    }));
+
+    it('should link to new', fakeAsync(() => {
+        fixture.debugElement.query(By.css('#new')).nativeElement.click();
+        tick();
+        expect(location.path()).toBe('/new');
+    }));
+
+    it('should link to admin', fakeAsync(() => {
+        fixture.debugElement.query(By.css('#admin')).nativeElement.click();
+        tick();
+        expect(location.path()).toBe('/admin');
+    }));
 });
