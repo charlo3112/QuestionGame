@@ -1,29 +1,35 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
+import { Question } from './question'
 
-export type CourseDocument = Course & Document;
+export type GameDocument = Game & Document;
 
 @Schema()
-export class Course {
+export class Game {
     @ApiProperty()
     @Prop({ required: true })
-    name: string;
+    id: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    teacher: string;
+    title: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    subjectCode: string;
+    description: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    credits: number;
+    duration: number;
 
     @ApiProperty()
-    _id?: string;
+    @Prop({ required: true })
+    lasModification: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    questions: Question[];
 }
 
-export const courseSchema = SchemaFactory.createForClass(Course);
+export const gameSchema = SchemaFactory.createForClass(Game);

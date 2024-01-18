@@ -1,7 +1,7 @@
-import { Course } from '@app/model/database/course';
-import { CreateCourseDto } from '@app/model/dto/course/create-course.dto';
-import { UpdateCourseDto } from '@app/model/dto/course/update-course.dto';
-import { CourseService } from '@app/services/course/course.service';
+import { Course } from '@app/model/database/game';
+import { CreateCourseDto } from '@app/model/dto/game/create-game.dto';
+import { UpdateCourseDto } from '@app/model/dto/game/update-game.dto';
+import { CourseService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
