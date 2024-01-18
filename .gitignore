@@ -11,8 +11,12 @@ coverage/
 #Node Modules
 /node_modules
 
+#NixOS specific
 .direnv
-
 flake.nix
 flake.lock
 .envrc
+
+#Webstorm IDE
+.idea
+
