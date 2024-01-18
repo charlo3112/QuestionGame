@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
@@ -11,6 +12,7 @@ export const routes: Routes = [
     { path: 'new', component: MainPageComponent }, // TODO change this to add GameForm component
     { path: 'admin', component: MainPageComponent }, // TODO change this to add Admin component
     { path: 'material', component: MaterialPageComponent },
+    { path: 'admin', component: AdminPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
