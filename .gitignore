@@ -10,3 +10,9 @@ coverage/
 
 #Node Modules
 /node_modules
+
+.direnv
+
+flake.nix
+flake.lock
+.envrc
