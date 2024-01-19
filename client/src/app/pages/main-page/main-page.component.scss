@@ -16,12 +16,15 @@
 
 .button {
     width: 15em;
+    font-weight: bolder;
+    font-size: 1.42em;
+    padding: 1.2em;
 }
 
 .team-name {
     margin-top: 0.25em;
     margin-bottom: 0.25em;
-    color: green;
+    color: #f4d5af;
 }
 
 .header-item {
@@ -31,17 +34,34 @@
 
 .footer-item {
     text-align: center;
+    width: 100%;
+    border-top: 4em solid transparent;
+    border-image: url('/assets/wave.svg') 142 stretch;
+    background-color: #0693e3;
+    background-clip: padding-box;
 }
 
-.footer-item p :nth-child(even) {
-    color: orange;
+.footer-item div {
+    display: flex;
+    justify-content: center;
+    gap: 0.69em;
 }
 
-.footer-item p :nth-child(odd) {
-    color: blue;
+.footer-item div :nth-child(even) {
+    color: white;
+}
+
+.footer-item div :nth-child(odd) {
+    color: #f4d5af;
 }
 
 .logo {
     width: 16em;
     height: 16em;
+}
+
+h1 {
+    font-weight: bolder;
+    font-size: 5em;
+    color: #e85e19;
 }
