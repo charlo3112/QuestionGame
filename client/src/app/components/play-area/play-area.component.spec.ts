@@ -11,7 +11,6 @@ describe('PlayAreaComponent', () => {
     beforeEach(async () => {
         timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
         await TestBed.configureTestingModule({
-            declarations: [PlayAreaComponent],
             providers: [{ provide: TimeService, useValue: timeServiceSpy }],
         }).compileComponents();
     });
