@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
 import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
@@ -16,7 +15,6 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 
 /**
  * Main module that is used in main.ts.
@@ -25,16 +23,7 @@ import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/ad
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [
-        AppComponent,
-        GamePageComponent,
-        MaterialPageComponent,
-        PlayAreaComponent,
-        SidebarComponent,
-        AdminLoginComponent,
-        AdminGamePreviewComponent,
-        AdminPageComponent,
-    ],
+    declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
     imports: [
         AppMaterialModule,
         AppRoutingModule,
@@ -46,6 +35,7 @@ import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/ad
         MatInputModule,
         MatIconModule,
         ReactiveFormsModule,
+        AdminPageComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
