@@ -7,7 +7,7 @@ import { AdminGameDetails } from '@app/classes/game-details';
     styleUrls: ['./admin-game-preview.component.scss'],
 })
 export class AdminGamePreviewComponent {
-    @Input() gameDetails: AdminGameDetails; // Replace 'any' with your game detail type
+    @Input() gameDetails: AdminGameDetails;
     @Output() edit = new EventEmitter<void>();
     @Output() delete = new EventEmitter<void>();
     @Output() export = new EventEmitter<void>();

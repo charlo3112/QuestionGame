@@ -5,6 +5,6 @@ export class AdminGameDetails {
         public image: string,
         public description: string,
         public isVisible: boolean,
-        public lastModified: Date,
+        public lastModified: string,
     ) {}
 }
