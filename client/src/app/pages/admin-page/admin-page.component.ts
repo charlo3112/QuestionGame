@@ -7,15 +7,16 @@ import { AdminGameDetails } from '@app/classes/game-details';
     styleUrls: ['./admin-page.component.scss'],
 })
 export class AdminPageComponent {
+    login: boolean = false;
+
     games: AdminGameDetails[] = [
-        new AdminGameDetails('id', 'Game 1rjntjrjtrjtjrtrtrjtjrtnjrjtn', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id2', 'Game 2', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id3', 'Game 3', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id4', 'Game 4', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id5', 'Game 5', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id6', 'Game 6', 'url-to-image', 'description', true, new Date()),
-        new AdminGameDetails('id7', 'Game 7', 'url-to-image', 'description', true, new Date()),
-        // ... other games
+        new AdminGameDetails('id', 'Game 1rjntjrjtrjtjrtrtrjtjrtnjrjtn', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id2', 'Game 2', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id3', 'Game 3', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id4', 'Game 4', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id5', 'Game 5', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id6', 'Game 6', 'url-to-image', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id7', 'Game 7', 'url-to-image', 'description', true, '2021-03-03'),
     ];
 
     editGame(id: string) {
@@ -41,5 +42,9 @@ export class AdminPageComponent {
             return;
         }
         game.isVisible = !game.isVisible;
+    }
+
+    handleLogin(success: boolean) {
+        this.login = success;
     }
 }

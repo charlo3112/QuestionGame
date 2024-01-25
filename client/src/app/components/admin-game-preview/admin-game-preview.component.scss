@@ -7,7 +7,6 @@
     padding: 20px;
     margin: 10px 0;
     max-height: 80px;
-    max-width: 600px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
     img {
@@ -39,6 +38,7 @@
 
             button {
                 padding: 0;
+                margin: 5px;
             }
             
             mat-icon {
@@ -47,10 +47,6 @@
             }
         }
     }
-  
-    
-  
-    
   }
   
   
