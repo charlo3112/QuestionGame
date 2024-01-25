@@ -1,0 +1,37 @@
+<div class="admin-game-preview">
+    <img [src]="gameDetails.image" alt="Game preview">
+
+    <div class="admin-game-info">
+        <h3>{{ gameDetails.name }}</h3>
+        <div class="last-modified">{{ gameDetails.lastModified | date }}</div>
+    </div>
+
+    <div class="admin-game-icons">
+        <div>
+            <button mat-icon-button (click)="onEdit()">
+                <mat-icon>mode_edit</mat-icon>
+            </button>
+            <button mat-icon-button (click)="onToggleVisibility()">
+                <mat-icon>
+                    {{ gameDetails.isVisible ? 'visibility_off' : 'visibility' }}
+                </mat-icon>
+            </button>
+            
+        </div>
+
+        <div>
+            <button mat-icon-button (click)="onDelete()">
+                <mat-icon>delete</mat-icon>
+            </button>
+
+            
+
+            <button mat-icon-button (click)="onExport()">
+                <mat-icon>file_download</mat-icon>
+            </button>
+
+        </div>
+
+    </div>  
+    
+  </div>

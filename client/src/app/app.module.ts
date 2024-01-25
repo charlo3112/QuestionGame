@@ -10,6 +10,7 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { AdminGamePreviewComponent } from './components/admin-game-preview/admin-game-preview.component';
 import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 
 /**
@@ -19,7 +20,15 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent, AdminPageComponent],
+    declarations: [
+        AppComponent,
+        GamePageComponent,
+        MaterialPageComponent,
+        PlayAreaComponent,
+        SidebarComponent,
+        AdminPageComponent,
+        AdminGamePreviewComponent,
+    ],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
     providers: [],
     bootstrap: [AppComponent],

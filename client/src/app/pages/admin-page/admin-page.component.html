@@ -1,3 +1,9 @@
-<div class="container">
-    hello from administration page
-</div>
+<div *ngFor="let game of games">
+    <app-admin-game-preview
+      [gameDetails]="game"
+      (edit)="editGame(game.id)"
+      (delete)="deleteGame(game.id)"
+      (export)="exportGame(game.id)"
+      (toggleVisibility)="toggleGameVisibility(game.id)">
+    </app-admin-game-preview>
+  </div>
