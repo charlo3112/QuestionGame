@@ -33,13 +33,20 @@ export class Game {
     @Prop({ required: true })
     questions: Question[];
 
-    constructor(dto: CreateGameDto) {
+    constructor(gameData: CreateGameDto) {
         this.id = uuidv4();
-        this.title = dto.title;
-        this.description = dto.description;
-        this.duration = dto.duration;
+        this.title = gameData.title;
+        this.description = gameData.description;
+        this.duration = gameData.duration;
         this.lastModification = new Date().toISOString();
-        this.questions = dto.questions.map(questionDto => new Question(questionDto));
+        this.questions = gameData.questions.map(questionDto => new Question(questionDto));
+    }
+
+    
+    addQuestion(newQuestion: Question){
+        const size = this.questions.length;
+        if(size < this.questions.push(newQuestion))return true;
+        else return false;
     }
 }
 

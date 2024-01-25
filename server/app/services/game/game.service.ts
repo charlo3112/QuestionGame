@@ -11,23 +11,15 @@ import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
-        //private readonly logger: Logger,
-    ) {
-        this.start();
-    }
-
-    async start() {
-        
-    }
-
+        private readonly logger: Logger,
+    ) {};
 
     async getAllGames(): Promise<Game[]> {
         return await this.gameModel.find({});
     }
 
-    async getGame(sbjCode: string): Promise<Game> {
-        // NB: This can return null if the course does not exist, you need to handle it
-        return await this.gameModel.findOne({ subjectCode: sbjCode });
+    async getGame(id: string): Promise<Game> {
+        return await this.gameModel.findOne({ id: id });
     }
 
     async addGame(gameData: CreateGameDto): Promise<void> {
@@ -58,7 +50,6 @@ export class GameService {
     async modifyGame(game: UpdateGameDto): Promise<void> {
         const filter = { id: game.id };
         game.lastModification = new Date().toISOString();
-        // Can also use replaceOne if we want to replace the entire object
         try {
             const res = await this.gameModel.updateOne(filter, game);
             if (res.matchedCount === 0) {
@@ -70,7 +61,6 @@ export class GameService {
     }
 
     async validateGame(game: CreateGameDto){
-
         return game.duration<121 && game.questions.length>0;
     }
 

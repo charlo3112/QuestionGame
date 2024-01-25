@@ -24,11 +24,35 @@ export class Question {
     @Prop({ required: false })
     choices?: Choice[];
 
-    constructor(dto: CreateQuestionDto) {
-        this.type = dto.type;
-        this.text = dto.text;
-        this.points = dto.points;
-        this.choices = dto.choices.map(choiceDto => new Choice(choiceDto));
+    constructor(questionData: CreateQuestionDto) {
+        this.type = questionData.type;
+        this.text = questionData.text;
+        this.points = questionData.points;
+        this.choices = questionData.choices.map(choiceDto => new Choice(choiceDto));
+    }
+
+    setPoints(points: number){
+        if(points>0){
+            this.points = points;
+            return true;
+        }
+        else return false
+    }
+
+    setText(newText: string){
+        if(newText.length>0){
+            this.text = newText;
+            return true;
+        }
+        else return false
+    }
+
+    setChoices(newChoices: Choice[]){
+        if(newChoices.length>0){
+            this.choices = newChoices;
+            return true;
+        }
+        else return false;
     }
 
 }

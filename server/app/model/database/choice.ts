@@ -17,5 +17,14 @@ export class Choice {
         this.text = dto.text;
         this.isCorrect = dto.isCorrect;
     }
+
+    setText(newText: string){
+        if(newText.length>0){
+            this.text = newText;
+            return true;
+        }
+        else return false;
+    }
+
 }
 
