@@ -10,6 +10,7 @@ import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { QuestionComponent } from './components/question/question.component';
 
 /**
  * Main module that is used in main.ts.
@@ -19,7 +20,7 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
  */
 @NgModule({
     declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
+    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, QuestionComponent],
     providers: [],
     bootstrap: [AppComponent],
 })
