@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { Question } from '@app/interfaces/question';
 
 @Component({
     selector: 'app-question',
@@ -8,4 +9,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     standalone: true,
     imports: [MatToolbarModule],
 })
-export class QuestionComponent {}
+export class QuestionComponent {
+    @Input() question: Question;
+}
