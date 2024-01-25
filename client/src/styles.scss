@@ -11,7 +11,7 @@
 $indigo-pink-theme: mat.define-light-theme(
     (
         color: (
-            primary: mat.define-palette(constant.$orange-palette, 40+0),
+            primary: mat.define-palette(constant.$orange-palette, 500),
             accent: mat.define-palette(constant.$blue-palette, 300),
             warn: mat.define-palette(mat.$red-palette),
         ),
