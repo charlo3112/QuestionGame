@@ -2,6 +2,14 @@
     <div *ngIf="!login" class="admin-login-container">
         <app-admin-login (loginSuccess)="handleLogin($event)"></app-admin-login>
     </div>
+
+    <div *ngIf="login" class="admin-button">
+        <!-- TODO: add route -->
+        <button routerLink="#" mat-raised-button >Banque de Quiz</button>
+        <button routerLink="/new" mat-raised-button >Creation de jeu</button>
+        
+        <!-- TODO: add upload json -->
+    </div>
     
     <div *ngIf="login" class="admin-game-preview-container">
         <div *ngFor="let game of games">

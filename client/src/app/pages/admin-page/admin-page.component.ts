@@ -1,5 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
@@ -9,7 +12,7 @@ import { AdminLoginComponent } from '@app/components/admin-login/admin-login.com
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent],
+    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule],
 })
 export class AdminPageComponent {
     login: boolean = false;
@@ -54,5 +57,9 @@ export class AdminPageComponent {
 
     handleLogin(success: boolean) {
         this.login = success;
+    }
+
+    upload() {
+        alert('Upload');
     }
 }
