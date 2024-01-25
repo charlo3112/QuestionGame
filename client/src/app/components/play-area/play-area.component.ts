@@ -1,9 +1,6 @@
+import { NgIf } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { TimeService } from '@app/services/time.service';
-
-// TODO : Avoir un fichier séparé pour les constantes!
-export const DEFAULT_WIDTH = 200;
-export const DEFAULT_HEIGHT = 200;
 
 // TODO : Déplacer ça dans un fichier séparé accessible par tous
 export enum MouseButton {
@@ -18,6 +15,8 @@ export enum MouseButton {
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
+    standalone: true,
+    imports: [NgIf],
 })
 export class PlayAreaComponent {
     buttonPressed = '';
