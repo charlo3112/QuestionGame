@@ -10,7 +10,6 @@ export const routes: Routes = [
     { path: 'home', component: MainPageComponent },
     { path: 'game', component: GamePageComponent },
     { path: 'new', component: MainPageComponent }, // TODO change this to add GameForm component
-    { path: 'admin', component: MainPageComponent }, // TODO change this to add Admin component
     { path: 'material', component: MaterialPageComponent },
     { path: 'admin', component: AdminPageComponent },
     { path: '**', redirectTo: '/home' },
