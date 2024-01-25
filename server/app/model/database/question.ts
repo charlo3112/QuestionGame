@@ -4,6 +4,7 @@ import { Document } from 'mongoose';
 import { Choice } from './choice'
 import { CreateQuestionDto } from '../dto/question/create-question.dto';
 
+
 export type QuestionDocument = Question & Document;
 
 @Schema()
