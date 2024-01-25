@@ -7,10 +7,11 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { QuestionComponent } from './components/question/question.component';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { GamePageComponent } from '@app/pages/game-page/game-page.component';
+import { AnswerComponent } from './components/answer/answer.component';
 
 /**
  * Main module that is used in main.ts.
