@@ -1,29 +1,24 @@
-import { Component, HostListener } from '@angular/core';
+import { AfterViewInit, Component, HostListener } from '@angular/core';
+import { MouseButton } from '@app/enums/mouse-button';
 import { TimeService } from '@app/services/time.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 200;
 export const DEFAULT_HEIGHT = 200;
 
-// TODO : Déplacer ça dans un fichier séparé accessible par tous
-export enum MouseButton {
-    Left = 0,
-    Middle = 1,
-    Right = 2,
-    Back = 3,
-    Forward = 4,
-}
-
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
 })
-export class PlayAreaComponent {
+export class PlayAreaComponent implements AfterViewInit {
     buttonPressed = '';
-    private readonly timer = 5;
+    private readonly timer = 60;
     constructor(private readonly timeService: TimeService) {}
 
+    get score(): number {
+        return 3;
+    }
     get time(): number {
         return this.timeService.time;
     }
@@ -31,6 +26,10 @@ export class PlayAreaComponent {
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
+    }
+
+    ngAfterViewInit(): void {
+        this.timeService.startTimer(this.timer);
     }
 
     // TODO : déplacer ceci dans un service de gestion de la souris!
