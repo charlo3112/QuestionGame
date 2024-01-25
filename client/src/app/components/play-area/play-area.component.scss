@@ -1,3 +1,31 @@
+.centered {
+    position: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #position-display {
     border: 1px dashed blue;
+}
+
+#question-container {
+    border: 3px solid red;
+}
+
+#question {
+    @extend .centered;
+}
+
+#middle-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid black;
+}
+
+#timer-container,
+#score-container {
+    width: 25%;
+    @extend .centered;
+    border: 1px solid green;
 }
