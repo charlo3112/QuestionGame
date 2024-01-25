@@ -1,7 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateChoiceDto } from '../dto/choice/create-choice.dto';
-
 
 @Schema()
 export class Choice {
@@ -18,13 +17,10 @@ export class Choice {
         this.isCorrect = dto.isCorrect;
     }
 
-    setText(newText: string){
-        if(newText.length>0){
+    setText(newText: string) {
+        if (newText.length > 0) {
             this.text = newText;
             return true;
-        }
-        else return false;
+        } else return false;
     }
-
 }
-

@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import {MIN_DURATION, MAX_DURATION} from '../../../../constants';
 
 
 @Injectable()
@@ -11,14 +12,14 @@ export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
         private readonly logger: Logger,
-    ) {};
+    ) {}
 
     async getAllGames(): Promise<Game[]> {
         return await this.gameModel.find({});
     }
 
-    async getGame(id: string): Promise<Game> {
-        return await this.gameModel.findOne({ id: id });
+    async getGameById(id: string): Promise<Game> {
+        return await this.gameModel.findOne({ _id: id });
     }
 
     async addGame(gameData: CreateGameDto): Promise<void> {
@@ -59,8 +60,7 @@ export class GameService {
         }
     }
 
-    async validateGame(game: CreateGameDto){
-        return game.duration<=60 && game.duration>=10 && game.questions.length>0;
+    async validateGame(game: CreateGameDto) {
+        return game.duration <= MAX_DURATION && game.duration >= MIN_DURATION && game.questions.length > 0;
     }
-
 }

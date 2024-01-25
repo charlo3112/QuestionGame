@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { Question } from '@app/model/database/question';
 
 export class UpdateGameDto {
-
     @ApiProperty({ required: true })
     @IsString()
     id: string;
@@ -23,9 +22,9 @@ export class UpdateGameDto {
     @IsOptional()
     duration?: number;
 
-    @ApiProperty( {required: false })
+    @ApiProperty({ required: false })
     @IsString()
-    lastModification: String;
+    lastModification: string;
 
     @ApiProperty({ required: false })
     @IsOptional()

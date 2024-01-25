@@ -1,11 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
-
+import { Model } from 'mongoose';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { UpdateQuestionDto } from '@app/model/dto/question/update-question.dto';
-import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
+import { MAX_CHOICES_NUMBER } from '../../../../constants'
 
 
 @Injectable()
@@ -13,7 +11,7 @@ export class QuestionService {
     constructor(
         @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
-    ){};    
+    ) {}
 
     async getAllQuestions(): Promise<Question[]> {
         return await this.questionModel.find({});
@@ -44,6 +42,6 @@ export class QuestionService {
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
         const existingQuestion = await this.questionModel.findOne({ text: questionData.text });
-        return !!existingQuestion && questionData.choices.length<=4 && questionData.choices.length>=0;
+        return !!existingQuestion && questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length >= 0;
     }
 }

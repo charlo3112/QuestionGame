@@ -1,9 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { Choice } from './choice'
+import { Choice } from './choice';
 import { CreateQuestionDto } from '../dto/question/create-question.dto';
-
 
 export type QuestionDocument = Question & Document;
 
@@ -29,33 +28,29 @@ export class Question {
         this.type = questionData.type;
         this.text = questionData.text;
         this.points = questionData.points;
-        this.choices = questionData.choices.map(choiceDto => new Choice(choiceDto));
+        this.choices = questionData.choices.map((choiceDto) => new Choice(choiceDto));
     }
 
-    setPoints(points: number){
-        if(points>0){
+    setPoints(points: number) {
+        if (points > 0) {
             this.points = points;
             return true;
-        }
-        else return false
+        } else return false;
     }
 
-    setText(newText: string){
-        if(newText.length>0){
+    setText(newText: string) {
+        if (newText.length > 0) {
             this.text = newText;
             return true;
-        }
-        else return false
+        } else return false;
     }
 
-    setChoices(newChoices: Choice[]){
-        if(newChoices.length>0){
+    setChoices(newChoices: Choice[]) {
+        if (newChoices.length > 0) {
             this.choices = newChoices;
             return true;
-        }
-        else return false;
+        } else return false;
     }
-
 }
 
 export const questionSchema = SchemaFactory.createForClass(Question);

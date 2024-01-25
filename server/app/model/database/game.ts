@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Date, Document } from 'mongoose';
-import { Question } from './question'
+import { Question } from './question';
 import { CreateGameDto } from '../dto/game/create-game.dto';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,7 +27,7 @@ export class Game {
 
     @ApiProperty()
     @Prop({ required: true })
-    lastModification: String;
+    lastModification: string;
 
     @ApiProperty()
     @Prop({ required: true })
@@ -39,12 +39,12 @@ export class Game {
         this.description = gameData.description;
         this.duration = gameData.duration;
         this.lastModification = new Date().toISOString();
-        this.questions = gameData.questions.map(questionDto => new Question(questionDto));
+        this.questions = gameData.questions.map((questionDto) => new Question(questionDto));
     }
-    
-    addQuestion(newQuestion: Question){
+
+    addQuestion(newQuestion: Question) {
         const size = this.questions.length;
-        if(size < this.questions.push(newQuestion))return true;
+        if (size < this.questions.push(newQuestion)) return true;
         else return false;
     }
 }
