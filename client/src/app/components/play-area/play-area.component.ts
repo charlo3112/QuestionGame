@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostListener } from '@angular/core';
 import { MouseButton } from '@app/enums/mouse-button';
 import { TimeService } from '@app/services/time.service';
@@ -6,6 +7,8 @@ import { TimeService } from '@app/services/time.service';
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
+    standalone: true,
+    imports: [NgIf],
 })
 export class PlayAreaComponent implements AfterViewInit {
     buttonPressed = '';
