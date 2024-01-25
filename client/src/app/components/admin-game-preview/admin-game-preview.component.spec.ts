@@ -50,7 +50,7 @@ describe('AdminGamePreviewComponent', () => {
 
     it('should emit export event when export button is clicked', () => {
         spyOn(component.export, 'emit');
-        const exportButton = fixture.debugElement.query(By.css('.admin-download')).nativeElement;
+        const exportButton = fixture.debugElement.query(By.css('.admin-export')).nativeElement;
         exportButton.click();
         expect(component.export.emit).toHaveBeenCalled();
     });
