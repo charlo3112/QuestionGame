@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import { Component, HostListener } from '@angular/core';
 import { TimeService } from '@app/services/time.service';
 
@@ -14,6 +15,8 @@ export enum MouseButton {
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
+    standalone: true,
+    imports: [NgIf],
 })
 export class PlayAreaComponent {
     buttonPressed = '';
