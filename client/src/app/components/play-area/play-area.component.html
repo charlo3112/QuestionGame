@@ -1,13 +1,30 @@
 <div id="grid-container">
-    <p>Section de jeu!</p>
+    <section id="question-container">
+        <p>Pourquoi le jus au Lichi n'est pas bon</p>
+    </section>
+    <section id="score-container">
+        <p>Score : {{ score }}</p>
+    </section>
     <section id="timer-container">
-        <h2>Débutez une minuterie de 5 secondes</h2>
-        <button (click)="mouseHitDetect($event)">Commencer</button>
         <p *ngIf="time">Temps restant : {{ time }}</p>
+    </section>
+
+    <!-- <section class="answer-container">
+        <ul>
+            <li *ngFor="let answer of answers">
+                <app-answer [answer]="answer"></app-answer>
+            </li>
+        </ul>
+    </section> -->
+
+    <section id="answer-container">
+        <app-answers
+            [answers]="['Guillaume en boit', 'Guillaume a apporter 2 boites', 'C\'est du lichi', 'Guillaume a bu ca a 9h du matin']"
+        ></app-answers>
     </section>
 
     <div id="position-display">
         <p>Appuyez sur une touche du clavier pour la détecter</p>
-        <p *ngIf="buttonPressed !== ''"> Touche : {{ buttonPressed }}</p>
+        <p *ngIf="buttonPressed !== ''">Touche : {{ buttonPressed }}</p>
     </div>
 </div>

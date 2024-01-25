@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { AnswerComponent } from './components/answer/answer.component';
+import { AnswersComponent } from './components/answers/answers.component';
 
 /**
  * Main module that is used in main.ts.
