@@ -9,10 +9,10 @@
     <div class="admin-game-icons">
         <div>
             <button mat-icon-button (click)="onEdit()">
-                <mat-icon>mode_edit</mat-icon>
+                <mat-icon class="admin-edit">mode_edit</mat-icon>
             </button>
             <button mat-icon-button (click)="onToggleVisibility()">
-                <mat-icon>
+                <mat-icon class="admin-visibility">
                     {{ gameDetails.isVisible ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
             </button>
@@ -21,13 +21,11 @@
 
         <div>
             <button mat-icon-button (click)="onDelete()">
-                <mat-icon>delete</mat-icon>
+                <mat-icon class="admin-delete">delete</mat-icon>
             </button>
 
-            
-
             <button mat-icon-button (click)="onExport()">
-                <mat-icon>file_download</mat-icon>
+                <mat-icon class="admin-export">file_download</mat-icon>
             </button>
 
         </div>
