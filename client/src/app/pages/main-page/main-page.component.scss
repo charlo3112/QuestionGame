@@ -10,9 +10,12 @@
     align-items: center;
 }
 
+.gap-10px {
+    gap: 10px;
+}
+
 .button {
-    margin-top: 10px;
-    text-align: center;
+    width: 15em;
 }
 
 .team-name {
@@ -33,12 +36,12 @@
 .footer-item p :nth-child(even) {
     color: orange;
 }
+
 .footer-item p :nth-child(odd) {
     color: blue;
 }
 
-.server-message {
-    justify-content: center;
-    width: 20%;
-    min-width: min-content;
+.logo {
+    width: 16em;
+    height: 16em;
 }
