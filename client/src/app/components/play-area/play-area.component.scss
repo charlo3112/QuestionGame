@@ -73,3 +73,25 @@
     margin: 8%;
     border: none;
 }
+
+#question-container {
+    border: 3px solid red;
+}
+
+#question {
+    @extend .centered;
+}
+
+#middle-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid black;
+}
+
+#timer-container,
+#score-container {
+    width: 25%;
+    @extend .centered;
+    border: 1px solid green;
+}
