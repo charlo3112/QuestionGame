@@ -75,6 +75,14 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 >>>>>>> 209120a (enums folder created)
     }
 
+    confirmQuestion() {
+        window.alert('Question confirmée');
+    }
+
+    chatConfirm() {
+        window.alert('Bienvenu au chat');
+    }
+
     // TODO : déplacer ceci dans un service de gestion de la souris!
     mouseHitDetect(event: MouseEvent) {
         if (event.button === MouseButton.Left) {

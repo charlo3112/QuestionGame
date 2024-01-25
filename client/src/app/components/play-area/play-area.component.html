@@ -1,30 +1,28 @@
-<<<<<<< HEAD
-<mat-toolbar color="primary" class="toolbar">
-    <app-question [question]="question"></app-question>
-    <mat-toolbar-row>
-        <div id="score-container">
-            <p>Score : {{ score }}</p>
-        </div>
-        <div id="timer-container">
-            <p *ngIf="time">Temps restant : {{ time }}</p>
-        </div>
-    </mat-toolbar-row>
-</mat-toolbar>
-
-<div id="grid-container" [style]="styleTime">
-    <div id="bottom-container">
-        <div id="left-container">
-            <section id="answer-container">
-                <app-answers [choices]="choices"></app-answers>
-                <div id="confirm-container">
-                    <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
-                </div>
-            </section>
-        </div>
-        <div id="right-container">
-            <div id="chat-container">
-                <button id="chat-button" (click)="chatConfirm()">Chat</button>
+<section id="question-container">
+    <p id="question">Pourquoi le jus au Lichi n'est pas bon</p>
+</section>
+<div id="grid-container">
+    <div id="left-container">
+        <div id="middle-container">
+            <div id="score-container">
+                <p>Score : {{ score }}</p>
             </div>
+            <div id="timer-container">
+                <p *ngIf="time">Temps restant : {{ time }}</p>
+            </div>
+        </div>
+        <section id="answer-container">
+            <app-answers
+                [answers]="['Guillaume en boit', 'Guillaume a apporter 2 boites', 'C\'est du lichi', 'Guillaume a bu ca a 9h du matin']"
+            ></app-answers>
+        </section>
+    </div>
+    <div id="right-container">
+        <div id="chat-container">
+            <button id="chat-button" (click)="chatConfirm()">Chat</button>
+        </div>
+        <div id="confirm-container">
+            <button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
         </div>
     </div>
 </div>
@@ -32,38 +30,5 @@
 <!-- <div id="position-display">
         <p>Appuyez sur une touche du clavier pour la détecter</p>
         <p *ngIf="buttonPressed !== ''">Touche : {{ buttonPressed }}</p>
-    </div> -->
-=======
-<div id="grid-container">
-    <section id="question-container">
-        <p id="question">Pourquoi le jus au Lichi n'est pas bon</p>
-    </section>
-    <div id="middle-container">
-        <section id="score-container">
-            <p>Score : {{ score }}</p>
-        </section>
-        <section id="timer-container">
-            <p *ngIf="time">Temps restant : {{ time }}</p>
-        </section>
-    </div>
-
-    <!-- <section class="answer-container">
-        <ul>
-            <li *ngFor="let answer of answers">
-                <app-answer [answer]="answer"></app-answer>
-            </li>
-        </ul>
-    </section> -->
-
-    <section id="answer-container">
-        <app-answers
-            [answers]="['Guillaume en boit', 'Guillaume a apporter 2 boites', 'C\'est du lichi', 'Guillaume a bu ca a 9h du matin']"
-        ></app-answers>
-    </section>
-
-    <div id="position-display">
-        <p>Appuyez sur une touche du clavier pour la détecter</p>
-        <p *ngIf="buttonPressed !== ''">Touche : {{ buttonPressed }}</p>
     </div>
 </div>
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
