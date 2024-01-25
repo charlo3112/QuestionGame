@@ -1,20 +1,22 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Question } from '../../database/question'
 
 export class CreateGameDto {
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsString()
+    @IsNotEmpty()
     title: string;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsString()
-    descritpion: string;
+    description: string;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     @IsNumber()
+    @IsNotEmpty()   
     duration: number;
 
-    @ApiProperty()
+    @ApiProperty({required: true})
     questions: Question[];
 }

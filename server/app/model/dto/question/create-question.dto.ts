@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { Choice } from '@app/model/database/choice'
 
 export class CreateQuestionDto {
     @ApiProperty()
     @IsString()
-    title: string;
+    type: string;
 
     @ApiProperty()
     @IsString()
-    descritpion: string;
+    text: string;
 
     @ApiProperty()
     @IsNumber()

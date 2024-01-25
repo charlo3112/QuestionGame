@@ -3,6 +3,11 @@ import { IsNumber, IsOptional, IsString, MaxLength } from 'class-validator';
 import { Question } from '@app/model/database/question';
 
 export class UpdateGameDto {
+
+    @ApiProperty({ required: true })
+    @IsString()
+    id: string;
+
     @ApiProperty({ required: false })
     @IsString()
     @IsOptional()
@@ -17,6 +22,10 @@ export class UpdateGameDto {
     @IsNumber()
     @IsOptional()
     duration?: number;
+
+    @ApiProperty( {required: false })
+    @IsString()
+    lastModification: String;
 
     @ApiProperty({ required: false })
     @IsOptional()

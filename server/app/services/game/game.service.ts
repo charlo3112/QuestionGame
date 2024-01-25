@@ -11,15 +11,13 @@ import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 export class GameService {
     constructor(
         @InjectModel(Game.name) public gameModel: Model<GameDocument>,
-        private readonly logger: Logger,
+        //private readonly logger: Logger,
     ) {
         this.start();
     }
 
     async start() {
-        if ((await this.gameModel.countDocuments()) === 0) {
-            //await this.populateDB();
-        }
+        
     }
 
 
@@ -32,18 +30,19 @@ export class GameService {
         return await this.gameModel.findOne({ subjectCode: sbjCode });
     }
 
-    async addGame(game: CreateGameDto): Promise<void> {
-        if (!this.validateCourse(game)) {
+    async addGame(gameData: CreateGameDto): Promise<void> {
+        if (!this.validateGame(gameData)) {
             return Promise.reject('Invalid game');
         }
         try {
+            const game = new Game(gameData);
             await this.gameModel.create(game);
         } catch (error) {
-            return Promise.reject(`Failed to insert course: ${error}`);
+            return Promise.reject(`Failed to insert game: ${error}`);
         }
     }
 
-    async deleteCourse(sbjCode: string): Promise<void> {
+    async deleteGame(sbjCode: string): Promise<void> {
         try {
             const res = await this.gameModel.deleteOne({
                 subjectCode: sbjCode,
@@ -56,11 +55,12 @@ export class GameService {
         }
     }
 
-    async modifyCourse(game: UpdateGameDto): Promise<void> {
-        const filterQuery = { subjectCode: game.subjectCode };
+    async modifyGame(game: UpdateGameDto): Promise<void> {
+        const filter = { id: game.id };
+        game.lastModification = new Date().toISOString();
         // Can also use replaceOne if we want to replace the entire object
         try {
-            const res = await this.gameModel.updateOne(filterQuery, game);
+            const res = await this.gameModel.updateOne(filter, game);
             if (res.matchedCount === 0) {
                 return Promise.reject('Could not find game');
             }
@@ -69,22 +69,9 @@ export class GameService {
         }
     }
 
-    async getCourseTeacher(sbjCode: string): Promise<string> {
-        const filterQuery = { subjectCode: sbjCode };
-        // Only get the teacher and not any of the other fields
-        try {
-            const res = await this.gameModel.findOne(filterQuery, {
-                teacher: 1,
-            });
-            return res.teacher;
-        } catch (error) {
-            return Promise.reject(`Failed to get data: ${error}`);
-        }
-    }
+    async validateGame(game: CreateGameDto){
 
-    async getCoursesByTeacher(name: string): Promise<Game[]> {
-        const filterQuery: FilterQuery<Game> = { teacher: name };
-        return await this.gameModel.find(filterQuery);
+        return game.duration<121 && game.questions.length>0;
     }
 
 }
