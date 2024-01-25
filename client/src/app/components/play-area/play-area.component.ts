@@ -28,6 +28,14 @@ export class PlayAreaComponent implements AfterViewInit {
         this.timeService.startTimer(this.timer);
     }
 
+    confirmQuestion() {
+        window.alert('Question confirmée');
+    }
+
+    chatConfirm() {
+        window.alert('Bienvenu au chat');
+    }
+
     // TODO : déplacer ceci dans un service de gestion de la souris!
     mouseHitDetect(event: MouseEvent) {
         if (event.button === MouseButton.Left) {
