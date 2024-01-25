@@ -1,13 +1,15 @@
 <div id="grid-container">
     <section id="question-container">
-        <p>Pourquoi le jus au Lichi n'est pas bon</p>
+        <p id="question">Pourquoi le jus au Lichi n'est pas bon</p>
     </section>
-    <section id="score-container">
-        <p>Score : {{ score }}</p>
-    </section>
-    <section id="timer-container">
-        <p *ngIf="time">Temps restant : {{ time }}</p>
-    </section>
+    <div id="middle-container">
+        <section id="score-container">
+            <p>Score : {{ score }}</p>
+        </section>
+        <section id="timer-container">
+            <p *ngIf="time">Temps restant : {{ time }}</p>
+        </section>
+    </div>
 
     <!-- <section class="answer-container">
         <ul>
