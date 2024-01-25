@@ -1,0 +1,17 @@
+.dialog-title {
+    display: flex;
+    justify-content: center; /* Horizontally center the items */
+    align-items: center; /* Vertically center the items */
+}
+.dialog-buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.dialog-button {
+    margin: 0 10px;
+}
+.dialog-content {
+    padding: 10px;
+}

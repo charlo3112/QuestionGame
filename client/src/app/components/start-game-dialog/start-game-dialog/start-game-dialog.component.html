@@ -1,0 +1,12 @@
+<!-- TODO: Rendre component dynamique en fonction du jeu choisi -->
+<h2 class="dialog-title">{{ localgame.name }}</h2>
+<p class="dialog-content">Description: {{ localgame.description }}</p>
+<p class="dialog-content">Temps alloue: {{ localgame.time }}</p>
+<p class="dialog-content">Questions: {{ localgame.id }}</p>
+
+<div class="dialog-buttons-container">
+    <!-- TODO: Commencer = salle d'attente, Tester = rentre dans vue du jouer -->
+    <button mat-raised-button class="dialog-button" color="primary" id="start" routerLink="/home" (click)="closeDialog()">Commencer</button>
+    <button mat-raised-button class="dialog-button" color="warn" (click)="closeDialog()">Annuler</button>
+    <button mat-raised-button class="dialog-button" id="test" routerLink="/game">Test</button>
+</div>

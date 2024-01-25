@@ -1,0 +1,6 @@
+<h1 class="header-item">{{ title }}</h1>
+<div class="button-container">
+    <button mat-raised-button color="primary" class="game-button" *ngFor="let game of games; index as i" (click)="openDialog(game)">
+        Jeu #{{ game.id }}
+    </button>
+</div>
