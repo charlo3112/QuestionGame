@@ -1,0 +1,9 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="admin-login">
+    <mat-form-field class="admin-full-width">
+      <mat-label>Password</mat-label>
+      <input type="password" formControlName="password" matInput required>
+    </mat-form-field>
+    <button type="submit" mat-icon-button class="admin-button">
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+</form>
