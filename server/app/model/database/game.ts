@@ -41,7 +41,6 @@ export class Game {
         this.lastModification = new Date().toISOString();
         this.questions = gameData.questions.map(questionDto => new Question(questionDto));
     }
-
     
     addQuestion(newQuestion: Question){
         const size = this.questions.length;

@@ -5,6 +5,7 @@ import { FilterQuery, Model } from 'mongoose';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { Question } from '@app/model//database/question';
 
 
 @Injectable()
@@ -61,7 +62,7 @@ export class GameService {
     }
 
     async validateGame(game: CreateGameDto){
-        return game.duration<121 && game.questions.length>0;
+        return game.duration<=60 && game.duration>=10 && game.questions.length>0;
     }
 
 }
