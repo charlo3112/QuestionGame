@@ -8,8 +8,10 @@ import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { AppComponent } from '@app/pages/app/app.component';
+import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { CreateQuestionComponent } from './components/create-question/create-question.component';
 
 /**
  * Main module that is used in main.ts.
@@ -19,7 +21,16 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
  */
 @NgModule({
     declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        CreatePageComponent,
+        CreateQuestionComponent,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })

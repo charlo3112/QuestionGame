@@ -1,0 +1,31 @@
+<div>
+    <h1>Nouvelle Question</h1>
+    <div>
+        <mat-form-field>
+            <mat-label>Question</mat-label>
+            <input matInput />
+        </mat-form-field>
+        <div>
+            <label for="choicesSelect">Choix de réponse :</label>
+            <ol id="choicesSelect">
+                <li *ngFor="let choice of choices; let i = index">
+                    <span class="choix">
+                        <h3>
+                            {{ choice.value }}
+                            <mat-slide-toggle>Réponse</mat-slide-toggle>
+                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteChoice(i)"></mat-icon>
+                        </h3>
+                    </span>
+                </li>
+            </ol>
+            <div>
+                <mat-form-field>
+                    <mat-label>Choix</mat-label>
+                    <input matInput [(ngModel)]="choiceInput" />
+                </mat-form-field>
+            </div>
+            <button (click)="addChoice()" mat-raised-button color="primary">Ajouter</button>
+        </div>
+    </div>
+    <button class="button" routerLink="/game" mat-raised-button color="primary">Enregistrer</button>
+</div>

@@ -1,0 +1,47 @@
+.form-container {
+    display: flex;
+    margin-bottom: 2%;
+}
+
+.list {
+    margin-right: 1%;
+}
+
+.item {
+    margin-top: 5%;
+    margin-bottom: 1%;
+}
+.second-list {
+    margin-right: 1%;
+    width: 300px;
+    height: 80%;
+    background-color: rgb(219, 214, 214);
+}
+
+.question {
+    width: 100px;
+    height: 150px;
+    background-color: rgb(255, 255, 255);
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: right;
+}
+
+.add-icon {
+}
+
+.delete-icon {
+    font-size: smaller;
+    color: rgb(168, 21, 21);
+}
+
+.edit-icon {
+    font-size: smaller;
+}
+
+.add-icon {
+}
