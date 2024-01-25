@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { AdminGameDetails } from '@app/classes/game-details';
 
 @Component({
     selector: 'app-admin-game-preview',
     templateUrl: './admin-game-preview.component.html',
     styleUrls: ['./admin-game-preview.component.scss'],
+    standalone: true,
+    imports: [MatIconModule],
 })
 export class AdminGamePreviewComponent {
     @Input() gameDetails: AdminGameDetails;
