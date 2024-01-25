@@ -1,22 +1,37 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { Router, RouterLink, RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
+import { routes } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from './admin-page.component';
 
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
+    let router: Router;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [AdminPageComponent, AdminGamePreviewComponent, AdminLoginComponent, BrowserAnimationsModule, NoopAnimationsModule],
+            imports: [
+                AdminPageComponent,
+                AdminGamePreviewComponent,
+                AdminLoginComponent,
+                BrowserAnimationsModule,
+                NoopAnimationsModule,
+                RouterTestingModule,
+                RouterLink,
+                RouterModule.forRoot(routes),
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(AdminPageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        router = TestBed.inject(Router);
+        router.initialNavigation();
     });
 
     it('should create', () => {
