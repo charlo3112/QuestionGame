@@ -1,26 +1,24 @@
-import { Prop, Schema } from '@nestjs/mongoose';
-import { ApiProperty } from '@nestjs/swagger';
-import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
+import { Schema } from '@nestjs/mongoose';
 
 @Schema()
 export class Choice {
-    @ApiProperty()
-    @Prop({ required: true })
-    text: string;
+    #text: string;
+    #isCorrect: boolean;
 
-    @ApiProperty()
-    @Prop({ required: true })
-    isCorrect: boolean;
-
-    constructor(dto: CreateChoiceDto) {
-        this.text = dto.text;
-        this.isCorrect = dto.isCorrect;
+    constructor(text: string, isCorrect: boolean) {
+        if (text.length > 0) {
+            this.#text = text;
+        }
+        this.#isCorrect = isCorrect;
     }
 
-    setText(newText: string) {
+    set text(newText: string) {
         if (newText.length > 0) {
-            this.text = newText;
-            return true;
-        } else return false;
+            this.#text = newText;
+        }
+    }
+
+    set isCorrect(newAnswer: boolean) {
+        this.#isCorrect = newAnswer;
     }
 }

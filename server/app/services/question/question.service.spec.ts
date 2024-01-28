@@ -1,11 +1,14 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CourseService } from './game.service';
+import { QuestionService } from './question.service';
 import { Model, Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-import { Course, CourseDocument, courseSchema } from '@app/model/database/game';
+import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { Choice } from '@app/model/database/choice';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 
 /**
  * There is two way to test the service :
@@ -16,14 +19,14 @@ import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongo
  * We will use it more
  */
 
-describe('CourseService', () => {
-    let service: CourseService;
-    let courseModel: Model<CourseDocument>;
+describe('QuestionService', () => {
+    let service: QuestionService;
+    let questionModel: Model<QuestionDocument>;
 
     beforeEach(async () => {
         // notice that only the functions we call from the model are mocked
         // we can´t use sinon because mongoose Model is an interface
-        courseModel = {
+        questionModel = {
             countDocuments: jest.fn(),
             insertMany: jest.fn(),
             create: jest.fn(),
@@ -32,50 +35,36 @@ describe('CourseService', () => {
             deleteOne: jest.fn(),
             update: jest.fn(),
             updateOne: jest.fn(),
-        } as unknown as Model<CourseDocument>;
+        } as unknown as Model<QuestionDocument>;
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                CourseService,
+                QuestionService,
                 Logger,
                 {
-                    provide: getModelToken(Course.name),
-                    useValue: courseModel,
+                    provide: getModelToken(Question.name),
+                    useValue: questionModel,
                 },
             ],
         }).compile();
 
-        service = module.get<CourseService>(CourseService);
+        service = module.get<QuestionService>(QuestionService);
     });
 
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
-
-    it('database should be populated when there is no data', async () => {
-        jest.spyOn(courseModel, 'countDocuments').mockResolvedValue(0);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).toHaveBeenCalled();
-    });
-
-    it('database should not be populated when there is some data', async () => {
-        jest.spyOn(courseModel, 'countDocuments').mockResolvedValue(1);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await service.start();
-        expect(spyPopulateDB).not.toHaveBeenCalled();
-    });
 });
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 
-describe('CourseServiceEndToEnd', () => {
-    let service: CourseService;
-    let courseModel: Model<CourseDocument>;
+describe('QuestionServiceEndToEnd', () => {
+    let service: QuestionService;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
 
     beforeEach(async () => {
+        let questionModel: Model<QuestionDocument>;
         mongoServer = await MongoMemoryServer.create();
         // notice that only the functions we call from the model are mocked
         // we can´t use sinon because mongoose Model is an interface
@@ -86,13 +75,13 @@ describe('CourseServiceEndToEnd', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Course.name, schema: courseSchema }]),
+                MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
             ],
-            providers: [CourseService, Logger],
+            providers: [QuestionService, Logger],
         }).compile();
 
-        service = module.get<CourseService>(CourseService);
-        courseModel = module.get<Model<CourseDocument>>(getModelToken(Course.name));
+        service = module.get<QuestionService>(QuestionService);
+        questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
         connection = await module.get(getConnectionToken());
     });
 
@@ -109,124 +98,81 @@ describe('CourseServiceEndToEnd', () => {
 
     it('should be defined', () => {
         expect(service).toBeDefined();
-        expect(courseModel).toBeDefined();
+        expect(questionModel).toBeDefined();
     });
 
-    it('start() should populate the database when there is no data', async () => {
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        await courseModel.deleteMany({});
-        await service.start();
-        expect(spyPopulateDB).toHaveBeenCalled();
+    it('getAllQuestions() return all questions in database', async () => {
+        await questionModel.deleteMany({});
+        expect((await service.getAllQuestions()).length).toEqual(0);
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        expect((await service.getAllQuestions()).length).toEqual(1);
     });
 
-    it('start() should not populate the DB when there is some data', async () => {
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
-        expect(spyPopulateDB).not.toHaveBeenCalled();
+    it('deleteQuestion() should delete the question', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await service.deleteQuestion(question.text);
+        expect(await questionModel.countDocuments()).toEqual(0);
     });
 
-    it('populateDB() should add 5 new courses', async () => {
-        const eltCountsBefore = await courseModel.countDocuments();
-        await service.populateDB();
-        const eltCountsAfter = await courseModel.countDocuments();
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-        expect(eltCountsAfter - eltCountsBefore).toEqual(5);
+    it('deleteQuestion() should fail if the question does not exist', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await expect(service.deleteQuestion(question.text)).rejects.toBeTruthy();
     });
 
-    it('getAllCourses() return all courses in database', async () => {
-        await courseModel.deleteMany({});
-        expect((await service.getAllCourses()).length).toEqual(0);
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        expect((await service.getAllCourses()).length).toEqual(1);
+    it('deleteQuestion() should fail if mongo query failed', async () => {
+        jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
+        const question = getFakeQuestion();
+        await expect(service.deleteQuestion(question.text)).rejects.toBeTruthy();
     });
 
-    it('getCourse() return course with the specified subject code', async () => {
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        expect(await service.getCourse(course.subjectCode)).toEqual(expect.objectContaining(course));
-    });
-
-    it('getCourseTeacher() should return course teacher', async () => {
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        const teacher = await service.getCourseTeacher(course.subjectCode);
-        expect(teacher).toEqual(course.teacher);
-    });
-
-    it('getCourseTeacher() should fail if course does not exist', async () => {
-        const course = getFakeCourse();
-        await expect(service.getCourseTeacher(course.teacher)).rejects.toBeTruthy();
-    });
-
-    it('modifyCourse() should fail if course does not exist', async () => {
-        const course = getFakeCourse();
-        await expect(service.modifyCourse(course)).rejects.toBeTruthy();
-    });
-
-    it('modifyCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(courseModel, 'updateOne').mockRejectedValue('');
-        const course = getFakeCourse();
-        await expect(service.modifyCourse(course)).rejects.toBeTruthy();
-    });
-
-    it('getCoursesByTeacher() return course with the specified teacher', async () => {
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        await courseModel.create(course);
-        const courses = await service.getCoursesByTeacher(course.teacher);
-        expect(courses.length).toEqual(2);
-        expect(courses[0]).toEqual(expect.objectContaining(course));
-    });
-
-    it('deleteCourse() should delete the course', async () => {
-        await courseModel.deleteMany({});
-        const course = getFakeCourse();
-        await courseModel.create(course);
-        await service.deleteCourse(course.subjectCode);
-        expect(await courseModel.countDocuments()).toEqual(0);
-    });
-
-    it('deleteCourse() should fail if the course does not exist', async () => {
-        await courseModel.deleteMany({});
-        const course = getFakeCourse();
-        await expect(service.deleteCourse(course.subjectCode)).rejects.toBeTruthy();
-    });
-
-    it('deleteCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(courseModel, 'deleteOne').mockRejectedValue('');
-        const course = getFakeCourse();
-        await expect(service.deleteCourse(course.subjectCode)).rejects.toBeTruthy();
-    });
-
-    it('addCourse() should add the course to the DB', async () => {
-        await courseModel.deleteMany({});
-        const course = getFakeCourse();
-        await service.addCourse({ ...course, subjectCode: 'INF', credits: 5 });
-        expect(await courseModel.countDocuments()).toEqual(1);
+    it('addQuestion() should add the question to the DB', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10 });
+        expect(await questionModel.countDocuments()).toEqual(1);
     });
 
     it('addCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(courseModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const course = getFakeCourse();
-        await expect(service.addCourse({ ...course, subjectCode: 'INF', credits: 5 })).rejects.toBeTruthy();
+        jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
+        const question = getFakeQuestion();
+        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10 })).rejects.toBeTruthy();
     });
 
     it('addCourse() should fail if the course is not a valid', async () => {
-        const course = getFakeCourse();
-        await expect(service.addCourse({ ...course, subjectCode: 'IND', credits: 5 })).rejects.toBeTruthy();
-        await expect(service.addCourse({ ...course, subjectCode: 'INF', credits: 90 })).rejects.toBeTruthy();
-        await expect(service.addCourse({ ...course, subjectCode: 'IND', credits: 90 })).rejects.toBeTruthy();
+        const question = getFakeQuestion();
+        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 43 })).rejects.toBeTruthy();
+        await expect(service.addQuestion({ ...question, type: QuestionType.QRL, text: '5', points: 0 })).rejects.toBeTruthy();
+        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 200 })).rejects.toBeTruthy();
     });
 });
 
-const getFakeCourse = (): Course => ({
-    name: getRandomString(),
-    credits: 3,
-    subjectCode: getRandomString(),
-    teacher: getRandomString(),
-});
+const getFakeQuestion = (): Question => {
+    const questionData: CreateQuestionDto = {
+        type: QuestionType.QCM,
+        text: getRandomString(),
+        points: 40,
+        choices: getFakeChoices(),
+    };
+
+    const question = new Question(questionData);
+
+    return question;
+};
+
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
+    const choices: Choice[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = i === 0;
+        choices.push(new Choice(text, isCorrect));
+    }
+
+    return choices;
+};
 
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

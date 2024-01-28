@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Choice } from '@app/model/database/choice';
+import { QuestionType } from '@app/constants';
 
 export class CreateQuestionDto {
     @ApiProperty({ required: true })
     @IsString()
     @IsNotEmpty()
-    type: string;
+    type: QuestionType;
 
     @ApiProperty({ required: true })
     @IsString()
