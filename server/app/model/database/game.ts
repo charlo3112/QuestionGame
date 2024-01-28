@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Date, Document } from 'mongoose';
 import { Question } from './question';
-import { CreateGameDto } from '../dto/game/create-game.dto';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { v4 as uuidv4 } from 'uuid';
 
 export type GameDocument = Game & Document;

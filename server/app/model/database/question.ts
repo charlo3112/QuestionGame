@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { Choice } from './choice';
-import { CreateQuestionDto } from '../dto/question/create-question.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 
 export type QuestionDocument = Question & Document;
 

@@ -4,8 +4,7 @@ import { Model } from 'mongoose';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import {MIN_DURATION, MAX_DURATION} from '../../../../constants';
-
+import { MIN_DURATION, MAX_DURATION } from '@app/constants';
 
 @Injectable()
 export class GameService {

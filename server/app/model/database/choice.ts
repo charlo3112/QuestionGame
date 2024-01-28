@@ -1,6 +1,6 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateChoiceDto } from '../dto/choice/create-choice.dto';
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 
 @Schema()
 export class Choice {
