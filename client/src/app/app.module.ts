@@ -7,12 +7,10 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
 
 import { AdminUploadComponent } from '@app/components/admin-upload/admin-upload.component';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
+import { QuestionComponent } from './components/question/question.component';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,7 +23,7 @@ import { MatInputModule } from '@angular/material/input';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
+    declarations: [AppComponent, MaterialPageComponent],
     imports: [
         AppMaterialModule,
         AppRoutingModule,
@@ -38,6 +36,7 @@ import { MatInputModule } from '@angular/material/input';
         MatIconModule,
         ReactiveFormsModule,
         AdminPageComponent,
+        QuestionComponent,
         AdminUploadComponent,
     ],
     providers: [],
