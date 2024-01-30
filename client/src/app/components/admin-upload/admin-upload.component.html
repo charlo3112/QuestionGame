@@ -1,0 +1,15 @@
+<button mat-raised-button color="primary" (click)="fileInput.click()">Charger JSON</button>
+<input type="file" #fileInput (change)="onFileSelected($event)" hidden />
+
+<mat-dialog-content *ngIf="fileContent">
+    <p>Nom du fichier : {{ fileName }}</p>
+    <mat-form-field *ngIf="nameTaken" appearance="fill">
+        <mat-label>Nouveau nom</mat-label>
+        <input matInput [(ngModel)]="newName" />
+    </mat-form-field>
+    <button mat-button (click)="validate()">Valider</button>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-button (click)="closeMenu()">Fermer</button>
+</mat-dialog-actions>

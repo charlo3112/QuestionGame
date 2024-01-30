@@ -6,16 +6,17 @@ import { RouterLink } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
+import { AdminUploadComponent } from '@app/components/admin-upload/admin-upload.component';
 
 @Component({
     selector: 'app-admin-page',
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule],
+    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule, AdminUploadComponent],
 })
 export class AdminPageComponent {
-    login: boolean = false;
+    login: boolean = true;
 
     games: AdminGameDetails[] = [
         new AdminGameDetails('id', 'Game 1rjntjrjtrjtjrtrtrjtjrtnjrjtn', '#', 'description', true, '2021-03-03'),

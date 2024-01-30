@@ -2,18 +2,25 @@
     max-height: 500px; /* Adjust the height as necessary */
     // width: 650px;
     min-width: 550px;
-    overflow-y: auto; 
+    overflow-y: auto;
     border: 1px solid #ccc;
-    border-radius: 8px; 
-    padding: 10px; 
+    border-radius: 8px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
-  }
+}
 
-.admin-page{
+.admin-page {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100%;
+}
+
+.admin-button {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    height: 100%;
+    gap: 10px;
 }
