@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CourseService } from '@app/services/game/game.service';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { CourseController } from './course.controller';
+import { CourseController } from './game.controller';
 import { Course } from '@app/model/database/game';
 import { Response } from 'express';
 import { HttpStatus } from '@nestjs/common';

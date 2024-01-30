@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExampleController } from '@app/controllers/example/example.controller';
+import { ExampleController } from '@app/controllers/question/question.controller';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
 import { ExampleService } from '@app/services/example/example.service';
 
