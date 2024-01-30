@@ -5,7 +5,13 @@ import { Model, Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
+import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { Choice } from '@app/model/database/choice';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 
 /**
  * There is two way to test the service :
@@ -112,73 +118,104 @@ describe('GameServiceEndToEnd', () => {
         expect(await service.getGameById(game.getId())).toEqual(expect.objectContaining(game));
     });
 
-    it('modifyCourse() should fail if course does not exist', async () => {
-        const course = getFakeGame();
-        await expect(service.modifyCourse(course)).rejects.toBeTruthy();
+    it('modifyGame() should fail if game does not exist', async () => {
+        const gameDto = getFakeUpdateGameDto();
+        await expect(service.modifyGame(gameDto)).rejects.toBeTruthy();
     });
 
-    it('modifyCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(GameModel, 'updateOne').mockRejectedValue('');
-        const course = getFakeGame();
-        await expect(service.modifyCourse(course)).rejects.toBeTruthy();
+    it('modifyGame() should fail if mongo query failed', async () => {
+        jest.spyOn(gameModel, 'updateOne').mockRejectedValue('');
+        const gameDto = getFakeUpdateGameDto();
+        await expect(service.modifyGame(gameDto)).rejects.toBeTruthy();
     });
 
-    it('getCoursesByTeacher() return course with the specified teacher', async () => {
-        const course = getFakeGame();
-        await GameModel.create(course);
-        await GameModel.create(course);
-        const courses = await service.getCoursesByTeacher(course.teacher);
-        expect(courses.length).toEqual(2);
-        expect(courses[0]).toEqual(expect.objectContaining(course));
+    it('deleteGames() should delete the game', async () => {
+        await gameModel.deleteMany({});
+        const game = getFakeGame();
+        await gameModel.create(game);
+        await service.deleteGames();
+        expect(await gameModel.countDocuments()).toEqual(0);
     });
 
-    it('deleteCourse() should delete the course', async () => {
-        await GameModel.deleteMany({});
-        const course = getFakeGame();
-        await GameModel.create(course);
-        await service.deleteCourse(course.subjectCode);
-        expect(await GameModel.countDocuments()).toEqual(0);
+    it('deleteGameById() should fail if the course does not exist', async () => {
+        await gameModel.deleteMany({});
+        const game = getFakeGame();
+        await expect(service.deleteGameById(game.getId())).rejects.toBeTruthy();
     });
 
-    it('deleteCourse() should fail if the course does not exist', async () => {
-        await GameModel.deleteMany({});
-        const course = getFakeGame();
-        await expect(service.deleteCourse(course.subjectCode)).rejects.toBeTruthy();
+    it('addGame() should add the game to the DB', async () => {
+        await gameModel.deleteMany({});
+        const gameDto = getFakeCreateGameDto();
+        await service.addGame(gameDto);
+        expect(await gameModel.countDocuments()).toEqual(1);
     });
 
-    it('deleteCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(GameModel, 'deleteOne').mockRejectedValue('');
-        const course = getFakeGame();
-        await expect(service.deleteCourse(course.subjectCode)).rejects.toBeTruthy();
+    it('addGame() should fail if mongo query failed', async () => {
+        jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
+        const gameDto = getFakeCreateGameDto();
+        await expect(service.addGame(gameDto)).rejects.toBeTruthy();
     });
 
-    it('addCourse() should add the course to the DB', async () => {
-        await GameModel.deleteMany({});
-        const course = getFakeGame();
-        await service.addCourse({ ...course, subjectCode: 'INF', credits: 5 });
-        expect(await GameModel.countDocuments()).toEqual(1);
-    });
-
-    it('addCourse() should fail if mongo query failed', async () => {
-        jest.spyOn(GameModel, 'create').mockImplementation(async () => Promise.reject(''));
-        const course = getFakeGame();
-        await expect(service.addCourse({ ...course, subjectCode: 'INF', credits: 5 })).rejects.toBeTruthy();
-    });
-
-    it('addCourse() should fail if the course is not a valid', async () => {
-        const course = getFakeGame();
-        await expect(service.addCourse({ ...course, subjectCode: 'IND', credits: 5 })).rejects.toBeTruthy();
-        await expect(service.addCourse({ ...course, subjectCode: 'INF', credits: 90 })).rejects.toBeTruthy();
-        await expect(service.addCourse({ ...course, subjectCode: 'IND', credits: 90 })).rejects.toBeTruthy();
+    it('addGame() should fail if the course is not a valid', async () => {
+        const gameDto = getFakeCreateGameDto();
+        await expect(
+            service.addGame({ ...gameDto, title: 'title', description: 'test description', duration: 2000, questions: getFakeQuestions() }),
+        ).rejects.toBeTruthy();
     });
 });
 
-const getFakeGame = (): Game => ({
-    name: getRandomString(),
-    credits: 3,
-    subjectCode: getRandomString(),
-    teacher: getRandomString(),
-});
+const getFakeCreateGameDto = (): CreateGameDto => {
+    const gameData: CreateGameDto = {
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 40,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
+const getFakeUpdateGameDto = (): UpdateGameDto => {
+    const gameData: UpdateGameDto = {
+        id: getRandomString(),
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 30,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
+const getFakeGame = (): Game => {
+    const game = new Game(getFakeCreateGameDto());
+
+    return game;
+};
+
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
+    const questions: Question[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const questionData: CreateQuestionDto = {
+            type: QuestionType.QCM,
+            text: getRandomString(),
+            points: 40,
+            choices: getFakeChoices(),
+        };
+        questions.push(new Question(questionData));
+    }
+
+    return questions;
+};
+
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
+    const choices: Choice[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = i === 0;
+        choices.push(new Choice(text, isCorrect));
+    }
+
+    return choices;
+};
 
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

@@ -33,16 +33,25 @@ export class GameService {
         }
     }
 
-    async deleteGame(sbjCode: string): Promise<void> {
+    async deleteGameById(id: string): Promise<void> {
         try {
-            const res = await this.gameModel.deleteOne({
-                subjectCode: sbjCode,
-            });
+            const res = await this.gameModel.deleteOne({ id });
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find game');
             }
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
+        }
+    }
+
+    async deleteGames(): Promise<void> {
+        try {
+            const res = await this.gameModel.deleteMany({});
+            if (res.deletedCount === 0) {
+                return Promise.reject('Could not find any game');
+            }
+        } catch (error) {
+            return Promise.reject(`Failed to delete games: ${error}`);
         }
     }
 

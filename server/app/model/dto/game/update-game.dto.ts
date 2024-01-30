@@ -24,7 +24,7 @@ export class UpdateGameDto {
 
     @ApiProperty({ required: false })
     @IsString()
-    lastModification: string;
+    lastModification?: string;
 
     @ApiProperty({ required: false })
     @IsOptional()

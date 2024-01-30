@@ -60,11 +60,11 @@ const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 
 describe('QuestionServiceEndToEnd', () => {
     let service: QuestionService;
+    let questionModel: Model<QuestionDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
 
     beforeEach(async () => {
-        let questionModel: Model<QuestionDocument>;
         mongoServer = await MongoMemoryServer.create();
         // notice that only the functions we call from the model are mocked
         // we can´t use sinon because mongoose Model is an interface
