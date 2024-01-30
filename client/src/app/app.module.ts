@@ -21,12 +21,21 @@ import { MatInputModule } from '@angular/material/input';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule,MatButtonModule,
+    declarations: [AppComponent, MaterialPageComponent],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        MatButtonModule,
         MatInputModule,
         MatIconModule,
         ReactiveFormsModule,
-        AdminPageComponent,QuestionComponent],
+        AdminPageComponent,
+        QuestionComponent,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })
