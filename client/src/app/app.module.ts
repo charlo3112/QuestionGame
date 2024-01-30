@@ -17,6 +17,20 @@ import { MaterialPageComponent } from '@app/pages/material-page/material-page.co
 @NgModule({
     declarations: [AppComponent, MaterialPageComponent],
     imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule],
+    imports: [
+        AppMaterialModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        BrowserModule,
+        FormsModule,
+        HttpClientModule,
+        MatButtonModule,
+        MatInputModule,
+        MatIconModule,
+        ReactiveFormsModule,
+        AdminPageComponent,
+        QuestionComponent,
+    ],
     providers: [],
     bootstrap: [AppComponent],
 })
