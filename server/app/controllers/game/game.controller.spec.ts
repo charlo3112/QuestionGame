@@ -1,53 +1,58 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CourseService } from '@app/services/game/game.service';
+import { GameService } from '@app/services/game/game.service';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { CourseController } from './game.controller';
-import { Course } from '@app/model/database/game';
+import { GameController } from './game.controller';
+import { Game } from '@app/model/database/game';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
+import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { Choice } from '@app/model/database/choice';
 import { Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 
 describe('CourseController', () => {
-    let controller: CourseController;
-    let courseService: SinonStubbedInstance<CourseService>;
+    let controller: GameController;
+    let gameService: SinonStubbedInstance<GameService>;
 
     beforeEach(async () => {
-        courseService = createStubInstance(CourseService);
+        gameService = createStubInstance(GameService);
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [CourseController],
+            controllers: [GameController],
             providers: [
                 {
-                    provide: CourseService,
-                    useValue: courseService,
+                    provide: GameService,
+                    useValue: gameService,
                 },
             ],
         }).compile();
 
-        controller = module.get<CourseController>(CourseController);
+        controller = module.get<GameController>(GameController);
     });
 
     it('should be defined', () => {
         expect(controller).toBeDefined();
     });
 
-    it('allCourses() should return all courses', async () => {
-        const fakeCourses = [new Course(), new Course()];
-        courseService.getAllCourses.resolves(fakeCourses);
+    it('getAllGames() should return all games', async () => {
+        gameService.getAllGames.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (courses) => {
-            expect(courses).toEqual(fakeCourses);
+        res.json = (games) => {
+            expect(games).toEqual(getFakeGame());
             return res;
         };
 
-        await controller.allCourses(res);
+        await controller.getAllGames(res);
     });
 
-    it('allCourses() should return NOT_FOUND when service unable to fetch courses', async () => {
-        courseService.getAllCourses.rejects();
+    it('getAllGames() should return NOT_FOUND when service unable to fetch games', async () => {
+        gameService.getAllGames.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -56,28 +61,28 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.allCourses(res);
+        await controller.getAllGames(res);
     });
 
-    it('subjectCode() should return the subject code', async () => {
-        const fakeCourse = new Course();
-        courseService.getCourse.resolves(fakeCourse);
+    it('getGameById() should return the subject code', async () => {
+        const fakeGame = getFakeGame();
+        gameService.getGameById.resolves(fakeGame);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (courses) => {
-            expect(courses).toEqual(fakeCourse);
+        res.json = (game) => {
+            expect(game).toEqual(fakeGame);
             return res;
         };
 
-        await controller.subjectCode('', res);
+        await controller.getGameById(fakeGame.getId(), res);
     });
 
-    it('subjectCode() should return NOT_FOUND when service unable to fetch the course', async () => {
-        courseService.getCourse.rejects();
+    it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
+        gameService.getGameById.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -86,11 +91,11 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.subjectCode('', res);
+        await controller.getGameById('', res);
     });
 
-    it('addCourse() should succeed if service able to add the course', async () => {
-        courseService.addCourse.resolves();
+    it('addGame() should succeed if service able to add the game', async () => {
+        gameService.addGame.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -99,24 +104,11 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.addCourse(new Course(), res);
+        await controller.addGame(getFakeCreateGameDto(), res);
     });
 
-    it('addCourse() should return NOT_FOUND when service add the course', async () => {
-        courseService.addCourse.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.addCourse(new Course(), res);
-    });
-
-    it('modifyCourse() should succeed if service able to modify the course', async () => {
-        courseService.modifyCourse.resolves();
+    it('modifyGame() should succeed if service able to modify the game', async () => {
+        gameService.modifyGame.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -125,24 +117,13 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.modifyCourse(new Course(), res);
+        await controller.modifyGame(getFakeUpdateGameDto(), res);
     });
 
-    it('modifyCourse() should return NOT_FOUND when service cannot modify the course', async () => {
-        courseService.modifyCourse.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.modifyCourse(new Course(), res);
-    });
-
-    it('deleteCourse() should succeed if service able to delete the course', async () => {
-        courseService.deleteCourse.resolves();
+    it('deleteGameById() should succeed if service able to delete the game', async () => {
+        const fakeGameDto = getFakeCreateGameDto();
+        const fakeGameId = gameService.addGame(fakeGameDto);
+        gameService.deleteGameById.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -151,11 +132,11 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.deleteCourse('', res);
+        await controller.deleteGameById(await fakeGameId, res);
     });
 
-    it('deleteCourse() should return NOT_FOUND when service cannot delete the course', async () => {
-        courseService.deleteCourse.rejects();
+    it('deleteGameById() should return NOT_FOUND when service cannot delete the game', async () => {
+        gameService.deleteGameById.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -164,66 +145,62 @@ describe('CourseController', () => {
         };
         res.send = () => res;
 
-        await controller.deleteCourse('', res);
-    });
-
-    it('getCourseTeacher() should return the course teacher', async () => {
-        const teacher = 'teacher x';
-        courseService.getCourseTeacher.resolves(teacher);
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.json = (courses) => {
-            expect(courses).toEqual(teacher);
-            return res;
-        };
-
-        await controller.getCourseTeacher('', res);
-    });
-
-    it('getCourseTeacher() should return NOT_FOUND when service unable to fetch the course teacher', async () => {
-        courseService.getCourseTeacher.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.getCourseTeacher('', res);
-    });
-
-    it('getCoursesByTeacher() should return all teacher courses', async () => {
-        const fakeCourses = [new Course(), new Course()];
-        courseService.getCoursesByTeacher.resolves(fakeCourses);
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.json = (courses) => {
-            expect(courses).toEqual(fakeCourses);
-            return res;
-        };
-
-        await controller.getCoursesByTeacher('', res);
-    });
-
-    it('getCoursesByTeacher() should return NOT_FOUND when service unable to fetch teacher courses', async () => {
-        courseService.getCoursesByTeacher.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.getCoursesByTeacher('', res);
+        await controller.deleteGameById('', res);
     });
 });
+
+const getFakeGame = (): Game => {
+    const game = new Game(getFakeCreateGameDto());
+
+    return game;
+};
+
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
+    const questions: Question[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const questionData: CreateQuestionDto = {
+            type: QuestionType.QCM,
+            text: getRandomString(),
+            points: 40,
+            choices: getFakeChoices(),
+        };
+        questions.push(new Question(questionData));
+    }
+
+    return questions;
+};
+
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
+    const choices: Choice[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = i === 0;
+        choices.push(new Choice(text, isCorrect));
+    }
+
+    return choices;
+};
+
+const getFakeCreateGameDto = (): CreateGameDto => {
+    const gameData: CreateGameDto = {
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 40,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
+const getFakeUpdateGameDto = (): UpdateGameDto => {
+    const gameData: UpdateGameDto = {
+        id: getRandomString(),
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 30,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
+const BASE_36 = 36;
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

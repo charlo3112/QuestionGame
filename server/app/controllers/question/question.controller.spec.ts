@@ -1,64 +1,146 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExampleController } from '@app/controllers/question/question.controller';
+import { QuestionController } from '@app/controllers/question/question.controller';
 import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { ExampleService } from '@app/services/example/example.service';
+import { QuestionService } from '@app/services/question/question.service';
+import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { Choice } from '@app/model/database/choice';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
+import { Response } from 'express';
+import { HttpStatus } from '@nestjs/common';
 
-describe.only('ExampleController', () => {
-    let controller: ExampleController;
-    let exampleService: SinonStubbedInstance<ExampleService>;
+describe.only('QuestionController', () => {
+    let controller: QuestionController;
+    let questionService: SinonStubbedInstance<QuestionService>;
 
     beforeEach(async () => {
-        exampleService = createStubInstance(ExampleService);
+        questionService = createStubInstance(QuestionService);
         const module: TestingModule = await Test.createTestingModule({
-            controllers: [ExampleController],
+            controllers: [QuestionController],
             providers: [
                 {
-                    provide: ExampleService,
-                    useValue: exampleService,
+                    provide: QuestionService,
+                    useValue: questionService,
                 },
             ],
         }).compile();
 
-        controller = module.get<ExampleController>(ExampleController);
+        controller = module.get<QuestionController>(QuestionController);
     });
 
     it('should be defined', () => {
         expect(controller).toBeDefined();
     });
 
-    it('exampleInfo() should call ExampleService.helloWord()', () => {
-        const fakeMessage = getFakeMessage();
-        exampleService.helloWorld.returns(fakeMessage);
-        const message = controller.exampleInfo();
-        expect(message).toEqual(fakeMessage);
-        expect(exampleService.helloWorld.calledOnce).toBeTruthy();
+    it('getQuestions() should return all questions', async () => {
+        const fakeQuestions = getFakeQuestions();
+        questionService.getAllQuestions.resolves(fakeQuestions);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (courses) => {
+            expect(courses).toEqual(fakeQuestions);
+            return res;
+        };
+
+        await controller.getAllQuestions(res);
     });
 
-    it('about() should call ExampleService.about()', () => {
-        const fakeMessage = getFakeMessage();
-        exampleService.about.returns(fakeMessage);
-        const message = controller.about();
-        expect(exampleService.about.calledOnce).toBeTruthy();
-        expect(message).toBe(fakeMessage);
+    it('addQuestion() should succeed if service able to add the course', async () => {
+        questionService.addQuestion.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.CREATED);
+            return res;
+        };
+        res.send = () => res;
+
+        const fakeQuestionData: CreateQuestionDto = {
+            type: QuestionType.QCM,
+            text: getRandomString(),
+            points: 40,
+            choices: getFakeChoices(),
+        };
+
+        await controller.addQuestion(fakeQuestionData, res);
     });
 
-    it('all() should call ExampleService.all()', () => {
-        const fakeMessages = [getFakeMessage()];
-        exampleService.getAllMessages.returns(fakeMessages);
-        const messages = controller.all();
-        expect(exampleService.getAllMessages.calledOnce).toBeTruthy();
-        expect(messages).toBe(fakeMessages);
+    it('addQuestion() should return NOT_FOUND when service add the course', async () => {
+        questionService.addQuestion.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        const fakeQuestionData: CreateQuestionDto = {
+            type: QuestionType.QCM,
+            text: getRandomString(),
+            points: 40,
+            choices: getFakeChoices(),
+        };
+
+        await controller.addQuestion(fakeQuestionData, res);
     });
 
-    it('send() should store message in ExampleService', () => {
-        const message = getFakeMessage();
-        controller.send(message);
-        expect(exampleService.storeMessage.calledOnce).toBeTruthy();
-        expect(exampleService.storeMessage.calledWith(message)).toBeTruthy();
+    it('deleteQuestion() should succeed if service able to delete the question', async () => {
+        questionService.deleteQuestion.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteQuestion('', res);
+    });
+
+    it('deleteQuestion() should return NOT_FOUND when service cannot delete the question', async () => {
+        questionService.deleteQuestion.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteQuestion('', res);
     });
 });
 
-const getFakeMessage = () => ({
-    title: 'X',
-    body: 'Y',
-});
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
+    const questions: Question[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const questionData: CreateQuestionDto = {
+            type: QuestionType.QCM,
+            text: getRandomString(),
+            points: 40,
+            choices: getFakeChoices(),
+        };
+        questions.push(new Question(questionData));
+    }
+
+    return questions;
+};
+
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
+    const choices: Choice[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = i === 0;
+        choices.push(new Choice(text, isCorrect));
+    }
+
+    return choices;
+};
+
+const BASE_36 = 36;
+const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);

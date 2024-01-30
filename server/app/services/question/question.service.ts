@@ -17,12 +17,15 @@ export class QuestionService {
     }
 
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
-        if (!this.validateQuestion(questionData)) return Promise.reject('A similar question already exists');
         try {
+            if (!this.validateQuestion(questionData)) {
+                throw new Error('A similar question already exists or the question data is invalid');
+            }
             const question = new Question(questionData);
             await this.questionModel.create(question);
         } catch (error) {
-            return Promise.reject(`Failed to insert question: ${error}`);
+            this.logger.error(`Failed to insert question: ${error.message || error}`);
+            throw new Error('Failed to insert question');
         }
     }
 

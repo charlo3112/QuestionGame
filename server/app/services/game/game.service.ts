@@ -21,13 +21,14 @@ export class GameService {
         return await this.gameModel.findOne({ id });
     }
 
-    async addGame(gameData: CreateGameDto): Promise<void> {
+    async addGame(gameData: CreateGameDto): Promise<string> {
         if (!this.validateGame(gameData)) {
             return Promise.reject('Invalid game');
         }
         try {
             const game = new Game(gameData);
             await this.gameModel.create(game);
+            return game.getId();
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }

@@ -19,7 +19,7 @@ export class QuestionController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/')
-    async allQuestions(@Res() response: Response) {
+    async getAllQuestions(@Res() response: Response) {
         try {
             const allQuestions = await this.questionsService.getAllQuestions();
             response.status(HttpStatus.OK).json(allQuestions);
@@ -35,7 +35,7 @@ export class QuestionController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Post('/')
-    async addCourse(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
+    async addQuestion(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
         try {
             await this.questionsService.addQuestion(questionDto);
             response.status(HttpStatus.CREATED).send();
@@ -50,8 +50,8 @@ export class QuestionController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Delete('/:id')
-    async deleteGame(@Param('title') title: string, @Res() response: Response) {
+    @Delete('/:title')
+    async deleteQuestion(@Param('title') title: string, @Res() response: Response) {
         try {
             await this.questionsService.deleteQuestion(title);
             response.status(HttpStatus.OK).send();

@@ -20,7 +20,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/')
-    async allGames(@Res() response: Response) {
+    async getAllGames(@Res() response: Response) {
         try {
             const allGames = await this.gamesService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
@@ -37,7 +37,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Get('/:id')
-    async subjectCode(@Param('id') id: string, @Res() response: Response) {
+    async getGameById(@Param('id') id: string, @Res() response: Response) {
         try {
             const game = await this.gamesService.getGameById(id);
             response.status(HttpStatus.OK).json(game);
@@ -53,7 +53,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Post('/')
-    async addCourse(@Body() gameDto: CreateGameDto, @Res() response: Response) {
+    async addGame(@Body() gameDto: CreateGameDto, @Res() response: Response) {
         try {
             await this.gamesService.addGame(gameDto);
             response.status(HttpStatus.CREATED).send();
@@ -70,7 +70,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Patch('/')
-    async modifyCourse(@Body() gameDto: UpdateGameDto, @Res() response: Response) {
+    async modifyGame(@Body() gameDto: UpdateGameDto, @Res() response: Response) {
         try {
             await this.gamesService.modifyGame(gameDto);
             response.status(HttpStatus.OK).send();
@@ -86,7 +86,7 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Delete('/:id')
-    async deleteGame(@Param('id') id: string, @Res() response: Response) {
+    async deleteGameById(@Param('id') id: string, @Res() response: Response) {
         try {
             await this.gamesService.deleteGameById(id);
             response.status(HttpStatus.OK).send();
@@ -101,7 +101,7 @@ export class GameController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Delete('/:id')
+    @Delete('/')
     async deleteGames(@Res() response: Response) {
         try {
             await this.gamesService.deleteGames();

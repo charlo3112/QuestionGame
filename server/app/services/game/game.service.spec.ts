@@ -107,12 +107,12 @@ describe('GameServiceEndToEnd', () => {
     it('getAllGames() return all games in database', async () => {
         await gameModel.deleteMany({});
         expect((await service.getAllGames()).length).toEqual(0);
-        const course = getFakeGame();
-        await gameModel.create(course);
+        const game = getFakeGame();
+        await gameModel.create(game);
         expect((await service.getAllGames()).length).toEqual(1);
     });
 
-    it('getGameById() return game with the specified subject code', async () => {
+    it('getGameById() return game with the specified id', async () => {
         const game = getFakeGame();
         await gameModel.create(game);
         expect(await service.getGameById(game.getId())).toEqual(expect.objectContaining(game));
@@ -137,7 +137,7 @@ describe('GameServiceEndToEnd', () => {
         expect(await gameModel.countDocuments()).toEqual(0);
     });
 
-    it('deleteGameById() should fail if the course does not exist', async () => {
+    it('deleteGameById() should fail if the game does not exist', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
         await expect(service.deleteGameById(game.getId())).rejects.toBeTruthy();
@@ -156,7 +156,7 @@ describe('GameServiceEndToEnd', () => {
         await expect(service.addGame(gameDto)).rejects.toBeTruthy();
     });
 
-    it('addGame() should fail if the course is not a valid', async () => {
+    it('addGame() should fail if the game is not a valid', async () => {
         const gameDto = getFakeCreateGameDto();
         await expect(
             service.addGame({ ...gameDto, title: 'title', description: 'test description', duration: 2000, questions: getFakeQuestions() }),
