@@ -1,6 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
@@ -33,6 +37,8 @@ import { AnswersComponent } from './components/answers/answers.component';
         ReactiveFormsModule,
         AdminPageComponent,
         QuestionComponent,
+        AnswersComponent,
+        MatGridListModule,
     ],
     providers: [],
     bootstrap: [AppComponent],
