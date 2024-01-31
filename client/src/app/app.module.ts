@@ -1,6 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+<<<<<<< HEAD
+=======
+import { MatButtonModule } from '@angular/material/button';
+>>>>>>> 6f63540 (trying to dynamically add mat-grid-tile)
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -11,12 +15,15 @@ import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 <<<<<<< HEAD
 import { QuestionComponent } from './components/question/question.component';
+<<<<<<< HEAD
 import { MatButtonModule } from '@angular/material/button';
 =======
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
 import { AnswersComponent } from './components/answers/answers.component';
+=======
+>>>>>>> 6f63540 (trying to dynamically add mat-grid-tile)
 
 /**
  * Main module that is used in main.ts.

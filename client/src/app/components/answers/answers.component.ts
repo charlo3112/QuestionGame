@@ -25,8 +25,7 @@ export class AnswersComponent {
     imports: [MatGridListModule],
 })
 export class AnswersComponent {
-    @Input() answers: string[] = [];
-    // @Input() isCorrect: boolean;
+    @Input() answers: string[] = ['a', 'b', 'c', 'd'];
 
     getAnswerClass() {
 <<<<<<< HEAD
