@@ -29,7 +29,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
-        this.timeService.startTimer(this.timer);
+        setTimeout(() => {
+            this.timeService.startTimer(this.timer);
+        });
     }
 
     confirmQuestion() {
