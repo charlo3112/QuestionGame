@@ -1,0 +1,53 @@
+.admin-game-preview {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+    max-height: 80px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    img {
+        height: 50%;
+        border-radius: 4px;
+    }
+
+    .admin-game-info {
+        flex-grow: 1;
+    
+        h3 {
+            font-size: 1.2em; 
+            margin: 0 0 5px 0;
+        }
+  
+        .last-modified {
+            font-size: 0.9em;
+            color: #666;
+        }
+    }
+
+    .admin-game-icons {
+        display: flex;
+
+        div {
+            display: flex;
+            flex-direction: column;
+
+
+            button {
+                padding: 0;
+                margin: 5px;
+            }
+            
+            mat-icon {
+                font-size: 24px; // Icon size
+                color: #333; // Icon color
+            }
+        }
+    }
+  }
+  
+  
+  

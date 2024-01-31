@@ -1,0 +1,16 @@
+.admin-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+.admin-login-input {
+    width: 100%;
+}
+
+.admin-login-error {
+    color: red;
+    display: flex;
+    align-items: center;
+}
