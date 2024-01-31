@@ -43,7 +43,10 @@ describe('PlayAreaComponent', () => {
     });
 
     it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
+<<<<<<< HEAD
         // const choices: Choice[] = [];
+=======
+>>>>>>> 85e3ff3 (new tests created pass)
         component.ngAfterViewInit();
         tick();
         expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
@@ -67,6 +70,7 @@ describe('PlayAreaComponent', () => {
 
     it('time should return timeService.time', () => {
         expect(component.time).toEqual(timeServiceSpy.time);
+<<<<<<< HEAD
     });
 
     it('should populate choices when question input is provided', () => {
@@ -88,5 +92,7 @@ describe('PlayAreaComponent', () => {
         component.ngOnInit();
         expect(component.populateChoices).not.toHaveBeenCalled();
         expect(component.choices.length).toEqual(0);
+=======
+>>>>>>> 85e3ff3 (new tests created pass)
     });
 });
