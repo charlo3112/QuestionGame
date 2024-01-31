@@ -18,4 +18,16 @@ describe('AnswerComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    describe('getAnswerClass', () => {
+        it('should return a string with the length of answers', () => {
+            component.answers = ['A', 'B', 'C'];
+            expect(component.getAnswerClass()).toEqual('answers-3');
+        });
+
+        it('should return "answers-0" when answers is empty', () => {
+            component.answers = [];
+            expect(component.getAnswerClass()).toEqual('answers-0');
+        });
+    });
 });
