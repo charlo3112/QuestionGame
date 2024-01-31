@@ -1,0 +1,13 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="admin-login">
+    <mat-form-field class="admin-login-input">
+      <mat-label>Password</mat-label>
+      <input type="password" formControlName="password" matInput required>
+    </mat-form-field>
+    <button type="submit" mat-icon-button class="admin-login-button">
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+</form>
+<div class="admin-login-error" *ngIf="error">
+    <mat-icon>error_outline</mat-icon>
+    <span>Incorrect password</span>
+</div>
