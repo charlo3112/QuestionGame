@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { MatGridListModule } from '@angular/material/grid-list';
 
@@ -6,10 +7,10 @@ import { MatGridListModule } from '@angular/material/grid-list';
     templateUrl: './answers.component.html',
     styleUrls: ['./answers.component.scss'],
     standalone: true,
-    imports: [MatGridListModule],
+    imports: [MatGridListModule, CommonModule],
 })
 export class AnswersComponent {
-    @Input() answers: string[] = ['a', 'b', 'c', 'd'];
+    @Input() answers: string[] = [];
 
     getAnswerClass() {
         return `answers-${this.answers.length}`;
