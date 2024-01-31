@@ -1,10 +1,16 @@
 import { NgIf } from '@angular/common';
+<<<<<<< HEAD
 import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { Choice } from '@app/interfaces/choice';
 import { MouseButton } from '@app/interfaces/mouse-button';
 import { Question } from '@app/interfaces/question';
+=======
+import { AfterViewInit, Component, HostListener } from '@angular/core';
+import { AnswersComponent } from '@app/components/answers/answers.component';
+import { MouseButton } from '@app/enums/mouse-button';
+>>>>>>> 1875ebf (game-page remodel)
 import { TimeService } from '@app/services/time.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { QuestionComponent } from '../question/question.component';
@@ -18,7 +24,11 @@ export const DEFAULT_HEIGHT = 200;
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
+<<<<<<< HEAD
     imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule, QuestionComponent],
+=======
+    imports: [NgIf, AnswersComponent],
+>>>>>>> 1875ebf (game-page remodel)
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;

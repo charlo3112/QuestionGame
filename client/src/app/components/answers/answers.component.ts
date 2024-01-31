@@ -28,8 +28,6 @@ export class AnswersComponent {
     @Input() answers: string[];
     // @Input() isCorrect: boolean;
 
-    constructor() {}
-
     getAnswerClass() {
         return 'answers-${this.answers.length}';
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")

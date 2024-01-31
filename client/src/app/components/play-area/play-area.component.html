@@ -1,28 +1,27 @@
-<section id="question-container">
-    <p id="question">Pourquoi le jus au Lichi n'est pas bon</p>
-</section>
 <div id="grid-container">
-    <div id="left-container">
-        <div id="middle-container">
-            <div id="score-container">
-                <p>Score : {{ score }}</p>
-            </div>
-            <div id="timer-container">
-                <p *ngIf="time">Temps restant : {{ time }}</p>
-            </div>
+    <div id="middle-container">
+        <div id="score-container">
+            <p>Score : {{ score }}</p>
         </div>
-        <section id="answer-container">
-            <app-answers
-                [answers]="['Guillaume en boit', 'Guillaume a apporter 2 boites', 'C\'est du lichi', 'Guillaume a bu ca a 9h du matin']"
-            ></app-answers>
-        </section>
+        <div id="timer-container">
+            <p *ngIf="time">Temps restant : {{ time }}</p>
+        </div>
     </div>
-    <div id="right-container">
-        <div id="chat-container">
-            <button id="chat-button" (click)="chatConfirm()">Chat</button>
+    <div id="bottom-container">
+        <div id="left-container">
+            <section id="answer-container">
+                <app-answers
+                    [answers]="['Guillaume en boit', 'Guillaume a apporter 2 boites', 'C\'est du lichi', 'Guillaume a bu ca a 9h du matin']"
+                ></app-answers>
+                <div id="confirm-container">
+                    <button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
+                </div>
+            </section>
         </div>
-        <div id="confirm-container">
-            <button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
+        <div id="right-container">
+            <div id="chat-container">
+                <button id="chat-button" (click)="chatConfirm()">Chat</button>
+            </div>
         </div>
     </div>
 </div>

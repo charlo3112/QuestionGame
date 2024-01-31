@@ -9,6 +9,7 @@
 }
 
 #grid-container {
+<<<<<<< HEAD
     width: 100%;
     height: 85.2%;
     background-image: url('/assets/wave.svg') ;
@@ -76,19 +77,23 @@
 
 #question-container {
     height: 25%;
+=======
+    height: fit-content;
+>>>>>>> 1875ebf (game-page remodel)
 }
 
-#grid-container {
+#middle-container {
     display: flex;
     flex-direction: row;
-    align-items: stretch;
+    align-items: center;
     width: 100%;
-    height: 100%;
+    background-color: orange;
 }
 
-#left-container,
-#right-container {
-    height: 80%;
+#bottom-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
 }
 
 #left-container {
@@ -104,19 +109,11 @@
     width: 30%;
 }
 
-#middle-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    width: 100%;
-    background-color: orange;
-}
-
 #timer-container,
-#score-container,
-#confirm-container,
-#chat-container {
+#score-container {
+    display: flex;
     flex: 1;
+    justify-content: center;
 }
 
 #confirm-container,
@@ -126,9 +123,17 @@
     align-items: center;
 }
 
+#confirm-container {
+    padding-top: 2%;
+}
+
+#chat-container {
+    height: 100%;
+}
+
 #confirm-button {
     background-color: green;
-    width: 100%;
+    width: 100px;
     @extend .rounded-button;
 }
 
