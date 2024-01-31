@@ -1,7 +1,10 @@
 <div class="container">
-    <h1 class="header">Création d'un nouveau jeu</h1>
+    <div class="header">
+        <h1>Création d'un nouveau jeu</h1>
+    </div>
     <div class="form-container">
         <div class="left">
+            <h2>Informations</h2>
             <mat-list class="list">
                 <mat-list-item class="item">
                     <mat-form-field>
@@ -11,7 +14,7 @@
                 </mat-list-item>
                 <mat-list-item class="item">
                     <mat-form-field>
-                        <mat-label>Mode</mat-label>
+                        <mat-label>Mode de jeu</mat-label>
                         <mat-select>
                             <mat-option value="one">Classique</mat-option>
                             <mat-option value="two">Among Us</mat-option>
@@ -33,20 +36,22 @@
             </mat-list>
         </div>
         <div class="right">
-            <h2>Questions :</h2>
-            <mat-icon class="add-icon" aria-hidden="false" fontIcon="add-box" routerLink="/create-question"></mat-icon>
-            <mat-list class="second-list">
-                <mat-list-item *ngFor="let question of questions; let i = index">
-                    <span class="question">
-                        <h3>
-                            {{ i + 1 }}. {{ question }}
+            <h2>Questions</h2>
+            <div cdkDropList class="second-list" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
+                    <div class="question">
+                        <h3>{{ i + 1 }}. {{ question }}</h3>
+                        <div class="icons-container">
                             <mat-icon class="edit-icon" aria-hidden="false" fontIcon="edit"></mat-icon>
                             <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)"></mat-icon>
-                        </h3>
-                    </span>
-                </mat-list-item>
-            </mat-list>
-            <button class="button" id="save" mat-raised-button color="primary">Enregistrer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" routerLink="/create-question">
+                <mat-icon>add</mat-icon>
+            </button>
         </div>
     </div>
+    <button class="save-btn" mat-raised-button color="primary">Enregistrer</button>
 </div>

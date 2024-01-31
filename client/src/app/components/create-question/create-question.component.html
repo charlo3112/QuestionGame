@@ -1,31 +1,44 @@
-<div>
-    <h1>Nouvelle Question</h1>
-    <div>
-        <mat-form-field>
+<div class="body">
+    <div class="header">
+        <h1>Nouvelle question</h1>
+    </div>
+    <div class="content">
+        <mat-form-field class="question-field">
             <mat-label>Question</mat-label>
             <input matInput />
         </mat-form-field>
-        <div>
-            <label for="choicesSelect">Choix de réponse :</label>
-            <ol id="choicesSelect">
-                <li *ngFor="let choice of choices; let i = index">
-                    <span class="choix">
-                        <h3>
-                            {{ choice.value }}
-                            <mat-slide-toggle>Réponse</mat-slide-toggle>
-                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteChoice(i)"></mat-icon>
-                        </h3>
-                    </span>
+        <h2>Liste des choix de réponse</h2>
+
+        <div class="choice-field">
+            <mat-form-field>
+                <mat-label>Choix</mat-label>
+                <input matInput [(ngModel)]="choiceInput" (keyup.enter)="addChoice()" />
+            </mat-form-field>
+            <button mat-icon-button (click)="addChoice()" aria-label="Ajouter un choix">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <div *ngIf="choices.length > 0" class="list-container">
+            <ol id="choicesSelect" class="choices-list">
+                <li *ngFor="let choice of choices; let i = index" class="choice-item">
+                    <div class="choice-content">
+                        <span class="choice-value">{{ choice.value }}</span>
+                        <h4>Bonne réponse :</h4>
+                        <mat-checkbox class="right-answer" [(ngModel)]="choice.answer" color="primary"></mat-checkbox>
+                        <button mat-icon-button class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
+                            <mat-icon class="delete-icon">close</mat-icon>
+                        </button>
+                    </div>
                 </li>
             </ol>
-            <div>
-                <mat-form-field>
-                    <mat-label>Choix</mat-label>
-                    <input matInput [(ngModel)]="choiceInput" />
-                </mat-form-field>
-            </div>
-            <button (click)="addChoice()" mat-raised-button color="primary">Ajouter</button>
+        </div>
+        <div class="question-weight">
+            <mat-label>Pondération </mat-label>
+            <mat-slider discrete min="10" max="100" step="10" value="50">
+                <input matSliderThumb />
+            </mat-slider>
         </div>
     </div>
-    <button class="button" routerLink="/game" mat-raised-button color="primary">Enregistrer</button>
+    <button class="button" (click)="save()" mat-raised-button color="primary">Enregistrer</button>
 </div>
