@@ -9,8 +9,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
     imports: [MatGridListModule],
 })
 export class AnswersComponent {
-    @Input() answers: string[] = [];
-    // @Input() isCorrect: boolean;
+    @Input() answers: string[] = ['a', 'b', 'c', 'd'];
 
     getAnswerClass() {
         return `answers-${this.answers.length}`;
