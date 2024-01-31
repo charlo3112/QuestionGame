@@ -12,8 +12,6 @@ export class AnswersComponent {
     @Input() answers: string[];
     // @Input() isCorrect: boolean;
 
-    constructor() {}
-
     getAnswerClass() {
         return 'answers-${this.answers.length}';
     }
