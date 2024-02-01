@@ -91,6 +91,10 @@ textarea[matInput],
         margin-right: 5px;
         flex-grow: 1;
     }
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+        cursor: grab;
+    }
 }
 
 .icons-container {

@@ -40,10 +40,10 @@
             <div cdkDropList class="second-list" (cdkDropListDropped)="drop($event)">
                 <div *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
                     <div class="question">
-                        <h3>{{ i + 1 }}. {{ question }}</h3>
+                        <h3>{{ i + 1 }}. {{ question.text }}</h3>
                         <div class="icons-container">
-                            <mat-icon class="edit-icon" aria-hidden="false" fontIcon="edit"></mat-icon>
-                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)"></mat-icon>
+                            <mat-icon class="edit-icon" aria-hidden="false" fontIcon="edit" color="accent"></mat-icon>
+                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)" color="warn"></mat-icon>
                         </div>
                     </div>
                 </div>

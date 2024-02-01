@@ -1,11 +1,11 @@
 <div class="body">
-    <div class="header">
+    <div class="header" color="primary">
         <h1>Nouvelle question</h1>
     </div>
     <div class="content">
         <mat-form-field class="question-field">
             <mat-label>Question</mat-label>
-            <input matInput />
+            <input matInput [(ngModel)]="questionName" />
         </mat-form-field>
         <h2>Liste des choix de réponse</h2>
 
@@ -23,11 +23,11 @@
             <ol id="choicesSelect" class="choices-list">
                 <li *ngFor="let choice of choices; let i = index" class="choice-item">
                     <div class="choice-content">
-                        <span class="choice-value">{{ choice.value }}</span>
+                        <span class="choice-value">{{ choice.text }}</span>
                         <h4>Bonne réponse :</h4>
-                        <mat-checkbox class="right-answer" [(ngModel)]="choice.answer" color="primary"></mat-checkbox>
+                        <mat-checkbox class="right-answer" [(ngModel)]="choice.isCorrect" color="primary"></mat-checkbox>
                         <button mat-icon-button class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
-                            <mat-icon class="delete-icon">close</mat-icon>
+                            <mat-icon class="delete-icon" color="warn">close</mat-icon>
                         </button>
                     </div>
                 </li>
@@ -35,7 +35,7 @@
         </div>
         <div class="question-weight">
             <mat-label>Pondération </mat-label>
-            <mat-slider discrete min="10" max="100" step="10" value="50">
+            <mat-slider discrete min="10" max="100" step="10" [(ngModel)]="questionPoints" (ngModelChange)="onPointsChange($event)" value="50">
                 <input matSliderThumb />
             </mat-slider>
         </div>

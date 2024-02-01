@@ -9,6 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { RouterModule } from '@angular/router';
+import { Question, QuestionType } from '../../interfaces/question';
 
 @Component({
     selector: 'app-create-page',
@@ -29,37 +30,104 @@ import { RouterModule } from '@angular/router';
     ],
 })
 export class CreatePageComponent {
-    questions: string[] = [
-        'Peut-on vraiment tout savoir ?',
-        'Quel est le sens d’une bonne vie ?',
-        'Y a-t-il un Dieu ?',
-        'Qu’est-ce que la conscience ?',
-        'Y a-t-il un ordre inhérent dans la nature ?',
-        'Est-il plus important d’être respecté ou aimé ?',
-        'Sommes-nous dans la Matrice ?',
-        'Sommes-nous devenus moins heureux à l’ère de la technologie ?',
-        'Qu’est-ce que les mathématiques ?',
-        'Les humains sont-ils obligés de s’améliorer ?',
-        'Y a-t-il un sens à la vie ?',
-        'Avoir un gros ego est-il un trait négatif ou positif ?',
-        'Existe-t-il une mortalité absolue ?',
-        'Le but le plus important dans la vie est-il de trouver le bonheur ?',
-        'Avons-nous le libre arbitre ?',
-        'La vie a-t-elle besoin d’un but et d’un but ?',
-        'Tueriez-vous 10 personnes pour en sauver 100 ?',
-        'Qu’est-ce que le bonheur ?',
-        'Comment les gens peuvent-​ils croire aux vérités sans preuves ?',
-        'Est-il plus facile d’aimer ou d’être aimé ?',
-        'Quelle est l’heure ?',
-        'Les actes de bonté ont-ils un motif ?',
-        'L’esprit ou la matière est-il plus réel ?',
-        'L’amour est-il simplement un désir physique ou quelque chose de plus ?',
-        'D’où viennent les pensées ?',
-        'Le mal vient-il de l’intérieur, et si oui pourquoi ?',
-        'Qu’est-ce que la beauté ?',
-        'Où étaient les gens avant leur naissance ?',
-        'Qu’est-ce que la véritable amitié ?',
-        'Comment fonctionne la gravité ?',
+    questions: Question[] = [
+        {
+            type: QuestionType.Qcm,
+            text: 'Peut-on vraiment tout savoir ?',
+            points: 10,
+            choices: [
+                { text: 'Oui', isCorrect: false },
+                { text: 'Non', isCorrect: true },
+                { text: 'Peut-être', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Quel est le sens d’une bonne vie ?',
+            points: 20,
+            choices: [
+                { text: 'Le bonheur', isCorrect: false },
+                { text: 'La connaissance', isCorrect: false },
+                { text: 'Les contributions à la société', isCorrect: true },
+                { text: 'Les relations', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Y a-t-il un Dieu ?',
+            points: 15,
+            choices: [
+                { text: 'Oui', isCorrect: true },
+                { text: 'Non', isCorrect: false },
+                { text: 'Incertain', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Qu’est-ce que la conscience ?',
+            points: 15,
+            choices: [
+                { text: 'La perception de soi', isCorrect: true },
+                { text: 'Une illusion', isCorrect: false },
+                { text: 'Un processus biologique', isCorrect: false },
+                { text: 'Inexpliqué', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Le mal vient-il de l’intérieur, et si oui pourquoi ?',
+            points: 10,
+            choices: [
+                { text: 'Oui, il est le produit de nos désirs et émotions', isCorrect: true },
+                { text: 'Non, il est influencé par des facteurs externes', isCorrect: false },
+                { text: 'Il provient de l’ignorance', isCorrect: false },
+                { text: 'Il est une construction sociale', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Qu’est-ce que la beauté ?',
+            points: 10,
+            choices: [
+                { text: 'Une harmonie perceptible par les sens', isCorrect: true },
+                { text: 'Une norme culturelle variable', isCorrect: false },
+                { text: 'Un concept purement subjectif', isCorrect: false },
+                { text: 'Une idée innée et universelle', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Où étaient les gens avant leur naissance ?',
+            points: 10,
+            choices: [
+                { text: 'Dans un état non-existant', isCorrect: true },
+                { text: 'En attente de leur tour pour la vie', isCorrect: false },
+                { text: 'Dans une vie antérieure', isCorrect: false },
+                { text: 'Dans un lieu spirituel', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Qu’est-ce que la véritable amitié ?',
+            points: 10,
+            choices: [
+                { text: 'Un lien inconditionnel entre individus', isCorrect: true },
+                { text: 'Une relation basée sur l’intérêt mutuel', isCorrect: false },
+                { text: 'Une connexion qui survit à l’épreuve du temps', isCorrect: false },
+                { text: 'Un soutien constant, peu importe les circonstances', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Comment fonctionne la gravité ?',
+            points: 10,
+            choices: [
+                { text: 'Par l’attraction entre masses', isCorrect: true },
+                { text: 'Grâce à l’énergie noire', isCorrect: false },
+                { text: 'Comme un effet de la courbure de l’espace-temps', isCorrect: false },
+                { text: 'À travers le magnétisme planétaire', isCorrect: false },
+            ],
+        },
     ];
     deleteQuestion(index: number): void {
         this.questions.splice(index, 1);
