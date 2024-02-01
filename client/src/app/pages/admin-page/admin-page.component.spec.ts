@@ -45,6 +45,7 @@ describe('AdminPageComponent', () => {
         fixture = TestBed.createComponent(AdminPageComponent);
         spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
         spyOn(URL, 'revokeObjectURL');
+        sessionStorage.removeItem('login');
         component = fixture.componentInstance;
         fixture.detectChanges();
     });

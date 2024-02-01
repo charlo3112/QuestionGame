@@ -18,7 +18,8 @@ import { CommunicationService } from '@app/services/communication.service';
     imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule, MatSnackBarModule],
 })
 export class AdminPageComponent {
-    login: boolean = false;
+    login: boolean;
+    // load login from session storage
 
     games: AdminGameDetails[] = [
         new AdminGameDetails('id', 'Game 1rjntjrjtrjtjrtrtrjtjrtnjrjtn', '#', 'description', true, '2021-03-03'),
@@ -33,7 +34,15 @@ export class AdminPageComponent {
     constructor(
         private readonly communicationService: CommunicationService,
         private snackBar: MatSnackBar,
-    ) {}
+    ) {
+        const storedLogin = sessionStorage.getItem('login');
+        if (storedLogin !== null) {
+            this.login = JSON.parse(storedLogin);
+        } else {
+            this.login = false;
+            sessionStorage.setItem('login', JSON.stringify(this.login));
+        }
+    }
 
     openSnackBar(message: string, action: string) {
         this.snackBar.open(message, action);
@@ -87,6 +96,7 @@ export class AdminPageComponent {
 
     handleLogin(success: boolean) {
         this.login = success;
+        sessionStorage.setItem('login', JSON.stringify(this.login));
     }
 
     // upload() {
