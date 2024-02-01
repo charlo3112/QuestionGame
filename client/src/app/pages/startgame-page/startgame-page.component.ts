@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { RouterModule } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
@@ -11,12 +10,12 @@ import { StartGameExpansionComponent } from '@app/components/startgame-expansion
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [RouterModule, MatButtonModule, CommonModule, MatExpansionModule, StartGameExpansionComponent],
+    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent],
 })
 export class StartGamePageComponent {
     // Template games to finish functionality
     games: AdminGameDetails[] = [
-        new AdminGameDetails('id', 'Game 1rjntjrjtrjtjrtrtrjtjrtnjrjtn', '#', 'description', true, '2021-03-03'),
+        new AdminGameDetails('id1', 'Game 1', '#', 'description', true, '2021-03-03'),
         new AdminGameDetails('id2', 'Game 2', '#', 'description', true, '2021-03-03'),
         new AdminGameDetails('id3', 'Game 3', '#', 'description', true, '2021-03-03'),
         new AdminGameDetails('id4', 'Game 4', '#', 'description', true, '2021-03-03'),
