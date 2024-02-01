@@ -6,13 +6,15 @@ import { RouterLink } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
     selector: 'app-admin-page',
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule],
+    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule, MatGridListModule, MatToolbarModule],
 })
 export class AdminPageComponent {
     login: boolean = false;
