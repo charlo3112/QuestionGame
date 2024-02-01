@@ -27,33 +27,19 @@ describe('AnswerComponent', () => {
         expect(component).toBeTruthy();
     });
 <<<<<<< HEAD
-<<<<<<< HEAD
 
     describe('getAnswerClass', () => {
         it('should return a string with the length of answers', () => {
             const choices: Choice[] = [{ text: 'A' }, { text: 'B' }, { text: 'C' }];
             component.choices = choices;
-=======
-
-    describe('getAnswerClass', () => {
-        it('should return a string with the length of answers', () => {
-            component.answers = ['A', 'B', 'C'];
->>>>>>> f5f93a2 (answers tests)
             expect(component.getAnswerClass()).toEqual('answers-3');
         });
 
         it('should return "answers-0" when answers is empty', () => {
-<<<<<<< HEAD
             component.choices = [];
             expect(component.getAnswerClass()).toEqual('answers-0');
         });
     });
 =======
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
-=======
-            component.answers = [];
-            expect(component.getAnswerClass()).toEqual('answers-0');
-        });
-    });
->>>>>>> f5f93a2 (answers tests)
 });
