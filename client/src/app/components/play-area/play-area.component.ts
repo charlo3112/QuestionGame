@@ -37,11 +37,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
     }
-
-    styleTime(): string {
-        return 'background-position: bottom -100% right 0%';
-    }
-
+    
     ngOnInit(): void {
         if (this.question) {
             this.populateChoices();
