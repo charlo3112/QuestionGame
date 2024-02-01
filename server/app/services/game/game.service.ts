@@ -55,7 +55,7 @@ export class GameService {
         game.lastModification = new Date().toISOString();
         try {
             const res = await this.gameModel.updateOne(filter, game);
-            if (res.matchedCount === 0) {
+            if (!res.matchedCount) {
                 const gameData: CreateGameDto = {
                     title: game.title,
                     description: game.description,

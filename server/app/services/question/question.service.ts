@@ -18,7 +18,7 @@ export class QuestionService {
 
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
         try {
-            if (!this.validateQuestion(questionData)) {
+            if (!(await this.validateQuestion(questionData))) {
                 return Promise.reject('A similar question already exists or the question data is invalid');
             }
             const question = new Question(questionData);
@@ -43,15 +43,19 @@ export class QuestionService {
     }
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
-        const existingQuestion = await this.questionModel.findOne({ text: questionData.text });
+        let isUnique = true;
         let arePointsCorrect = false;
         let areChoicesCorrect = false;
-        if (questionData.points % PONDERATION_INCREMENT === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
+        const resultModulo = questionData.points.valueOf() % PONDERATION_INCREMENT;
+        if (await this.questionModel.findOne({ text: questionData.text })) {
+            isUnique = false;
+        }
+        if (resultModulo === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
             arePointsCorrect = true;
         }
         if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
             areChoicesCorrect = true;
         }
-        return !!existingQuestion && areChoicesCorrect && arePointsCorrect;
+        return isUnique && areChoicesCorrect && arePointsCorrect;
     }
 }

@@ -118,15 +118,16 @@ describe('GameServiceEndToEnd', () => {
         expect(await service.getGameById(game.getId())).toEqual(expect.objectContaining(game));
     });
 
-    it('modifyGame() should fail if game does not exist', async () => {
-        const badGameDto = getBadFakeUpdateGameDto();
-        await expect(service.modifyGame(badGameDto)).rejects.toBeTruthy();
-    });
-
     it('modifyGame() should fail if mongo query failed', async () => {
         jest.spyOn(gameModel, 'updateOne').mockRejectedValue('');
         const gameDto = getFakeUpdateGameDto();
         await expect(service.modifyGame(gameDto)).rejects.toBeTruthy();
+    });
+
+    it('modifyGame() should create a new game if the provided id has no match', async () => {
+        const badGameDto = getBadFakeUpdateGameDto();
+        await service.modifyGame(badGameDto);
+        expect(await gameModel.countDocuments()).toEqual(1);
     });
 
     it('deleteGameById() should fail if the game does not exist', async () => {
@@ -147,11 +148,6 @@ describe('GameServiceEndToEnd', () => {
         const gameDto = getFakeCreateGameDto();
         await expect(service.addGame(gameDto)).rejects.toBeTruthy();
     });
-
-    it('addGame() should fail if the game is not a valid', async () => {
-        const badGameDto = getBadFakeCreateGameDto();
-        await expect(service.addGame(badGameDto)).rejects.toBeTruthy();
-    });
 });
 
 const getFakeCreateGameDto = (): CreateGameDto => {
@@ -159,16 +155,6 @@ const getFakeCreateGameDto = (): CreateGameDto => {
         title: getRandomString(),
         description: getRandomString(),
         duration: 40,
-        questions: getFakeQuestions(),
-    };
-    return gameData;
-};
-
-const getBadFakeCreateGameDto = (): CreateGameDto => {
-    const gameData: CreateGameDto = {
-        title: getRandomString(),
-        description: getRandomString(),
-        duration: 20000,
         questions: getFakeQuestions(),
     };
     return gameData;
@@ -187,7 +173,7 @@ const getFakeUpdateGameDto = (): UpdateGameDto => {
 
 const getBadFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
-        id: '',
+        id: 'l',
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,

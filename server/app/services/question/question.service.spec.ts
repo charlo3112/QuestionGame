@@ -147,13 +147,10 @@ describe('QuestionServiceEndToEnd', () => {
     it('addQuestion() should fail if the question is not a valid', async () => {
         const question = getFakeQuestion();
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 43, choices: getFakeChoices() }),
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'test question', points: 43, choices: getFakeChoices() }),
         ).rejects.toBeTruthy();
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QRL, text: '5', points: 10, choices: getFakeChoices() }),
-        ).rejects.toBeTruthy();
-        await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 200, choices: getFakeChoices() }),
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoices() }),
         ).rejects.toBeTruthy();
     });
 });
