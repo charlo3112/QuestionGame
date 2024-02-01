@@ -1,0 +1,25 @@
+.class {
+    width: auto;
+}
+.game-image {
+    padding-right: 50px;
+}
+.button-container {
+    display: flex;
+    flex-direction: row;
+}
+.game-button {
+    margin: 10px;
+}
+.item-title {
+    font-weight: bold;
+    font-size: larger;
+    padding-right: 10px;
+}
+.panel-title {
+    font-weight: bold;
+    font-size: x-large;
+}
+.item-content {
+    font-size: larger;
+}
