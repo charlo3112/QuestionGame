@@ -1,14 +1,14 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { QuestionService } from './question.service';
-import { Model, Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection, Model } from 'mongoose';
+import { QuestionService } from './question.service';
 
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
+import { Choice } from '@app/model/database/choice';
 import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { Choice } from '@app/model/database/choice';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
  * There is two way to test the service :
@@ -132,21 +132,29 @@ describe('QuestionServiceEndToEnd', () => {
     it('addQuestion() should add the question to the DB', async () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
-        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10 });
+        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoices() });
         expect(await questionModel.countDocuments()).toEqual(1);
     });
 
-    it('addCourse() should fail if mongo query failed', async () => {
+    it('addQuestion() should fail if mongo query failed', async () => {
         jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
         const question = getFakeQuestion();
-        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10 })).rejects.toBeTruthy();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoices() }),
+        ).rejects.toBeTruthy();
     });
 
-    it('addCourse() should fail if the course is not a valid', async () => {
+    it('addQuestion() should fail if the question is not a valid', async () => {
         const question = getFakeQuestion();
-        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 43 })).rejects.toBeTruthy();
-        await expect(service.addQuestion({ ...question, type: QuestionType.QRL, text: '5', points: 0 })).rejects.toBeTruthy();
-        await expect(service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 200 })).rejects.toBeTruthy();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 43, choices: getFakeChoices() }),
+        ).rejects.toBeTruthy();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QRL, text: '5', points: 10, choices: getFakeChoices() }),
+        ).rejects.toBeTruthy();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 200, choices: getFakeChoices() }),
+        ).rejects.toBeTruthy();
     });
 });
 

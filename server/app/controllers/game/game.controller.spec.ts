@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { GameService } from '@app/services/game/game.service';
-import { createStubInstance, SinonStubbedInstance } from 'sinon';
-import { GameController } from './game.controller';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
+import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import { Question } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { Choice } from '@app/model/database/choice';
-import { Response } from 'express';
+import { GameService } from '@app/services/game/game.service';
 import { HttpStatus } from '@nestjs/common';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Response } from 'express';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import { GameController } from './game.controller';
 
-describe('CourseController', () => {
+describe('GameController', () => {
     let controller: GameController;
     let gameService: SinonStubbedInstance<GameService>;
 
@@ -36,7 +36,8 @@ describe('CourseController', () => {
     });
 
     it('getAllGames() should return all games', async () => {
-        gameService.getAllGames.resolves();
+        const fakeGame: Game[] = [getFakeGame()];
+        gameService.getAllGames.resolves(fakeGame);
 
         const res = {} as unknown as Response;
         res.status = (code) => {
@@ -44,7 +45,7 @@ describe('CourseController', () => {
             return res;
         };
         res.json = (games) => {
-            expect(games).toEqual(getFakeGame());
+            expect(games).toEqual(fakeGame);
             return res;
         };
 

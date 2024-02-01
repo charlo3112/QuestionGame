@@ -6,7 +6,7 @@ export class Choice {
     #isCorrect: boolean;
 
     constructor(text: string, isCorrect: boolean) {
-        if (text.length > 0) {
+        if (text !== undefined && text.length > 0) {
             this.#text = text;
         }
         this.#isCorrect = isCorrect;

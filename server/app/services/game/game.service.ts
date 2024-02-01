@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import { MIN_DURATION, MAX_DURATION } from '@app/constants';
+import { Injectable, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService {
@@ -22,13 +22,14 @@ export class GameService {
     }
 
     async addGame(gameData: CreateGameDto): Promise<string> {
-        if (!this.validateGame(gameData)) {
-            return Promise.reject('Invalid game');
-        }
         try {
-            const game = new Game(gameData);
-            await this.gameModel.create(game);
-            return game.getId();
+            if (!this.validateGame(gameData)) {
+                return Promise.reject('Invalid game');
+            } else {
+                const game = new Game(gameData);
+                await this.gameModel.create(game);
+                return game.getId();
+            }
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }

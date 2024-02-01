@@ -1,9 +1,9 @@
+import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@app/constants';
+import { Question, QuestionDocument } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Question, QuestionDocument } from '@app/model/database/question';
-import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@app/constants';
 
 @Injectable()
 export class QuestionService {
@@ -19,7 +19,7 @@ export class QuestionService {
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
         try {
             if (!this.validateQuestion(questionData)) {
-                throw new Error('A similar question already exists or the question data is invalid');
+                return Promise.reject('A similar question already exists or the question data is invalid');
             }
             const question = new Question(questionData);
             await this.questionModel.create(question);
@@ -44,14 +44,14 @@ export class QuestionService {
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
         const existingQuestion = await this.questionModel.findOne({ text: questionData.text });
-        let isPointCorrect = false;
+        let arePointsCorrect = false;
         let areChoicesCorrect = false;
         if (questionData.points % PONDERATION_INCREMENT === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
-            isPointCorrect = true;
+            arePointsCorrect = true;
         }
         if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
             areChoicesCorrect = true;
         }
-        return !!existingQuestion && areChoicesCorrect && isPointCorrect;
+        return !!existingQuestion && areChoicesCorrect && arePointsCorrect;
     }
 }

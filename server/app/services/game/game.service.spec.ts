@@ -1,17 +1,17 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GameService } from './game.service';
-import { Model, Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection, Model } from 'mongoose';
+import { GameService } from './game.service';
 
-import { Game, GameDocument, gameSchema } from '@app/model/database/game';
-import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
-import { Question } from '@app/model/database/question';
-import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { Choice } from '@app/model/database/choice';
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
-import { getConnectionToken, getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { Choice } from '@app/model/database/choice';
+import { Game, GameDocument, gameSchema } from '@app/model/database/game';
+import { Question } from '@app/model/database/question';
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
  * There is two way to test the service :
@@ -119,8 +119,8 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('modifyGame() should fail if game does not exist', async () => {
-        const gameDto = getFakeUpdateGameDto();
-        await expect(service.modifyGame(gameDto)).rejects.toBeTruthy();
+        const badGameDto = getBadFakeUpdateGameDto();
+        await expect(service.modifyGame(badGameDto)).rejects.toBeTruthy();
     });
 
     it('modifyGame() should fail if mongo query failed', async () => {
@@ -157,10 +157,8 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('addGame() should fail if the game is not a valid', async () => {
-        const gameDto = getFakeCreateGameDto();
-        await expect(
-            service.addGame({ ...gameDto, title: 'title', description: 'test description', duration: 2000, questions: getFakeQuestions() }),
-        ).rejects.toBeTruthy();
+        const badGameDto = getBadFakeCreateGameDto();
+        await expect(service.addGame(badGameDto)).rejects.toBeTruthy();
     });
 });
 
@@ -174,9 +172,30 @@ const getFakeCreateGameDto = (): CreateGameDto => {
     return gameData;
 };
 
+const getBadFakeCreateGameDto = (): CreateGameDto => {
+    const gameData: CreateGameDto = {
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 20000,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
 const getFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
         id: getRandomString(),
+        title: getRandomString(),
+        description: getRandomString(),
+        duration: 30,
+        questions: getFakeQuestions(),
+    };
+    return gameData;
+};
+
+const getBadFakeUpdateGameDto = (): UpdateGameDto => {
+    const gameData: UpdateGameDto = {
+        id: '',
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,
