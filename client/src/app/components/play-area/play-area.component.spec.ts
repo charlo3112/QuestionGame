@@ -44,13 +44,9 @@ describe('PlayAreaComponent', () => {
 
     it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
 <<<<<<< HEAD
-<<<<<<< HEAD
         // const choices: Choice[] = [];
 =======
 >>>>>>> 85e3ff3 (new tests created pass)
-=======
-        // const choices: Choice[] = [];
->>>>>>> a04df5f (tests upated)
         component.ngAfterViewInit();
         tick();
         expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
@@ -98,26 +94,5 @@ describe('PlayAreaComponent', () => {
         expect(component.choices.length).toEqual(0);
 =======
 >>>>>>> 85e3ff3 (new tests created pass)
-    });
-
-    it('should populate choices when question input is provided', () => {
-        const mockQuestion = {
-            type: QuestionType.Qcm,
-            text: 'Question test',
-            points: 8,
-            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
-        };
-        component.question = mockQuestion;
-        spyOn(component, 'populateChoices').and.callThrough();
-        component.ngOnInit();
-        expect(component.populateChoices).toHaveBeenCalled();
-        expect(component.choices).toEqual(mockQuestion.choices);
-    });
-
-    it('should not populate choices when question input is not provided', () => {
-        spyOn(component, 'populateChoices');
-        component.ngOnInit();
-        expect(component.populateChoices).not.toHaveBeenCalled();
-        expect(component.choices.length).toEqual(0);
     });
 });
