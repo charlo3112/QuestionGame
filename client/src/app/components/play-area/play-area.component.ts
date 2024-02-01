@@ -43,7 +43,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         this.buttonPressed = event.key;
     }
 
-<<<<<<< HEAD
     ngOnInit(): void {
         if (this.question) {
             this.populateChoices();
@@ -69,10 +68,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     chatConfirm() {
         window.alert('Bienvenu au chat');
-=======
-    ngAfterViewInit(): void {
-        this.timeService.startTimer(this.timer);
->>>>>>> 209120a (enums folder created)
     }
 
     // TODO : déplacer ceci dans un service de gestion de la souris!
