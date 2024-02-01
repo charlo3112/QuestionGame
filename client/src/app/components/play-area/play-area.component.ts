@@ -1,5 +1,6 @@
 import { NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostListener } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { MouseButton } from '@app/enums/mouse-button';
 import { TimeService } from '@app/services/time.service';
@@ -9,7 +10,7 @@ import { TimeService } from '@app/services/time.service';
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [NgIf, AnswersComponent],
+    imports: [NgIf, AnswersComponent, MatButtonModule],
 })
 export class PlayAreaComponent implements AfterViewInit {
     buttonPressed = '';
