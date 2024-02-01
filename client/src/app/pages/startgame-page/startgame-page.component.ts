@@ -6,7 +6,11 @@ import { AdminGameDetails } from '@app/classes/game-details';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-const description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ullamcorper, leo vel elementum congue, libero leo pharetra nulla, sit amet pulvinar risus arcu ut nunc. Curabitur at ipsum interdum, efficitur odio a, ornare lacus. Pellentesque blandit dui massa, in faucibus dui finibus a. Aenean et ex sed velit viverra porta. Fusce non blandit urna, eget pretium ligula. Fusce in commodo nulla. Phasellus a odio metus. ";
+const description =
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' +
+    ' Integer ullamcorper, leo vel elementum congue, libero leo pharetra nulla, sit amet pulvinar risus arcu ut nunc.' +
+    ' Curabitur at ipsum interdum, efficitur odio a, ornare lacus. Pellentesque blandit dui massa, in faucibus dui finibus a.' +
+    'Aenean et ex sed velit viverra porta. Fusce non blandit urna, eget pretium ligula. Fusce in commodo nulla. Phasellus a odio metus.';
 
 @Component({
     selector: 'app-start-game-page',

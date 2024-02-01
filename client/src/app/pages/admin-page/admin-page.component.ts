@@ -14,7 +14,17 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule, MatGridListModule, MatToolbarModule],
+    imports: [
+        NgIf,
+        NgFor,
+        AdminGamePreviewComponent,
+        AdminLoginComponent,
+        RouterLink,
+        MatButtonModule,
+        MatIconModule,
+        MatGridListModule,
+        MatToolbarModule,
+    ],
 })
 export class AdminPageComponent {
     login: boolean = false;

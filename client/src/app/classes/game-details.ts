@@ -7,6 +7,6 @@ export class AdminGameDetails {
         public isVisible: boolean,
         public lastModified: string,
     ) {
-        this.image = "assets/logo.png";
+        this.image = 'assets/logo.png';
     }
 }

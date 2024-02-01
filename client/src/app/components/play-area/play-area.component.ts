@@ -7,7 +7,7 @@ import { MouseButton } from '@app/interfaces/mouse-button';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { QuestionComponent } from '../question/question.component';
+import { QuestionComponent } from '@app/components/question/question.component';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 200;
@@ -34,13 +34,13 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         return this.timeService.time;
     }
 
-    styleTime(): string {
-        return "background-position: bottom -100% right 0%";
-    }
-
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
+    }
+
+    styleTime(): string {
+        return 'background-position: bottom -100% right 0%';
     }
 
     ngOnInit(): void {
