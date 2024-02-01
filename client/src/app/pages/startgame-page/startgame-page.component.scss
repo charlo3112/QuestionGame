@@ -1,0 +1,27 @@
+.header-item {
+    justify-content: center;
+    text-align: center;
+}
+.button-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.game-button {
+    width: calc(25% - 20px);
+    height: 200px;
+    max-width: 600px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease-out;
+}
+
+.game-button:hover {
+    transform: scale(1.1);
+    z-index: 2;
+}
+@media (min-width: 768px) {
+    .game-button {
+        width: calc(25% - 10px);
+    }
+}

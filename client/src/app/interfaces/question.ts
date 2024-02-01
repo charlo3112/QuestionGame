@@ -1,6 +1,6 @@
 import { Choice } from './choice';
 
-enum QuestionType {
+export enum QuestionType {
     Qcm = 'qcm',
 }
 
