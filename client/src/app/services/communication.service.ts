@@ -21,6 +21,18 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/example/send`, message, { observe: 'response', responseType: 'text' });
     }
 
+    toggleGameVisibility(id: string, value: boolean): Observable<HttpResponse<string>> {
+        return this.http.patch(`${this.baseUrl}/game/${id}`, { value }, { observe: 'response', responseType: 'text' });
+    }
+
+    deleteGame(id: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
+    }
+
+    exportGame(id: string): Observable<HttpResponse<Blob>> {
+        return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'blob' });
+    }
+
     private handleError<T>(request: string, result?: T): (error: Error) => Observable<T> {
         return () => of(result as T);
     }

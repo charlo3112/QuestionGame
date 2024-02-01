@@ -1,5 +1,5 @@
 <div class="admin-game-preview">
-    <img [src]="gameDetails.image" alt="Game preview">
+    <img [src]="gameDetails.image" alt="Game preview" />
 
     <div class="admin-game-info">
         <h3>{{ gameDetails.name }}</h3>
@@ -8,7 +8,7 @@
 
     <div class="admin-game-icons">
         <div>
-            <button mat-icon-button (click)="onEdit()">
+            <button mat-icon-button routerLink="/admin/game/{{ gameDetails.id }}">
                 <mat-icon class="admin-edit">mode_edit</mat-icon>
             </button>
             <button mat-icon-button (click)="onToggleVisibility()">
@@ -16,7 +16,6 @@
                     {{ gameDetails.isVisible ? 'visibility_off' : 'visibility' }}
                 </mat-icon>
             </button>
-            
         </div>
 
         <div>
@@ -27,9 +26,6 @@
             <button mat-icon-button (click)="onExport()">
                 <mat-icon class="admin-export">file_download</mat-icon>
             </button>
-
         </div>
-
-    </div>  
-    
-  </div>
+    </div>
+</div>
