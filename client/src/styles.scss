@@ -32,10 +32,6 @@ body {
     background-blend-mode: luminosity;
 }
 
-.spacer {
-    flex: 1 1 auto;
-}
-
 .toolbar {
     gap: 0.42em;
     position: sticky;
@@ -44,5 +40,12 @@ body {
     img {
         height: 3em;
         width: 3em;
+    }
+    .title {
+        font-size: 2em;
+        font-weight: bold;
+    }
+    .spacer {
+        flex: 1 1 auto;
     }
 }
