@@ -84,6 +84,7 @@ export class PlayAreaComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         setTimeout(() => {
             this.timeService.startTimer(this.timer);
+            this.populateChoices();
         });
     }
 
@@ -94,6 +95,7 @@ export class PlayAreaComponent implements AfterViewInit {
         }
     }
 
+<<<<<<< HEAD
     confirmQuestion() {
         window.alert('Question confirmée');
     }
@@ -112,6 +114,8 @@ export class PlayAreaComponent implements AfterViewInit {
 >>>>>>> 85e3ff3 (new tests created pass)
     }
 
+=======
+>>>>>>> 6046b70 (Removed mat-grid-list, dynamique number of answers in the question)
     confirmQuestion() {
         window.alert('Question confirmée');
     }

@@ -87,7 +87,7 @@
     flex-direction: row;
     align-items: center;
     width: 100%;
-    background-color: orange;
+    background-color: map.get(constant.$orange-palette, 500);
 }
 
 #bottom-container {
@@ -142,5 +142,7 @@
     background-color: map.get(constant.$blue-palette, 800);
     color: white;
     width: 100%;
-    @extend .rounded-button;
+    height: 90%;
+    margin: 8%;
+    border: none;
 }
