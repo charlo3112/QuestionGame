@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -46,14 +47,44 @@ describe('StartGamePageComponent', () => {
     });
 
     it('should start a game', () => {
+        // Add your assertions here to test the behavior after starting a game
+        // Need to add logic for test
         const gameId = 'id';
         component.startGame(gameId);
-        // Add your assertions here to test the behavior after starting a game
+        component.games = [
+            {
+                name: 'Test Game',
+                id: 'test-game',
+                description: 'This is a test game',
+                image: '#',
+                lastModified: '01-01-2024',
+                isVisible: true,
+            },
+        ];
+        fixture.detectChanges();
+        spyOn(component, 'startGame');
+        const startButton = fixture.debugElement.query(By.directive(StartGameExpansionComponent));
+        startButton.componentInstance.startGame.emit();
+        expect(component.startGame).toHaveBeenCalled();
     });
 
     it('should test a game', () => {
         const gameId = 'id';
-        component.testGame(gameId);
-        // Add your assertions here to test the behavior after testing a game
+        component.startGame(gameId);
+        component.games = [
+            {
+                name: 'Test Game',
+                id: 'test-game',
+                description: 'This is a test game',
+                image: '#',
+                lastModified: '01-01-2024',
+                isVisible: true,
+            },
+        ];
+        fixture.detectChanges();
+        spyOn(component, 'testGame');
+        const testButton = fixture.debugElement.query(By.directive(StartGameExpansionComponent));
+        testButton.componentInstance.testGame.emit();
+        expect(component.testGame).toHaveBeenCalled();
     });
 });
