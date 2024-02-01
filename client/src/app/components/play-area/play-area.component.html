@@ -10,9 +10,7 @@
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">
-                <app-answers
-                    [answers]="[question.choices[0].text, question.choices[1].text, question.choices[2].text, question.choices[3].text]"
-                ></app-answers>
+                <app-answers [choices]="choices"></app-answers>
                 <div id="confirm-container">
                     <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
                 </div>
