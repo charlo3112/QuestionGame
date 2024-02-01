@@ -1,14 +1,14 @@
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AppMaterialModule } from '@app/modules/material.module';
+import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { QuestionComponent } from './components/question/question.component';
-import { AdminPageComponent } from './pages/admin-page/admin-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -25,7 +25,6 @@ import { AdminPageComponent } from './pages/admin-page/admin-page.component';
         BrowserModule,
         FormsModule,
         HttpClientModule,
-        ReactiveFormsModule,
         AdminPageComponent,
         QuestionComponent,
     ],

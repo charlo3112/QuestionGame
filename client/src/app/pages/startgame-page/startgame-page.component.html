@@ -1,0 +1,6 @@
+<h1 class="header-item">{{ title }}</h1>
+<mat-accordion class="accordion-container">
+    <div *ngFor="let game of games; index as i">
+        <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game.id)" (testGame)="testGame(game.id)"> </app-startgame-expansion>
+    </div>
+</mat-accordion>
