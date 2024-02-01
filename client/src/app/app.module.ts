@@ -9,13 +9,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
-<<<<<<< HEAD
 import { QuestionComponent } from './components/question/question.component';
 import { MatButtonModule } from '@angular/material/button';
-=======
-import { GamePageComponent } from '@app/pages/game-page/game-page.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
 import { AnswersComponent } from './components/answers/answers.component';
 
 /**
@@ -25,7 +20,6 @@ import { AnswersComponent } from './components/answers/answers.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-<<<<<<< HEAD
     declarations: [AppComponent],
     imports: [
         AppRoutingModule,
@@ -42,10 +36,6 @@ import { AnswersComponent } from './components/answers/answers.component';
         AnswersComponent,
         MatGridListModule,
     ],
-=======
-    declarations: [AppComponent, GamePageComponent, MaterialPageComponent, PlayAreaComponent, SidebarComponent],
-    imports: [AppMaterialModule, AppRoutingModule, BrowserAnimationsModule, BrowserModule, FormsModule, HttpClientModule, AnswersComponent],
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
     providers: [],
     bootstrap: [AppComponent],
 })

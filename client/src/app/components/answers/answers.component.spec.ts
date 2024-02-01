@@ -1,9 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-<<<<<<< HEAD
 import { Choice } from '@app/interfaces/choice';
-=======
-
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
 import { AnswersComponent } from './answers.component';
 
 describe('AnswerComponent', () => {
@@ -12,11 +8,7 @@ describe('AnswerComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-<<<<<<< HEAD
             imports: [],
-=======
-            declarations: [AnswersComponent],
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
         });
         fixture = TestBed.createComponent(AnswersComponent);
         component = fixture.componentInstance;
@@ -26,7 +18,6 @@ describe('AnswerComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-<<<<<<< HEAD
 
     describe('getAnswerClass', () => {
         it('should return a string with the length of answers', () => {
@@ -40,6 +31,4 @@ describe('AnswerComponent', () => {
             expect(component.getAnswerClass()).toEqual('answers-0');
         });
     });
-=======
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
 });

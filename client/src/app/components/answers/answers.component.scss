@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @use 'sass:map';
 @use '../../../constant.scss';
 
@@ -31,12 +30,4 @@
         background-color: map.get(constant.$blue-palette, 300);
     }
     height: 30vh;
-=======
-mat-grid-tile {
-    background: lightblue;
-}
-mat-grid-list {
-    width: 100%;
-    height: 50%;
->>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
 }
