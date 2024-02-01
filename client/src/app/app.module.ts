@@ -9,7 +9,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
-import { QuestionComponent } from './components/question/question.component';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from './components/answers/answers.component';
 
@@ -32,7 +31,6 @@ import { AnswersComponent } from './components/answers/answers.component';
         MatIconModule,
         ReactiveFormsModule,
         AdminPageComponent,
-        QuestionComponent,
         AnswersComponent,
         MatGridListModule,
     ],

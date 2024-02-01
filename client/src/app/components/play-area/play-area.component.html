@@ -1,5 +1,10 @@
 <mat-toolbar color="primary" class="toolbar">
-    <app-question [question]="question"></app-question>
+    <mat-toolbar-row color="primary" class="toolbar">
+        <a routerLink="#"><img src="assets/logo.png"/></a>
+        <h1 class="title">{{ question.text }}</h1>
+        <span class="spacer"></span>
+        <span id="points">{{ question.points }} points</span>
+    </mat-toolbar-row>
     <mat-toolbar-row>
         <div id="score-container">
             <p>Score : {{ score }}</p>
