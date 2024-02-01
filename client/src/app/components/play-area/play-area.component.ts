@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, HostListener } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-import { MouseButton } from '@app/enums/mouse-button';
+import { MouseButton } from '@app/interfaces/mouse-button';
 import { TimeService } from '@app/services/time.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
