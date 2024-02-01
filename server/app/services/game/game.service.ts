@@ -17,6 +17,10 @@ export class GameService {
         return await this.gameModel.find({});
     }
 
+    async getAllGamesAdmin(): Promise<Game[]> {
+        return await this.gameModel.find({ visibility: true });
+    }
+
     async getGameById(id: string): Promise<Game> {
         return await this.gameModel.findOne({ id });
     }
@@ -46,24 +50,19 @@ export class GameService {
         }
     }
 
-    async deleteGames(): Promise<void> {
-        try {
-            const res = await this.gameModel.deleteMany({});
-            if (res.deletedCount === 0) {
-                return Promise.reject('Could not find any game');
-            }
-        } catch (error) {
-            return Promise.reject(`Failed to delete games: ${error}`);
-        }
-    }
-
     async modifyGame(game: UpdateGameDto): Promise<void> {
         const filter = { id: game.id };
         game.lastModification = new Date().toISOString();
         try {
             const res = await this.gameModel.updateOne(filter, game);
             if (res.matchedCount === 0) {
-                return Promise.reject('Could not find game');
+                const gameData: CreateGameDto = {
+                    title: game.title,
+                    description: game.description,
+                    duration: game.duration,
+                    questions: game.questions,
+                };
+                await this.gameModel.create(gameData);
             }
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);

@@ -1,8 +1,8 @@
+import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Question } from './question';
-import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { v4 as uuidv4 } from 'uuid';
+import { Question } from './question';
 
 export type GameDocument = Game & Document;
 
@@ -14,6 +14,7 @@ export class Game {
     #duration: number;
     #lastModification: string;
     #questions: Question[];
+    #visibility: boolean = true;
 
     constructor(gameData: CreateGameDto) {
         this.#id = uuidv4();
@@ -50,6 +51,10 @@ export class Game {
 
     getQuestions(): Question[] {
         return this.#questions;
+    }
+
+    getVisibility(): boolean {
+        return this.#visibility;
     }
 }
 

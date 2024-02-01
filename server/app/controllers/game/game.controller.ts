@@ -40,6 +40,10 @@ export class GameController {
     async getGameById(@Param('id') id: string, @Res() response: Response) {
         try {
             const game = await this.gamesService.getGameById(id);
+            if (!game) {
+                response.status(HttpStatus.NOT_FOUND).send('Game not found');
+                return;
+            }
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
@@ -79,6 +83,16 @@ export class GameController {
         }
     }
 
+    @Patch('/:id')
+    async tooggleVisibility(@Body() gameDto: UpdateGameDto, @Res() response: Response) {
+        try {
+            await this.gamesService.modifyGame(gameDto);
+            response.status(HttpStatus.OK).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
     @ApiOkResponse({
         description: 'Delete a game',
     })
@@ -89,22 +103,6 @@ export class GameController {
     async deleteGameById(@Param('id') id: string, @Res() response: Response) {
         try {
             await this.gamesService.deleteGameById(id);
-            response.status(HttpStatus.OK).send();
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
-        }
-    }
-
-    @ApiOkResponse({
-        description: 'Delete all games',
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
-    })
-    @Delete('/')
-    async deleteGames(@Res() response: Response) {
-        try {
-            await this.gamesService.deleteGames();
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

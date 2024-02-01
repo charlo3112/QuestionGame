@@ -129,14 +129,6 @@ describe('GameServiceEndToEnd', () => {
         await expect(service.modifyGame(gameDto)).rejects.toBeTruthy();
     });
 
-    it('deleteGames() should delete the game', async () => {
-        await gameModel.deleteMany({});
-        const game = getFakeGame();
-        await gameModel.create(game);
-        await service.deleteGames();
-        expect(await gameModel.countDocuments()).toEqual(0);
-    });
-
     it('deleteGameById() should fail if the game does not exist', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
