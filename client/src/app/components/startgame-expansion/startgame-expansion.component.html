@@ -1,0 +1,23 @@
+<mat-expansion-panel>
+    <mat-expansion-panel-header>
+        <mat-panel-title class="panel-title"> {{ gameDetails.name }} </mat-panel-title>
+        <img [src]="gameDetails.image" alt="Game preview" class="game-image" />
+    </mat-expansion-panel-header>
+    <mat-panel-description>
+        <p class="item-title">Description du jeu:</p>
+        <p class="item-content">{{ gameDetails.description }}</p>
+    </mat-panel-description>
+    <mat-panel-description>
+        <p class="item-title">Nombre de joueurs:</p>
+        <p class="item-content">{{ gameDetails.lastModified }}</p>
+    </mat-panel-description>
+    <mat-panel-description>
+        <!-- TODO Liste de questions avec un for -->
+        <p class="item-title">Questions:</p>
+        <p class="item-content">{{ gameDetails.id }}</p>
+    </mat-panel-description>
+    <mat-panel-description class="button-container">
+        <button mat-raised-button color="primary" class="game-button" (click)="onStartGame()">Commencer</button>
+        <button mat-raised-button color="warn" class="game-button" (click)="onTestGame()">Tester</button>
+    </mat-panel-description>
+</mat-expansion-panel>
