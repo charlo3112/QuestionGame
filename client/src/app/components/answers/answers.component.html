@@ -1,7 +1,12 @@
-<div class="answers-container">
-    <mat-grid-list cols="2" rowHeight="2:1">
-        <mat-grid-tile *ngFor="let answer of answers">
-            {{ answer }}
-        </mat-grid-tile>
-    </mat-grid-list>
+<div
+    class="answers-container"
+    [ngClass]="{
+        'four-answers': choices.length === 4,
+        'three-answers': choices.length === 3,
+        'two-answers': choices.length === 2
+    }"
+>
+    <button mat-raised-button class="answer" *ngFor="let choice of choices">
+        {{ choice.text }}
+    </button>
 </div>

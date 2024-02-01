@@ -2,6 +2,7 @@ import { NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
+import { Choice } from '@app/interfaces/choice';
 import { MouseButton } from '@app/interfaces/mouse-button';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
@@ -20,6 +21,7 @@ export const DEFAULT_HEIGHT = 200;
 export class PlayAreaComponent implements AfterViewInit {
     @Input() question: Question;
     buttonPressed = '';
+    choices: Choice[] = [];
     private readonly timer = 60;
     constructor(private readonly timeService: TimeService) {}
 
@@ -38,7 +40,15 @@ export class PlayAreaComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         setTimeout(() => {
             this.timeService.startTimer(this.timer);
+            this.populateChoices();
         });
+    }
+
+    populateChoices() {
+        const numberChoices = this.question.choices.length;
+        for (let i = 0; i < numberChoices; i++) {
+            this.choices.push(this.question.choices[i]);
+        }
     }
 
     confirmQuestion() {
