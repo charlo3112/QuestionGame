@@ -1,6 +1,9 @@
 import { NgIf } from '@angular/common';
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a04df5f (tests upated)
 import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
@@ -48,10 +51,14 @@ export const DEFAULT_HEIGHT = 200;
 >>>>>>> 60d6fe0 (confirm button changed to angular material and changd style)
 })
 <<<<<<< HEAD
+<<<<<<< HEAD
 export class PlayAreaComponent implements AfterViewInit, OnInit {
 =======
 export class PlayAreaComponent implements AfterViewInit {
 >>>>>>> deef9e6 (interface question utilise)
+=======
+export class PlayAreaComponent implements AfterViewInit, OnInit {
+>>>>>>> a04df5f (tests upated)
     @Input() question: Question;
     buttonPressed = '';
     choices: Choice[] = [];
@@ -75,6 +82,9 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a04df5f (tests upated)
     ngOnInit(): void {
         if (this.question) {
             this.populateChoices();
@@ -84,7 +94,6 @@ export class PlayAreaComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         setTimeout(() => {
             this.timeService.startTimer(this.timer);
-            this.populateChoices();
         });
     }
 
