@@ -81,14 +81,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         window.alert('Bienvenu au chat');
 =======
     ngAfterViewInit(): void {
-<<<<<<< HEAD
         this.timeService.startTimer(this.timer);
 >>>>>>> 209120a (enums folder created)
-=======
-        setTimeout(() => {
-            this.timeService.startTimer(this.timer);
-        });
->>>>>>> 85e3ff3 (new tests created pass)
     }
 
     confirmQuestion() {

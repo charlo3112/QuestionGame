@@ -25,15 +25,11 @@ export class AnswersComponent {
     imports: [MatGridListModule],
 })
 export class AnswersComponent {
-    @Input() answers: string[] = [];
+    @Input() answers: string[];
     // @Input() isCorrect: boolean;
 
     getAnswerClass() {
-<<<<<<< HEAD
         return 'answers-${this.answers.length}';
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
-=======
-        return `answers-${this.answers.length}`;
->>>>>>> 85e3ff3 (new tests created pass)
     }
 }

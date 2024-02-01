@@ -1,12 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 <<<<<<< HEAD
-<<<<<<< HEAD
 import { Choice } from '@app/interfaces/choice';
 =======
 
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
-=======
->>>>>>> 85e3ff3 (new tests created pass)
 import { AnswersComponent } from './answers.component';
 
 describe('AnswerComponent', () => {
@@ -16,14 +13,10 @@ describe('AnswerComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
 <<<<<<< HEAD
-<<<<<<< HEAD
             imports: [],
 =======
             declarations: [AnswersComponent],
 >>>>>>> cae3647 (Answer tiles added to view and component named "Answers")
-=======
-            imports: [],
->>>>>>> 85e3ff3 (new tests created pass)
         });
         fixture = TestBed.createComponent(AnswersComponent);
         component = fixture.componentInstance;
