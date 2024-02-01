@@ -8,7 +8,6 @@ import { MouseButton } from '@app/interfaces/mouse-button';
 import { Question } from '@app/interfaces/question';
 =======
 import { AfterViewInit, Component, HostListener } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { MouseButton } from '@app/enums/mouse-button';
 >>>>>>> 1875ebf (game-page remodel)
@@ -26,14 +25,10 @@ export const DEFAULT_HEIGHT = 200;
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
 <<<<<<< HEAD
-<<<<<<< HEAD
     imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule, QuestionComponent],
 =======
     imports: [NgIf, AnswersComponent],
 >>>>>>> 1875ebf (game-page remodel)
-=======
-    imports: [NgIf, AnswersComponent, MatButtonModule],
->>>>>>> 60d6fe0 (confirm button changed to angular material and changd style)
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
