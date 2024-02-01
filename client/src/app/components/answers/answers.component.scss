@@ -1,5 +1,8 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
 mat-grid-tile {
-    background: lightblue;
+    background-color: map.get(constant.$blue-palette, 300);
     border-radius: 10px;
 }
 mat-grid-list {
