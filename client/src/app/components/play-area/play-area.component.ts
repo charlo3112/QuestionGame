@@ -1,7 +1,9 @@
-import { AfterViewInit, Component, HostListener } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { MouseButton } from '@app/interfaces/mouse-button';
+import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 
 // TODO : Avoir un fichier séparé pour les constantes!
@@ -16,6 +18,7 @@ export const DEFAULT_HEIGHT = 200;
     imports: [NgIf, AnswersComponent, MatButtonModule],
 })
 export class PlayAreaComponent implements AfterViewInit {
+    @Input() question: Question;
     buttonPressed = '';
     private readonly timer = 60;
     constructor(private readonly timeService: TimeService) {}
