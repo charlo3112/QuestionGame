@@ -10,12 +10,8 @@ import { Question } from '@app/interfaces/question';
 import { AfterViewInit, Component, HostListener } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-<<<<<<< HEAD
 import { MouseButton } from '@app/enums/mouse-button';
 >>>>>>> 1875ebf (game-page remodel)
-=======
-import { MouseButton } from '@app/interfaces/mouse-button';
->>>>>>> 479dc8c (enums folder deleted)
 import { TimeService } from '@app/services/time.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { QuestionComponent } from '../question/question.component';
