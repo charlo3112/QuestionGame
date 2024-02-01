@@ -67,6 +67,12 @@ describe('StartGamePageComponent', () => {
         startButton.componentInstance.startGame.emit();
         expect(component.startGame).toHaveBeenCalled();
     });
+    it('should call alert with the correct message', () => {
+        const id = 'test-id';
+        spyOn(window, 'alert');
+        component.startGame(id);
+        expect(window.alert).toHaveBeenCalledWith('Start game with id ' + id);
+    });
 
     it('should test a game', () => {
         const gameId = 'id';
@@ -86,5 +92,11 @@ describe('StartGamePageComponent', () => {
         const testButton = fixture.debugElement.query(By.directive(StartGameExpansionComponent));
         testButton.componentInstance.testGame.emit();
         expect(component.testGame).toHaveBeenCalled();
+    });
+    it('should call alert with the correct message', () => {
+        const id = 'test-id';
+        spyOn(window, 'alert');
+        component.testGame(id);
+        expect(window.alert).toHaveBeenCalledWith('Test game with id ' + id);
     });
 });
