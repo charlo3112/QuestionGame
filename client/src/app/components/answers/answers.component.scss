@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 @use 'sass:map';
 @use '../../../constant.scss';
 
@@ -32,8 +33,13 @@
     }
     height: 30vh;
 =======
+=======
+@use 'sass:map';
+@use '../../../constant.scss';
+
+>>>>>>> 60d6fe0 (confirm button changed to angular material and changd style)
 mat-grid-tile {
-    background: lightblue;
+    background-color: map.get(constant.$blue-palette, 300);
     border-radius: 10px;
 }
 mat-grid-list {
