@@ -6,6 +6,8 @@ import { Choice } from '@app/interfaces/choice';
 import { MouseButton } from '@app/interfaces/mouse-button';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { QuestionComponent } from '../question/question.component';
 
 // TODO : Avoir un fichier séparé pour les constantes!
 export const DEFAULT_WIDTH = 200;
@@ -16,7 +18,7 @@ export const DEFAULT_HEIGHT = 200;
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [NgIf, AnswersComponent, MatButtonModule],
+    imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule, QuestionComponent],
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
@@ -30,6 +32,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
     get time(): number {
         return this.timeService.time;
+    }
+
+    styleTime(): string {
+        return "background-position: bottom -100% right 0%";
     }
 
     @HostListener('keydown', ['$event'])

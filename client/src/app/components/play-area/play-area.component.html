@@ -1,12 +1,16 @@
-<div id="grid-container">
-    <div id="middle-container">
+<mat-toolbar color="primary" class="toolbar">
+    <app-question [question]="question"></app-question>
+    <mat-toolbar-row>
         <div id="score-container">
             <p>Score : {{ score }}</p>
         </div>
         <div id="timer-container">
             <p *ngIf="time">Temps restant : {{ time }}</p>
         </div>
-    </div>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<div id="grid-container" [style]="styleTime">
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">
