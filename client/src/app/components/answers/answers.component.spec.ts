@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Choice } from '@app/interfaces/choice';
 import { AnswersComponent } from './answers.component';
 
 describe('AnswerComponent', () => {
@@ -20,12 +21,13 @@ describe('AnswerComponent', () => {
 
     describe('getAnswerClass', () => {
         it('should return a string with the length of answers', () => {
-            component.answers = ['A', 'B', 'C'];
+            const choices: Choice[] = [{ text: 'A' }, { text: 'B' }, { text: 'C' }];
+            component.choices = choices;
             expect(component.getAnswerClass()).toEqual('answers-3');
         });
 
         it('should return "answers-0" when answers is empty', () => {
-            component.answers = [];
+            component.choices = [];
             expect(component.getAnswerClass()).toEqual('answers-0');
         });
     });

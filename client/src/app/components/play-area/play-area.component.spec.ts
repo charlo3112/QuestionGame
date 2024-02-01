@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { QuestionType } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
 
@@ -42,6 +43,7 @@ describe('PlayAreaComponent', () => {
     });
 
     it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
+        // const choices: Choice[] = [];
         component.ngAfterViewInit();
         tick();
         expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
@@ -65,5 +67,26 @@ describe('PlayAreaComponent', () => {
 
     it('time should return timeService.time', () => {
         expect(component.time).toEqual(timeServiceSpy.time);
+    });
+
+    it('should populate choices when question input is provided', () => {
+        const mockQuestion = {
+            type: QuestionType.Qcm,
+            text: 'Question test',
+            points: 8,
+            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+        };
+        component.question = mockQuestion;
+        spyOn(component, 'populateChoices').and.callThrough();
+        component.ngOnInit();
+        expect(component.populateChoices).toHaveBeenCalled();
+        expect(component.choices).toEqual(mockQuestion.choices);
+    });
+
+    it('should not populate choices when question input is not provided', () => {
+        spyOn(component, 'populateChoices');
+        component.ngOnInit();
+        expect(component.populateChoices).not.toHaveBeenCalled();
+        expect(component.choices.length).toEqual(0);
     });
 });

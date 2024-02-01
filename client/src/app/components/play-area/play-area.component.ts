@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { Choice } from '@app/interfaces/choice';
@@ -18,7 +18,7 @@ export const DEFAULT_HEIGHT = 200;
     standalone: true,
     imports: [NgIf, AnswersComponent, MatButtonModule],
 })
-export class PlayAreaComponent implements AfterViewInit {
+export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
     buttonPressed = '';
     choices: Choice[] = [];
@@ -37,10 +37,15 @@ export class PlayAreaComponent implements AfterViewInit {
         this.buttonPressed = event.key;
     }
 
+    ngOnInit(): void {
+        if (this.question) {
+            this.populateChoices();
+        }
+    }
+
     ngAfterViewInit(): void {
         setTimeout(() => {
             this.timeService.startTimer(this.timer);
-            this.populateChoices();
         });
     }
 
