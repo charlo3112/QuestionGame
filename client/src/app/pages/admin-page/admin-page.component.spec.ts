@@ -43,7 +43,8 @@ describe('AdminPageComponent', () => {
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(AdminPageComponent);
-
+        spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
+        spyOn(URL, 'revokeObjectURL');
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
