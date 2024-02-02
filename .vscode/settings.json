@@ -7,7 +7,7 @@
     },
     "html.format.indentInnerHtml": true,
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
-    "eslint.workingDirectories": ["./client", "./server"],
+    "eslint.workingDirectories": ["./LOG2990-202/client", "./LOG2990-202/server"],
     "eslint.probe": ["javascript", "typescript", "html", "vue", "markdown"],
     "eslint.validate": ["javascript", "typescript", "html", "vue", "markdown"]
 }

@@ -40,7 +40,7 @@
     width: 100%;
     border-top: 4em solid transparent;
     border-image: url('/assets/wave.svg') 142 stretch;
-    background-color: #0693e3;
+    background-color: constant.$wave-color;
     background-clip: padding-box;
 }
 

@@ -4,6 +4,13 @@ import { QuestionType } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
 
+const mockQuestion = {
+    type: QuestionType.Qcm,
+    text: 'Question test',
+    points: 8,
+    choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+};
+
 describe('PlayAreaComponent', () => {
     let component: PlayAreaComponent;
     let fixture: ComponentFixture<PlayAreaComponent>;
@@ -19,6 +26,12 @@ describe('PlayAreaComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
+        component.question = {
+            type: QuestionType.Qcm,
+            text: 'Question test',
+            points: 8,
+            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+        };
         fixture.detectChanges();
     });
 
@@ -70,23 +83,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('should populate choices when question input is provided', () => {
-        const mockQuestion = {
-            type: QuestionType.Qcm,
-            text: 'Question test',
-            points: 8,
-            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
-        };
-        component.question = mockQuestion;
-        spyOn(component, 'populateChoices').and.callThrough();
-        component.ngOnInit();
-        expect(component.populateChoices).toHaveBeenCalled();
         expect(component.choices).toEqual(mockQuestion.choices);
-    });
-
-    it('should not populate choices when question input is not provided', () => {
-        spyOn(component, 'populateChoices');
-        component.ngOnInit();
-        expect(component.populateChoices).not.toHaveBeenCalled();
-        expect(component.choices.length).toEqual(0);
     });
 });

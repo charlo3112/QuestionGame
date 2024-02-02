@@ -9,15 +9,12 @@
 }
 
 #grid-container {
-    height: fit-content;
-}
-
-#middle-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     width: 100%;
-    background-color: map.get(constant.$orange-palette, 500);
+    height: 85.2%;
+    background-image: url('/assets/wave.svg') ;
+    background-repeat: no-repeat;
+    background-position: bottom -50% right 0%;
+    background-clip: padding-box;
 }
 
 #bottom-container {
