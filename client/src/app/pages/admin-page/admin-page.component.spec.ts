@@ -74,6 +74,8 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should emit loginSuccess event when login is successful', () => {
+        component.login = false;
+        fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('log2990-202');
@@ -82,6 +84,8 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
+        component.login = false;
+        fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('wrong');

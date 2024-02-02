@@ -2,8 +2,8 @@
     <a routerLink="#"><img src="assets/logo.png" /></a>
     <h1 class="title">Page admin</h1>
     <span class="spacer"></span>
-    <button routerLink="/admin/quiz" mat-flat-button>Banque de Quiz</button>
-    <button routerLink="/admin/game" mat-flat-button>Création de jeu</button>
+    <button *ngIf="login" routerLink="/admin/quiz" mat-flat-button>Banque de Quiz</button>
+    <button *ngIf="login" routerLink="/admin/game" mat-flat-button>Création de jeu</button>
 
     <!-- TODO: add upload json -->
 </mat-toolbar>
