@@ -8,10 +8,6 @@ import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 
-// TODO : Avoir un fichier séparé pour les constantes!
-export const DEFAULT_WIDTH = 200;
-export const DEFAULT_HEIGHT = 200;
-
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
@@ -37,7 +33,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     buttonDetect(event: KeyboardEvent) {
         this.buttonPressed = event.key;
     }
-    
+
     ngOnInit(): void {
         if (this.question) {
             this.populateChoices();

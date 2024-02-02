@@ -1,78 +1,88 @@
-import { NgIf } from '@angular/common';
-import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { AnswersComponent } from '@app/components/answers/answers.component';
-import { Choice } from '@app/interfaces/choice';
-import { MouseButton } from '@app/enums/mouse-button';
-import { Question } from '@app/interfaces/question';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { QuestionType } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import SpyObj = jasmine.SpyObj;
 
-// TODO : Avoir un fichier séparé pour les constantes!
-export const DEFAULT_WIDTH = 200;
-export const DEFAULT_HEIGHT = 200;
+const mockQuestion = {
+    type: QuestionType.Qcm,
+    text: 'Question test',
+    points: 8,
+    choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+};
 
-@Component({
-    selector: 'app-play-area',
-    templateUrl: './play-area.component.html',
-    styleUrls: ['./play-area.component.scss'],
-    standalone: true,
-    imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule],
-})
-export class PlayAreaComponent implements AfterViewInit, OnInit {
-    @Input() question: Question;
-    buttonPressed = '';
-    choices: Choice[] = [];
-    private readonly timer = 60;
-    constructor(private readonly timeService: TimeService) {}
+describe('PlayAreaComponent', () => {
+    let component: PlayAreaComponent;
+    let fixture: ComponentFixture<PlayAreaComponent>;
+    let timeServiceSpy: SpyObj<TimeService>;
 
-    get score(): number {
-        return 3;
-    }
-    get time(): number {
-        return this.timeService.time;
-    }
+    beforeEach(async () => {
+        timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
+        await TestBed.configureTestingModule({
+            providers: [{ provide: TimeService, useValue: timeServiceSpy }],
+        }).compileComponents();
+    });
 
-    @HostListener('keydown', ['$event'])
-    buttonDetect(event: KeyboardEvent) {
-        this.buttonPressed = event.key;
-    }
+    beforeEach(() => {
+        fixture = TestBed.createComponent(PlayAreaComponent);
+        component = fixture.componentInstance;
+        component.question = {
+            type: QuestionType.Qcm,
+            text: 'Question test',
+            points: 8,
+            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+        };
+        fixture.detectChanges();
+    });
 
-    styleTime(): string {
-        return 'background-position: bottom -100% right 0%';
-    }
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
-    ngOnInit(): void {
-        if (this.question) {
-            this.populateChoices();
-        }
-    }
+    it('buttonDetect should modify the buttonPressed variable', () => {
+        const expectedKey = 'a';
+        const buttonEvent = {
+            key: expectedKey,
+        } as KeyboardEvent;
+        component.buttonDetect(buttonEvent);
+        expect(component.buttonPressed).toEqual(expectedKey);
+    });
 
-    ngAfterViewInit(): void {
-        setTimeout(() => {
-            this.timeService.startTimer(this.timer);
-        });
-    }
+    it('mouseHitDetect should call startTimer with 5 seconds on left click', () => {
+        const mockEvent = { button: 0 } as MouseEvent;
+        component.mouseHitDetect(mockEvent);
+        expect(timeServiceSpy.startTimer).toHaveBeenCalled();
+        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
+    });
 
-    populateChoices() {
-        const numberChoices = this.question.choices.length;
-        for (let i = 0; i < numberChoices; i++) {
-            this.choices.push(this.question.choices[i]);
-        }
-    }
+    it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
+        // const choices: Choice[] = [];
+        component.ngAfterViewInit();
+        tick();
+        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
+    }));
 
-    confirmQuestion() {
-        window.alert('Question confirmée');
-    }
+    it('confirmQuestion should call alert with message', () => {
+        spyOn(window, 'alert');
+        component.confirmQuestion();
+        expect(window.alert).toHaveBeenCalledWith('Question confirmée');
+    });
 
-    chatConfirm() {
-        window.alert('Bienvenu au chat');
-    }
+    it('chatConfirm should call alert with message', () => {
+        spyOn(window, 'alert');
+        component.chatConfirm();
+        expect(window.alert).toHaveBeenCalledWith('Bienvenu au chat');
+    });
 
-    // TODO : déplacer ceci dans un service de gestion de la souris!
-    mouseHitDetect(event: MouseEvent) {
-        if (event.button === MouseButton.Left) {
-            this.timeService.startTimer(this.timer);
-        }
-    }
-}
+    it('score should return 3', () => {
+        expect(component.score).toEqual(3);
+    });
+
+    it('time should return timeService.time', () => {
+        expect(component.time).toEqual(timeServiceSpy.time);
+    });
+
+    it('should populate choices when question input is provided', () => {
+        expect(component.choices).toEqual(mockQuestion.choices);
+    });
+});
