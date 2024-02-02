@@ -3,16 +3,17 @@ import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/
 import { MatButtonModule } from '@angular/material/button';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { Choice } from '@app/interfaces/choice';
-import { MouseButton } from '@app/interfaces/mouse-button';
+import { MouseButton } from '@app/enums/mouse-button';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [NgIf, AnswersComponent, MatButtonModule],
+    imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;

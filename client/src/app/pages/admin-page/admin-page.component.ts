@@ -2,8 +2,10 @@ import { NgFor, NgIf } from '@angular/common';
 import { HttpStatusCode } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
@@ -15,7 +17,18 @@ import { CommunicationService } from '@app/services/communication.service';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink, MatButtonModule, MatIconModule, MatSnackBarModule],
+    imports: [
+        NgIf,
+        NgFor,
+        AdminGamePreviewComponent,
+        AdminLoginComponent,
+        RouterLink,
+        MatButtonModule,
+        MatIconModule,
+        MatGridListModule,
+        MatToolbarModule,
+        MatSnackBarModule,
+    ],
 })
 export class AdminPageComponent {
     login: boolean;

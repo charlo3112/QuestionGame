@@ -6,5 +6,7 @@ export class AdminGameDetails {
         public description: string,
         public isVisible: boolean,
         public lastModified: string,
-    ) {}
+    ) {
+        this.image = 'assets/logo.png';
+    }
 }
