@@ -55,7 +55,7 @@ describe('QuestionService', () => {
         expect(service).toBeDefined();
     });
 });
-
+const POINTS_FOR_QUESTION = 40;
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 
 describe('QuestionServiceEndToEnd', () => {
@@ -152,6 +152,17 @@ describe('QuestionServiceEndToEnd', () => {
         await expect(
             service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoices() }),
         ).rejects.toBeTruthy();
+    });
+
+    it('setters should modify Question properties', async () => {
+        const question = getFakeQuestion();
+        question.points = 40;
+        expect(question.getPoints()).toEqual(POINTS_FOR_QUESTION);
+        question.text = 'new text';
+        expect(question.getText()).toEqual('new text');
+        const newChoices = getFakeChoices();
+        question.choices = newChoices;
+        expect(question.getChoices()).toEqual(newChoices);
     });
 });
 

@@ -60,6 +60,8 @@ describe('GameService', () => {
 });
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
+const GAME_DURATION = 40;
+const NEW_NUMBER_OF_QUESTIONS = 5;
 
 describe('GameServiceEndToEnd', () => {
     let service: GameService;
@@ -130,6 +132,14 @@ describe('GameServiceEndToEnd', () => {
         expect(await gameModel.countDocuments()).toEqual(1);
     });
 
+    it('getters should return the correct property of the Game', async () => {
+        const game = getFakeGame();
+        expect(game.getDescription()).toEqual('test description');
+        expect(game.getDuration()).toEqual(GAME_DURATION);
+        expect(game.getTitle()).toEqual('test title');
+        expect(game.getVisibility()).toEqual(true);
+    });
+
     it('deleteGameById() should fail if the game does not exist', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
@@ -148,12 +158,26 @@ describe('GameServiceEndToEnd', () => {
         const gameDto = getFakeCreateGameDto();
         await expect(service.addGame(gameDto)).rejects.toBeTruthy();
     });
+
+    it('addQuestion() should add a new question to the game', async () => {
+        const game = getFakeGame();
+        game.addQuestion(getFakeQuestions()[0]);
+        await expect(game.getQuestions().length).toEqual(NEW_NUMBER_OF_QUESTIONS);
+    });
+
+    it('Choice setters should modify the properties of the choice', async () => {
+        const choice = getFakeChoices()[0];
+        choice.isCorrect = false;
+        await expect(choice.getIsCorrect()).toEqual(false);
+        choice.text = 'test text';
+        await expect(choice.getText()).toEqual('test text');
+    });
 });
 
 const getFakeCreateGameDto = (): CreateGameDto => {
     const gameData: CreateGameDto = {
-        title: getRandomString(),
-        description: getRandomString(),
+        title: 'test title',
+        description: 'test description',
         duration: 40,
         questions: getFakeQuestions(),
     };
@@ -184,7 +208,6 @@ const getBadFakeUpdateGameDto = (): UpdateGameDto => {
 
 const getFakeGame = (): Game => {
     const game = new Game(getFakeCreateGameDto());
-
     return game;
 };
 
