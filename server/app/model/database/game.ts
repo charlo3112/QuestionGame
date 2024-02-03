@@ -23,6 +23,7 @@ export class Game {
         this.#duration = gameData.duration;
         this.#lastModification = new Date().toISOString();
         this.#questions = gameData.questions;
+        this.#visibility = true;
     }
 
     addQuestion(newQuestion: Question) {

@@ -21,4 +21,12 @@ export class Choice {
     set isCorrect(newAnswer: boolean) {
         this.#isCorrect = newAnswer;
     }
+
+    getText(): string {
+        return this.#text;
+    }
+
+    getIsCorrect(): boolean {
+        return this.#isCorrect;
+    }
 }
