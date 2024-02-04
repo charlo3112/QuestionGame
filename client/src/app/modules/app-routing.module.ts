@@ -9,7 +9,10 @@ export const routes: Routes = [
     { path: '', redirectTo: '/home', pathMatch: 'full' },
     { path: 'home', component: MainPageComponent },
     { path: 'game', component: GamePageComponent },
-    { path: 'new', component: StartGamePageComponent }, // TODO change this to add GameForm component
+    { path: 'new', component: StartGamePageComponent },
+    { path: 'admin/game/:id', component: MainPageComponent }, // TODO change this to add GameForm component
+    { path: 'admin/game/', component: MainPageComponent }, // TODO change this to add GameForm component
+    { path: 'admin/quiz/', component: MainPageComponent }, // TODO change this to add GameForm component
     { path: 'admin', component: AdminPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
