@@ -9,7 +9,8 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { RouterModule } from '@angular/router';
-import { Question, QuestionType } from '../../interfaces/question';
+import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { EMPTY_QUESTION, Question, QuestionType } from '../../interfaces/question';
 
 @Component({
     selector: 'app-create-page',
@@ -27,14 +28,18 @@ import { Question, QuestionType } from '../../interfaces/question';
         MatIconModule,
         RouterModule,
         DragDropModule,
+        CreatePageComponent,
+        CreateQuestionComponent,
     ],
 })
 export class CreatePageComponent {
+    showChildren: boolean = false;
+    selectedQuestion: Question | null = null;
     questions: Question[] = [
         {
             type: QuestionType.Qcm,
             text: 'Peut-on vraiment tout savoir ?',
-            points: 10,
+            points: 60,
             choices: [
                 { text: 'Oui', isCorrect: false },
                 { text: 'Non', isCorrect: true },
@@ -55,7 +60,7 @@ export class CreatePageComponent {
         {
             type: QuestionType.Qcm,
             text: 'Y a-t-il un Dieu ?',
-            points: 15,
+            points: 60,
             choices: [
                 { text: 'Oui', isCorrect: true },
                 { text: 'Non', isCorrect: false },
@@ -65,7 +70,7 @@ export class CreatePageComponent {
         {
             type: QuestionType.Qcm,
             text: 'Qu’est-ce que la conscience ?',
-            points: 15,
+            points: 40,
             choices: [
                 { text: 'La perception de soi', isCorrect: true },
                 { text: 'Une illusion', isCorrect: false },
@@ -129,10 +134,31 @@ export class CreatePageComponent {
             ],
         },
     ];
+    insertQuestion(question: Question) {
+        const index = this.questions.findIndex((q) => q.text === question.text);
+        if (index > -1) {
+            this.questions[index] = question;
+        } else {
+            this.questions.push(question);
+        }
+        this.closeCreateQuestion();
+    }
     deleteQuestion(index: number): void {
         this.questions.splice(index, 1);
     }
     drop(event: CdkDragDrop<string[]>): void {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
+    editQuestion(question: Question) {
+        this.selectedQuestion = question;
+        this.showChildren = true;
+    }
+    openCreateQuestion() {
+        this.showChildren = true;
+        this.selectedQuestion = EMPTY_QUESTION;
+    }
+    closeCreateQuestion() {
+        this.showChildren = false;
+    }
+    save(): void {}
 }

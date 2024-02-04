@@ -5,53 +5,67 @@
     <div class="form-container">
         <div class="left">
             <h2>Informations</h2>
-            <mat-list class="list">
-                <mat-list-item class="item">
-                    <mat-form-field>
+            <div class="information">
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
                         <mat-label>Nom</mat-label>
                         <input matInput />
                     </mat-form-field>
-                </mat-list-item>
-                <mat-list-item class="item">
-                    <mat-form-field>
+                </div>
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
                         <mat-label>Mode de jeu</mat-label>
                         <mat-select>
                             <mat-option value="one">Classique</mat-option>
-                            <mat-option value="two">Among Us</mat-option>
                         </mat-select>
                     </mat-form-field>
-                </mat-list-item>
-                <mat-list-item class="item">
-                    <mat-form-field>
+                </div>
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
                         <mat-label>Description du jeu</mat-label>
                         <textarea matInput></textarea>
                     </mat-form-field>
-                </mat-list-item>
-                <mat-list-item class="item">
+                </div>
+                <div class="information-field">
                     <mat-label>Temps alloué : </mat-label>
                     <mat-slider discrete min="10" max="60" step="5" value="30">
                         <input matSliderThumb />
                     </mat-slider>
-                </mat-list-item>
-            </mat-list>
+                </div>
+            </div>
+            <button class="button" mat-raised-button color="primary">Banque de questions</button>
+            <button class="save-btn" mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
         </div>
-        <div class="right">
+        <div *ngIf="!showChildren" class="right">
             <h2>Questions</h2>
             <div cdkDropList class="second-list" (cdkDropListDropped)="drop($event)">
                 <div *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
                     <div class="question">
                         <h3>{{ i + 1 }}. {{ question.text }}</h3>
                         <div class="icons-container">
-                            <mat-icon class="edit-icon" aria-hidden="false" fontIcon="edit" color="accent"></mat-icon>
+                            <mat-icon
+                                class="edit-icon"
+                                aria-hidden="false"
+                                fontIcon="edit"
+                                color="accent"
+                                (click)="editQuestion(question)"
+                            ></mat-icon>
                             <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)" color="warn"></mat-icon>
                         </div>
                     </div>
                 </div>
             </div>
-            <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" routerLink="/create-question">
+
+            <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" (click)="openCreateQuestion()">
                 <mat-icon>add</mat-icon>
             </button>
         </div>
+        <div *ngIf="showChildren" class="question-creation">
+            <app-create-question
+                [questionData]="selectedQuestion"
+                (questionCreated)="insertQuestion($event)"
+                (closeForm)="closeCreateQuestion()"
+            ></app-create-question>
+        </div>
     </div>
-    <button class="save-btn" mat-raised-button color="primary">Enregistrer</button>
 </div>

@@ -17,3 +17,10 @@ export const QUESTION_PLACEHOLDER: Question = {
     points: 42,
     choices: [{ text: 'hello_world' }, { text: 'test' }, { text: 'lorem_ipsum' }],
 };
+
+export const EMPTY_QUESTION: Question = {
+    type: QuestionType.Qcm,
+    text: '',
+    points: 0,
+    choices: [],
+};

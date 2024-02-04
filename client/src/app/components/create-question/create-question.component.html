@@ -1,6 +1,6 @@
 <div class="body">
-    <div class="header" color="primary">
-        <h1>Nouvelle question</h1>
+    <div class="header">
+        <h2>Édition de question</h2>
     </div>
     <div class="content">
         <mat-form-field class="question-field">
@@ -34,10 +34,21 @@
             </ol>
         </div>
         <div class="question-weight">
-            <mat-label>Pondération </mat-label>
-            <mat-slider discrete min="10" max="100" step="10" [(ngModel)]="questionPoints" (ngModelChange)="onPointsChange($event)" value="50">
-                <input matSliderThumb />
-            </mat-slider>
+            <mat-form-field>
+                <mat-label>Pondération</mat-label>
+                <select matNativeControl [(ngModel)]="questionPoints" required>
+                    <option [value]="10">10</option>
+                    <option [value]="20">20</option>
+                    <option [value]="30">30</option>
+                    <option [value]="40">40</option>
+                    <option [value]="50">50</option>
+                    <option [value]="60">60</option>
+                    <option [value]="70">70</option>
+                    <option [value]="80">80</option>
+                    <option [value]="90">90</option>
+                    <option [value]="100">100</option>
+                </select>
+            </mat-form-field>
         </div>
     </div>
     <button class="button" (click)="save()" mat-raised-button color="primary">Enregistrer</button>

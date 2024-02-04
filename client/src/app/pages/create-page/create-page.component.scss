@@ -21,11 +21,11 @@
     width: 100%;
     margin-bottom: 20px;
 }
-.left h2 {
+.left {
     margin-left: 16px;
-}
-.item {
-    margin-bottom: 50px;
+    .information-field {
+        margin-bottom: 5px;
+    }
 }
 
 .mat-form-field {
@@ -45,18 +45,14 @@ textarea[matInput],
 }
 
 .left,
-.right {
+.right,
+.question-creation {
     display: flex;
     flex-direction: column;
     flex-basis: 50%;
     align-items: flex-start;
     justify-content: flex-start;
     padding: 0;
-}
-
-.full-width {
-    width: 100%;
-    margin-bottom: 10px;
 }
 
 .second-list {
@@ -120,6 +116,6 @@ button[mat-fab] {
 }
 
 .save-btn {
-    align-self: center;
+    align-self: left;
     margin-top: 20px;
 }
