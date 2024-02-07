@@ -37,23 +37,6 @@ export class CreateQuestionComponent implements OnChanges {
     choiceInput: string = '';
     choices: Choice[] = [];
     editArray: boolean[] = [];
-    hasAnswer(): boolean {
-        let hasChecked = false;
-        let hasUnchecked = false;
-
-        for (const choice of this.choices) {
-            if (choice.isCorrect) {
-                hasChecked = true;
-            } else {
-                hasUnchecked = true;
-            }
-
-            if (hasChecked && hasUnchecked) {
-                break;
-            }
-        }
-        return hasChecked && hasUnchecked;
-    }
 
     addChoice() {
         if (!(this.choiceInput == '')) {
@@ -72,6 +55,7 @@ export class CreateQuestionComponent implements OnChanges {
             window.alert('Le champ Choix doit être rempli pour créer un choix.');
         }
     }
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes.questionData) {
             if (this.questionData) {
@@ -93,12 +77,11 @@ export class CreateQuestionComponent implements OnChanges {
         this.questionPoints = question.points;
         this.choices = [...question.choices];
     }
-    onPointsChange(newValue: number) {
-        this.questionPoints = newValue;
-    }
+
     deleteChoice(index: number): void {
         this.choices.splice(index, 1);
     }
+
     save() {
         if (this.choiceVerif()) {
             const newQuestion: Question = {
@@ -125,6 +108,7 @@ export class CreateQuestionComponent implements OnChanges {
             this.resetForm();
         }
     }
+
     startEdit(index: number) {
         this.editArray[index] = !this.editArray[index];
     }
@@ -132,8 +116,26 @@ export class CreateQuestionComponent implements OnChanges {
     saveEdit(index: number) {
         this.editArray[index] = false;
     }
+
     drop(event: CdkDragDrop<Choice[]>): void {
         moveItemInArray(this.choices, event.previousIndex, event.currentIndex);
+    }
+    hasAnswer(): boolean {
+        let hasChecked = false;
+        let hasUnchecked = false;
+
+        for (const choice of this.choices) {
+            if (choice.isCorrect) {
+                hasChecked = true;
+            } else {
+                hasUnchecked = true;
+            }
+
+            if (hasChecked && hasUnchecked) {
+                break;
+            }
+        }
+        return hasChecked && hasUnchecked;
     }
     choiceVerif(): boolean {
         if (this.questionName == '') {
