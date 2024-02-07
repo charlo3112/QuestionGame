@@ -1,3 +1,4 @@
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -24,6 +25,7 @@ import { Question, QuestionType } from '../../interfaces/question';
         FormsModule,
         MatCheckboxModule,
         ReactiveFormsModule,
+        DragDropModule,
     ],
     standalone: true,
 })
@@ -34,6 +36,7 @@ export class CreateQuestionComponent implements OnChanges {
     questionPoints: number = 10;
     choiceInput: string = '';
     choices: Choice[] = [];
+    editArray: boolean[] = [];
     hasAnswer(): boolean {
         let hasChecked = false;
         let hasUnchecked = false;
@@ -61,6 +64,7 @@ export class CreateQuestionComponent implements OnChanges {
                 };
                 this.choices.push(newChoice);
                 this.choiceInput = '';
+                this.editArray.push(false);
             } else {
                 window.alert('Vous ne pouvez pas ajouter plus de 4 choix.');
             }
@@ -120,6 +124,16 @@ export class CreateQuestionComponent implements OnChanges {
             this.questionCreated.emit(newQuestion);
             this.resetForm();
         }
+    }
+    startEdit(index: number) {
+        this.editArray[index] = !this.editArray[index];
+    }
+
+    saveEdit(index: number) {
+        this.editArray[index] = false;
+    }
+    drop(event: CdkDragDrop<Choice[]>): void {
+        moveItemInArray(this.choices, event.previousIndex, event.currentIndex);
     }
     choiceVerif(): boolean {
         if (this.questionName == '') {

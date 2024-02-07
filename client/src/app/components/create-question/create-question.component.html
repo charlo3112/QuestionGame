@@ -23,12 +23,19 @@
             <ol id="choicesSelect" class="choices-list">
                 <li *ngFor="let choice of choices; let i = index" class="choice-item">
                     <div class="choice-content">
-                        <span class="choice-value">{{ choice.text }}</span>
-                        <h4>Bonne réponse :</h4>
-                        <mat-checkbox class="right-answer" [(ngModel)]="choice.isCorrect" color="primary"></mat-checkbox>
-                        <button mat-icon-button class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
-                            <mat-icon class="delete-icon" color="warn">close</mat-icon>
-                        </button>
+                        <ng-container *ngIf="!editArray[i]">
+                            <span class="choice-value" [ngClass]="{ editable: editArray[i] }" (click)="startEdit(i)">{{ choice.text }}</span>
+                            <h4>Bonne réponse :</h4>
+                            <mat-checkbox class="right-answer" [(ngModel)]="choice.isCorrect" color="primary"></mat-checkbox>
+                            <button mat-icon-button class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
+                                <mat-icon class="delete-icon" color="warn">close</mat-icon>
+                            </button>
+                        </ng-container>
+                        <div *ngIf="editArray[i]" class="choice-field" class="edit class">
+                            <mat-form-field class="edit-input">
+                                <input matInput [(ngModel)]="choice.text" (blur)="saveEdit(i)" (keyup.enter)="saveEdit(i)" />
+                            </mat-form-field>
+                        </div>
                     </div>
                 </li>
             </ol>
