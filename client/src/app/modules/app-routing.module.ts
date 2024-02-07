@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
+import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { StartGamePageComponent } from '@app/pages/startgame-page/startgame-page.component';
 
@@ -14,6 +15,7 @@ export const routes: Routes = [
     { path: 'admin/game/', component: MainPageComponent }, // TODO change this to add GameForm component
     { path: 'admin/quiz/', component: MainPageComponent }, // TODO change this to add GameForm component
     { path: 'admin', component: AdminPageComponent },
+    { path: 'loading', component: LoadingPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

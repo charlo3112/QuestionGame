@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { RouterModule } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router, RouterModule } from '@angular/router';
 import { AdminGameDetails } from '@app/classes/game-details';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 const description =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' +
@@ -31,10 +31,12 @@ export class StartGamePageComponent {
         new AdminGameDetails('id7', 'Game 7', '#', description, true, '2021-03-03'),
     ];
     title: string = 'Liste de jeux';
+    constructor(private router: Router) {}
 
     startGame(id: string) {
         alert('Start game with id ' + id);
         // TODO: Add server call to start game
+        this.router.navigate(['/loading']);
     }
 
     testGame(id: string) {
