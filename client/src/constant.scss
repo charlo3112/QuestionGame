@@ -47,3 +47,30 @@ $blue-palette: (
         900: white,
     ),
 );
+
+$green-palette: (
+    50: #e3f9e5,
+    100: #b5f0c3,
+    200: #80e79f,
+    300: #2dd573,
+    400: #0fcf5b,
+    500: #0fcf5b,
+    600: #0fcf5b,
+    700: #0fcf5b,
+    800: #0fcf5b,
+    900: #0fcf5b,
+    contrast: (
+        50: rgba(black, 0.87),
+        100: rgba(black, 0.87),
+        200: rgba(black, 0.87),
+        300: white,
+        400: white,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+    ),
+);
+
+$wave-color: #0693e3;
