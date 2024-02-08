@@ -53,8 +53,29 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         }
     }
 
+    questionVerification() {
+        let numCorrect = 0;
+        let selectedCorrect = 0;
+        for (const choice of this.choices) {
+            if (choice.isCorrect) {
+                numCorrect++;
+            }
+            if (choice.isSelected && choice.isCorrect) {
+                selectedCorrect++;
+            }
+        }
+        if (numCorrect === selectedCorrect) {
+            return true;
+        }
+        return false;
+    }
+
     confirmQuestion() {
-        window.alert('Question confirmée');
+        if (this.questionVerification()) {
+            window.alert('Bonne reponse');
+        } else {
+            window.alert('Mauvaise reponse');
+        }
     }
 
     chatConfirm() {

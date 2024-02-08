@@ -15,8 +15,8 @@ export class GamePageComponent {
         text: "Pourquoi le jus de lichi n'est pas bon?",
         points: 8,
         choices: [
-            { text: 'Guillaume en boit' },
-            { text: 'Guillaume a apporter 2 boites' },
+            { text: 'Guillaume en boit', isCorrect: true },
+            { text: 'Guillaume a apporter 2 boites', isCorrect: true },
             { text: "C'est du lichi" },
             { text: 'Guillaume en a bu a 9h du matin' },
         ],
