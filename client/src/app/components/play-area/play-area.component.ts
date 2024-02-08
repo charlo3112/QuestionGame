@@ -89,6 +89,9 @@ export class PlayAreaComponent implements AfterViewInit {
         this.timeService.setTimeout(() => {
             this.showAnswer = false;
             this.gameService.next();
+            if (!this.gameService.getCurrent()) {
+                return;
+            }
             this.resetTimer();
         }, timeConfirmMs);
     }
