@@ -33,4 +33,8 @@ export class CommunicationService {
         //Remplacer Question par Game quand on aura l'interface
         return this.http.get<any>(`${this.baseUrl}/game/${gameId}`);
     }
+
+    getAdminGames(): Observable<HttpResponse<string>> {
+        return this.http.get(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'text' });
+    }
 }

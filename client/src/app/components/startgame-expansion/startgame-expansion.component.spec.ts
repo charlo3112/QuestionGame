@@ -2,13 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { AdminGameDetails } from '@app/classes/game-details';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { StartGameExpansionComponent } from './startgame-expansion.component';
 
 describe('StartGameExpansionComponent', () => {
     let component: StartGameExpansionComponent;
     let fixture: ComponentFixture<StartGameExpansionComponent>;
-    let mockGameDetails: AdminGameDetails;
+    let mockGameDetails: Game;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -19,14 +19,7 @@ describe('StartGameExpansionComponent', () => {
     beforeEach(async () => {
         fixture = TestBed.createComponent(StartGameExpansionComponent);
         component = fixture.componentInstance;
-        mockGameDetails = {
-            name: 'Test Game',
-            id: 'test-game',
-            description: 'This is a test game',
-            image: '#',
-            lastModified: '01-01-2024',
-            isVisible: true,
-        };
+        mockGameDetails = GAME_PLACEHOLDER;
         component.gameDetails = mockGameDetails;
         fixture.detectChanges();
     });
