@@ -9,7 +9,7 @@
                 <div class="information-field">
                     <mat-form-field appearance="fill">
                         <mat-label>Nom</mat-label>
-                        <input matInput />
+                        <input matInput [(ngModel)]="title" required />
                     </mat-form-field>
                 </div>
                 <div class="information-field">
@@ -23,14 +23,14 @@
                 <div class="information-field">
                     <mat-form-field appearance="fill">
                         <mat-label>Description du jeu</mat-label>
-                        <textarea matInput></textarea>
+                        <textarea matInput [(ngModel)]="description"></textarea>
                     </mat-form-field>
                 </div>
                 <div class="information-field">
-                    <mat-label>Temps alloué : </mat-label>
-                    <mat-slider discrete min="10" max="60" step="5" value="30">
-                        <input matSliderThumb />
-                    </mat-slider>
+                    <mat-form-field appearance="fill">
+                        <mat-label>Temps alloué : </mat-label>
+                        <input matInput type="number" min="10" max="60" step="1" [(ngModel)]="duration" required />
+                    </mat-form-field>
                 </div>
             </div>
             <button class="button" mat-raised-button color="primary">Banque de questions</button>

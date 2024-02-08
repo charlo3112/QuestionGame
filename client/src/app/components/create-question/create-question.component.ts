@@ -8,6 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { ActivatedRoute } from '@angular/router';
+import { CommunicationService } from '@app/services/communication.service';
 import { Choice } from '../../interfaces/choice';
 import { Question, QuestionType } from '../../interfaces/question';
 
@@ -32,6 +34,35 @@ import { Question, QuestionType } from '../../interfaces/question';
 export class CreateQuestionComponent implements OnChanges {
     @Input() questionData: Question | null = null;
     @Output() questionCreated = new EventEmitter<Question>();
+
+    constructor(
+        private communicationService: CommunicationService,
+        private route: ActivatedRoute,
+    ) {}
+
+    ngOnInit() {
+        this.route.paramMap.subscribe((params) => {
+            const gameId = params.get('id');
+            if (gameId) {
+                this.loadGameData(gameId);
+            }
+        });
+    }
+
+    loadGameData(gameId: string) {
+        this.communicationService.getGameById(gameId).subscribe({
+            next: (game) => {
+                /*
+            this.questionName = game.questionName;
+            this.questionPoints = game.questionPoints;
+            this.choices = game.choices;*/
+            },
+            error: (error) => {
+                console.error('Erreur lors du chargement du jeu', error);
+            },
+        });
+    }
+
     questionName: string = '';
     questionPoints: number = 10;
     choiceInput: string = '';
@@ -80,6 +111,27 @@ export class CreateQuestionComponent implements OnChanges {
 
     deleteChoice(index: number): void {
         this.choices.splice(index, 1);
+    }
+
+    addToQuestionBank() {
+        if (this.choiceVerif()) {
+            const newQuestion: Question = {
+                type: QuestionType.Qcm,
+                text: this.questionName,
+                points: this.questionPoints,
+                choices: this.choices,
+            };
+            this.communicationService.addQuestion(newQuestion).subscribe({
+                next: (response) => {
+                    console.log('Question ajoutée avec succès', response.body);
+                    this.questionCreated.emit(newQuestion);
+                    this.resetForm();
+                },
+                error: (error) => {
+                    console.error('Erreur lors de l ajout à la banque', error);
+                },
+            });
+        }
     }
 
     save() {
@@ -140,6 +192,7 @@ export class CreateQuestionComponent implements OnChanges {
     choiceVerif(): boolean {
         if (this.questionName == '') {
             window.alert('Le champ Question ne peut pas être vide.');
+            return false;
         } else if (this.choices.length < 2) {
             window.alert("Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.");
             return false;

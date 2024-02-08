@@ -20,8 +20,8 @@
         </div>
 
         <div *ngIf="choices.length > 0" class="list-container">
-            <ol id="choicesSelect" class="choices-list">
-                <li *ngFor="let choice of choices; let i = index" class="choice-item">
+            <div cdkDropList id="choicesSelect" class="choices-list" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let choice of choices; let i = index" cdkDrag class="choice-item">
                     <div class="choice-content">
                         <ng-container *ngIf="!editArray[i]">
                             <span class="choice-value" [ngClass]="{ editable: editArray[i] }" (click)="startEdit(i)">{{ choice.text }}</span>
@@ -37,8 +37,8 @@
                             </mat-form-field>
                         </div>
                     </div>
-                </li>
-            </ol>
+                </div>
+            </div>
         </div>
         <div class="question-weight">
             <mat-form-field>
@@ -58,5 +58,6 @@
             </mat-form-field>
         </div>
     </div>
-    <button class="button" (click)="save()" mat-raised-button color="primary">Enregistrer</button>
+    <button class="button" (click)="addToQuestionBank()" mat-raised-button color="primary">Ajouter au jeu et à la banque</button>
+    <button class="button" (click)="save()" mat-raised-button color="primary">Ajouter au jeu</button>
 </div>
