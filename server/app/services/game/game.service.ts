@@ -69,7 +69,12 @@ export class GameService {
         }
     }
 
-    async validateGame(game: CreateGameDto) {
-        return game.duration <= MAX_DURATION && game.duration >= MIN_DURATION && game.questions.length > 0;
+    async validateGame(gameData: CreateGameDto) {
+        return (
+            gameData.duration <= MAX_DURATION &&
+            gameData.duration >= MIN_DURATION &&
+            gameData.questions.length > 0 &&
+            !(await this.gameModel.findOne({ text: gameData.title }))
+        );
     }
 }
