@@ -27,6 +27,8 @@
     &:hover {
         background-color: map.get(constant.$blue-palette, 300);
     }
+    font-size: 2em;
+    font-weight: 500;
     height: 30vh;
 }
 
