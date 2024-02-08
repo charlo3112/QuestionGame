@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
 import { Question, QuestionType } from '@app/interfaces/question';
 
 @Component({
@@ -8,7 +7,7 @@ import { Question, QuestionType } from '@app/interfaces/question';
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
-    imports: [PlayAreaComponent, SidebarComponent],
+    imports: [PlayAreaComponent],
 })
 export class GamePageComponent {
     readonly question: Question = {
