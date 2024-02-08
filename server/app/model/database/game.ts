@@ -1,5 +1,6 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
-import { Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Question } from './question';
@@ -8,54 +9,70 @@ export type GameDocument = Game & Document;
 
 @Schema()
 export class Game {
-    #id: string;
-    #title: string;
-    #description: string;
-    #duration: number;
-    #lastModification: string;
-    #questions: Question[];
-    #visibility: boolean = true;
+    @ApiProperty()
+    @Prop({ required: true })
+    visibility: boolean = true;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private gameId: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private title: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private description: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private duration: number;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private lastModification: string;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private questions: Question[];
 
     constructor(gameData: CreateGameDto) {
-        this.#id = uuidv4();
-        this.#title = gameData.title;
-        this.#description = gameData.description;
-        this.#duration = gameData.duration;
-        this.#lastModification = new Date().toISOString();
-        this.#questions = gameData.questions;
-        this.#visibility = true;
+        this.gameId = uuidv4();
+        this.title = gameData.title;
+        this.description = gameData.description;
+        this.duration = gameData.duration;
+        this.lastModification = new Date().toISOString();
+        this.questions = gameData.questions;
+        this.visibility = true;
     }
 
     addQuestion(newQuestion: Question) {
-        this.#questions.push(newQuestion);
+        this.questions.push(newQuestion);
     }
 
-    getId(): string {
-        return this.#id;
+    getGameId(): string {
+        return this.gameId;
     }
 
     getTitle(): string {
-        return this.#title;
+        return this.title;
     }
 
     getDescription(): string {
-        return this.#description;
+        return this.description;
     }
 
     getDuration(): number {
-        return this.#duration;
+        return this.duration;
     }
 
     getLastModification(): string {
-        return this.#lastModification;
+        return this.lastModification;
     }
 
     getQuestions(): Question[] {
-        return this.#questions;
-    }
-
-    getVisibility(): boolean {
-        return this.#visibility;
+        return this.questions;
     }
 }
 

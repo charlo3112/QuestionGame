@@ -62,7 +62,7 @@ export class GameController {
             await this.gamesService.addGame(gameDto);
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }
     }
 
@@ -79,17 +79,23 @@ export class GameController {
             await this.gamesService.modifyGame(gameDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }
     }
 
+    @ApiOkResponse({
+        description: 'Toogles Visibility',
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
     @Patch('/:id')
-    async tooggleVisibility(@Body() gameDto: UpdateGameDto, @Res() response: Response) {
+    async toggleVisibility(@Body() id: string, @Res() response: Response) {
         try {
-            await this.gamesService.modifyGame(gameDto);
+            await this.gamesService.toggleVisibility(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }
     }
 

@@ -117,7 +117,7 @@ describe('GameServiceEndToEnd', () => {
     it('getGameById() return game with the specified id', async () => {
         const game = getFakeGame();
         await gameModel.create(game);
-        expect(await service.getGameById(game.getId())).toEqual(expect.objectContaining(game));
+        expect(await service.getGameById(game.getGameId())).toEqual(expect.objectContaining(game));
     });
 
     it('modifyGame() should fail if mongo query failed', async () => {
@@ -128,8 +128,9 @@ describe('GameServiceEndToEnd', () => {
 
     it('modifyGame() should create a new game if the provided id has no match', async () => {
         const badGameDto = getBadFakeUpdateGameDto();
+        const initDocNb = await gameModel.countDocuments();
         await service.modifyGame(badGameDto);
-        expect(await gameModel.countDocuments()).toEqual(1);
+        expect(await gameModel.countDocuments()).toEqual(initDocNb + 1);
     });
 
     it('getters should return the correct property of the Game', async () => {
@@ -137,13 +138,13 @@ describe('GameServiceEndToEnd', () => {
         expect(game.getDescription()).toEqual('test description');
         expect(game.getDuration()).toEqual(GAME_DURATION);
         expect(game.getTitle()).toEqual('test title');
-        expect(game.getVisibility()).toEqual(true);
+        expect(game.visibility).toEqual(true);
     });
 
     it('deleteGameById() should fail if the game does not exist', async () => {
         await gameModel.deleteMany({});
         const game = getFakeGame();
-        await expect(service.deleteGameById(game.getId())).rejects.toBeTruthy();
+        await expect(service.deleteGameById(game.getGameId())).rejects.toBeTruthy();
     });
 
     it('addGame() should add the game to the DB', async () => {
@@ -186,7 +187,7 @@ const getFakeCreateGameDto = (): CreateGameDto => {
 
 const getFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
-        id: getRandomString(),
+        gameId: getRandomString(),
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,
@@ -197,7 +198,7 @@ const getFakeUpdateGameDto = (): UpdateGameDto => {
 
 const getBadFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
-        id: 'l',
+        gameId: 'l',
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,
