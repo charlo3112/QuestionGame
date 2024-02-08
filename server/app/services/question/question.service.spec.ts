@@ -113,20 +113,20 @@ describe('QuestionServiceEndToEnd', () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
         await questionModel.create(question);
-        await service.deleteQuestion(question.text);
+        await service.deleteQuestion(question.getText());
         expect(await questionModel.countDocuments()).toEqual(0);
     });
 
     it('deleteQuestion() should fail if the question does not exist', async () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
-        await expect(service.deleteQuestion(question.text)).rejects.toBeTruthy();
+        await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
     });
 
     it('deleteQuestion() should fail if mongo query failed', async () => {
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
         const question = getFakeQuestion();
-        await expect(service.deleteQuestion(question.text)).rejects.toBeTruthy();
+        await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
     });
 
     it('addQuestion() should add the question to the DB', async () => {
@@ -156,12 +156,12 @@ describe('QuestionServiceEndToEnd', () => {
 
     it('setters should modify Question properties', async () => {
         const question = getFakeQuestion();
-        question.points = 40;
+        question.setPoints = 40;
         expect(question.getPoints()).toEqual(POINTS_FOR_QUESTION);
-        question.text = 'new text';
+        question.setText = 'new text';
         expect(question.getText()).toEqual('new text');
         const newChoices = getFakeChoices();
-        question.choices = newChoices;
+        question.setChoices = newChoices;
         expect(question.getChoices()).toEqual(newChoices);
     });
 });

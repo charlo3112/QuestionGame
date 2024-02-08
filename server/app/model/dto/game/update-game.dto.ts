@@ -5,7 +5,7 @@ import { IsNumber, IsOptional, IsString } from 'class-validator';
 export class UpdateGameDto {
     @ApiProperty({ required: true })
     @IsString()
-    id: string;
+    gameId: string;
 
     @ApiProperty({ required: false })
     @IsString()

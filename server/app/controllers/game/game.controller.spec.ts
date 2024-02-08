@@ -79,7 +79,7 @@ describe('GameController', () => {
             return res;
         };
 
-        await controller.getGameById(fakeGame.getId(), res);
+        await controller.getGameById(fakeGame.getGameId(), res);
     });
 
     it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
@@ -148,6 +148,20 @@ describe('GameController', () => {
 
         await controller.deleteGameById('', res);
     });
+
+    it('toggleVisibility() should change the visibility attribute of the Game', async () => {
+        const game = getFakeGame();
+
+        gameService.toggleVisibility.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.toggleVisibility(game.getGameId(), res);
+    });
 });
 
 const getFakeGame = (): Game => {
@@ -194,7 +208,7 @@ const getFakeCreateGameDto = (): CreateGameDto => {
 
 const getFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
-        id: getRandomString(),
+        gameId: getRandomString(),
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,
