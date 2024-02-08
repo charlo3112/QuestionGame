@@ -24,7 +24,16 @@ describe('AdminGamePreviewComponent', () => {
     beforeEach(async () => {
         fixture = TestBed.createComponent(AdminGamePreviewComponent);
         component = fixture.componentInstance;
-        mockGameDetails = GAME_PLACEHOLDER;
+        mockGameDetails = {
+            title: 'Test Game',
+            id: 'test-game',
+            description: 'This is a test game',
+            image: '#',
+            lastModification: '01-01-2024',
+            questions: [],
+            duration: 10,
+            isVisible: true,
+        };
         component.gameDetails = mockGameDetails;
         fixture.detectChanges();
         router = TestBed.inject(Router);
