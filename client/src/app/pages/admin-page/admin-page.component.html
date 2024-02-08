@@ -2,6 +2,7 @@
     <a routerLink="#"><img src="assets/logo.png" /></a>
     <h1 class="title">Page admin</h1>
     <span class="spacer"></span>
+    <button *ngIf="login" (click)="openImportDialog()" mat-flat-button>Importer JSON</button>
     <button *ngIf="login" routerLink="/admin/quiz" mat-flat-button>Banque de Quiz</button>
     <button *ngIf="login" routerLink="/admin/game" mat-flat-button>Création de jeu</button>
 
