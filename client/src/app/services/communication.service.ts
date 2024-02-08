@@ -1,5 +1,6 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Question } from '@app/interfaces/question';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -21,5 +22,9 @@ export class CommunicationService {
 
     exportGame(id: string): Observable<HttpResponse<Blob>> {
         return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'blob' });
+    }
+
+    getAllQuestions(): Observable<HttpResponse<Question[]>> {
+        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
     }
 }

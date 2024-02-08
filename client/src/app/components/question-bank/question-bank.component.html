@@ -1,0 +1,9 @@
+<h2>Banque de questions</h2>
+<div class="question-bank">
+    <div class="question-bank-box" *ngFor="let question of questions; let i = index">
+        <div class="question">
+            <h3>{{ i + 1 }}. {{ question.text }}</h3>
+            <h3>{{ question.lastModification }}</h3>
+        </div>
+    </div>
+</div>

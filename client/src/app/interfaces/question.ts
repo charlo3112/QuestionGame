@@ -9,6 +9,7 @@ export interface Question {
     text: string;
     points: number;
     choices: Choice[];
+    lastModification: Date;
 }
 
 export const QUESTION_PLACEHOLDER: Question = {
@@ -16,4 +17,5 @@ export const QUESTION_PLACEHOLDER: Question = {
     text: 'What is the text to print?',
     points: 42,
     choices: [{ text: 'hello_world' }, { text: 'test' }, { text: 'lorem_ipsum' }],
+    lastModification: new Date(),
 };
