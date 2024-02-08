@@ -8,7 +8,11 @@ const mockQuestion = {
     type: QuestionType.Qcm,
     text: 'Question test',
     points: 8,
-    choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+    choices: [
+        { text: 'A', isSelected: false },
+        { text: 'B', isSelected: false },
+        { text: 'C', isSelected: false },
+    ],
 };
 
 describe('PlayAreaComponent', () => {
@@ -30,7 +34,11 @@ describe('PlayAreaComponent', () => {
             type: QuestionType.Qcm,
             text: 'Question test',
             points: 8,
-            choices: [{ text: 'A' }, { text: 'B' }, { text: 'C' }],
+            choices: [
+                { text: 'A', isSelected: false },
+                { text: 'B', isSelected: false },
+                { text: 'C', isSelected: false },
+            ],
         };
         fixture.detectChanges();
     });
@@ -39,13 +47,13 @@ describe('PlayAreaComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('buttonDetect should modify the buttonPressed variable', () => {
+    it('buttonDetect with 1 should select first element', () => {
         const expectedKey = 'a';
         const buttonEvent = {
             key: expectedKey,
         } as KeyboardEvent;
         component.buttonDetect(buttonEvent);
-        expect(component.buttonPressed).toEqual(expectedKey);
+        expect(component.choices[0].isSelected).toEqual(true);
     });
 
     it('mouseHitDetect should call startTimer with 5 seconds on left click', () => {
@@ -56,7 +64,6 @@ describe('PlayAreaComponent', () => {
     });
 
     it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
-        // const choices: Choice[] = [];
         component.ngAfterViewInit();
         tick();
         expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);

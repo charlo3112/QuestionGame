@@ -11,8 +11,8 @@
         class="answer"
         [ngClass]="{ selected: choice.isSelected }"
         (click)="questionSelected(choice)"
-        *ngFor="let choice of choices"
+        *ngFor="let choice of choices; let i = index"
     >
-        {{ choice.text }}
+        {{ (i + 1).toString() + ' - ' + choice.text }}
     </button>
 </div>

@@ -17,7 +17,6 @@ import { TimeService } from '@app/services/time.service';
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
-    buttonPressed = '';
     choices: Choice[] = [];
     private readonly timer = 60;
     constructor(private readonly timeService: TimeService) {}
@@ -31,7 +30,12 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        this.buttonPressed = event.key;
+        const key = event.key;
+        if (key === 'Enter') {
+            this.confirmQuestion();
+        }
+        const value = parseInt(key, 10) - 1;
+        if (!isNaN(value) && value < this.choices.length) this.choices[value].isSelected = !this.choices[value].isSelected;
     }
 
     ngOnInit(): void {
@@ -64,10 +68,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 selectedCorrect++;
             }
         }
-        if (numCorrect === selectedCorrect) {
-            return true;
-        }
-        return false;
+        alert(numCorrect);
+        alert(selectedCorrect);
+        return numCorrect === selectedCorrect;
     }
 
     confirmQuestion() {
