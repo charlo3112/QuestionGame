@@ -19,6 +19,24 @@ export class GameController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
+    @Get('/admin')
+    async getAllGamesAdmin(@Res() response: Response) {
+        try {
+            const allGames = await this.gamesService.getAllGamesAdmin();
+            response.status(HttpStatus.OK).json(allGames);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Returns all games',
+        type: Game,
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
     @Get('/')
     async getAllGames(@Res() response: Response) {
         try {

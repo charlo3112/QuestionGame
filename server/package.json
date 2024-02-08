@@ -12,7 +12,7 @@
         "lint:fix": "eslint -c .eslintrc.json \"./app/**/*.ts\" --format stylish --fix",
         "test": "jest",
         "coverage": "jest --coverage",
-        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest.js --runInBand"
     },
     "dependencies": {
         "@nestjs/common": "^10.1.3",

@@ -34,11 +34,13 @@ export class GameService {
     }
 
     async getAllGames(): Promise<Game[]> {
-        return await this.gameModel.find({});
+        const games = await this.gameModel.find({ visibility: true });
+        return games || [];
     }
 
     async getAllGamesAdmin(): Promise<Game[]> {
-        return await this.gameModel.find({ visibility: true });
+        const games = await this.gameModel.find({});
+        return games || [];
     }
 
     async getGameById(id: string): Promise<Game | null> {
@@ -69,7 +71,7 @@ export class GameService {
 
     async deleteGameById(id: string): Promise<void> {
         try {
-            const res = await this.gameModel.deleteOne({ id });
+            const res = await this.gameModel.deleteOne({ gameId: id });
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find game');
             }
