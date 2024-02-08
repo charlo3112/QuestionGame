@@ -103,7 +103,7 @@ export class ValidationService {
 
             return { ok: true, value: filteredOutput };
         } catch (error) {
-            const message = error instanceof Error ? error.message : 'Invalid JSON';
+            const message = 'Invalid JSON';
             return { ok: false, error: message };
         }
     }
