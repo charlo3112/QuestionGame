@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
     providedIn: 'root',
 })
 export class TimeService {
-    // TODO : Permettre plus qu'une minuterie à la fois
     private interval: number | undefined;
     private readonly tick = 1000;
 

@@ -1,15 +1,15 @@
 import { NgIf } from '@angular/common';
-import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { MouseButton } from '@app/enums/mouse-button';
-import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { RouterLink } from '@angular/router';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-play-area',
@@ -18,15 +18,17 @@ import { RouterLink } from '@angular/router';
     standalone: true,
     imports: [RouterLink, NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
-export class PlayAreaComponent implements AfterViewInit, OnInit {
+export class PlayAreaComponent implements AfterViewInit {
     @Input() question: Question;
-    choices: Choice[] = [];
     chat: string[] = [];
     chatInput: string = '';
     isChatFocused: boolean = false;
 
     private readonly timer = 60;
-    constructor(private readonly timeService: TimeService) {}
+    constructor(
+        private readonly timeService: TimeService,
+        private readonly gameService: GameService,
+    ) {}
 
     get score(): number {
         return 3;
@@ -45,12 +47,8 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
             this.confirmQuestion();
         }
         const value = parseInt(key, 10) - 1;
-        if (!isNaN(value) && value < this.choices.length) this.choices[value].isSelected = !this.choices[value].isSelected;
-    }
-
-    ngOnInit(): void {
-        if (this.question) {
-            this.populateChoices();
+        if (!isNaN(value) && value < this.question.choices.length) {
+            this.question.choices[value].isSelected = !this.question.choices[value].isSelected;
         }
     }
 
@@ -60,17 +58,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         });
     }
 
-    populateChoices() {
-        const numberChoices = this.question.choices.length;
-        for (let i = 0; i < numberChoices; i++) {
-            this.choices.push(this.question.choices[i]);
-        }
-    }
-
     questionVerification() {
         let numCorrect = 0;
         let selectedCorrect = 0;
-        for (const choice of this.choices) {
+        for (const choice of this.question.choices) {
             if (choice.isCorrect) {
                 numCorrect++;
             }
@@ -82,11 +73,7 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
     }
 
     confirmQuestion() {
-        if (this.questionVerification()) {
-            window.alert('Bonne reponse');
-        } else {
-            window.alert('Mauvaise reponse');
-        }
+        this.gameService.next();
     }
 
     abandonnerPartie() {

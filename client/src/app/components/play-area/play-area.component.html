@@ -16,7 +16,7 @@
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">
-                <app-answers [choices]="choices"></app-answers>
+                <app-answers [choices]="question.choices"></app-answers>
             </section>
             <div id="confirm-container">
                 <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
