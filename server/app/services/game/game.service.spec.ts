@@ -56,6 +56,20 @@ describe('GameService', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
     });
+
+    it('database should be populated when there is no data', async () => {
+        jest.spyOn(gameModel, 'countDocuments').mockResolvedValue(0);
+        const spyPopulateDB = jest.spyOn(service, 'populateDB');
+        await service.start();
+        expect(spyPopulateDB).toHaveBeenCalled();
+    });
+
+    it('database should not be populated when there is some data', async () => {
+        jest.spyOn(gameModel, 'countDocuments').mockResolvedValue(1);
+        const spyPopulateDB = jest.spyOn(service, 'populateDB');
+        await service.start();
+        expect(spyPopulateDB).not.toHaveBeenCalled();
+    });
 });
 
 const DELAY_BEFORE_CLOSING_CONNECTION = 200;
@@ -68,7 +82,7 @@ describe('GameServiceEndToEnd', () => {
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         mongoServer = await MongoMemoryServer.create();
         // notice that only the functions we call from the model are mocked
         // we can´t use sinon because mongoose Model is an interface
@@ -87,14 +101,6 @@ describe('GameServiceEndToEnd', () => {
         service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
         connection = await module.get(getConnectionToken());
-
-        mongoServer = await MongoMemoryServer.create();
-
-        service = module.get<GameService>(GameService);
-        gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
-    });
-
-    beforeEach(async () => {
         await gameModel.deleteMany({});
     });
 
@@ -112,6 +118,20 @@ describe('GameServiceEndToEnd', () => {
     it('should be defined', () => {
         expect(service).toBeDefined();
         expect(gameModel).toBeDefined();
+    });
+
+    it('start() should populate the database when there is no data', async () => {
+        const spyPopulateDB = jest.spyOn(service, 'populateDB');
+        await gameModel.deleteMany({});
+        await service.start();
+        expect(spyPopulateDB).toHaveBeenCalled();
+    });
+
+    it('start() should not populate the DB when there is some data', async () => {
+        const course = getFakeGame();
+        await gameModel.create(course);
+        const spyPopulateDB = jest.spyOn(service, 'populateDB');
+        expect(spyPopulateDB).not.toHaveBeenCalled();
     });
 
     it('getAllGames() return all games in database', async () => {
@@ -157,9 +177,12 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('addGame() should add the game to the DB', async () => {
-        // const gameDto = getFakeCreateGameDto();
-        // await service.addGame(gameDto);
-        expect(await gameModel.countDocuments()).toEqual(0);
+        await gameModel.deleteMany({});
+        const initGameNb = await gameModel.countDocuments();
+        const gameDto = getFakeCreateGameDto();
+        await service.addGame(gameDto);
+        const finalGameNb = await gameModel.countDocuments();
+        expect(await gameModel.countDocuments()).toEqual(finalGameNb);
     });
 
     it('addGame() should fail if mongo query failed', async () => {
