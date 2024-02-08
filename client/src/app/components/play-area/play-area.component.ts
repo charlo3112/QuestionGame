@@ -1,12 +1,12 @@
 import { NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostListener, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-import { Choice } from '@app/interfaces/choice';
 import { MouseButton } from '@app/enums/mouse-button';
+import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
-import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
     selector: 'app-play-area',
@@ -59,6 +59,10 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     chatConfirm() {
         window.alert('Bienvenu au chat');
+    }
+
+    abandonnerPartie() {
+        window.alert('Partie abandonnée');
     }
 
     // TODO : déplacer ceci dans un service de gestion de la souris!

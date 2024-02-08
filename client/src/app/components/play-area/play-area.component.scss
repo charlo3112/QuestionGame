@@ -11,7 +11,7 @@
 #grid-container {
     width: 100%;
     height: 85.2%;
-    background-image: url('/assets/wave.svg') ;
+    background-image: url('/assets/wave.svg');
     background-repeat: no-repeat;
     background-position: bottom -50% right 0%;
     background-clip: padding-box;
@@ -45,7 +45,8 @@
 }
 
 #confirm-container,
-#chat-container {
+#chat-container,
+#abandon-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,6 +57,10 @@
 }
 
 #chat-container {
+    height: 100%;
+}
+
+#abandon-container {
     height: 100%;
 }
 
@@ -72,4 +77,11 @@
     height: 90%;
     margin: 8%;
     border: none;
+}
+
+#abandon-button {
+    background-color: red;
+    color: white;
+    height: 60%;
+    border-radius: 3px;
 }
