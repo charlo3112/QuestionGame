@@ -1,18 +1,15 @@
+import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { QuestionType } from '@app/interfaces/question';
+import { Question, QuestionType } from '@app/interfaces/question';
 
 type Result<T, E = string> = { ok: true; value: T } | { ok: false; error: E };
 
-export class GameValidationService {
-    validateGame(data: string): string[] {
+@Injectable({
+    providedIn: 'root',
+})
+export class ValidationService {
+    validateGame(game: Partial<Game>): string[] {
         const errors: string[] = [];
-        let game;
-        try {
-            game = JSON.parse(data);
-        } catch (error) {
-            errors.push('Le format du jeu est invalide.');
-            return errors;
-        }
 
         if (!game.title) {
             errors.push('Le nom du jeu est requis.');
@@ -35,7 +32,7 @@ export class GameValidationService {
             }
             for (let i = 0; i < questions.length; i++) {
                 const question = questions[i];
-                const questionErrors = this.validateQuestion(JSON.stringify(question));
+                const questionErrors = this.validateQuestion(question);
                 if (questionErrors.length > 0) {
                     errors.push(`Question ${i + 1}:`);
                     errors.push(...questionErrors);
@@ -46,15 +43,8 @@ export class GameValidationService {
         return errors;
     }
 
-    validateQuestion(data: string): string[] {
+    validateQuestion(question: Partial<Question>): string[] {
         const errors: string[] = [];
-        let question;
-        try {
-            question = JSON.parse(data);
-        } catch (error) {
-            errors.push('Le format de la question est invalide.');
-            return errors;
-        }
 
         if (!question.text) {
             errors.push('La question doit avoir un texte.');
@@ -64,7 +54,9 @@ export class GameValidationService {
             errors.push('La question doit avoir un nombre de points.');
         }
 
-        if (!Object.values(QuestionType).includes(question.type)) {
+        if (!question.type) {
+            errors.push('La question doit avoir un type.');
+        } else if (!Object.values(QuestionType).includes(question.type)) {
             errors.push('La question doit avoir un type valide.');
         }
 
