@@ -1,26 +1,28 @@
-<div class="admin-page">
-    <div *ngIf="!login" class="admin-login-container">
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Page admin</h1>
+    <span class="spacer"></span>
+    <button *ngIf="login" class="upload-button" (click)="openImportDialog()" mat-flat-button>Importer JSON</button>
+    <button *ngIf="login" routerLink="/admin/quiz" mat-flat-button>Banque de Quiz</button>
+    <button *ngIf="login" routerLink="/admin/game" mat-flat-button>Création de jeu</button>
+
+    <!-- TODO: add upload json -->
+</mat-toolbar>
+
+<div *ngIf="!login" class="admin-page">
+    <div class="admin-login-container">
         <app-admin-login (loginSuccess)="handleLogin($event)"></app-admin-login>
     </div>
+</div>
 
-    <div *ngIf="login" class="admin-button">
-        <!-- TODO: add route -->
-        <button routerLink="#" mat-raised-button >Banque de Quiz</button>
-        <button routerLink="/new" mat-raised-button >Creation de jeu</button>
-        
-        <!-- TODO: add upload json -->
+<div *ngIf="login" class="admin-game-preview-container">
+    <div *ngFor="let game of games">
+        <app-admin-game-preview
+            [gameDetails]="game"
+            (delete)="deleteGame(game.id)"
+            (export)="exportGame(game.id)"
+            (toggleVisibility)="toggleGameVisibility(game.id)"
+        >
+        </app-admin-game-preview>
     </div>
-    
-    <div *ngIf="login" class="admin-game-preview-container">
-        <div *ngFor="let game of games">
-            <app-admin-game-preview
-                [gameDetails]="game"
-                (edit)="editGame(game.id)"
-                (delete)="deleteGame(game.id)"
-                (export)="exportGame(game.id)"
-                (toggleVisibility)="toggleGameVisibility(game.id)">
-            </app-admin-game-preview>
-        </div>
-    </div>
-
 </div>

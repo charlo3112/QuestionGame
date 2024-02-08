@@ -1,12 +1,21 @@
-<div id="grid-container">
-    <div id="middle-container">
+<mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row color="primary" class="toolbar">
+        <a routerLink="#"><img src="assets/logo.png"/></a>
+        <h1 class="title">{{ question.text }}</h1>
+        <span class="spacer"></span>
+        <span id="points">{{ question.points }} points</span>
+    </mat-toolbar-row>
+    <mat-toolbar-row>
         <div id="score-container">
             <p>Score : {{ score }}</p>
         </div>
         <div id="timer-container">
             <p *ngIf="time">Temps restant : {{ time }}</p>
         </div>
-    </div>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<div id="grid-container" style="background-position: bottom -100% right 0%">
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">

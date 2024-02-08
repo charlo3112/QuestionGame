@@ -1,7 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { CommunicationService } from '@app/services/communication.service';
-import { Message } from '@common/message';
 
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -26,48 +25,51 @@ describe('CommunicationService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should return expected message (HttpClient called once)', () => {
-        const expectedMessage: Message = { body: 'Hello', title: 'World' };
+    it('should toggle game visibility', () => {
+        const gameId = '123';
+        const visibility = true;
 
-        // check the content of the mocked call
-        service.basicGet().subscribe({
-            next: (response: Message) => {
-                expect(response.title).toEqual(expectedMessage.title);
-                expect(response.body).toEqual(expectedMessage.body);
+        service.toggleGameVisibility(gameId, visibility).subscribe({
+            next: (response) => {
+                expect(response.body).toBe(''); // PATCH might not return a body
             },
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/example`);
-        expect(req.request.method).toBe('GET');
-        // actually send the request
-        req.flush(expectedMessage);
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('PATCH');
+        expect(req.request.body).toEqual({ value: visibility });
+        req.flush('');
     });
 
-    it('should not return any message when sending a POST request (HttpClient called once)', () => {
-        const sentMessage: Message = { body: 'Hello', title: 'World' };
-        // subscribe to the mocked call
-        service.basicPost(sentMessage).subscribe({
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            next: () => {},
-            error: fail,
-        });
-        const req = httpMock.expectOne(`${baseUrl}/example/send`);
-        expect(req.request.method).toBe('POST');
-        // actually send the request
-        req.flush(sentMessage);
-    });
+    it('should delete a game', () => {
+        const gameId = 'test-id';
 
-    it('should handle http error safely', () => {
-        service.basicGet().subscribe({
-            next: (response: Message) => {
-                expect(response).toBeUndefined();
+        service.deleteGame(gameId).subscribe({
+            next: (response) => {
+                expect(response.body).toBe(''); // DELETE might not return a body
             },
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/example`);
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should export a game', () => {
+        const gameId = 'export-id';
+
+        service.exportGame(gameId).subscribe({
+            next: (response) => {
+                expect(response.body instanceof Blob).toBe(true);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
         expect(req.request.method).toBe('GET');
-        req.error(new ProgressEvent('Random error occurred'));
+        expect(req.request.responseType).toBe('blob');
+        req.flush(new Blob(['{}'], { type: 'application/json' }));
     });
 });

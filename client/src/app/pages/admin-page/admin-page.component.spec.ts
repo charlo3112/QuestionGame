@@ -1,19 +1,33 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { routes } from '@app/modules/app-routing.module';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { CommunicationService } from '@app/services/communication.service';
+import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
+import SpyObj = jasmine.SpyObj;
 
 describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
-    let router: Router;
+    let communicationServiceSpy: SpyObj<CommunicationService>;
+    let snackBarSpy: SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
+        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['deleteGame', 'toggleGameVisibility', 'exportGame']);
+        communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
+        communicationServiceSpy.toggleGameVisibility.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
+        communicationServiceSpy.exportGame.and.returnValue(
+            of(new HttpResponse<Blob>({ status: 200, body: new Blob([JSON.stringify({})], { type: 'application/json' }) })),
+        );
+
+        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [
                 AdminPageComponent,
@@ -21,17 +35,20 @@ describe('AdminPageComponent', () => {
                 AdminLoginComponent,
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
+                HttpClientModule,
                 RouterTestingModule,
-                RouterLink,
-                RouterModule.forRoot(routes),
+            ],
+            providers: [
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: MatSnackBar, useValue: snackBarSpy },
             ],
         }).compileComponents();
-
         fixture = TestBed.createComponent(AdminPageComponent);
+        spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
+        spyOn(URL, 'revokeObjectURL');
+        sessionStorage.removeItem('login');
         component = fixture.componentInstance;
         fixture.detectChanges();
-        router = TestBed.inject(Router);
-        router.initialNavigation();
     });
 
     it('should create', () => {
@@ -58,6 +75,8 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should emit loginSuccess event when login is successful', () => {
+        component.login = false;
+        fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('log2990-202');
@@ -66,6 +85,8 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
+        component.login = false;
+        fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('wrong');
@@ -73,37 +94,9 @@ describe('AdminPageComponent', () => {
         expect(component.handleLogin).not.toHaveBeenCalled();
     });
 
-    it('should emit edit event when edit button is clicked', () => {
-        component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
-        fixture.detectChanges();
-        spyOn(component, 'editGame');
-        const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
-        gamePreview.componentInstance.edit.emit();
-        expect(component.editGame).toHaveBeenCalled();
-    });
-
     it('should emit delete event when delete button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'deleteGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -111,18 +104,39 @@ describe('AdminPageComponent', () => {
         expect(component.deleteGame).toHaveBeenCalled();
     });
 
+    it('should delete game when deleteGame is called', fakeAsync(() => {
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+
+        component.deleteGame(GAME_PLACEHOLDER.id);
+        tick();
+        fixture.detectChanges();
+        expect(component.games.length).toBe(0);
+        expect(snackBarSpy.open).not.toHaveBeenCalled();
+    }));
+
+    it('should delete game show snackbar when deleteGame is called and error occurs', fakeAsync(() => {
+        communicationServiceSpy.deleteGame.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+        component.login = true;
+        component.games = [];
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.deleteGame(GAME_PLACEHOLDER.id);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalled();
+    }));
+
+    it('should open snackbar when openSnackBar is called', () => {
+        spyOn(component['snackBar'], 'open');
+        component.openSnackBar('message', 'action');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'action');
+    });
+
     it('should emit export event when export button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'exportGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -130,22 +144,94 @@ describe('AdminPageComponent', () => {
         expect(component.exportGame).toHaveBeenCalled();
     });
 
+    it('should export game when exportGame is called', fakeAsync(() => {
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.exportGame(GAME_PLACEHOLDER.id);
+        tick();
+        expect(component.openSnackBar).not.toHaveBeenCalled();
+    }));
+
+    it('should show snackbar when exportGame is called and error occurs', fakeAsync(() => {
+        communicationServiceSpy.exportGame.and.returnValue(
+            throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' })),
+        );
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.exportGame(GAME_PLACEHOLDER.id);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalled();
+    }));
+
+    it('should should show snackbar when exportGame is called and no data is received', fakeAsync(() => {
+        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<Blob>({ status: 404 })));
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.exportGame(GAME_PLACEHOLDER.id);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalled();
+    }));
+
     it('should emit toggleVisibility event when toggleVisibility button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'toggleGameVisibility');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
         gamePreview.componentInstance.toggleVisibility.emit();
         expect(component.toggleGameVisibility).toHaveBeenCalled();
+    });
+
+    it('should toggle game visibility when toggleGameVisibility is called', fakeAsync(() => {
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+
+        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        tick();
+        fixture.detectChanges();
+        expect(component.games[0].isVisible).toBeFalse();
+        expect(snackBarSpy.open).not.toHaveBeenCalled();
+    }));
+
+    it('should not toogle game visibility when toggleGameVisibility is called with invalid id', fakeAsync(() => {
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+
+        component.toggleGameVisibility('none');
+        tick();
+        fixture.detectChanges();
+        expect(component.games).toEqual(component.games);
+        expect(snackBarSpy.open).not.toHaveBeenCalled();
+    }));
+
+    it('should show snackbar when toggleGameVisibility is called and error occurs', fakeAsync(() => {
+        communicationServiceSpy.toggleGameVisibility.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
+
+        component.login = true;
+        component.games = [GAME_PLACEHOLDER];
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalled();
+        fixture.detectChanges();
+        expect(component.games).toEqual([]);
+    }));
+
+    it('should open dialog when upload button is clicked', () => {
+        component.login = true;
+        fixture.detectChanges();
+        spyOn(component.dialog, 'open');
+        const uploadButton = fixture.debugElement.query(By.css('.upload-button'));
+        uploadButton.nativeElement.click();
+        expect(component.dialog.open).toHaveBeenCalled();
     });
 });

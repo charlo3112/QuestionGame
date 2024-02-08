@@ -1,24 +1,22 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { AdminGameDetails } from '@app/classes/game-details';
+import { RouterLink } from '@angular/router';
+import { Game } from '@app/interfaces/game';
 
 @Component({
     selector: 'app-admin-game-preview',
     templateUrl: './admin-game-preview.component.html',
     styleUrls: ['./admin-game-preview.component.scss'],
     standalone: true,
-    imports: [MatIconModule],
+    imports: [MatIconModule, MatCardModule, MatButtonModule, RouterLink],
 })
 export class AdminGamePreviewComponent {
-    @Input() gameDetails: AdminGameDetails;
-    @Output() edit = new EventEmitter<void>();
+    @Input() gameDetails: Game;
     @Output() delete = new EventEmitter<void>();
     @Output() export = new EventEmitter<void>();
     @Output() toggleVisibility = new EventEmitter<void>();
-
-    onEdit() {
-        this.edit.emit();
-    }
 
     onDelete() {
         this.delete.emit();

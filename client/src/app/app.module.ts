@@ -8,12 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
-import { AppMaterialModule } from '@app/modules/material.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
-import { MaterialPageComponent } from '@app/pages/material-page/material-page.component';
 import { AnswersComponent } from './components/answers/answers.component';
-import { QuestionComponent } from './components/question/question.component';
 
 /**
  * Main module that is used in main.ts.
@@ -22,9 +19,8 @@ import { QuestionComponent } from './components/question/question.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, MaterialPageComponent],
+    declarations: [AppComponent],
     imports: [
-        AppMaterialModule,
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
@@ -35,7 +31,6 @@ import { QuestionComponent } from './components/question/question.component';
         MatIconModule,
         ReactiveFormsModule,
         AdminPageComponent,
-        QuestionComponent,
         AnswersComponent,
         MatGridListModule,
     ],
