@@ -1,6 +1,6 @@
 <mat-card class="chat">
     <div class="chat-text">
-        <p *ngFor="let text of chat;">
+        <p *ngFor="let text of chat.reverse();">
             {{ text }}
         </p>
     </div>
