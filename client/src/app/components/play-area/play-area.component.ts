@@ -7,17 +7,23 @@ import { MouseButton } from '@app/enums/mouse-button';
 import { Choice } from '@app/interfaces/choice';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
+import { MatIconModule } from '@angular/material/icon';
+import { ChatComponent } from '@app/components/chat/chat.component';
 
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [NgIf, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
     choices: Choice[] = [];
+    chat: string[] = [];
+    chatInput: string = '';
+    isChatFocused: boolean = false;
+
     private readonly timer = 60;
     constructor(private readonly timeService: TimeService) {}
 
@@ -30,6 +36,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
+        if (this.isChatFocused) {
+            return;
+        }
         const key = event.key;
         if (key === 'Enter') {
             this.confirmQuestion();
@@ -68,8 +77,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
                 selectedCorrect++;
             }
         }
-        alert(numCorrect);
-        alert(selectedCorrect);
         return numCorrect === selectedCorrect;
     }
 
@@ -81,10 +88,6 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         }
     }
 
-    chatConfirm() {
-        window.alert('Bienvenu au chat');
-    }
-
     abandonnerPartie() {
         window.alert('Partie abandonnée');
     }
@@ -94,5 +97,9 @@ export class PlayAreaComponent implements AfterViewInit, OnInit {
         if (event.button === MouseButton.Left) {
             this.timeService.startTimer(this.timer);
         }
+    }
+
+    chatFocused(focus: boolean) {
+        this.isChatFocused = focus;
     }
 }

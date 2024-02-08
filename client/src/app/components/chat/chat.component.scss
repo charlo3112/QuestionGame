@@ -1,0 +1,12 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.chat {
+    background-color: white;
+}
+
+#chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}

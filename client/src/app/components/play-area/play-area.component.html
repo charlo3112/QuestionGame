@@ -5,16 +5,10 @@
         <span class="spacer"></span>
         <span id="points">{{ question.points }} points</span>
     </mat-toolbar-row>
-    <mat-toolbar-row>
-        <div id="score-container">
-            <p>Score total : {{ score }}</p>
-        </div>
-        <div id="timer-container">
-            <p *ngIf="time">Temps restant : {{ time }}</p>
-        </div>
-        <div id="abandon-container">
-            <button mat-raised-button id="abandon-button" (click)="abandonnerPartie()">Abandonner</button>
-        </div>
+    <mat-toolbar-row class="row-container">
+        <p>Score total : {{ score }}</p>
+        <p *ngIf="time">Temps restant : {{ time }}</p>
+        <button mat-raised-button id="abandon-button" (click)="abandonnerPartie()">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
 
@@ -29,9 +23,7 @@
             </section>
         </div>
         <div id="right-container">
-            <div id="chat-container">
-                <button id="chat-button" (click)="chatConfirm()">Chat</button>
-            </div>
+            <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
 </div>
