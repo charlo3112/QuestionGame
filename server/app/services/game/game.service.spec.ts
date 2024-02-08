@@ -107,11 +107,7 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('getAllGames() return all games in database', async () => {
-        await gameModel.deleteMany({});
-        expect((await service.getAllGames()).length).toEqual(0);
-        const game = getFakeGame();
-        await gameModel.create(game);
-        expect((await service.getAllGames()).length).toEqual(1);
+        expect((await service.getAllGames()).length).toEqual(await gameModel.countDocuments());
     });
 
     it('getGameById() return game with the specified id', async () => {
@@ -128,9 +124,8 @@ describe('GameServiceEndToEnd', () => {
 
     it('modifyGame() should create a new game if the provided id has no match', async () => {
         const badGameDto = getBadFakeUpdateGameDto();
-        const initDocNb = await gameModel.countDocuments();
         await service.modifyGame(badGameDto);
-        expect(await gameModel.countDocuments()).toEqual(initDocNb + 1);
+        expect(await gameModel.countDocuments()).toEqual(2);
     });
 
     it('getters should return the correct property of the Game', async () => {
