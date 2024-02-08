@@ -1,5 +1,6 @@
 import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
+import { QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
@@ -12,6 +13,7 @@ export class GameService {
     constructor(
         @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
         private readonly logger: Logger,
+        private readonly questionModel: Model<QuestionDocument>,
     ) {
         this.start();
     }
@@ -53,6 +55,7 @@ export class GameService {
                 return Promise.reject('Invalid game');
             } else {
                 const game = new Game(gameData);
+                await this.questionModel.insertMany(game.getQuestions());
                 await this.gameModel.create(game);
                 return game.getGameId();
             }
