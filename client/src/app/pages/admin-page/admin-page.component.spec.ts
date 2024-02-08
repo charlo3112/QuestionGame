@@ -225,4 +225,13 @@ describe('AdminPageComponent', () => {
         fixture.detectChanges();
         expect(component.games).toEqual([]);
     }));
+
+    it('should open dialog when upload button is clicked', () => {
+        component.login = true;
+        fixture.detectChanges();
+        spyOn(component.dialog, 'open');
+        const uploadButton = fixture.debugElement.query(By.css('.upload-button'));
+        uploadButton.nativeElement.click();
+        expect(component.dialog.open).toHaveBeenCalled();
+    });
 });

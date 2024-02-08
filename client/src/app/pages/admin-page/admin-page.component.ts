@@ -108,10 +108,6 @@ export class AdminPageComponent {
         sessionStorage.setItem('login', JSON.stringify(this.login));
     }
 
-    // upload() {
-    //     alert('Upload');
-    // }
-
     openImportDialog(): void {
         const dialogRef = this.dialog.open(ImportDialogComponent);
 
