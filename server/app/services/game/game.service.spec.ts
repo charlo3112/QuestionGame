@@ -178,7 +178,6 @@ describe('GameServiceEndToEnd', () => {
 
     it('addGame() should add the game to the DB', async () => {
         await gameModel.deleteMany({});
-        const initGameNb = await gameModel.countDocuments();
         const gameDto = getFakeCreateGameDto();
         await service.addGame(gameDto);
         const finalGameNb = await gameModel.countDocuments();
@@ -197,11 +196,9 @@ describe('GameServiceEndToEnd', () => {
         await expect(game.getQuestions().length).toEqual(NEW_NUMBER_OF_QUESTIONS);
     });
 
-    it('Choice setters should modify the properties of the choice', async () => {
-        const choice = getFakeChoices()[0];
-        choice.isCorrect = false;
-        await expect(choice.getIsCorrect()).toEqual(false);
-        choice.text = 'test text';
+    it('Choice setter should modify the properties of the choice', async () => {
+        const choice: Choice = getFakeChoices()[0];
+        choice.setText = 'test text';
         await expect(choice.getText()).toEqual('test text');
     });
 });

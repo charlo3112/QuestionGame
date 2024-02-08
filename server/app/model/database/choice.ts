@@ -1,32 +1,32 @@
-import { Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema()
 export class Choice {
-    #text: string;
-    #isCorrect: boolean;
+    @ApiProperty()
+    @Prop({ required: true })
+    isCorrect: boolean;
+
+    @ApiProperty()
+    @Prop({ required: true })
+    private text: string;
 
     constructor(text: string, isCorrect: boolean) {
         if (text !== undefined && text.length > 0) {
-            this.#text = text;
+            this.text = text;
         }
-        this.#isCorrect = isCorrect;
+        this.isCorrect = isCorrect;
     }
 
-    set text(newText: string) {
+    set setText(newText: string) {
         if (newText.length > 0) {
-            this.#text = newText;
+            this.text = newText;
         }
-    }
-
-    set isCorrect(newAnswer: boolean) {
-        this.#isCorrect = newAnswer;
     }
 
     getText(): string {
-        return this.#text;
-    }
-
-    getIsCorrect(): boolean {
-        return this.#isCorrect;
+        return this.text;
     }
 }
+
+export const gameSchema = SchemaFactory.createForClass(Choice);
