@@ -112,7 +112,9 @@ export class AdminPageComponent {
         const dialogRef = this.dialog.open(ImportDialogComponent);
 
         dialogRef.afterClosed().subscribe((result) => {
-            console.log(`Dialog result: ${result}`);
+            if (result) {
+                alert(`Dialog result: ${result}`);
+            }
         });
     }
 
