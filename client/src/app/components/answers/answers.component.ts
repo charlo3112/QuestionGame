@@ -12,6 +12,7 @@ import { Choice } from '@app/interfaces/choice';
 })
 export class AnswersComponent {
     @Input() choices: Choice[] = [];
+
     getAnswerClass() {
         return `answers-${this.choices.length}`;
     }
