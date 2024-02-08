@@ -1,7 +1,8 @@
 import { Choice } from './choice';
 
 export enum QuestionType {
-    Qcm = 'qcm',
+    Qcm = 'QCM',
+    Qrl = 'QRL',
 }
 
 export interface Question {
