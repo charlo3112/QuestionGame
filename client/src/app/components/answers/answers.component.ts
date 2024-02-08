@@ -16,4 +16,8 @@ export class AnswersComponent {
     getAnswerClass() {
         return `answers-${this.choices.length}`;
     }
+
+    questionSelected(choice: Choice) {
+        choice.isSelected = !choice.isSelected;
+    }
 }

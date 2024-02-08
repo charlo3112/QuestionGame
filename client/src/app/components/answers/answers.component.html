@@ -6,7 +6,13 @@
         'two-answers': choices.length === 2
     }"
 >
-    <button mat-raised-button class="answer" *ngFor="let choice of choices">
+    <button
+        mat-raised-button
+        class="answer"
+        [ngClass]="{ selected: choice.isSelected }"
+        (click)="questionSelected(choice)"
+        *ngFor="let choice of choices"
+    >
         {{ choice.text }}
     </button>
 </div>
