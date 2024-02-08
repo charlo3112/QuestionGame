@@ -3,10 +3,15 @@
 
 .chat {
     background-color: white;
+    height: 61.2vh;
 }
 
-#chat-container {
-    display: flex;
-    flex-direction: column;
+.chat-text {
     height: 100%;
+    overflow-y: scroll;
+}
+
+.chat-input {
+    margin-top: auto;
+    margin-bottom: -1.25em;
 }

@@ -75,12 +75,6 @@ describe('PlayAreaComponent', () => {
         expect(window.alert).toHaveBeenCalledWith('Question confirmée');
     });
 
-    it('chatConfirm should call alert with message', () => {
-        spyOn(window, 'alert');
-        component.chatConfirm();
-        expect(window.alert).toHaveBeenCalledWith('Bienvenu au chat');
-    });
-
     it('score should return 3', () => {
         expect(component.score).toEqual(3);
     });

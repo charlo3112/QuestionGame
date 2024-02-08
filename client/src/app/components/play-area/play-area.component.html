@@ -17,10 +17,10 @@
         <div id="left-container">
             <section id="answer-container">
                 <app-answers [choices]="choices"></app-answers>
-                <div id="confirm-container">
-                    <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
-                </div>
             </section>
+            <div id="confirm-container">
+                <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
+            </div>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>

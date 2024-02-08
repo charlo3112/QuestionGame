@@ -3,8 +3,7 @@
 
 .answers-container {
     display: grid;
-    margin-top: 4%;
-    margin-left: 2%;
+    gap: 0.69em;
 }
 
 .two-answers {
@@ -25,7 +24,6 @@
 }
 
 .answer {
-    margin: 8px;
     &:hover {
         background-color: map.get(constant.$blue-palette, 300);
     }

@@ -1,13 +1,13 @@
-<div id="chat-container">
-    <mat-card class="chat">
+<mat-card class="chat">
+    <div class="chat-text">
         <p *ngFor="let text of chat;">
             {{ text }}
         </p>
-    </mat-card>
-    <mat-form-field>
+    </div>
+    <mat-form-field class="chat-input">
         <input matInput [(ngModel)]="chatInput" (focus)="this.onFocus();" (focusout)="this.onFocusOut();">
         <button matSuffix mat-icon-button (click)="chatSubmit()">
             <mat-icon>keyboard_arrow_right</mat-icon>
         </button>
     </mat-form-field>
-</div>
+</mat-card>
