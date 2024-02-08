@@ -34,7 +34,7 @@ export class Question {
         this.text = questionData.text;
         this.points = questionData.points;
         this.lastModification = new Date();
-        this.choices = questionData.choices?.map((choiceData) => new Choice(choiceData.text, choiceData.isCorrect));
+        this.choices = questionData.choices?.map((choiceData) => new Choice(choiceData.getText(), choiceData.isCorrect));
     }
 
     set setPoints(points: number) {
