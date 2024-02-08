@@ -24,35 +24,8 @@ export class GameService {
 
     async populateDB(): Promise<void> {
         try {
-            /*
-            const testChoices: Choice[] = [];
-            for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-                const text = 'test text';
-                const isCorrect = i === 0;
-                testChoices.push(new Choice(text, isCorrect));
-            }
-            const testQuestions: Question[] = [];
-            for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-                const questionData: CreateQuestionDto = {
-                    type: QuestionType.QCM,
-                    text: 'test text' + i,
-                    points: 40,
-                    choices: testChoices,
-                };
-                testQuestions.push(new Question(questionData));
-            }
-            const gameData: CreateGameDto = {
-                title: 'test title',
-                description: 'test description',
-                duration: 40,
-                questions: testQuestions,
-            };
-            const game = new Game(gameData);
-            await this.gameModel.create(game);
-            */
             const data = await fs.readFile('assets/quiz-example.json', 'utf8');
             const game = JSON.parse(data);
-            // console.log(game);
             game.visibility = true;
             await this.gameModel.create(game);
         } catch (error) {
