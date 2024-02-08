@@ -27,6 +27,36 @@ export class GameService {
                 { text: 'Le javascript est une erreur.', isCorrect: true },
             ],
         },
+        {
+            type: QuestionType.Qcm,
+            text: 'Quel est mieux angular ou React?',
+            points: 8,
+            choices: [
+                { text: 'Les deux sont horribles', isCorrect: false },
+                { text: 'Angular?', isCorrect: true },
+                { text: 'React', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: "Comment utiliser Git d'une manière optimale?",
+            points: 8,
+            choices: [
+                { text: 'Force push sur master', isCorrect: true },
+                { text: 'Force push sur master', isCorrect: true },
+                { text: 'Force push sur master', isCorrect: true },
+                { text: 'Merge request sur une branche dev', isCorrect: false },
+            ],
+        },
+        {
+            type: QuestionType.Qcm,
+            text: 'Est-ce que nous avons fait tous ce que nous avons promis?',
+            points: 8,
+            choices: [
+                { text: 'Oui', isCorrect: false },
+                { text: 'Non', isCorrect: true },
+            ],
+        },
     ];
 
     private i: number = 0;

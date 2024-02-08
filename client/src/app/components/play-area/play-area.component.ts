@@ -3,7 +3,6 @@ import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-import { MouseButton } from '@app/enums/mouse-button';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -33,6 +32,7 @@ export class PlayAreaComponent implements AfterViewInit {
     get score(): number {
         return 3;
     }
+
     get time(): number {
         return this.timeService.time;
     }
@@ -61,6 +61,9 @@ export class PlayAreaComponent implements AfterViewInit {
     resetTimer() {
         const next = () => {
             this.gameService.next();
+            setTimeout(() => {
+                this.resetTimer();
+            });
         };
         this.timeService.startTimer(this.timer, next);
     }
@@ -86,13 +89,6 @@ export class PlayAreaComponent implements AfterViewInit {
 
     abandonnerPartie() {
         window.alert('Partie abandonnée');
-    }
-
-    // TODO : déplacer ceci dans un service de gestion de la souris!
-    mouseHitDetect(event: MouseEvent) {
-        if (event.button === MouseButton.Left) {
-            this.timeService.startTimer(this.timer);
-        }
     }
 
     chatFocused(focus: boolean) {

@@ -3,10 +3,6 @@
 
 #grid-container {
     width: 100%;
-    background-image: url('/assets/wave.svg');
-    background-repeat: no-repeat;
-    background-position: bottom -50% right 0%;
-    background-clip: padding-box;
 }
 
 .row-container {
@@ -21,7 +17,7 @@
     flex-direction: row;
     width: 100%;
     gap: 0.69em;
-    padding: 0.69em;
+    padding-top: 0.69em;
     height: 80vh;
 }
 
@@ -35,7 +31,6 @@
 #right-container {
     display: flex;
     flex-direction: column;
-    margin-right: 1.29em;
     flex-grow: 1;
 }
 
