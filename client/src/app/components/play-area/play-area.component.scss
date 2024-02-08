@@ -15,34 +15,28 @@
 #bottom-container {
     display: flex;
     flex-direction: row;
+    justify-content: space-around;
     width: 100%;
     gap: 0.69em;
     padding-top: 0.69em;
     height: 80vh;
+    z-index: 2;
+    * {
+        z-index: 2;
+    }
 }
 
 #left-container {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0.69em;
-    width: 69%;
 }
 
 #right-container {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-}
-
-#confirm-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-#confirm-button {
-    background-color: map.get(constant.$green-palette, 800);
-    width: 100px;
+    width: 20%;
 }
 
 #abandon-button {
@@ -51,4 +45,22 @@
     font-weight: bolder;
     height: 60%;
     border-radius: 3px;
+}
+
+.big-text {
+    font-size: 1.42em;
+    font-weight: bold;
+}
+
+.bottom {
+    z-index: 0;
+    position: fixed;
+    right: 0;
+    border-top: 4em solid transparent;
+    border-image: url('/assets/wave.svg') 690 stretch;
+    background-color: constant.$wave-color;
+    background-clip: padding-box;
+    height: 100vh;
+    width: 100%;
+    transition: all .3s ease-in-out;
 }

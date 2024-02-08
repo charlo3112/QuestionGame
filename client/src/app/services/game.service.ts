@@ -12,9 +12,9 @@ export class GameService {
             points: 8,
             choices: [
                 { text: 'Guillaume en boit', isCorrect: true },
-                { text: 'Guillaume a apporter 2 boites', isCorrect: true },
+                { text: 'Guillaume en a apporté 2 boites', isCorrect: true },
                 { text: "C'est du lichi" },
-                { text: 'Guillaume en a bu a 9h du matin' },
+                { text: 'Guillaume en a bu à 9h du matin' },
             ],
         },
         {

@@ -3,11 +3,11 @@
         <a routerLink="#"><img src="assets/logo.png" /></a>
         <h1 class="title">{{ question.text }}</h1>
         <span class="spacer"></span>
-        <span id="points">{{ question.points }} points</span>
+        <span id="points" class="big-text">{{ question.points }} points</span>
     </mat-toolbar-row>
     <mat-toolbar-row class="row-container">
-        <p>Score total : {{ score }}</p>
-        <p *ngIf="time">Temps restant : {{ time }}</p>
+        <p class="big-text">Score total : {{ score }}</p>
+        <p *ngIf="time" class="big-text">Temps restant : {{ time }}</p>
         <button mat-raised-button id="abandon-button" (click)="abandonnerPartie()">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -16,14 +16,13 @@
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">
-                <app-answers [choices]="question.choices"></app-answers>
+                <app-answers [choices]="question.choices" [showAnswer]="showAnswer"></app-answers>
             </section>
-            <div id="confirm-container">
-                <button mat-raised-button id="confirm-button" (click)="confirmQuestion()">Confirm</button>
-            </div>
+            <button mat-raised-button id="confirm-button" (click)="confirmQuestion()" class="big-text" color="primary">Confirmer</button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
+    <div class="bottom" [ngStyle]="{'bottom.%': -time / timer * 120 - 15}"></div>
 </div>

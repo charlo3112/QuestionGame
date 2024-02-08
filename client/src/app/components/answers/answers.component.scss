@@ -7,12 +7,13 @@
 }
 
 .two-answers {
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .three-answers {
     grid-template-columns: repeat(2, 1fr);
 }
+
 .three-answers .answer:nth-child(3) {
     grid-column: span 2;
     justify-self: center;
@@ -30,8 +31,23 @@
     font-size: 2em;
     font-weight: 500;
     height: 30vh;
+    button {
+        display: flex;
+    }
 }
 
 .selected {
     border: 3px solid red;
+}
+
+.solution {
+    transform: scale(2);
+}
+
+.good {
+    color: green;
+}
+
+.bad {
+    color: red;
 }

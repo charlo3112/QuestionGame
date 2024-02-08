@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,20 +10,23 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { RouterLink } from '@angular/router';
 import { GameService } from '@app/services/game.service';
 
+const timeConfirmMs = 3000;
+
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [RouterLink, NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [CommonModule, RouterLink, NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class PlayAreaComponent implements AfterViewInit {
     @Input() question: Question;
     chat: string[] = [];
     chatInput: string = '';
     isChatFocused: boolean = false;
+    showAnswer: boolean = false;
 
-    private readonly timer = 5;
+    readonly timer = 60;
     constructor(
         private readonly timeService: TimeService,
         private readonly gameService: GameService,
@@ -60,10 +63,7 @@ export class PlayAreaComponent implements AfterViewInit {
 
     resetTimer() {
         const next = () => {
-            this.gameService.next();
-            setTimeout(() => {
-                this.resetTimer();
-            });
+            this.confirmQuestion();
         };
         this.timeService.startTimer(this.timer, next);
     }
@@ -83,8 +83,14 @@ export class PlayAreaComponent implements AfterViewInit {
     }
 
     confirmQuestion() {
-        this.gameService.next();
-        this.resetTimer();
+        if (this.showAnswer === true) return;
+        this.timeService.stopTimer();
+        this.showAnswer = true;
+        this.timeService.setTimeout(() => {
+            this.showAnswer = false;
+            this.gameService.next();
+            this.resetTimer();
+        }, timeConfirmMs);
     }
 
     abandonnerPartie() {
