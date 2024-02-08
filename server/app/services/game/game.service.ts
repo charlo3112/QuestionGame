@@ -50,13 +50,11 @@ export class GameService {
             const game = new Game(gameData);
             await this.gameModel.create(game);
             */
-            try {
-                const data = await fs.readFile('server/asset/quiz-example', 'utf8');
-                const game = JSON.parse(data);
-                await this.gameModel.create(game);
-            } catch (error) {
-                /* empty */
-            }
+            const data = await fs.readFile('assets/quiz-example.json', 'utf8');
+            const game = JSON.parse(data);
+            // console.log(game);
+            game.visibility = true;
+            await this.gameModel.create(game);
         } catch (error) {
             return Promise.reject(`Failed to populate: ${error}`);
         }
