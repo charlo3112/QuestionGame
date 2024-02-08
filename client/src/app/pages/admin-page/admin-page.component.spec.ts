@@ -97,12 +97,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                image: '#',
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -116,12 +118,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                image: '#',
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -155,12 +159,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -174,12 +180,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -196,12 +204,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -216,12 +226,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -235,12 +247,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -254,12 +268,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -275,12 +291,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
@@ -298,12 +316,14 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [
             {
-                name: 'Test Game',
+                title: 'Test Game',
                 id: 'test-game',
                 description: 'This is a test game',
                 image: '#',
-                lastModified: '01-01-2024',
+                lastModification: '01-01-2024',
                 isVisible: true,
+                duration: 0,
+                questions: [],
             },
         ];
         fixture.detectChanges();
