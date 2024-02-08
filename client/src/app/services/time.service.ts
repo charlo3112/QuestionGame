@@ -15,16 +15,23 @@ export class TimeService {
         this.counter = newTime;
     }
 
-    startTimer(startValue: number) {
+    startTimer(startValue: number, execute?: () => void) {
         if (this.interval) return;
         this.time = startValue;
         this.interval = window.setInterval(() => {
             if (this.time > 0) {
                 this.time--;
             } else {
+                if (execute) {
+                    execute();
+                }
                 this.stopTimer();
             }
         }, this.tick);
+    }
+
+    setTimeout(execute: () => void, timeMs: number) {
+        setTimeout(execute, timeMs);
     }
 
     stopTimer() {

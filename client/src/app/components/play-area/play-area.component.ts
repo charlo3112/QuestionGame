@@ -24,7 +24,7 @@ export class PlayAreaComponent implements AfterViewInit {
     chatInput: string = '';
     isChatFocused: boolean = false;
 
-    private readonly timer = 60;
+    private readonly timer = 5;
     constructor(
         private readonly timeService: TimeService,
         private readonly gameService: GameService,
@@ -52,10 +52,17 @@ export class PlayAreaComponent implements AfterViewInit {
         }
     }
 
-    ngAfterViewInit(): void {
+    ngAfterViewInit() {
         setTimeout(() => {
-            this.timeService.startTimer(this.timer);
+            this.resetTimer();
         });
+    }
+
+    resetTimer() {
+        const next = () => {
+            this.gameService.next();
+        };
+        this.timeService.startTimer(this.timer, next);
     }
 
     questionVerification() {
@@ -74,6 +81,7 @@ export class PlayAreaComponent implements AfterViewInit {
 
     confirmQuestion() {
         this.gameService.next();
+        this.resetTimer();
     }
 
     abandonnerPartie() {
