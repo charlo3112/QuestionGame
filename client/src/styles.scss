@@ -22,12 +22,32 @@ $indigo-pink-theme: mat.define-light-theme(
 
 html,
 body {
-    height: 100%;
-    background-color: #ffe3a0;
-}
-body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
     background: url('assets/sand.svg'), linear-gradient(to top, #fdce7d, #ffc254);
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;    background-repeat: stretch;
     background-blend-mode: luminosity;
+}
+
+.toolbar {
+    gap: 0.42em;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    img {
+        height: 3em;
+        width: 3em;
+    }
+    .title {
+        font-size: 2em;
+        font-weight: bold;
+    }
+}
+
+
+.spacer {
+    flex: 1 1 auto;
 }

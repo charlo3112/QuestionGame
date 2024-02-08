@@ -1,0 +1,24 @@
+.header-item {
+    justify-content: center;
+    text-align: center;
+}
+
+.content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    gap: 1em;
+    padding-top: 1em;
+    justify-content: center;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.accordion-container {
+    width: 90%;
+}
