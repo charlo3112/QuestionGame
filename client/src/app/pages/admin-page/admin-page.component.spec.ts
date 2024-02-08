@@ -6,6 +6,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -95,16 +96,7 @@ describe('AdminPageComponent', () => {
 
     it('should emit delete event when delete button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'deleteGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -114,19 +106,10 @@ describe('AdminPageComponent', () => {
 
     it('should delete game when deleteGame is called', fakeAsync(() => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.deleteGame('test-game');
+        component.deleteGame(GAME_PLACEHOLDER.id);
         tick();
         fixture.detectChanges();
         expect(component.games.length).toBe(0);
@@ -140,7 +123,7 @@ describe('AdminPageComponent', () => {
         component.games = [];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.deleteGame('test-game');
+        component.deleteGame(GAME_PLACEHOLDER.id);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
@@ -153,16 +136,7 @@ describe('AdminPageComponent', () => {
 
     it('should emit export event when export button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'exportGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -172,19 +146,10 @@ describe('AdminPageComponent', () => {
 
     it('should export game when exportGame is called', fakeAsync(() => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame('test-game');
+        component.exportGame(GAME_PLACEHOLDER.id);
         tick();
         expect(component.openSnackBar).not.toHaveBeenCalled();
     }));
@@ -194,19 +159,10 @@ describe('AdminPageComponent', () => {
             throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' })),
         );
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame('test-game');
+        component.exportGame(GAME_PLACEHOLDER.id);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
@@ -214,35 +170,17 @@ describe('AdminPageComponent', () => {
     it('should should show snackbar when exportGame is called and no data is received', fakeAsync(() => {
         communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<Blob>({ status: 404 })));
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame('test-game');
+        component.exportGame(GAME_PLACEHOLDER.id);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should emit toggleVisibility event when toggleVisibility button is clicked', () => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'toggleGameVisibility');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -252,19 +190,10 @@ describe('AdminPageComponent', () => {
 
     it('should toggle game visibility when toggleGameVisibility is called', fakeAsync(() => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.toggleGameVisibility('test-game');
+        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
         tick();
         fixture.detectChanges();
         expect(component.games[0].isVisible).toBeFalse();
@@ -273,16 +202,7 @@ describe('AdminPageComponent', () => {
 
     it('should not toogle game visibility when toggleGameVisibility is called with invalid id', fakeAsync(() => {
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
         component.toggleGameVisibility('none');
@@ -296,22 +216,22 @@ describe('AdminPageComponent', () => {
         communicationServiceSpy.toggleGameVisibility.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
 
         component.login = true;
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.toggleGameVisibility('test-game');
+        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
         fixture.detectChanges();
-        expect(component.games).toEqual([]); // delete game from list if not found
+        expect(component.games).toEqual([]);
     }));
+
+    it('should open dialog when upload button is clicked', () => {
+        component.login = true;
+        fixture.detectChanges();
+        spyOn(component.dialog, 'open');
+        const uploadButton = fixture.debugElement.query(By.css('.upload-button'));
+        uploadButton.nativeElement.click();
+        expect(component.dialog.open).toHaveBeenCalled();
+    });
 });

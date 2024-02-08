@@ -4,14 +4,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { AdminGameDetails } from '@app/classes/game-details';
+import { Game } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
 import { AdminGamePreviewComponent } from './admin-game-preview.component';
 
 describe('AdminGamePreviewComponent', () => {
     let component: AdminGamePreviewComponent;
     let fixture: ComponentFixture<AdminGamePreviewComponent>;
-    let mockGameDetails: AdminGameDetails;
+    let mockGameDetails: Game;
     let router: Router;
     let location: Location;
 
@@ -25,11 +25,13 @@ describe('AdminGamePreviewComponent', () => {
         fixture = TestBed.createComponent(AdminGamePreviewComponent);
         component = fixture.componentInstance;
         mockGameDetails = {
-            name: 'Test Game',
+            title: 'Test Game',
             id: 'test-game',
             description: 'This is a test game',
             image: '#',
-            lastModified: '01-01-2024',
+            lastModification: '01-01-2024',
+            questions: [],
+            duration: 10,
             isVisible: true,
         };
         component.gameDetails = mockGameDetails;

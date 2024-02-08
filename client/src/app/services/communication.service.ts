@@ -22,4 +22,8 @@ export class CommunicationService {
     exportGame(id: string): Observable<HttpResponse<Blob>> {
         return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'blob' });
     }
+
+    getAdminGames(): Observable<HttpResponse<string>> {
+        return this.http.get(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'text' });
+    }
 }
