@@ -78,4 +78,8 @@ export class CommunicationService {
             }),
         );
     }
+
+    getAllQuestions(): Observable<HttpResponse<Question[]>> {
+        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    }
 }

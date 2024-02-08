@@ -6,6 +6,7 @@ export interface Question {
     text: string;
     points: number;
     choices: Choice[];
+    lastModification: Date;
 }
 
 export const questions: Question[] = [
@@ -54,3 +55,10 @@ export const questions: Question[] = [
         choices: [new Choice('Oui', false), new Choice('Non', true)],
     },
 ];
+export const QUESTION_PLACEHOLDER: Question = {
+    type: QuestionType.Qcm,
+    text: 'What is the text to print?',
+    points: 42,
+    choices: [{ text: 'hello_world' }, { text: 'test' }, { text: 'lorem_ipsum' }],
+    lastModification: new Date(),
+};
