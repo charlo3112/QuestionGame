@@ -9,13 +9,14 @@ import { Question } from '@app/interfaces/question';
 import { TimeService } from '@app/services/time.service';
 import { MatIconModule } from '@angular/material/icon';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-play-area',
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [RouterLink, NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class PlayAreaComponent implements AfterViewInit, OnInit {
     @Input() question: Question;
