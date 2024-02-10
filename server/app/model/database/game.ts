@@ -1,4 +1,5 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
@@ -43,12 +44,18 @@ export class Game {
         this.description = gameData.description;
         this.duration = gameData.duration;
         this.lastModification = new Date().toISOString();
-        this.questions = gameData.questions;
+        this.questions = gameData.questions.map((questionData) => {
+            return new Question(questionData);
+        });
+
         this.visibility = true;
+        if (gameData.visibility) {
+            this.visibility = gameData.visibility;
+        }
     }
 
-    addQuestion(newQuestion: Question) {
-        this.questions.push(newQuestion);
+    addQuestion(newQuestion: CreateQuestionDto) {
+        this.questions.push(new Question(newQuestion));
     }
 
     getGameId(): string {

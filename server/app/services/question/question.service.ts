@@ -1,6 +1,6 @@
 import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT, QuestionType } from '@app/constants';
-import { Choice } from '@app/model/database/choice';
 import { Question, QuestionDocument } from '@app/model/database/question';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -22,11 +22,11 @@ export class QuestionService {
     }
 
     async populateDB(): Promise<void> {
-        const testChoices: Choice[] = [];
+        const testChoices: ChoiceDto[] = [];
         for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
             const text = 'test text';
             const isCorrect = i === 0;
-            testChoices.push(new Choice(text, isCorrect));
+            testChoices.push({ text, isCorrect });
         }
         const testQuestions: Question[] = [];
         for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {

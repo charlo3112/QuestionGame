@@ -3,7 +3,7 @@ import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiFoundResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @ApiTags('Games')
@@ -68,8 +68,28 @@ export class GameController {
         }
     }
 
+    @ApiOkResponse({
+        description: 'title is unique',
+    })
+    @ApiFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Post('/verify')
+    async verifyTitle(@Body() data: { title: string }, @Res() response: Response) {
+        try {
+            const game = await this.gamesService.verifyTitle(data.title);
+            if (game) {
+                response.status(HttpStatus.FOUND).send();
+            } else {
+                response.status(HttpStatus.OK).send();
+            }
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
     @ApiCreatedResponse({
-        description: 'Add new course',
+        description: 'Add new game',
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
@@ -108,10 +128,13 @@ export class GameController {
         description: 'Return NOT_FOUND http status when request fails',
     })
     @Patch('/:id')
-    async toggleVisibility(@Body() id: string, @Res() response: Response) {
+    async toggleVisibility(@Param('id') id: string, @Res() response: Response) {
         try {
             await this.gamesService.toggleVisibility(id);
-            response.status(HttpStatus.OK).send();
+            response
+                .status(HttpStatus.OK)
+                .json({ visibility: (await this.gamesService.getGameById(id)).visibility })
+                .send();
         } catch (error) {
             response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }

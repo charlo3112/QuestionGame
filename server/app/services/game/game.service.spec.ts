@@ -1,15 +1,15 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
+import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { Logger } from '@nestjs/common';
-import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import { GameService } from './game.service';
 
 /**
@@ -24,6 +24,7 @@ import { GameService } from './game.service';
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
+    let questionModel: Model<QuestionDocument>;
 
     beforeEach(async () => {
         // notice that only the functions we call from the model are mocked
@@ -39,6 +40,17 @@ describe('GameService', () => {
             updateOne: jest.fn(),
         } as unknown as Model<GameDocument>;
 
+        questionModel = {
+            countDocuments: jest.fn(),
+            insertMany: jest.fn(),
+            create: jest.fn(),
+            find: jest.fn(),
+            findOne: jest.fn(),
+            deleteOne: jest.fn(),
+            update: jest.fn(),
+            updateOne: jest.fn(),
+        } as unknown as Model<QuestionDocument>;
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameService,
@@ -46,6 +58,10 @@ describe('GameService', () => {
                 {
                     provide: getModelToken(Game.name),
                     useValue: gameModel,
+                },
+                {
+                    provide: getModelToken(Question.name),
+                    useValue: questionModel,
                 },
             ],
         }).compile();
@@ -72,7 +88,6 @@ describe('GameService', () => {
     });
 });
 
-const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 const GAME_DURATION = 40;
 const NEW_NUMBER_OF_QUESTIONS = 5;
 
@@ -80,7 +95,6 @@ describe('GameServiceEndToEnd', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
     let mongoServer: MongoMemoryServer;
-    let connection: Connection;
 
     beforeEach(async () => {
         mongoServer = await MongoMemoryServer.create();
@@ -100,19 +114,7 @@ describe('GameServiceEndToEnd', () => {
 
         service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
-        connection = await module.get(getConnectionToken());
         await gameModel.deleteMany({});
-    });
-
-    afterEach((done) => {
-        // The database get auto populated in the constructor
-        // We want to make sur we close the connection after the database got
-        // populated. So we add small delay
-        setTimeout(async () => {
-            await connection.close();
-            await mongoServer.stop();
-            done();
-        }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
 
     it('should be defined', () => {
@@ -121,8 +123,8 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('start() should populate the database when there is no data', async () => {
-        const spyPopulateDB = jest.spyOn(service, 'populateDB');
         await gameModel.deleteMany({});
+        const spyPopulateDB = jest.spyOn(service, 'populateDB');
         await service.start();
         expect(spyPopulateDB).toHaveBeenCalled();
     });
@@ -131,6 +133,7 @@ describe('GameServiceEndToEnd', () => {
         const course = getFakeGame();
         await gameModel.create(course);
         const spyPopulateDB = jest.spyOn(service, 'populateDB');
+        await service.start();
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
 
@@ -209,6 +212,7 @@ const getFakeCreateGameDto = (): CreateGameDto => {
         description: 'test description',
         duration: 40,
         questions: getFakeQuestions(),
+        visibility: true,
     };
     return gameData;
 };
@@ -268,3 +272,6 @@ const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
 
 const BASE_36 = 36;
 const getRandomString = (): string => (Math.random() + 1).toString(BASE_36).substring(2);
+function Tick() {
+    throw new Error('Function not implemented.');
+}

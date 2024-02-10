@@ -1,4 +1,4 @@
-import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
@@ -28,5 +28,5 @@ export class UpdateGameDto {
 
     @ApiProperty({ required: false })
     @IsOptional()
-    questions?: Question[];
+    questions?: CreateQuestionDto[];
 }
