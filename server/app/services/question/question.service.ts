@@ -43,10 +43,16 @@ export class QuestionService {
     }
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
+        let nbOfRightChoices = 0;
         let isUnique = true;
         let arePointsCorrect = false;
         let areChoicesCorrect = false;
         const resultModulo = questionData.points.valueOf() % PONDERATION_INCREMENT;
+        for (const choice of questionData.choices) {
+            if (choice.isCorrect) {
+                nbOfRightChoices++;
+            }
+        }
         if (await this.questionModel.findOne({ text: questionData.text })) {
             isUnique = false;
         }
@@ -56,6 +62,6 @@ export class QuestionService {
         if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
             areChoicesCorrect = true;
         }
-        return isUnique && areChoicesCorrect && arePointsCorrect;
+        return isUnique && areChoicesCorrect && arePointsCorrect && nbOfRightChoices === 1;
     }
 }

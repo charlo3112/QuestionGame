@@ -1,7 +1,7 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { QuestionController } from '@app/controllers/question/question.controller';
 import { Question } from '@app/model/database/question';
-import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
 import { HttpStatus } from '@nestjs/common';
@@ -63,7 +63,7 @@ describe.only('QuestionController', () => {
             type: QuestionType.QCM,
             text: getRandomString(),
             points: 40,
-            choices: getFakeChoices(),
+            choices: getFakeChoicesDto(),
         };
 
         await controller.addQuestion(fakeQuestionData, res);
@@ -83,7 +83,7 @@ describe.only('QuestionController', () => {
             type: QuestionType.QCM,
             text: getRandomString(),
             points: 40,
-            choices: getFakeChoices(),
+            choices: getFakeChoicesDto(),
         };
 
         await controller.addQuestion(fakeQuestionData, res);
@@ -123,7 +123,7 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
             type: QuestionType.QCM,
             text: getRandomString(),
             points: 40,
-            choices: getFakeChoices(),
+            choices: getFakeChoicesDto(),
         };
         questions.push(new Question(questionData));
     }
@@ -131,8 +131,8 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
-    const choices: ChoiceDto[] = [];
+const getFakeChoicesDto = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoiceDto[] => {
+    const choices: CreateChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;

@@ -35,7 +35,7 @@ export class Question {
         this.points = questionData.points;
         this.lastModification = new Date();
         this.choices = questionData.choices?.map((choiceData) => {
-            return new Choice(choiceData.text, choiceData.isCorrect);
+            return new Choice(choiceData);
         });
     }
 

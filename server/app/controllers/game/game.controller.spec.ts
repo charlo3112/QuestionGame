@@ -1,6 +1,6 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Game } from '@app/model/database/game';
-import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -279,8 +279,8 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): CreateQuesti
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
-    const choices: ChoiceDto[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoiceDto[] => {
+    const choices: CreateChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
