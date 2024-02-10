@@ -6,7 +6,7 @@ import { QuestionService } from './question.service';
 
 import { Choice } from '@app/model/database/choice';
 import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
-import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -102,58 +102,58 @@ describe('QuestionServiceEndToEnd', () => {
         expect(questionModel).toBeDefined();
     });
 
-    // it('getAllQuestions() return all questions in database', async () => {
-    //     await questionModel.deleteMany({});
-    //     expect((await service.getAllQuestions()).length).toEqual(0);
-    //     const question = getFakeQuestion();
-    //     await questionModel.create(question);
-    //     expect((await service.getAllQuestions()).length).toEqual(1);
-    // });
+    it('getAllQuestions() return all questions in database', async () => {
+        await questionModel.deleteMany({});
+        expect((await service.getAllQuestions()).length).toEqual(0);
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        expect((await service.getAllQuestions()).length).toEqual(1);
+    });
 
-    // it('deleteQuestion() should delete the question', async () => {
-    //     await questionModel.deleteMany({});
-    //     const question = getFakeQuestion();
-    //     await questionModel.create(question);
-    //     await service.deleteQuestion(question.getText());
-    //     expect(await questionModel.countDocuments()).toEqual(0);
-    // });
+    it('deleteQuestion() should delete the question', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await service.deleteQuestion(question.getText());
+        expect(await questionModel.countDocuments()).toEqual(0);
+    });
 
-    // it('deleteQuestion() should fail if the question does not exist', async () => {
-    //     await questionModel.deleteMany({});
-    //     const question = getFakeQuestion();
-    //     await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
-    // });
+    it('deleteQuestion() should fail if the question does not exist', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
+    });
 
-    // it('deleteQuestion() should fail if mongo query failed', async () => {
-    //     jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
-    //     const question = getFakeQuestion();
-    //     await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
-    // });
+    it('deleteQuestion() should fail if mongo query failed', async () => {
+        jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
+        const question = getFakeQuestion();
+        await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
+    });
 
-    // it('addQuestion() should add the question to the DB', async () => {
-    //     await questionModel.deleteMany({});
-    //     const question = getFakeQuestion();
-    //     await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() });
-    //     expect(await questionModel.countDocuments()).toEqual(1);
-    // });
+    it('addQuestion() should add the question to the DB', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() });
+        expect(await questionModel.countDocuments()).toEqual(1);
+    });
 
-    // it('addQuestion() should fail if mongo query failed', async () => {
-    //     jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
-    //     const question = getFakeQuestion();
-    //     await expect(
-    //         service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() }),
-    //     ).rejects.toBeTruthy();
-    // });
+    it('addQuestion() should fail if mongo query failed', async () => {
+        jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
+        const question = getFakeQuestion();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() }),
+        ).rejects.toBeTruthy();
+    });
 
-    // it('addQuestion() should fail if the question is not a valid', async () => {
-    //     const question = getFakeQuestion();
-    //     await expect(
-    //         service.addQuestion({ ...question, type: QuestionType.QCM, text: 'test question', points: 43, choices: getFakeChoicesDto() }),
-    //     ).rejects.toBeTruthy();
-    //     await expect(
-    //         service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoicesDto() }),
-    //     ).rejects.toBeTruthy();
-    // });
+    it('addQuestion() should fail if the question is not a valid', async () => {
+        const question = getFakeQuestion();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'test question', points: 43, choices: getFakeChoicesDto() }),
+        ).rejects.toBeTruthy();
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoicesDto() }),
+        ).rejects.toBeTruthy();
+    });
 
     it('setters should modify Question properties', async () => {
         const question = getFakeQuestion();
@@ -183,20 +183,22 @@ const getFakeQuestion = (): Question => {
 const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
     const choices: Choice[] = [];
     for (let i = 0; i < numChoices; i++) {
-        const text = getRandomString();
-        const isCorrect = i === 0;
-        choices.push(new Choice(text, isCorrect));
+        const choiceData: CreateChoiceDto = {
+            text: getRandomString(),
+            isCorrect: i === 0,
+        };
+        choices.push(new Choice(choiceData));
     }
 
     return choices;
 };
 
-const getFakeChoicesDto = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
-    const choices: ChoiceDto[] = [];
+const getFakeChoicesDto = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoiceDto[] => {
+    const choices: CreateChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
-        choices.push({ text, isCorrect } as ChoiceDto);
+        choices.push({ text, isCorrect } as CreateChoiceDto);
     }
 
     return choices;

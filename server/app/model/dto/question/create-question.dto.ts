@@ -20,5 +20,5 @@ export class CreateQuestionDto {
     points: number;
 
     @ApiProperty()
-    choices?: ChoiceDto[];
+    choices?: CreateChoiceDto[];
 }

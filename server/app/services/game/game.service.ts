@@ -1,23 +1,21 @@
 import { Game, GameDocument } from '@app/model/database/game';
-import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
-import { MAX_DURATION, MIN_DURATION } from '@common/constants';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { QuestionService } from '@app/services/question/question.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs-extra';
 import { Model } from 'mongoose';
 
-// TODO: Add Question when call to addGame or modifyGame
-
 @Injectable()
 export class GameService {
     constructor(
         @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
-        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
+        private readonly questionService: QuestionService,
         private readonly logger: Logger,
     ) {
-        this.start();
+        // this.start();
     }
 
     async start() {
@@ -31,10 +29,10 @@ export class GameService {
             const jsonData = await fs.readFile('assets/quiz-example.json', 'utf8');
             const gameData = JSON.parse(jsonData);
             const gameDto: CreateGameDto = {
-                title: gameData.getTitle(),
-                description: gameData.getDescription(),
-                duration: gameData.getDuration(),
-                questions: gameData.getQuestions(),
+                title: gameData.title,
+                description: gameData.description,
+                duration: gameData.duration,
+                questions: gameData.questions as CreateQuestionDto[],
                 visibility: true,
             };
             await this.addGame(gameDto);
@@ -61,12 +59,13 @@ export class GameService {
         try {
             if (!this.validateGame(gameData)) {
                 return Promise.reject('Invalid game');
-            } else {
-                const game = new Game(gameData);
-                // await this.questionModel.insertMany(game.getQuestions());
-                await this.gameModel.create(game);
-                return game.getGameId();
             }
+            for (const questionData of gameData.questions) {
+                await this.questionService.addQuestion(questionData);
+            }
+            const game = new Game(gameData);
+            await this.gameModel.create(game);
+            return game.getGameId();
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }
@@ -109,7 +108,6 @@ export class GameService {
                 await this.addGame(gameData);
                 return;
             }
-            // await this.questionModel.insertMany(game.questions);
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
