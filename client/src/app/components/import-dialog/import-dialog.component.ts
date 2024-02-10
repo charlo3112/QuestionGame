@@ -61,12 +61,10 @@ export class ImportDialogComponent {
     }
 
     verifyName(name: string): void {
+        this.validName = false;
         this.communicationService.verifyTitle(name).subscribe({
-            next: () => {
-                this.validName = true;
-            },
-            error: () => {
-                this.validName = false;
+            next: (res) => {
+                this.validName = res;
             },
         });
     }
