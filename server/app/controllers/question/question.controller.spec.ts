@@ -1,7 +1,7 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { QuestionController } from '@app/controllers/question/question.controller';
-import { Choice } from '@app/model/database/choice';
 import { Question } from '@app/model/database/question';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
 import { HttpStatus } from '@nestjs/common';
@@ -131,12 +131,12 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
-    const choices: Choice[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
+    const choices: ChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
-        choices.push(new Choice(text, isCorrect));
+        choices.push({ text, isCorrect });
     }
 
     return choices;

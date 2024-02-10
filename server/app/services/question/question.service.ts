@@ -8,12 +8,12 @@ import { Model } from 'mongoose';
 @Injectable()
 export class QuestionService {
     constructor(
-        @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
+        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
     ) {}
 
     async getAllQuestions(): Promise<Question[]> {
-        return await this.questionModel.find({});
+        return await this.questionModel.find<Question>({});
     }
 
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
