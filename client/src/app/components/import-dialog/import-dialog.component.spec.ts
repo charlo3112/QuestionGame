@@ -4,7 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
+import { of } from 'rxjs';
 import { ImportDialogComponent } from './import-dialog.component';
 
 describe('ImportDialogComponent', () => {
@@ -12,6 +14,7 @@ describe('ImportDialogComponent', () => {
     let fixture: ComponentFixture<ImportDialogComponent>;
     let validationServiceSpy: jasmine.SpyObj<ValidationService>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ImportDialogComponent>>;
+    let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
     const timeout = 1000;
 
     beforeEach(async () => {
@@ -19,11 +22,15 @@ describe('ImportDialogComponent', () => {
         validationServiceSpy.validateGame.and.returnValue([]);
         dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['verifyTitle']);
+        communicationServiceSpy.verifyTitle.and.returnValue(of(true));
+
         await TestBed.configureTestingModule({
             imports: [MatDialogModule, MatButtonModule, MatInputModule, NoopAnimationsModule, FormsModule, ImportDialogComponent],
             providers: [
                 { provide: ValidationService, useValue: validationServiceSpy },
                 { provide: MatDialogRef, useValue: dialogRefSpy },
+                { provide: CommunicationService, useValue: communicationServiceSpy },
             ],
         }).compileComponents();
 
@@ -126,5 +133,16 @@ describe('ImportDialogComponent', () => {
         const event = { target: { value: 'test' } } as unknown as Event;
         component.verifyAndSetNewName(event);
         expect(component.data.value.title).toBe('test');
+    });
+
+    it('should set validName to true if the name is valid', () => {
+        component.verifyName('title');
+        expect(component.validName).toBeTrue();
+    });
+
+    it('should set validName to false if the name is not valid', () => {
+        communicationServiceSpy.verifyTitle.and.returnValue(of(false));
+        component.verifyName('title');
+        expect(component.validName).toBeFalse();
     });
 });
