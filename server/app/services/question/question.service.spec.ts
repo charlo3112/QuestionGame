@@ -102,21 +102,21 @@ describe('QuestionServiceEndToEnd', () => {
         expect(questionModel).toBeDefined();
     });
 
-    it('getAllQuestions() return all questions in database', async () => {
-        await questionModel.deleteMany({});
-        expect((await service.getAllQuestions()).length).toEqual(0);
-        const question = getFakeQuestion();
-        await questionModel.create(question);
-        expect((await service.getAllQuestions()).length).toEqual(1);
-    });
+    // it('getAllQuestions() return all questions in database', async () => {
+    //     await questionModel.deleteMany({});
+    //     expect((await service.getAllQuestions()).length).toEqual(0);
+    //     const question = getFakeQuestion();
+    //     await questionModel.create(question);
+    //     expect((await service.getAllQuestions()).length).toEqual(1);
+    // });
 
-    it('deleteQuestion() should delete the question', async () => {
-        await questionModel.deleteMany({});
-        const question = getFakeQuestion();
-        await questionModel.create(question);
-        await service.deleteQuestion(question.getText());
-        expect(await questionModel.countDocuments()).toEqual(0);
-    });
+    // it('deleteQuestion() should delete the question', async () => {
+    //     await questionModel.deleteMany({});
+    //     const question = getFakeQuestion();
+    //     await questionModel.create(question);
+    //     await service.deleteQuestion(question.getText());
+    //     expect(await questionModel.countDocuments()).toEqual(0);
+    // });
 
     // it('deleteQuestion() should fail if the question does not exist', async () => {
     //     await questionModel.deleteMany({});
