@@ -98,8 +98,10 @@ export class GameService {
                     questions: game.questions,
                     visibility: true,
                 };
-                await this.gameModel.create(new Game(gameData));
+                await this.addGame(gameData);
+                return;
             }
+            await this.questionModel.insertMany(game.questions);
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
@@ -110,7 +112,7 @@ export class GameService {
             gameData.duration <= MAX_DURATION &&
             gameData.duration >= MIN_DURATION &&
             gameData.questions.length > 0 &&
-            !(await this.gameModel.findOne({ text: gameData.title }))
+            !(await this.gameModel.findOne({ title: gameData.title }))
         );
     }
 

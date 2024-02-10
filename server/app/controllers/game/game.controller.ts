@@ -84,7 +84,7 @@ export class GameController {
                 response.status(HttpStatus.OK).send();
             }
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.FOUND).send(error.message);
         }
     }
 

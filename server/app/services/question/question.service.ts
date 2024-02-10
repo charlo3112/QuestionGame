@@ -9,7 +9,7 @@ import { Model } from 'mongoose';
 @Injectable()
 export class QuestionService {
     constructor(
-        @InjectModel(Question.name) public questionModel: Model<QuestionDocument>,
+        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
     ) {
         this.start();

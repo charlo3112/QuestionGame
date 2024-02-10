@@ -7,6 +7,7 @@ import { QuestionService } from './question.service';
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Choice } from '@app/model/database/choice';
 import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
@@ -132,7 +133,7 @@ describe('QuestionServiceEndToEnd', () => {
     it('addQuestion() should add the question to the DB', async () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
-        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoices() });
+        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() });
         expect(await questionModel.countDocuments()).toEqual(1);
     });
 
@@ -140,17 +141,17 @@ describe('QuestionServiceEndToEnd', () => {
         jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
         const question = getFakeQuestion();
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoices() }),
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() }),
         ).rejects.toBeTruthy();
     });
 
     it('addQuestion() should fail if the question is not a valid', async () => {
         const question = getFakeQuestion();
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'test question', points: 43, choices: getFakeChoices() }),
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'test question', points: 43, choices: getFakeChoicesDto() }),
         ).rejects.toBeTruthy();
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoices() }),
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: 'question', points: 200, choices: getFakeChoicesDto() }),
         ).rejects.toBeTruthy();
     });
 
@@ -171,7 +172,7 @@ const getFakeQuestion = (): Question => {
         type: QuestionType.QCM,
         text: getRandomString(),
         points: 40,
-        choices: getFakeChoices(),
+        choices: getFakeChoicesDto(),
     };
 
     const question = new Question(questionData);
@@ -185,6 +186,17 @@ const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
         const text = getRandomString();
         const isCorrect = i === 0;
         choices.push(new Choice(text, isCorrect));
+    }
+
+    return choices;
+};
+
+const getFakeChoicesDto = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
+    const choices: ChoiceDto[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = i === 0;
+        choices.push({ text, isCorrect } as ChoiceDto);
     }
 
     return choices;

@@ -82,6 +82,19 @@ describe('GameController', () => {
     });
 
     it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
+        gameService.getGameById.resolves(null);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getGameById('', res);
+    });
+
+    it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
         gameService.getGameById.rejects();
 
         const res = {} as unknown as Response;
@@ -107,12 +120,37 @@ describe('GameController', () => {
         await controller.addGame(getFakeCreateGameDto(), res);
     });
 
+    it('addGame() should return NOT_MODIFIED when service add the game', async () => {
+        gameService.addGame.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.addGame(getFakeCreateGameDto(), res);
+    });
     it('modifyGame() should succeed if service able to modify the game', async () => {
         gameService.modifyGame.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.modifyGame(getFakeUpdateGameDto(), res);
+    });
+
+    it('modifyGame() should return NOT_MODIFIED when service cannot modify the game', async () => {
+        gameService.modifyGame.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
             return res;
         };
         res.send = () => res;
@@ -160,6 +198,63 @@ describe('GameController', () => {
         res.send = () => res;
 
         await controller.toggleVisibility(game.getGameId(), res);
+    });
+
+    it('should return Ok when get all games admin', async () => {
+        const fakeGame: Game[] = [getFakeGame()];
+        gameService.getAllGamesAdmin.resolves(fakeGame);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (games) => {
+            expect(games).toEqual(fakeGame);
+            return res;
+        };
+
+        await controller.getAllGamesAdmin(res);
+    });
+
+    it('should return NOT_FOUND when service unable to fetch games', async () => {
+        gameService.getAllGamesAdmin.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAllGamesAdmin(res);
+    });
+
+    it('verifyTitle() should return Ok when game is valid', async () => {
+        const game = getFakeGame();
+        gameService.verifyTitle.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: game.getTitle() }, res);
+    });
+
+    it('verifyTitle() should return FOUND when error occurs', async () => {
+        gameService.verifyTitle.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: '' }, res);
     });
 });
 
