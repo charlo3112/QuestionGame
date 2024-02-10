@@ -20,7 +20,7 @@ import { QuestionBankComponent } from './components/question-bank/question-bank.
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, QuestionBankComponent],
+    declarations: [AppComponent],
     imports: [
         AppRoutingModule,
         BrowserAnimationsModule,
@@ -34,6 +34,7 @@ import { QuestionBankComponent } from './components/question-bank/question-bank.
         AdminPageComponent,
         AnswersComponent,
         MatGridListModule,
+        QuestionBankComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
