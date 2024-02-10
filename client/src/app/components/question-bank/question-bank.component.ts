@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
@@ -6,6 +7,8 @@ import { CommunicationService } from '@app/services/communication.service';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
+    imports: [CommonModule],
+    standalone: true,
 })
 export class QuestionBankComponent {
     errorLoadingQuestions = false;
