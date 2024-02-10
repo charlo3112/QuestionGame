@@ -21,6 +21,8 @@ export class ValidationService {
 
         if (!game.duration) {
             errors.push('La durée du jeu est requise.');
+        } else if (game.duration > 60 || game.duration < 10 || !Number.isInteger(game.duration)) {
+            errors.push('Le temps alloué aux questions est mauvais.');
         }
 
         if (!Array.isArray(game.questions)) {
@@ -39,7 +41,6 @@ export class ValidationService {
                 }
             }
         }
-
         return errors;
     }
 
@@ -61,6 +62,10 @@ export class ValidationService {
         }
 
         if (question.type === QuestionType.Qcm) {
+            if (Number.isInteger(question.points)) {
+            } else {
+                errors.push('Les points ne sont pas un nombre entier.');
+            }
             if (!Array.isArray(question.choices)) {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
@@ -68,11 +73,18 @@ export class ValidationService {
                 if (choices.length === 0) {
                     errors.push('La question doit avoir au moins un choix.');
                 }
+                let answer: number = 0;
                 for (let j = 0; j < choices.length; j++) {
                     const choice = choices[j];
+                    if (choice.isCorrect) {
+                        answer++;
+                    }
                     if (!choice.text) {
                         errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
                     }
+                }
+                if (answer === 0 || answer === choices.length) {
+                    errors.push('Les choix de réponse sont fautifs');
                 }
             }
         }

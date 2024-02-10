@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
 import { CommunicationService } from '@app/services/communication.service';
 import { Choice } from '../../interfaces/choice';
 import { Question, QuestionType } from '../../interfaces/question';
@@ -35,33 +34,7 @@ export class CreateQuestionComponent implements OnChanges {
     @Input() questionData: Question | null = null;
     @Output() questionCreated = new EventEmitter<Question>();
 
-    constructor(
-        private communicationService: CommunicationService,
-        private route: ActivatedRoute,
-    ) {}
-
-    ngOnInit() {
-        this.route.paramMap.subscribe((params) => {
-            const gameId = params.get('id');
-            if (gameId) {
-                this.loadGameData(gameId);
-            }
-        });
-    }
-
-    loadGameData(gameId: string) {
-        this.communicationService.getGameById(gameId).subscribe({
-            next: (game) => {
-                /*
-            this.questionName = game.questionName;
-            this.questionPoints = game.questionPoints;
-            this.choices = game.choices;*/
-            },
-            error: (error) => {
-                console.error('Erreur lors du chargement du jeu', error);
-            },
-        });
-    }
+    constructor(private communicationService: CommunicationService) {}
 
     questionName: string = '';
     questionPoints: number = 10;
@@ -142,20 +115,6 @@ export class CreateQuestionComponent implements OnChanges {
                 points: this.questionPoints,
                 choices: this.choices,
             };
-            window.alert(
-                'Creation de la question : ' +
-                    newQuestion.text +
-                    ' Qui vaut : ' +
-                    newQuestion.points +
-                    '\nLes choix de réponses sont : ' +
-                    newQuestion.choices[0].text +
-                    ' qui est ' +
-                    newQuestion.choices[0].isCorrect +
-                    '\n et ' +
-                    newQuestion.choices[1].text +
-                    ' qui est ' +
-                    newQuestion.choices[1].isCorrect,
-            );
             this.questionCreated.emit(newQuestion);
             this.resetForm();
         }

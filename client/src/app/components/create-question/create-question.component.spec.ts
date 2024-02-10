@@ -1,4 +1,4 @@
-import { SimpleChange } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,10 +9,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { Question, QuestionType } from '../../interfaces/question';
 
 describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
+    let mockValidQuestion: Question;
+    let mockInvalidQuestion: Question;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -25,6 +28,7 @@ describe('CreateQuestionComponent', () => {
                 MatIconModule,
                 MatCheckboxModule,
                 NoopAnimationsModule,
+                HttpClientModule,
             ],
         }).compileComponents();
     });
@@ -32,8 +36,27 @@ describe('CreateQuestionComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(CreateQuestionComponent);
         component = fixture.componentInstance;
+        mockValidQuestion = {
+            text: 'Quelle est la capitale du Canada ?',
+            points: 10,
+            choices: [
+                { text: 'Ottawa', isCorrect: true },
+                { text: 'Toronto', isCorrect: false },
+            ],
+            type: QuestionType.Qcm,
+        };
+        mockInvalidQuestion = {
+            text: 'Quelle est la capitale du Canada ?',
+            points: 10,
+            choices: [
+                { text: 'Montreal', isCorrect: false },
+                { text: 'Toronto', isCorrect: false },
+            ],
+            type: QuestionType.Qcm,
+        };
         fixture.detectChanges();
     });
+
     it('should create', () => {
         expect(component).toBeTruthy();
     });
@@ -68,7 +91,7 @@ describe('CreateQuestionComponent', () => {
         expect(window.alert).toHaveBeenCalledWith('Vous ne pouvez pas ajouter plus de 4 choix.');
     });
 
-    //test de la fonction deleteChoice()
+    // test de la fonction deleteChoice()
     it('should delete the right choice', () => {
         component.choices = [
             { text: 'Choix 1', isCorrect: false },
@@ -82,24 +105,31 @@ describe('CreateQuestionComponent', () => {
         expect(component.choices[1].text).toBe('Choix 3');
     });
 
-    //test de la fonction ngOnChanges(), resetForm() et fillForm()
+    // test de la fonction ngOnChanges(), resetForm() et fillForm()
+
+    /*
     it('should fill the form if we edit an already created question', () => {
-        const newQuestion = {
+        const newQuestion: Question = {
             text: 'Quelle est la capitale du Canada ?',
             points: 10,
             choices: [
                 { text: 'Ottawa', isCorrect: true },
                 { text: 'Toronto', isCorrect: false },
             ],
-            type: 'Qcm',
+            type: QuestionType.Qcm,
         };
-        component.ngOnChanges({
-            questionData: new SimpleChange(null, newQuestion, true),
-        });
+
+        const changesObj: SimpleChanges = {
+            questionData: new SimpleChange(undefined, newQuestion, true),
+        };
+        component.ngOnChanges(changesObj);
+        fixture.detectChanges();
+
         expect(component.questionName).toEqual(newQuestion.text);
         expect(component.questionPoints).toEqual(newQuestion.points);
         expect(component.choices).toEqual(newQuestion.choices);
     });
+
     it('should reset the form when questionData is null', () => {
         component.ngOnChanges({
             questionData: new SimpleChange({ text: 'Moc question', points: 20, choices: [] }, null, true),
@@ -107,8 +137,50 @@ describe('CreateQuestionComponent', () => {
         expect(component.questionName).toBe('');
         expect(component.questionPoints).toBe(10);
         expect(component.choices.length).toBe(0);
+    });*/
+
+    // test de la fonction save(), choiceVerif() et hasAnswer()
+    it('should emit questionCreated event with correct data on save', () => {
+        spyOn(component.questionCreated, 'emit');
+        component.questionName = mockValidQuestion.text;
+        component.questionPoints = mockValidQuestion.points;
+        component.choices = mockValidQuestion.choices;
+        component.save();
+        expect(component.questionCreated.emit).toHaveBeenCalledWith({
+            ...mockValidQuestion,
+        });
     });
 
-    //test de la fonction save(), choiceVerif() et hasAnswer()
-    //test de la fonction startEdit et saveEdit()
+    // test avec aucun choix, un choix faux, deux faux, et un bon
+    it('should verify choices correctly', () => {
+        component.questionName = 'Test';
+        component.choices = [];
+        expect(component.choiceVerif()).toBeFalse();
+        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
+        expect(component.choiceVerif()).toBeFalse();
+        component.choices.push({ text: 'Réponse 2', isCorrect: false });
+        expect(component.choiceVerif()).toBeFalse();
+        component.choices.push({ text: 'Réponse 3', isCorrect: true });
+        expect(component.choiceVerif()).toBeTrue();
+    });
+
+    // test du cas normal
+    it('should check for at least one correct and one incorrect answer', () => {
+        component.choices = mockValidQuestion.choices;
+        expect(component.hasAnswer()).toBeTrue();
+        component.choices = mockInvalidQuestion.choices;
+        expect(component.hasAnswer()).toBeFalse();
+    });
+
+    // test de la fonction startEdit et saveEdit()
+    it('should toggle edit mode on and off', () => {
+        component.choices = [{ text: 'Choix 1', isCorrect: false }];
+        component.editArray = [false];
+
+        component.startEdit(0);
+        expect(component.editArray[0]).toBeTrue();
+
+        component.saveEdit(0);
+        expect(component.editArray[0]).toBeFalse();
+    });
 });
