@@ -1,6 +1,5 @@
-import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT, QuestionType } from '@app/constants';
+import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@app/constants';
 import { Question, QuestionDocument } from '@app/model/database/question';
-import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -11,35 +10,7 @@ export class QuestionService {
     constructor(
         @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
-    ) {
-        this.start();
-    }
-
-    async start() {
-        if ((await this.questionModel.countDocuments()) === 0) {
-            await this.populateDB();
-        }
-    }
-
-    async populateDB(): Promise<void> {
-        const testChoices: ChoiceDto[] = [];
-        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-            const text = 'test text';
-            const isCorrect = i === 0;
-            testChoices.push({ text, isCorrect });
-        }
-        const testQuestions: Question[] = [];
-        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-            const questionData: CreateQuestionDto = {
-                type: QuestionType.QCM,
-                text: 'test text' + i,
-                points: 40,
-                choices: testChoices,
-            };
-            testQuestions.push(new Question(questionData));
-        }
-        await this.questionModel.insertMany(testQuestions);
-    }
+    ) {}
 
     async getAllQuestions(): Promise<Question[]> {
         return await this.questionModel.find<Question>({});
