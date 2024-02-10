@@ -1,9 +1,11 @@
 import { NgIf } from '@angular/common';
+import { HttpStatusCode } from '@angular/common/http';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { CommunicationService } from '@app/services/communication.service';
 
 @Component({
     selector: 'app-admin-login',
@@ -20,14 +22,22 @@ export class AdminLoginComponent {
         password: new FormControl('', [Validators.required]),
     });
 
+    constructor(private readonly communicationService: CommunicationService) {}
     onSubmit() {
-        if (this.loginForm.valid) {
-            if (this.loginForm.value.password === 'log2990-202') {
-                this.loginSuccess.emit(true);
-            } else {
-                this.error = true;
-                this.loginForm.reset();
-            }
+        if (this.loginForm.value.password) {
+            this.communicationService.login(this.loginForm.value.password).subscribe({
+                next: (response) => {
+                    if (response.status === HttpStatusCode.Ok) {
+                        this.error = false;
+                        this.loginSuccess.emit(true);
+                    } else {
+                        this.error = true;
+                    }
+                },
+                error: () => {
+                    this.error = true;
+                },
+            });
         }
     }
 }

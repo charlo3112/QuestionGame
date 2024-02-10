@@ -22,9 +22,7 @@ describe('AdminPageComponent', () => {
         communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['deleteGame', 'toggleGameVisibility', 'exportGame']);
         communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
         communicationServiceSpy.toggleGameVisibility.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
-        communicationServiceSpy.exportGame.and.returnValue(
-            of(new HttpResponse<Blob>({ status: 200, body: new Blob([JSON.stringify({})], { type: 'application/json' }) })),
-        );
+        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: 200, body: '' })));
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
@@ -109,7 +107,7 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.deleteGame(GAME_PLACEHOLDER.id);
+        component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
         expect(component.games.length).toBe(0);
@@ -123,15 +121,15 @@ describe('AdminPageComponent', () => {
         component.games = [];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.deleteGame(GAME_PLACEHOLDER.id);
+        component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should open snackbar when openSnackBar is called', () => {
         spyOn(component['snackBar'], 'open');
-        component.openSnackBar('message', 'action');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'action');
+        component.openSnackBar('message');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message');
     });
 
     it('should emit export event when export button is clicked', () => {
@@ -149,7 +147,7 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).not.toHaveBeenCalled();
     }));
@@ -162,18 +160,18 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should should show snackbar when exportGame is called and no data is received', fakeAsync(() => {
-        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<Blob>({ status: 404 })));
+        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: 404 })));
         component.login = true;
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
@@ -193,10 +191,10 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
-        expect(component.games[0].isVisible).toBeFalse();
+        expect(component.games[0].visibility).toBeFalse();
         expect(snackBarSpy.open).not.toHaveBeenCalled();
     }));
 
@@ -219,7 +217,7 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
         fixture.detectChanges();
