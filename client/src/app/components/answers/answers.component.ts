@@ -20,6 +20,9 @@ export class AnswersComponent {
     }
 
     questionSelected(choice: Choice) {
+        if (this.showAnswer) {
+            return;
+        }
         choice.isSelected = !choice.isSelected;
     }
 }

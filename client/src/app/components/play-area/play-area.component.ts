@@ -1,4 +1,4 @@
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,7 +17,7 @@ const timeConfirmMs = 3000;
     templateUrl: './play-area.component.html',
     styleUrls: ['./play-area.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterLink, NgIf, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [CommonModule, RouterLink, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class PlayAreaComponent implements AfterViewInit {
     @Input() question: Question;
@@ -42,7 +42,7 @@ export class PlayAreaComponent implements AfterViewInit {
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
-        if (this.isChatFocused) {
+        if (this.isChatFocused || this.showAnswer) {
             return;
         }
         const key = event.key;
@@ -94,10 +94,6 @@ export class PlayAreaComponent implements AfterViewInit {
             }
             this.resetTimer();
         }, timeConfirmMs);
-    }
-
-    abandonnerPartie() {
-        window.alert('Partie abandonnée');
     }
 
     chatFocused(focus: boolean) {

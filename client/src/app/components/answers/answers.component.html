@@ -15,8 +15,8 @@
     >   
         <div>
             <span> {{ (i + 1).toString() + ' - ' + choice.text }} </span>
-            <mat-icon *ngIf="choice.isCorrect && this.showAnswer" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
-            <mat-icon *ngIf="!choice.isCorrect && this.showAnswer" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
+            <mat-icon *ngIf="(choice.isCorrect ===  choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
+            <mat-icon *ngIf="(!choice.isCorrect === choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
         </div>
     </button>
 </div>

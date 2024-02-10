@@ -8,7 +8,7 @@
     <mat-toolbar-row class="row-container">
         <p class="big-text">Score total : {{ score }}</p>
         <p *ngIf="time" class="big-text">Temps restant : {{ time }}</p>
-        <button mat-raised-button id="abandon-button" (click)="abandonnerPartie()">Abandonner</button>
+        <button mat-raised-button id="abandon-button" routerLink="#/admin/game">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
 
