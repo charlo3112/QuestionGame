@@ -1,4 +1,4 @@
-import { Question } from '@app/model/database/question';
+import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
@@ -18,5 +18,8 @@ export class CreateGameDto {
     duration: number;
 
     @ApiProperty({ required: true })
-    questions: Question[];
+    questions: CreateQuestionDto[];
+
+    @ApiProperty({ required: false })
+    visibility: boolean;
 }

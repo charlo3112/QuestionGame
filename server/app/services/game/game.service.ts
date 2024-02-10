@@ -1,6 +1,6 @@
 import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
-import { QuestionDocument } from '@app/model/database/question';
+import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
@@ -13,7 +13,7 @@ export class GameService {
     constructor(
         @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
         private readonly logger: Logger,
-        private readonly questionModel: Model<QuestionDocument>,
+        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
     ) {
         this.start();
     }
@@ -66,7 +66,9 @@ export class GameService {
 
     async toggleVisibility(id: string): Promise<void> {
         try {
-            (await this.getGameById(id)).visibility = !(await this.getGameById(id)).visibility;
+            const game = await this.getGameById(id);
+            game.visibility = !game.visibility;
+            await this.gameModel.updateOne({ gameId: id }, game);
         } catch (error) {
             return Promise.reject(`Failed to toggle visibility: ${error}`);
         }
@@ -94,6 +96,7 @@ export class GameService {
                     description: game.description,
                     duration: game.duration,
                     questions: game.questions,
+                    visibility: true,
                 };
                 await this.gameModel.create(new Game(gameData));
             }
@@ -109,5 +112,9 @@ export class GameService {
             gameData.questions.length > 0 &&
             !(await this.gameModel.findOne({ text: gameData.title }))
         );
+    }
+
+    async verifyTitle(title: string): Promise<boolean> {
+        return (await this.gameModel.findOne({ title })) ? true : false;
     }
 }
