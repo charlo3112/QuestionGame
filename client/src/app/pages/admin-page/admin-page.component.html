@@ -19,9 +19,9 @@
     <div *ngFor="let game of games">
         <app-admin-game-preview
             [gameDetails]="game"
-            (delete)="deleteGame(game.id)"
-            (export)="exportGame(game.id)"
-            (toggleVisibility)="toggleGameVisibility(game.id)"
+            (delete)="deleteGame(game.gameId)"
+            (export)="exportGame(game.gameId)"
+            (toggleVisibility)="toggleGameVisibility(game.gameId)"
         >
         </app-admin-game-preview>
     </div>

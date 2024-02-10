@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionType } from '@app/interfaces/question';
-
-type Result<T, E = string> = { ok: true; value: T } | { ok: false; error: E };
+import { Result } from '@app/interfaces/result';
 
 @Injectable({
     providedIn: 'root',
@@ -87,7 +86,6 @@ export class ValidationService {
             const filteredOutput: Partial<Game> = {
                 title: parsedInput.title,
                 description: parsedInput.description,
-                isVisible: false,
                 duration: parsedInput.duration,
                 lastModification: parsedInput.lastModification,
                 questions: parsedInput.questions?.map((question) => ({

@@ -4,9 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
+import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
-
-type Result<T, E = string> = { ok: true; value: T } | { ok: false; error: E };
 
 @Component({
     selector: 'app-import-dialog',
@@ -23,6 +23,7 @@ export class ImportDialogComponent {
     constructor(
         private readonly validationService: ValidationService,
         public dialogRef: MatDialogRef<ImportDialogComponent>,
+        private readonly communicationService: CommunicationService,
     ) {}
 
     onFileSelected(files: FileList): void {
@@ -39,7 +40,7 @@ export class ImportDialogComponent {
 
     onImport(): void {
         if (this.validationErrors.length === 0 && this.data.ok && this.validName) {
-            this.dialogRef.close(this.data);
+            this.dialogRef.close(this.data.value);
         }
     }
 
@@ -59,11 +60,12 @@ export class ImportDialogComponent {
     }
 
     verifyName(name: string): void {
-        if (name === 'test') {
-            this.validName = true;
-        } else {
-            this.validName = false;
-        }
+        this.validName = false;
+        this.communicationService.verifyTitle(name).subscribe({
+            next: (res) => {
+                this.validName = res;
+            },
+        });
     }
 
     private loadFile(reader: FileReader): void {

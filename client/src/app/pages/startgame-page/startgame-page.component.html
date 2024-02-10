@@ -1,12 +1,13 @@
 <mat-toolbar class="toolbar" color="primary">
-    <a routerLink="#"><img src="assets/logo.png"/></a>
+    <a routerLink="#"><img src="assets/logo.png" /></a>
     <h1 class="title">{{ title }}</h1>
 </mat-toolbar>
 <div class="content">
     <div class="accordion-container">
         <mat-accordion>
             <div *ngFor="let game of games; index as i">
-                <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game.id)" (testGame)="testGame(game.id)"> </app-startgame-expansion>
+                <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game.gameId)" (testGame)="testGame(game.gameId)">
+                </app-startgame-expansion>
             </div>
         </mat-accordion>
     </div>
