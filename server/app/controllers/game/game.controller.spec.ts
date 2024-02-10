@@ -1,7 +1,6 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
-import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -170,8 +169,8 @@ const getFakeGame = (): Game => {
     return game;
 };
 
-const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
-    const questions: Question[] = [];
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): CreateQuestionDto[] => {
+    const questions: CreateQuestionDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const questionData: CreateQuestionDto = {
             type: QuestionType.QCM,
@@ -179,18 +178,18 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
             points: 40,
             choices: getFakeChoices(),
         };
-        questions.push(new Question(questionData));
+        questions.push(questionData);
     }
 
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
-    const choices: Choice[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
+    const choices: ChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
-        choices.push(new Choice(text, isCorrect));
+        choices.push({ text, isCorrect });
     }
 
     return choices;
@@ -202,6 +201,7 @@ const getFakeCreateGameDto = (): CreateGameDto => {
         description: getRandomString(),
         duration: 40,
         questions: getFakeQuestions(),
+        visibility: true,
     };
     return gameData;
 };
