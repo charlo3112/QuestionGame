@@ -4,6 +4,13 @@
 .answers-container {
     display: grid;
     gap: 0.69em;
+    .good {
+        background-color: green;
+    }
+    
+    .bad {
+        background-color: red;
+    }
 }
 
 .two-answers {
@@ -42,12 +49,4 @@
 
 .solution {
     transform: scale(2);
-}
-
-.good {
-    color: green;
-}
-
-.bad {
-    color: red;
 }

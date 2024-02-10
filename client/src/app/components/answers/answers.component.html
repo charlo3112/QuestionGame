@@ -9,14 +9,12 @@
     <button
         mat-raised-button
         class="answer"
-        [ngClass]="{ selected: choice.isSelected }"
+        [ngClass]="{ selected: choice.isSelected, 'good': (choice.isCorrect === choice.isSelected) && this.showAnswer, 'bad': (choice.isCorrect !== choice.isSelected) && this.showAnswer }"
         (click)="questionSelected(choice)"
         *ngFor="let choice of choices; let i = index"
     >   
-        <div>
-            <span> {{ (i + 1).toString() + ' - ' + choice.text }} </span>
-            <mat-icon *ngIf="(choice.isCorrect ===  choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
-            <mat-icon *ngIf="(!choice.isCorrect === choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
-        </div>
+        <span> {{ (i + 1).toString() + ' - ' + choice.text }} </span>
+        <mat-icon *ngIf="(choice.isCorrect === choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
+        <mat-icon *ngIf="(choice.isCorrect !== choice.isSelected) && this.showAnswer" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
     </button>
 </div>
