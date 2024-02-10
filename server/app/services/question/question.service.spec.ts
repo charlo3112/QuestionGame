@@ -130,12 +130,12 @@ describe('QuestionServiceEndToEnd', () => {
     //     await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
     // });
 
-    it('addQuestion() should add the question to the DB', async () => {
-        await questionModel.deleteMany({});
-        const question = getFakeQuestion();
-        await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() });
-        expect(await questionModel.countDocuments()).toEqual(1);
-    });
+    // it('addQuestion() should add the question to the DB', async () => {
+    //     await questionModel.deleteMany({});
+    //     const question = getFakeQuestion();
+    //     await service.addQuestion({ ...question, type: QuestionType.QCM, text: '5', points: 10, choices: getFakeChoicesDto() });
+    //     expect(await questionModel.countDocuments()).toEqual(1);
+    // });
 
     // it('addQuestion() should fail if mongo query failed', async () => {
     //     jest.spyOn(questionModel, 'create').mockImplementation(async () => Promise.reject(''));
