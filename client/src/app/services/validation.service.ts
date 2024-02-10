@@ -87,7 +87,6 @@ export class ValidationService {
             const filteredOutput: Partial<Game> = {
                 title: parsedInput.title,
                 description: parsedInput.description,
-                isVisible: false,
                 duration: parsedInput.duration,
                 lastModification: parsedInput.lastModification,
                 questions: parsedInput.questions?.map((question) => ({
