@@ -88,7 +88,7 @@ export class CreatePageComponent {
                     questions: this.questions,
                     isVisible: false,
                 };
-                console.log('Nouveau jeu créé :', gameCreated);
+                console.log(gameCreated);
             }
         }
     }

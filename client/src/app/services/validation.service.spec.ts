@@ -14,7 +14,7 @@ describe('ValidationService', () => {
             const game = {
                 title: 'Test Game',
                 description: 'Test Description',
-                duration: 120,
+                duration: 60,
                 questions: [
                     {
                         text: 'Test Question',
@@ -59,9 +59,12 @@ describe('ValidationService', () => {
         it('should validate a complete question object without errors', () => {
             const question = {
                 text: 'What is the capital of France?',
-                points: 5,
+                points: 10,
                 type: 'QCM',
-                choices: [{ text: 'Paris', isCorrect: true }],
+                choices: [
+                    { text: 'Paris', isCorrect: true },
+                    { text: 'Marseille', isCorrect: false },
+                ],
             } as unknown as Partial<Question>;
             expect(service.validateQuestion(question)).toEqual([]);
         });
@@ -108,7 +111,7 @@ describe('ValidationService', () => {
                 test: 'test',
                 title: 'Test Game',
                 description: 'Test Description',
-                duration: 120,
+                duration: 60,
                 lastModification: '2021-01-01',
                 questions: [
                     {
@@ -127,7 +130,7 @@ describe('ValidationService', () => {
                 title: 'Test Game',
                 description: 'Test Description',
                 isVisible: false,
-                duration: 120,
+                duration: 60,
                 lastModification: '2021-01-01',
                 questions: [
                     {
