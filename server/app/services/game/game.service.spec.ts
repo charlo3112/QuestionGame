@@ -8,10 +8,10 @@ import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
 import { Logger } from '@nestjs/common';
-import { MongooseModule, getModelToken } from '@nestjs/mongoose';
+import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Model } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { GameService } from './game.service';
 
 /**
@@ -79,12 +79,14 @@ describe('GameService', () => {
 
 const GAME_DURATION = 40;
 const NEW_NUMBER_OF_QUESTIONS = 5;
+const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 
 describe('GameServiceEndToEnd', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
     let questionModel: Model<QuestionDocument>;
     let mongoServer: MongoMemoryServer;
+    let connection: Connection;
 
     beforeEach(async () => {
         mongoServer = await MongoMemoryServer.create();
@@ -106,14 +108,19 @@ describe('GameServiceEndToEnd', () => {
         service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
         questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
-        await gameModel.deleteMany({});
-        await questionModel.deleteMany({});
+        connection = await module.get(getConnectionToken());
     });
 
-    afterAll(async () => {
-        await mongoServer.stop();
+    afterEach((done) => {
+        // The database get auto populated in the constructor
+        // We want to make sur we close the connection after the database got
+        // populated. So we add small delay
+        setTimeout(async () => {
+            await connection.close();
+            await mongoServer.stop();
+            done();
+        }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
-
     it('should be defined', () => {
         expect(service).toBeDefined();
         expect(gameModel).toBeDefined();
@@ -163,7 +170,7 @@ describe('GameServiceEndToEnd', () => {
     it('modifyGame() should create a new game if the provided id has no match', async () => {
         const badGameDto = getBadFakeUpdateGameDto();
         await service.modifyGame(badGameDto);
-        expect(await gameModel.countDocuments()).toEqual(2);
+        expect(await gameModel.countDocuments()).toEqual(1);
     });
 
     it('getters should return the correct property of the Game', async () => {

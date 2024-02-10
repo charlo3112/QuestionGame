@@ -1,10 +1,11 @@
 import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
+import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs-extra';
 import { Model } from 'mongoose';
@@ -14,7 +15,7 @@ export class GameService {
     constructor(
         @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
         private readonly questionService: QuestionService,
-        private readonly logger: Logger,
+        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
     ) {
         // this.start();
     }
@@ -61,9 +62,7 @@ export class GameService {
             if (!this.validateGame(gameData)) {
                 return Promise.reject('Invalid game');
             }
-            for (const questionData of gameData.questions) {
-                await this.questionService.addQuestion(questionData);
-            }
+            // await this.questionModel.insertMany(gameData.questions);
             const game = new Game(gameData);
             await this.gameModel.create(game);
             return game.getGameId();
