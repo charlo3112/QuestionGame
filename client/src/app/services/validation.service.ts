@@ -50,9 +50,14 @@ export class ValidationService {
         if (!question.text) {
             errors.push('La question doit avoir un texte.');
         }
-
-        if (!question.points) {
+        if (question.points === undefined || question.points === null) {
             errors.push('La question doit avoir un nombre de points.');
+        } else if (!Number.isInteger(question.points)) {
+            errors.push('Les doivent être un nombre entier.');
+        } else if (question.points > 100 || question.points < 10) {
+            errors.push('Les points doivent être compris entre 10 et 100.');
+        } else if (question.points % 10 !== 0) {
+            errors.push('Les points doivent être un multiple de 10.');
         }
 
         if (!question.type) {
@@ -62,16 +67,12 @@ export class ValidationService {
         }
 
         if (question.type === QuestionType.Qcm) {
-            if (Number.isInteger(question.points)) {
-            } else {
-                errors.push('Les points ne sont pas un nombre entier.');
-            }
             if (!Array.isArray(question.choices)) {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
                 const choices = question.choices;
-                if (choices.length === 0) {
-                    errors.push('La question doit avoir au moins un choix.');
+                if (choices.length < 2) {
+                    errors.push('La question doit avoir au minimum deux un choix.');
                 }
                 let answer: number = 0;
                 for (let j = 0; j < choices.length; j++) {
