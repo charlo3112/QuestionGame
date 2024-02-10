@@ -1,6 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -11,19 +13,45 @@ export class CommunicationService {
 
     constructor(private readonly http: HttpClient) {}
 
-    toggleGameVisibility(id: string, value: boolean): Observable<HttpResponse<string>> {
-        return this.http.patch(`${this.baseUrl}/game/${id}`, { value }, { observe: 'response', responseType: 'text' });
+    toggleGameVisibility(id: string): Observable<HttpResponse<string>> {
+        return this.http.patch(`${this.baseUrl}/game/${id}`, null, {
+            observe: 'response',
+            responseType: 'text',
+        });
     }
-
     deleteGame(id: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
     }
 
-    exportGame(id: string): Observable<HttpResponse<Blob>> {
-        return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'blob' });
+    exportGame(id: string): Observable<HttpResponse<string>> {
+        return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
     }
 
-    getAdminGames(): Observable<HttpResponse<string>> {
-        return this.http.get(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'text' });
+    getAdminGames(): Observable<Result<Game[]>> {
+        return this.http.get<Game[]>(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game[]>) => {
+                const games = response.body as Game[];
+                return { ok: true, value: games } as Result<Game[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<Game[]>);
+            }),
+        );
+    }
+
+    addGame(game: Game): Observable<HttpResponse<string>> {
+        return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
+    }
+
+    login(password: string): Observable<HttpResponse<string>> {
+        return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
+    }
+
+    verifyTitle(title: string): Observable<boolean> {
+        return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title }).pipe(
+            catchError(() => {
+                return of(false);
+            }),
+        );
     }
 }

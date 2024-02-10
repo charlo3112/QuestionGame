@@ -4,7 +4,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Game } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
 import { AdminGamePreviewComponent } from './admin-game-preview.component';
 
@@ -24,16 +24,7 @@ describe('AdminGamePreviewComponent', () => {
     beforeEach(async () => {
         fixture = TestBed.createComponent(AdminGamePreviewComponent);
         component = fixture.componentInstance;
-        mockGameDetails = {
-            title: 'Test Game',
-            id: 'test-game',
-            description: 'This is a test game',
-            image: '#',
-            lastModification: '01-01-2024',
-            questions: [],
-            duration: 10,
-            isVisible: true,
-        };
+        mockGameDetails = GAME_PLACEHOLDER;
         component.gameDetails = mockGameDetails;
         fixture.detectChanges();
         router = TestBed.inject(Router);
@@ -49,7 +40,7 @@ describe('AdminGamePreviewComponent', () => {
         const editButton = fixture.debugElement.query(By.css('.admin-edit')).nativeElement;
         editButton.click();
         tick();
-        expect(location.path()).toBe('/admin/game/test-game');
+        expect(location.path()).toBe(`/admin/game/${GAME_PLACEHOLDER.gameId}`);
     }));
 
     it('should emit delete event when export button is clicked', () => {
