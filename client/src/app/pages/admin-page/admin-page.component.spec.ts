@@ -1,12 +1,14 @@
-import { HttpClientModule, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpClientModule, HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -19,14 +21,36 @@ describe('AdminPageComponent', () => {
     let snackBarSpy: SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['deleteGame', 'toggleGameVisibility', 'exportGame']);
-        communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
-        communicationServiceSpy.toggleGameVisibility.and.returnValue(of(new HttpResponse<string>({ status: 200 })));
-        communicationServiceSpy.exportGame.and.returnValue(
-            of(new HttpResponse<Blob>({ status: 200, body: new Blob([JSON.stringify({})], { type: 'application/json' }) })),
+        communicationServiceSpy = jasmine.createSpyObj('ExampleService', [
+            'deleteGame',
+            'toggleGameVisibility',
+            'exportGame',
+            'getAdminGames',
+            'login',
+            'exportGame',
+            'addGame',
+        ]);
+        communicationServiceSpy.deleteGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.toggleGameVisibility.and.returnValue(
+            of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '{"visibility": false}' })),
         );
+        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '' })));
+        communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
+        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.exportGame.and.returnValue(
+            of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: JSON.stringify(GAME_PLACEHOLDER) })),
+        );
+        communicationServiceSpy.addGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        TestBed.overrideProvider(MatDialog, {
+            useValue: {
+                open: () => ({
+                    afterClosed: () => of(GAME_PLACEHOLDER), // Simulate dialog closing with a result
+                }),
+            },
+        });
 
         await TestBed.configureTestingModule({
             imports: [
@@ -54,6 +78,22 @@ describe('AdminPageComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should show snackbar when error occurs during loadGames', fakeAsync(() => {
+        communicationServiceSpy.getAdminGames.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+        spyOn(component, 'openSnackBar');
+        component.loadGames();
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalled();
+    }));
+
+    it('should show snackbar when loadGames is called and is not ok', fakeAsync(() => {
+        communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: false } as Result<Game[]>));
+        spyOn(component, 'openSnackBar');
+        component.loadGames();
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
+    }));
 
     it('should display login component when not logged in', () => {
         component.login = false;
@@ -85,6 +125,7 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
+        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Forbidden })));
         component.login = false;
         fixture.detectChanges();
         spyOn(component, 'handleLogin');
@@ -109,7 +150,7 @@ describe('AdminPageComponent', () => {
         component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.deleteGame(GAME_PLACEHOLDER.id);
+        component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
         expect(component.games.length).toBe(0);
@@ -123,20 +164,19 @@ describe('AdminPageComponent', () => {
         component.games = [];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.deleteGame(GAME_PLACEHOLDER.id);
+        component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should open snackbar when openSnackBar is called', () => {
         spyOn(component['snackBar'], 'open');
-        component.openSnackBar('message', 'action');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'action');
+        component.openSnackBar('message');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close');
     });
 
     it('should emit export event when export button is clicked', () => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'exportGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -146,10 +186,9 @@ describe('AdminPageComponent', () => {
 
     it('should export game when exportGame is called', fakeAsync(() => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).not.toHaveBeenCalled();
     }));
@@ -159,28 +198,25 @@ describe('AdminPageComponent', () => {
             throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' })),
         );
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should should show snackbar when exportGame is called and no data is received', fakeAsync(() => {
-        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<Blob>({ status: 404 })));
+        communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: 404 })));
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.exportGame(GAME_PLACEHOLDER.id);
+        component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should emit toggleVisibility event when toggleVisibility button is clicked', () => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'toggleGameVisibility');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -190,19 +226,17 @@ describe('AdminPageComponent', () => {
 
     it('should toggle game visibility when toggleGameVisibility is called', fakeAsync(() => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
-        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
-        expect(component.games[0].isVisible).toBeFalse();
+        expect(component.games[0].visibility).toBeFalse();
         expect(snackBarSpy.open).not.toHaveBeenCalled();
     }));
 
     it('should not toogle game visibility when toggleGameVisibility is called with invalid id', fakeAsync(() => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
 
         component.toggleGameVisibility('none');
@@ -216,22 +250,34 @@ describe('AdminPageComponent', () => {
         communicationServiceSpy.toggleGameVisibility.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
 
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
-        component.toggleGameVisibility(GAME_PLACEHOLDER.id);
+        component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
         fixture.detectChanges();
         expect(component.games).toEqual([]);
     }));
 
-    it('should open dialog when upload button is clicked', () => {
+    it('should open dialog when upload button is clicked', fakeAsync(() => {
         component.login = true;
         fixture.detectChanges();
-        spyOn(component.dialog, 'open');
-        const uploadButton = fixture.debugElement.query(By.css('.upload-button'));
-        uploadButton.nativeElement.click();
-        expect(component.dialog.open).toHaveBeenCalled();
-    });
+        spyOn(component, 'openImportDialog').and.callThrough();
+        spyOn(component, 'openSnackBar');
+        component.openImportDialog();
+        tick();
+        expect(communicationServiceSpy.addGame).toHaveBeenCalledWith(GAME_PLACEHOLDER);
+        expect(component.openSnackBar).toHaveBeenCalledWith('Game added');
+    }));
+
+    it('should show snackbar when openImportDialog is called and error occurs', fakeAsync(() => {
+        communicationServiceSpy.addGame.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+        component.login = true;
+        fixture.detectChanges();
+        spyOn(component, 'openSnackBar');
+        component.openImportDialog();
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalledWith('Error adding game');
+    }));
 });

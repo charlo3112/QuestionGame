@@ -1,13 +1,14 @@
+import { GameController } from '@app/controllers/game/game.controller';
+import { QuestionController } from '@app/controllers/question/question.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { Game, gameSchema } from '@app/model/database/game';
+import { Question, questionSchema } from '@app/model/database/question';
+import { GameService } from '@app/services/game/game.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { GameController } from './controllers/game/game.controller';
-import { QuestionController } from './controllers/question/question.controller';
-import { Game, gameSchema } from './model/database/game';
-import { Question, questionSchema } from './model/database/question';
-import { GameService } from './services/game/game.service';
-import { QuestionService } from './services/question/question.service';
+import { AdminController } from './controllers/admin/admin.controller';
 
 @Module({
     imports: [
@@ -24,7 +25,7 @@ import { QuestionService } from './services/question/question.service';
             { name: Question.name, schema: questionSchema },
         ]),
     ],
-    controllers: [GameController, QuestionController],
+    controllers: [GameController, QuestionController, AdminController],
     providers: [ChatGateway, GameService, QuestionService, Logger],
 })
 export class AppModule {}

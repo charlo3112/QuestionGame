@@ -1,5 +1,5 @@
 import { QuestionType } from '@app/constants';
-import { Choice } from '@app/model/database/choice';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
@@ -20,5 +20,5 @@ export class CreateQuestionDto {
     points: number;
 
     @ApiProperty()
-    choices?: Choice[];
+    choices?: ChoiceDto[];
 }
