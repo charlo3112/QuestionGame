@@ -28,10 +28,16 @@ export class GameService {
 
     async populateDB(): Promise<void> {
         try {
-            const data = await fs.readFile('assets/quiz-example.json', 'utf8');
-            const game = JSON.parse(data);
-            game.visibility = true;
-            await this.gameModel.create(game);
+            const jsonData = await fs.readFile('assets/quiz-example.json', 'utf8');
+            const gameData = JSON.parse(jsonData);
+            const gameDto: CreateGameDto = {
+                title: gameData.getTitle(),
+                description: gameData.getDescription(),
+                duration: gameData.getDuration(),
+                questions: gameData.getQuestions(),
+                visibility: true,
+            };
+            await this.addGame(gameDto);
         } catch (error) {
             return Promise.reject(`Failed to populate: ${error}`);
         }
