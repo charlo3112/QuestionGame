@@ -95,7 +95,7 @@ export class AdminPageComponent {
                         title: game.title,
                         description: game.description,
                         duration: game.duration,
-                        questions: game.questions?.map((question) => ({
+                        questions: game.questions.map((question) => ({
                             type: question.type,
                             text: question.text,
                             points: question.points,

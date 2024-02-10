@@ -24,18 +24,14 @@ export class AdminLoginComponent {
 
     constructor(private readonly communicationService: CommunicationService) {}
     onSubmit() {
+        this.error = true;
         if (this.loginForm.value.password) {
             this.communicationService.login(this.loginForm.value.password).subscribe({
                 next: (response) => {
                     if (response.status === HttpStatusCode.Ok) {
                         this.error = false;
                         this.loginSuccess.emit(true);
-                    } else {
-                        this.error = true;
                     }
-                },
-                error: () => {
-                    this.error = true;
                 },
             });
         }
