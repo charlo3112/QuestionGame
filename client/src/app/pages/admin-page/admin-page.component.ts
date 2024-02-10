@@ -12,6 +12,7 @@ import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/ad
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
 import { Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { Subscription } from 'rxjs';
 
@@ -58,11 +59,15 @@ export class AdminPageComponent {
     loadGames(): void {
         this.subscription.add(
             this.communicationService.getAdminGames().subscribe({
-                next: (games: Game[]) => {
-                    this.games = games;
-                    this.games.forEach((game) => {
-                        game.image = 'assets/logo.png';
-                    });
+                next: (result: Result<Game[]>) => {
+                    if (result.ok && result.value) {
+                        this.games = result.value;
+                        this.games.forEach((game) => {
+                            game.image = 'assets/logo.png';
+                        });
+                    } else {
+                        this.openSnackBar('Error fetching games');
+                    }
                 },
                 error: () => {
                     this.openSnackBar('Error fetching games');
