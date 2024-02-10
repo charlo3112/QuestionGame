@@ -10,6 +10,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import * as Constants from '../../../../../constants';
 import { Question, QuestionType } from '../../interfaces/question';
 import { CreatePageComponent } from './create-page.component';
 
@@ -43,7 +44,7 @@ describe('CreatePageComponent', () => {
         component = fixture.componentInstance;
         mockValidQuestion1 = {
             text: 'Quelle est la capitale du Canada ?',
-            points: 10,
+            points: Constants.MIN_POINT,
             choices: [
                 { text: 'Ottawa', isCorrect: true },
                 { text: 'Toronto', isCorrect: false },
@@ -52,7 +53,7 @@ describe('CreatePageComponent', () => {
         };
         mockValidQuestion2 = {
             text: 'Quelle est la capitale de la France ?',
-            points: 10,
+            points: Constants.MIN_POINT,
             choices: [
                 { text: 'Paris', isCorrect: true },
                 { text: 'Marseille', isCorrect: false },
@@ -106,8 +107,10 @@ describe('CreatePageComponent', () => {
     });
 
     it('should do nothing if the index is out of bounds', () => {
+        component.insertQuestion(mockValidQuestion1);
+        component.insertQuestion(mockValidQuestion2);
         const originalQuestionsLength = component.questions.length;
-        component.deleteQuestion(10);
+        component.deleteQuestion(3);
         expect(component.questions.length).toBe(originalQuestionsLength);
     });
 

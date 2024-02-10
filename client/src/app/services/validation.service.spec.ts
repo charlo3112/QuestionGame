@@ -226,7 +226,7 @@ describe('ValidationService', () => {
             const expectedGame = {
                 title: 'Test Game',
                 description: 'Test Description',
-                isVisible: false,
+                visibility: false,
                 duration: 60,
                 lastModification: '2021-01-01',
                 questions: [

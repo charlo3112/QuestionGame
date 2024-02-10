@@ -12,7 +12,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { EMPTY_QUESTION, Question } from '../../interfaces/question';
+import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
+import * as Constants from '../../../../../constants';
 
 @Component({
     selector: 'app-create-page',
@@ -52,7 +53,7 @@ export class CreatePageComponent {
 
     insertQuestion(question: Question) {
         const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index > -1) {
+        if (index > Constants.NOT_FOUND) {
             this.questions[index] = question;
         } else {
             this.questions.push(question);
@@ -86,7 +87,7 @@ export class CreatePageComponent {
                     duration: this.duration,
                     lastModification: new Date().toISOString(),
                     questions: this.questions,
-                    isVisible: false,
+                    visibility: false,
                 };
                 console.log(gameCreated);
             }
@@ -101,11 +102,11 @@ export class CreatePageComponent {
             window.alert('Veuillez entrer une description pour le jeu.');
             return false;
         }
-        if (this.duration < 10 || this.duration > 60) {
+        if (this.duration < Constants.MIN_DURATION || this.duration > Constants.MAX_DURATION) {
             window.alert('Le temps alloué doit être compris entre 10 et 60.');
             return false;
         }
-        if (this.questions.length < 1) {
+        if (this.questions.length < Constants.MIN_QUESTIONS) {
             window.alert('Le jeu doit au moins avoir une question.');
             return false;
         }

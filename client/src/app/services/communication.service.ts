@@ -1,10 +1,10 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Question } from '../interfaces/question';
 
 @Injectable({
     providedIn: 'root',
@@ -53,7 +53,7 @@ export class CommunicationService {
     }
 
     getGameById(gameId: string): Observable<HttpResponse<Game>> {
-        //Remplacer Question par Game quand on aura l'interface
+        // Remplacer Question par Game quand on aura l'interface
         return this.http.get<any>(`${this.baseUrl}/game/${gameId}`);
     }
 
