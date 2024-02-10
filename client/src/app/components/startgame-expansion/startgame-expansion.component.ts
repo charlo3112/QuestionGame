@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { AdminGameDetails } from '@app/classes/game-details';
+import { Game } from '@app/interfaces/game';
 
 @Component({
     selector: 'app-startgame-expansion',
@@ -11,7 +11,7 @@ import { AdminGameDetails } from '@app/classes/game-details';
     imports: [MatButtonModule, MatExpansionModule],
 })
 export class StartGameExpansionComponent {
-    @Input() gameDetails: AdminGameDetails;
+    @Input() gameDetails: Game;
     @Output() startGame = new EventEmitter<void>();
     @Output() testGame = new EventEmitter<void>();
 

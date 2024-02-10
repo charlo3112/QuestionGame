@@ -1,28 +1,60 @@
 import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
+import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import * as fs from 'fs-extra';
 import { Model } from 'mongoose';
+
+// TODO: Add Question when call to addGame or modifyGame
 
 @Injectable()
 export class GameService {
     constructor(
-        @InjectModel(Game.name) public gameModel: Model<GameDocument>,
+        @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
+        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
-    ) {}
+    ) {
+        this.start();
+    }
+
+    async start() {
+        if ((await this.gameModel.countDocuments()) === 0) {
+            await this.populateDB();
+        }
+    }
+
+    async populateDB(): Promise<void> {
+        try {
+            const jsonData = await fs.readFile('assets/quiz-example.json', 'utf8');
+            const gameData = JSON.parse(jsonData);
+            const gameDto: CreateGameDto = {
+                title: gameData.getTitle(),
+                description: gameData.getDescription(),
+                duration: gameData.getDuration(),
+                questions: gameData.getQuestions(),
+                visibility: true,
+            };
+            await this.addGame(gameDto);
+        } catch (error) {
+            return Promise.reject(`Failed to populate: ${error}`);
+        }
+    }
 
     async getAllGames(): Promise<Game[]> {
-        return await this.gameModel.find({});
+        const games = await this.gameModel.find({ visibility: true });
+        return games || [];
     }
 
     async getAllGamesAdmin(): Promise<Game[]> {
-        return await this.gameModel.find({ visibility: true });
+        const games = await this.gameModel.find({});
+        return games || [];
     }
 
-    async getGameById(id: string): Promise<Game> {
-        return await this.gameModel.findOne({ id });
+    async getGameById(id: string): Promise<Game | null> {
+        return await this.gameModel.findOne<Game>({ gameId: id });
     }
 
     async addGame(gameData: CreateGameDto): Promise<string> {
@@ -31,17 +63,28 @@ export class GameService {
                 return Promise.reject('Invalid game');
             } else {
                 const game = new Game(gameData);
+                // await this.questionModel.insertMany(game.getQuestions());
                 await this.gameModel.create(game);
-                return game.getId();
+                return game.getGameId();
             }
         } catch (error) {
             return Promise.reject(`Failed to insert game: ${error}`);
         }
     }
 
+    async toggleVisibility(id: string): Promise<void> {
+        try {
+            const game = await this.getGameById(id);
+            game.visibility = !game.visibility;
+            await this.gameModel.updateOne({ gameId: id }, game);
+        } catch (error) {
+            return Promise.reject(`Failed to toggle visibility: ${error}`);
+        }
+    }
+
     async deleteGameById(id: string): Promise<void> {
         try {
-            const res = await this.gameModel.deleteOne({ id });
+            const res = await this.gameModel.deleteOne({ gameId: id });
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find game');
             }
@@ -51,7 +94,7 @@ export class GameService {
     }
 
     async modifyGame(game: UpdateGameDto): Promise<void> {
-        const filter = { id: game.id };
+        const filter = { gameId: game.gameId };
         game.lastModification = new Date().toISOString();
         try {
             const res = await this.gameModel.updateOne(filter, game);
@@ -61,15 +104,27 @@ export class GameService {
                     description: game.description,
                     duration: game.duration,
                     questions: game.questions,
+                    visibility: true,
                 };
-                await this.gameModel.create(gameData);
+                await this.addGame(gameData);
+                return;
             }
+            // await this.questionModel.insertMany(game.questions);
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
     }
 
-    async validateGame(game: CreateGameDto) {
-        return game.duration <= MAX_DURATION && game.duration >= MIN_DURATION && game.questions.length > 0;
+    async validateGame(gameData: CreateGameDto) {
+        return (
+            gameData.duration <= MAX_DURATION &&
+            gameData.duration >= MIN_DURATION &&
+            gameData.questions.length > 0 &&
+            !(await this.gameModel.findOne({ title: gameData.title }))
+        );
+    }
+
+    async verifyTitle(title: string): Promise<boolean> {
+        return (await this.gameModel.findOne({ title })) ? true : false;
     }
 }

@@ -1,7 +1,7 @@
 <mat-card class="admin-game-preview">
     <mat-card-header>
-        <mat-card-title> {{ gameDetails.name }} </mat-card-title>
-        <mat-card-subtitle class="last-modified">{{ gameDetails.lastModified }}</mat-card-subtitle>
+        <mat-card-title> {{ gameDetails.title }} </mat-card-title>
+        <mat-card-subtitle class="last-modified">{{ gameDetails.lastModification }}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
         <img [src]="gameDetails.image" alt="Game preview" />
@@ -13,12 +13,12 @@
         <button mat-icon-button (click)="onExport()">
             <mat-icon class="admin-export">file_download</mat-icon>
         </button>
-        <button mat-icon-button routerLink="/admin/game/{{ gameDetails.id }}">
+        <button mat-icon-button routerLink="/admin/game/{{ gameDetails.gameId }}">
             <mat-icon class="admin-edit">mode_edit</mat-icon>
         </button>
         <button mat-icon-button (click)="onToggleVisibility()">
             <mat-icon class="admin-visibility">
-                {{ gameDetails.isVisible ? 'visibility_off' : 'visibility' }}
+                {{ gameDetails.visibility ? 'visibility_off' : 'visibility' }}
             </mat-icon>
         </button>
     </mat-card-actions>

@@ -1,7 +1,6 @@
 import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
-import { Choice } from '@app/model/database/choice';
 import { Game } from '@app/model/database/game';
-import { Question } from '@app/model/database/question';
+import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -79,7 +78,20 @@ describe('GameController', () => {
             return res;
         };
 
-        await controller.getGameById(fakeGame.getId(), res);
+        await controller.getGameById(fakeGame.getGameId(), res);
+    });
+
+    it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
+        gameService.getGameById.resolves(null);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getGameById('', res);
     });
 
     it('getGameById() should return NOT_FOUND when service unable to fetch the game', async () => {
@@ -108,12 +120,37 @@ describe('GameController', () => {
         await controller.addGame(getFakeCreateGameDto(), res);
     });
 
+    it('addGame() should return NOT_MODIFIED when service add the game', async () => {
+        gameService.addGame.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.addGame(getFakeCreateGameDto(), res);
+    });
     it('modifyGame() should succeed if service able to modify the game', async () => {
         gameService.modifyGame.resolves();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
             expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.modifyGame(getFakeUpdateGameDto(), res);
+    });
+
+    it('modifyGame() should return NOT_MODIFIED when service cannot modify the game', async () => {
+        gameService.modifyGame.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
             return res;
         };
         res.send = () => res;
@@ -148,6 +185,77 @@ describe('GameController', () => {
 
         await controller.deleteGameById('', res);
     });
+
+    it('toggleVisibility() should change the visibility attribute of the Game', async () => {
+        const game = getFakeGame();
+
+        gameService.toggleVisibility.resolves();
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.toggleVisibility(game.getGameId(), res);
+    });
+
+    it('should return Ok when get all games admin', async () => {
+        const fakeGame: Game[] = [getFakeGame()];
+        gameService.getAllGamesAdmin.resolves(fakeGame);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (games) => {
+            expect(games).toEqual(fakeGame);
+            return res;
+        };
+
+        await controller.getAllGamesAdmin(res);
+    });
+
+    it('should return NOT_FOUND when service unable to fetch games', async () => {
+        gameService.getAllGamesAdmin.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAllGamesAdmin(res);
+    });
+
+    it('verifyTitle() should return Ok when game is valid', async () => {
+        const game = getFakeGame();
+        gameService.verifyTitle.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: game.getTitle() }, res);
+    });
+
+    it('verifyTitle() should return FOUND when error occurs', async () => {
+        gameService.verifyTitle.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: '' }, res);
+    });
 });
 
 const getFakeGame = (): Game => {
@@ -156,8 +264,8 @@ const getFakeGame = (): Game => {
     return game;
 };
 
-const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
-    const questions: Question[] = [];
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): CreateQuestionDto[] => {
+    const questions: CreateQuestionDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const questionData: CreateQuestionDto = {
             type: QuestionType.QCM,
@@ -165,18 +273,18 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
             points: 40,
             choices: getFakeChoices(),
         };
-        questions.push(new Question(questionData));
+        questions.push(questionData);
     }
 
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
-    const choices: Choice[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
+    const choices: ChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
-        choices.push(new Choice(text, isCorrect));
+        choices.push({ text, isCorrect });
     }
 
     return choices;
@@ -188,13 +296,14 @@ const getFakeCreateGameDto = (): CreateGameDto => {
         description: getRandomString(),
         duration: 40,
         questions: getFakeQuestions(),
+        visibility: true,
     };
     return gameData;
 };
 
 const getFakeUpdateGameDto = (): UpdateGameDto => {
     const gameData: UpdateGameDto = {
-        id: getRandomString(),
+        gameId: getRandomString(),
         title: getRandomString(),
         description: getRandomString(),
         duration: 30,

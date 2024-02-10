@@ -5,6 +5,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
 import { StartGamePageComponent } from './startgame-page.component';
 
@@ -51,16 +52,7 @@ describe('StartGamePageComponent', () => {
         // Need to add logic for test
         const gameId = 'id';
         component.startGame(gameId);
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'startGame');
         const startButton = fixture.debugElement.query(By.directive(StartGameExpansionComponent));
@@ -71,16 +63,7 @@ describe('StartGamePageComponent', () => {
     it('should test a game', () => {
         const gameId = 'id';
         component.startGame(gameId);
-        component.games = [
-            {
-                name: 'Test Game',
-                id: 'test-game',
-                description: 'This is a test game',
-                image: '#',
-                lastModified: '01-01-2024',
-                isVisible: true,
-            },
-        ];
+        component.games = [GAME_PLACEHOLDER];
         fixture.detectChanges();
         spyOn(component, 'testGame');
         const testButton = fixture.debugElement.query(By.directive(StartGameExpansionComponent));
