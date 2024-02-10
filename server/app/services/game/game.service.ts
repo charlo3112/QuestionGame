@@ -8,12 +8,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs-extra';
 import { Model } from 'mongoose';
 
+// TODO: Add Question when call to addGame or modifyGame
+
 @Injectable()
 export class GameService {
     constructor(
         @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
-        private readonly logger: Logger,
         @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
+        private readonly logger: Logger,
     ) {
         this.start();
     }
@@ -55,7 +57,7 @@ export class GameService {
                 return Promise.reject('Invalid game');
             } else {
                 const game = new Game(gameData);
-                await this.questionModel.insertMany(game.getQuestions());
+                // await this.questionModel.insertMany(game.getQuestions());
                 await this.gameModel.create(game);
                 return game.getGameId();
             }
@@ -101,7 +103,7 @@ export class GameService {
                 await this.addGame(gameData);
                 return;
             }
-            await this.questionModel.insertMany(game.questions);
+            // await this.questionModel.insertMany(game.questions);
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);
         }
