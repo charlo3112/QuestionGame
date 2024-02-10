@@ -1,7 +1,8 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Observable, catchError, of } from 'rxjs';
+import { Result } from '@app/interfaces/result';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -26,17 +27,20 @@ export class CommunicationService {
         return this.http.get(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
     }
 
-    getAdminGames(): Observable<Game[]> {
-        return this.http.get<Game[]>(`${this.baseUrl}/game/admin`).pipe(
-            catchError((error) => {
-                console.error('Error fetching admin games:', error);
-                return of([]);
+    getAdminGames(): Observable<Result<Game[]>> {
+        return this.http.get<Game[]>(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game[]>) => {
+                const games = response.body as Game[];
+                return { ok: true, value: games } as Result<Game[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<Game[]>);
             }),
         );
     }
 
-    addGame(game: Game): Observable<string> {
-        return this.http.post<string>(`${this.baseUrl}/game`, game, { responseType: 'text' as 'json' });
+    addGame(game: Game): Observable<HttpResponse<string>> {
+        return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
 
     login(password: string): Observable<HttpResponse<string>> {
@@ -44,6 +48,10 @@ export class CommunicationService {
     }
 
     verifyTitle(title: string): Observable<boolean> {
-        return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title });
+        return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title }).pipe(
+            catchError(() => {
+                return of(false);
+            }),
+        );
     }
 }

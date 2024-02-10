@@ -4,10 +4,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
-
-type Result<T, E = string> = { ok: true; value: T } | { ok: false; error: E };
 
 @Component({
     selector: 'app-import-dialog',

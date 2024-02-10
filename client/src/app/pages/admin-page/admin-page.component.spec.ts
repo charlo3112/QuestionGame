@@ -7,7 +7,8 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -34,7 +35,7 @@ describe('AdminPageComponent', () => {
             of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '{"visibility": false}' })),
         );
         communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '' })));
-        communicationServiceSpy.getAdminGames.and.returnValue(of([GAME_PLACEHOLDER]));
+        communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
         communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
         communicationServiceSpy.exportGame.and.returnValue(
             of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: JSON.stringify(GAME_PLACEHOLDER) })),
@@ -84,6 +85,14 @@ describe('AdminPageComponent', () => {
         component.loadGames();
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
+    }));
+
+    it('should show snackbar when loadGames is called and is not ok', fakeAsync(() => {
+        communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: false } as Result<Game[]>));
+        spyOn(component, 'openSnackBar');
+        component.loadGames();
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
     }));
 
     it('should display login component when not logged in', () => {
