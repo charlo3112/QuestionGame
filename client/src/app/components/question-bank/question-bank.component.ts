@@ -13,7 +13,6 @@ import { DAY_IN_MS } from '@common/constants';
 })
 export class QuestionBankComponent {
     @Input() adminMode = false;
-    errorLoadingQuestions = false;
     questions: QuestionWithModificationDate[] = [];
 
     constructor(private communicationService: CommunicationService) {
@@ -34,22 +33,10 @@ export class QuestionBankComponent {
                     }
                 });
             },
-            error: (error) => {
-                if (window.confirm('Error fetching questions: ' + error + '. Do you want to retry?')) {
-                    this.retryLoadingQuestions();
-                } else {
-                    this.errorLoadingQuestions = true;
-                }
+            error: () => {
+                throw new Error('Error fetching questions');
             },
         });
-    }
-    retryLoadingQuestions() {
-        this.errorLoadingQuestions = false;
-        this.loadQuestions();
-    }
-
-    getTypeOfLastModification(lastModification: unknown) {
-        return typeof lastModification;
     }
 
     calculateTime(lastModification: Date): string {
@@ -62,7 +49,6 @@ export class QuestionBankComponent {
             const minutes = lastModificationDate.getMinutes().toString().padStart(2, '0');
             return `${hours}:${minutes}`;
         } else {
-            // More than a day, display only the date
             const year = lastModificationDate.getFullYear();
             const month = (lastModificationDate.getMonth() + 1).toString().padStart(2, '0');
             const dayOfMonth = lastModificationDate.getDate().toString().padStart(2, '0');
