@@ -59,7 +59,6 @@ export class CommunicationService {
     editGame(updatedGameData: Game): Observable<HttpResponse<Game>> {
         return this.http.patch<Game>(`${this.baseUrl}/game`, updatedGameData, { observe: 'response' }).pipe(
             catchError((error) => {
-                console.error('Erreur lors de la mise à jour du jeu', error);
                 return of(error);
             }),
         );

@@ -139,17 +139,6 @@ describe('ValidationService', () => {
             const errors = service.validateQuestion(question);
             expect(errors).toContain('Les points doivent être un multiple de 10.');
         });
-
-        it('should report error for question points being a decimal', () => {
-            const question = {
-                text: 'Test Question',
-                points: 10.5,
-                type: 'QCM',
-                choices: [mockValidQuestion1, mockValidQuestion2],
-            } as unknown as Partial<Question>;
-            const errors = service.validateQuestion(question);
-            expect(errors).toContain('Les doivent être un nombre entier.');
-        });
     });
 
     describe('validateQuestion', () => {
@@ -183,7 +172,7 @@ describe('ValidationService', () => {
         it('should report that it needs at least one choice', () => {
             const question = { type: 'QCM', choices: [] };
             const errors = service.validateQuestion(question as unknown as Partial<Question>);
-            expect(errors).toContain('La question doit avoir au minimum deux un choix.');
+            expect(errors).toContain('La question doit avoir au minimum deux choix.');
         });
 
         it('should report errors for each choice', () => {

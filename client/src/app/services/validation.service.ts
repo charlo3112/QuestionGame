@@ -72,8 +72,6 @@ export class ValidationService {
     checkPoints(question: Partial<Question>, errors: string[]): void {
         if (question.points === undefined || question.points === null) {
             errors.push('La question doit avoir un nombre de points.');
-        } else if (!Number.isInteger(question.points)) {
-            errors.push('Les doivent être un nombre entier.');
         } else if (question.points > MAX_NB_OF_POINTS || question.points < MIN_NB_OF_POINTS) {
             errors.push('Les points doivent être compris entre 10 et 100.');
         } else if (question.points % PONDERATION_INCREMENT !== 0) {
@@ -88,10 +86,10 @@ export class ValidationService {
             } else {
                 const choices = question.choices;
                 if (choices.length < MIN_CHOICES_NUMBER) {
-                    errors.push('La question doit avoir au minimum deux un choix.');
+                    errors.push('La question doit avoir au minimum deux choix.');
                 }
                 if (choices.length > MAX_CHOICES_NUMBER) {
-                    errors.push('La question doit avoir au maximum deux choix');
+                    errors.push('La question doit avoir au maximum quatre choix');
                 }
                 let answer = 0;
                 for (let j = 0; j < choices.length; j++) {

@@ -1,4 +1,5 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -35,6 +36,7 @@ describe('CreatePageComponent', () => {
                 RouterModule.forRoot([]),
                 NoopAnimationsModule,
                 CreatePageComponent,
+                HttpClientModule,
             ],
         }).compileComponents();
     });
@@ -130,53 +132,4 @@ describe('CreatePageComponent', () => {
     // closeCreateQuestion
 
     // save
-
-    // checkFields
-    it('should return false and alert if title is empty', () => {
-        spyOn(window, 'alert');
-        component.title = ''; // Pas de titre
-        component.description = 'Description';
-        component.duration = 20;
-        component.questions = [mockValidQuestion1];
-        expect(component.checkFields()).toBeFalse();
-        expect(window.alert).toHaveBeenCalledWith('Veuillez entrer un nom pour le jeu.');
-    });
-
-    it('should return false and alert if description is empty', () => {
-        spyOn(window, 'alert');
-        component.title = 'Titre';
-        component.description = ''; // Pas de description
-        component.duration = 20;
-        component.questions = [mockValidQuestion1];
-        expect(component.checkFields()).toBeFalse();
-        expect(window.alert).toHaveBeenCalledWith('Veuillez entrer une description pour le jeu.');
-    });
-
-    it('should return false and alert if duration is out of range', () => {
-        spyOn(window, 'alert');
-        component.title = 'Titre';
-        component.description = 'Description';
-        component.duration = 5; // Out of the valid range
-        component.questions = [mockValidQuestion1];
-        expect(component.checkFields()).toBeFalse();
-        expect(window.alert).toHaveBeenCalledWith('Le temps alloué doit être compris entre 10 et 60.');
-    });
-
-    it('should return false and alert if there are no questions', () => {
-        spyOn(window, 'alert');
-        component.title = 'Valid title';
-        component.description = 'Valid description';
-        component.duration = 20;
-        component.questions = [];
-        expect(component.checkFields()).toBeFalse();
-        expect(window.alert).toHaveBeenCalledWith('Le jeu doit au moins avoir une question.');
-    });
-
-    it('should return true if all fields are valid', () => {
-        component.title = 'Valid title';
-        component.description = 'Valid description';
-        component.duration = 20;
-        component.questions = [mockValidQuestion1];
-        expect(component.checkFields()).toBeTrue();
-    });
 });

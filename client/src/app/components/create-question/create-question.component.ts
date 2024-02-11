@@ -104,7 +104,7 @@ export class CreateQuestionComponent implements OnChanges {
                         window.alert("La question n'a pas pu être enregistré.");
                     }
                 },
-                error: (error) => {
+                error: () => {
                     window.alert('Erreur dans la requête');
                 },
             });

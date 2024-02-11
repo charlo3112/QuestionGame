@@ -14,7 +14,8 @@ import { CreateQuestionComponent } from '@app/components/create-question/create-
 import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MAX_DURATION, MIN_DURATION, MIN_QUESTION_NUMBER, NOT_FOUND } from '@common/constants';
+import { ValidationService } from '@app/services/validation.service';
+import { MIN_DURATION, NOT_FOUND } from '@common/constants';
 
 @Component({
     selector: 'app-create-page',
@@ -57,6 +58,7 @@ export class CreatePageComponent implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         private communicationService: CommunicationService,
+        private validationService: ValidationService,
     ) {}
 
     ngOnInit() {
@@ -74,46 +76,6 @@ export class CreatePageComponent implements OnInit {
         } else {
             this.router.navigate(['/admin']);
         }
-    }
-
-    private verifyLogin(): boolean {
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            this.login = JSON.parse(storedLogin);
-        } else {
-            this.login = false;
-            sessionStorage.setItem('login', JSON.stringify(this.login));
-        }
-        return this.login;
-    }
-    private loadGameData(gameId: string) {
-        this.communicationService.getGameById(gameId).subscribe({
-            next: (game) => {
-                this.fillForm(game, gameId);
-            },
-            error: (error) => {
-                console.error('Erreur lors du chargement du jeu', error);
-            },
-        });
-    }
-
-    private fillForm(game: Game, id: string) {
-        this.isEditing = true;
-        this.id = id;
-        this.title = game.title;
-        this.description = game.description;
-        this.duration = game.duration;
-        this.questions = game.questions;
-        this.visibility = game.visibility;
-    }
-
-    private resetForm() {
-        this.isEditing = false;
-        this.title = '';
-        this.description = '';
-        this.duration = MIN_DURATION;
-        this.questions = [];
-        this.visibility = false;
     }
 
     insertQuestion(question: Question) {
@@ -143,62 +105,91 @@ export class CreatePageComponent implements OnInit {
         this.showChildren = false;
     }
     save(): void {
-        if (this.checkFields()) {
-            const newGame: Game = {
-                ...GAME_PLACEHOLDER,
-                title: this.title,
-                description: this.description,
-                duration: this.duration,
-                lastModification: new Date().toISOString(),
-                questions: this.questions,
-                visibility: false,
-            };
-            if (this.isEditing) {
-                newGame.gameId = this.id;
-                this.updateGame(newGame);
-            } else {
-                this.createGame(newGame);
-            }
-            this.router.navigate(['/admin']);
+        const gameToValidate: Partial<Game> = {
+            title: this.title,
+            description: this.description,
+            duration: this.duration,
+            questions: this.questions,
+        };
+        const validationErrors = this.validationService.validateGame(gameToValidate);
+        if (validationErrors.length > 0) {
+            window.alert('Erreurs de validation: \n' + validationErrors.join('\n'));
+            return;
         }
+        const newGame: Game = {
+            ...GAME_PLACEHOLDER,
+            ...gameToValidate,
+            lastModification: new Date().toISOString(),
+            visibility: this.visibility,
+        };
+
+        if (this.isEditing) {
+            newGame.gameId = this.id;
+            this.updateGame(newGame);
+        } else {
+            this.createGame(newGame);
+        }
+        this.router.navigate(['/admin']);
     }
-    checkFields(): boolean {
-        if (!this.title || this.title.trim().length === 0) {
-            window.alert('Veuillez entrer un nom pour le jeu.');
-            return false;
-        }
-        if (!this.description || this.description.trim().length === 0) {
-            window.alert('Veuillez entrer une description pour le jeu.');
-            return false;
-        }
-        if (this.duration < MIN_DURATION || this.duration > MAX_DURATION) {
-            window.alert('Le temps alloué doit être compris entre 10 et 60.');
-            return false;
-        }
-        if (this.questions.length < MIN_QUESTION_NUMBER) {
-            window.alert('Le jeu doit au moins avoir une question.');
-            return false;
-        }
-        return true;
-    }
+
     private createGame(game: Game): void {
         this.communicationService.addGame(game).subscribe({
-            next: (response) => {
+            next: () => {
                 window.alert('Jeu ' + game.title + ' a été créer avec succès');
             },
-            error: (error) => {
+            error: () => {
                 window.alert('Erreur lors de la création du jeu');
             },
         });
     }
     private updateGame(game: Game): void {
         this.communicationService.editGame(game).subscribe({
-            next: (response) => {
+            next: () => {
                 window.alert('Jeu ' + game.title + ' a été modifié avec succès');
             },
-            error: (error) => {
+            error: () => {
                 window.alert('Erreur lors de la mise à jour du jeu');
             },
         });
+    }
+    private verifyLogin(): boolean {
+        const storedLogin = sessionStorage.getItem('login');
+        if (storedLogin !== null) {
+            this.login = JSON.parse(storedLogin);
+        } else {
+            this.login = false;
+            sessionStorage.setItem('login', JSON.stringify(this.login));
+        }
+        return this.login;
+    }
+
+    private loadGameData(gameId: string) {
+        this.communicationService.getGameById(gameId).subscribe({
+            next: (game) => {
+                this.fillForm(game, gameId);
+            },
+            error: () => {
+                window.alert('Une erreur est survenue lors du chargement des champs');
+            },
+        });
+    }
+
+    private fillForm(game: Game, id: string) {
+        this.isEditing = true;
+        this.id = id;
+        this.title = game.title;
+        this.description = game.description;
+        this.duration = game.duration;
+        this.questions = game.questions;
+        this.visibility = game.visibility;
+    }
+
+    private resetForm() {
+        this.isEditing = false;
+        this.title = '';
+        this.description = '';
+        this.duration = MIN_DURATION;
+        this.questions = [];
+        this.visibility = false;
     }
 }
