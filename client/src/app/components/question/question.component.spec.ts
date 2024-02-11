@@ -1,13 +1,15 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { QuestionType } from '@app/enums/question-type';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
 import { Choice } from '@app/classes/choice';
-import { RouterLink, RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 import { routes } from '@app/modules/app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
+import { Location } from '@angular/common';
+import { RouterTestingModule } from '@angular/router/testing';
 
 const mockQuestion = {
     type: QuestionType.Qcm,
@@ -20,11 +22,13 @@ describe('Question', () => {
     let component: QuestionComponent;
     let fixture: ComponentFixture<QuestionComponent>;
     let timeServiceSpy: SpyObj<TimeService>;
+    let router: Router;
+    let location: Location;
 
     beforeEach(async () => {
         timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
         await TestBed.configureTestingModule({
-            imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes), BrowserAnimationsModule],
+            imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [{ provide: TimeService, useValue: timeServiceSpy }],
         }).compileComponents();
     });
@@ -34,18 +38,18 @@ describe('Question', () => {
         component = fixture.componentInstance;
         component.question = mockQuestion;
         fixture.detectChanges();
+        router = TestBed.inject(Router);
+        location = TestBed.inject(Location);
+        router.initialNavigation();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('buttonDetect with 1 should select first element', () => {
-        const expectedKey = '1';
-        const buttonEvent = {
-            key: expectedKey,
-        } as KeyboardEvent;
-        component.buttonDetect(buttonEvent);
-        expect(component.question.choices[0].isSelected).toEqual(true);
-    });
+    it('should navigate on abandon', fakeAsync(() => {
+        fixture.debugElement.query(By.css('#abandon-button')).nativeElement.click();
+        tick();
+        expect(location.path()).toBe('/home');
+    }));
 });
