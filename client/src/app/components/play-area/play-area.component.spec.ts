@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { QuestionType } from '@app/interfaces/question';
+import { QuestionType } from '@app/enums/question-type';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
 
@@ -46,12 +46,6 @@ describe('PlayAreaComponent', () => {
         component.buttonDetect(buttonEvent);
         expect(component.question.choices[0].isSelected).toEqual(true);
     });
-
-    it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
-        component.ngAfterViewInit();
-        tick();
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
-    }));
 
     it('confirmQuestion should call alert with message', () => {
         spyOn(window, 'alert');

@@ -1,78 +1,104 @@
 import { Injectable } from '@angular/core';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { Question } from '@app/interfaces/question';
+import { TimeService } from './time.service';
+import { GameState } from '@app/enums/game-state';
+
+const timeConfirmMs = 3000;
+const timeQuestionS = 60;
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameService {
-    private questions: Question[] = [
-        {
-            type: QuestionType.Qcm,
-            text: "Pourquoi le jus de lichi n'est pas bon?",
-            points: 8,
-            choices: [
-                { text: 'Guillaume en boit', isCorrect: true },
-                { text: 'Guillaume en a apporté 2 boites', isCorrect: true },
-                { text: "C'est du lichi" },
-                { text: 'Guillaume en a bu à 9h du matin' },
-            ],
-        },
-        {
-            type: QuestionType.Qcm,
-            text: 'Pourquoi le Rust est un langage supérieur pour le frontend?',
-            points: 8,
-            choices: [
-                { text: 'Les temps de compilation sont abominables', isCorrect: false },
-                { text: "C'est quoi cette question?", isCorrect: true },
-                { text: 'Le javascript est une erreur.', isCorrect: true },
-            ],
-        },
-        {
-            type: QuestionType.Qcm,
-            text: 'Quel est mieux angular ou React?',
-            points: 8,
-            choices: [
-                { text: 'Les deux sont horribles', isCorrect: false },
-                { text: 'Angular?', isCorrect: true },
-                { text: 'React', isCorrect: false },
-            ],
-        },
-        {
-            type: QuestionType.Qcm,
-            text: "Comment utiliser Git d'une manière optimale?",
-            points: 8,
-            choices: [
-                { text: 'Force push sur master', isCorrect: true },
-                { text: 'Force push sur master', isCorrect: true },
-                { text: 'Force push sur master', isCorrect: true },
-                { text: 'Merge request sur une branche dev', isCorrect: false },
-            ],
-        },
-        {
-            type: QuestionType.Qcm,
-            text: 'Est-ce que nous avons fait tous ce que nous avons promis?',
-            points: 8,
-            choices: [
-                { text: 'Oui', isCorrect: false },
-                { text: 'Non', isCorrect: true },
-            ],
-        },
-    ];
-
+    private questions: Question[] = [];
     private i: number = 0;
+    private state: GameState = GameState.NotStarted;
 
-    setQuestions(newQuestions: Question[]) {
-        this.questions = newQuestions;
+    constructor(private readonly timeService: TimeService) {}
+
+    get time(): number {
+        return this.timeService.time;
     }
 
-    getCurrent(): Question | undefined {
-        if (this.i > this.questions.length) {
-            return undefined;
+    get currentState(): GameState {
+        return this.state;
+    }
+
+    get currentQuestion(): Question | undefined {
+        switch (this.state) {
+            case GameState.AskingQuestion:
+                return this.questions[this.i];
+            case GameState.ShowResults:
+                return this.questions[this.i];
+            default:
+                return undefined;
         }
+    }
+
+    isChoiceCorrect(index: number): boolean {
+        if (this.state !== GameState.ShowResults) {
+            return false;
+        }
+        const choice = this.questions[this.i].choices[index];
+        return choice.isSelected === choice.isCorrect;
+    }
+
+    isChoiceIncorrect(index: number): boolean {
+        if (this.state !== GameState.ShowResults) {
+            return false;
+        }
+        const choice = this.questions[this.i].choices[index];
+        return choice.isSelected !== choice.isCorrect;
+    }
+
+    selectChoice(index: number) {
+        if (this.state === GameState.AskingQuestion) {
+            this.questions[this.i].choices[index].isSelected = !this.questions[this.i].choices[index].isSelected;
+        }
+    }
+
+    startGame(newQuestions: Question[]) {
+        this.questions = newQuestions;
+        this.i = 0;
+        this.state = GameState.AskingQuestion;
+        this.askQuestion();
+    }
+
+    getCurrent(): Question {
         return this.questions[this.i];
     }
 
-    next() {
-        ++this.i;
+    confirmQuestion() {
+        if (this.state !== GameState.AskingQuestion) {
+            return;
+        }
+        this.state = GameState.ShowResults;
+        this.timeService.stopTimer();
+
+        this.timeService.setTimeout(() => {
+            this.advanceState();
+            if (this.state === GameState.Gameover) return;
+            this.askQuestion();
+        }, timeConfirmMs);
+    }
+
+    private askQuestion() {
+        this.timeService.startTimer(timeQuestionS, () => {
+            this.confirmQuestion();
+        });
+    }
+
+    private advanceState() {
+        switch (this.state) {
+            case GameState.AskingQuestion:
+                this.state = GameState.ShowResults;
+                break;
+            case GameState.ShowResults:
+                this.state = ++this.i < this.questions.length ? GameState.AskingQuestion : GameState.Gameover;
+                break;
+            case GameState.Gameover:
+                this.state = GameState.Gameover;
+                break;
+        }
     }
 }
