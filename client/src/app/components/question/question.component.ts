@@ -8,13 +8,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { RouterLink } from '@angular/router';
 import { GameService } from '@app/services/game.service';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
     selector: 'app-question',
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterLink, ChatComponent, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [CommonModule, RouterLink, ChatComponent, MatSlideToggleModule, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
 export class QuestionComponent {
     @Input() question: Question;
@@ -31,6 +32,10 @@ export class QuestionComponent {
         return this.gameService.time;
     }
 
+    get message(): string | undefined {
+        return this.gameService.message;
+    }
+
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
         if (this.isChatFocused) {
@@ -44,6 +49,10 @@ export class QuestionComponent {
         if (!isNaN(value) && value < this.question.choices.length) {
             this.gameService.selectChoice(value);
         }
+    }
+
+    toggleBonus() {
+        this.gameService.toggleBonus();
     }
 
     chatFocused(focus: boolean) {

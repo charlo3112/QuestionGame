@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 const timeConfirmMs = 3000;
 const timeQuestionS = 60;
 const questionValue = 10;
+const bonusMultiplier = 1.2;
 
 @Injectable({
     providedIn: 'root',
@@ -16,6 +17,7 @@ export class GameService {
     private i: number = 0;
     private state: GameState = GameState.NotStarted;
     private score: number = 0;
+    private bonus: boolean = false;
 
     constructor(
         private readonly timeService: TimeService,
@@ -43,6 +45,11 @@ export class GameService {
             default:
                 return undefined;
         }
+    }
+
+    get message(): string | undefined {
+        if (this.state !== GameState.ShowResults || !this.bonus || !this.isResponseGood()) return undefined;
+        return 'Vous avez un bonus!';
     }
 
     isChoiceCorrect(index: number): boolean {
@@ -97,15 +104,23 @@ export class GameService {
         }, timeConfirmMs);
     }
 
+    toggleBonus() {
+        this.bonus = !this.bonus;
+    }
+
     private askQuestion() {
         this.timeService.startTimer(timeQuestionS, () => {
             this.confirmQuestion();
         });
     }
 
+    private isResponseGood(): boolean {
+        return this.questions[this.i].choices.filter((c) => c.isCorrect === c.isSelected).length === this.questions[this.i].choices.length;
+    }
+
     private scoreQuestion(): number {
-        if (this.questions[this.i].choices.filter((c) => c.isCorrect === c.isSelected).length === this.questions[this.i].choices.length) {
-            return questionValue;
+        if (this.isResponseGood()) {
+            return this.bonus ? questionValue * bonusMultiplier : questionValue;
         }
         return 0;
     }

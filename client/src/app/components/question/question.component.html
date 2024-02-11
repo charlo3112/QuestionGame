@@ -7,6 +7,7 @@
     </mat-toolbar-row>
     <mat-toolbar-row class="row-container">
         <p class="big-text">Score total : {{ score }}</p>
+        <h1 *ngIf="message" class="title">{{ message }}</h1>
         <p *ngIf="time" class="big-text">Temps restant : {{ time }}</p>
         <button mat-raised-button id="abandon-button" routerLink="#/admin/game">Abandonner</button>
     </mat-toolbar-row>
@@ -24,5 +25,8 @@
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
+    <mat-slide-toggle (change)="toggleBonus()">
+        20% bonus points
+    </mat-slide-toggle>
     <div class="bottom" [ngStyle]="{'bottom.%': -time / timer * 100 - 20}"></div>
 </div>
