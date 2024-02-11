@@ -52,9 +52,17 @@ export class CommunicationService {
         return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
     }
 
-    getGameById(gameId: string): Observable<HttpResponse<Game>> {
-        // Remplacer Question par Game quand on aura l'interface
-        return this.http.get<any>(`${this.baseUrl}/game/${gameId}`);
+    getGameById(gameId: string): Observable<Game> {
+        return this.http.get<Game>(`${this.baseUrl}/game/${gameId}`, { observe: 'response' }).pipe(map((response) => response.body as Game));
+    }
+
+    editGame(updatedGameData: Game): Observable<HttpResponse<Game>> {
+        return this.http.patch<Game>(`${this.baseUrl}/game`, updatedGameData, { observe: 'response' }).pipe(
+            catchError((error) => {
+                console.error('Erreur lors de la mise à jour du jeu', error);
+                return of(error);
+            }),
+        );
     }
 
     verifyTitle(title: string): Observable<boolean> {
