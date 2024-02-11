@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { Question } from '@app/interfaces/question';
+import { Component, Input } from '@angular/core';
+import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
+import { DAY_IN_MS } from '@common/constants';
 
 @Component({
     selector: 'app-question-bank',
@@ -11,21 +12,26 @@ import { CommunicationService } from '@app/services/communication.service';
     standalone: true,
 })
 export class QuestionBankComponent {
+    @Input() adminMode = false;
     errorLoadingQuestions = false;
-    questions: Question[] = [];
+    questions: QuestionWithModificationDate[] = [];
 
     constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
     }
 
     loadQuestions() {
-        this.communicationService.getAllQuestions().subscribe({
+        this.communicationService.getAllQuestionsWithModificationDates().subscribe({
             next: (response) => {
                 this.questions = response.body || [];
                 this.questions.sort((a, b) => {
-                    const dateA = new Date(a.lastModification);
-                    const dateB = new Date(b.lastModification);
-                    return dateB.getTime() - dateA.getTime();
+                    if (typeof a.lastModification === 'string' && typeof b.lastModification === 'string') {
+                        const dateA = new Date(a.lastModification);
+                        const dateB = new Date(b.lastModification);
+                        return dateB.getTime() - dateA.getTime();
+                    } else {
+                        return b.lastModification.getTime() - a.lastModification.getTime();
+                    }
                 });
             },
             error: (error) => {
@@ -50,7 +56,7 @@ export class QuestionBankComponent {
         const lastModificationDate = new Date(lastModification);
         const now = new Date();
         const timeDiff = now.getTime() - lastModificationDate.getTime();
-        const day = 24 * 60 * 60 * 1000;
+        const day = DAY_IN_MS;
         if (timeDiff < day) {
             const hours = lastModificationDate.getHours().toString().padStart(2, '0');
             const minutes = lastModificationDate.getMinutes().toString().padStart(2, '0');
