@@ -39,6 +39,30 @@ export class CommunicationService {
         );
     }
 
+    getGames(): Observable<Result<Game[]>> {
+        return this.http.get<Game[]>(`${this.baseUrl}/game`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game[]>) => {
+                const games = response.body as Game[];
+                return { ok: true, value: games } as Result<Game[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<Game[]>);
+            }),
+        );
+    }
+
+    getGameByID(id: string): Observable<Result<Game>> {
+        return this.http.get<Game>(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game>) => {
+                const game = response.body as Game;
+                return { ok: true, value: game } as Result<Game>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching game' } as Result<Game>);
+            }),
+        );
+    }
+
     addGame(game: Game): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
