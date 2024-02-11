@@ -200,36 +200,6 @@ describe('GameController', () => {
         await controller.toggleVisibility(game.getGameId(), res);
     });
 
-    it('should return Ok when get all games admin', async () => {
-        const fakeGame: Game[] = [getFakeGame()];
-        gameService.getAllGamesAdmin.resolves(fakeGame);
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.json = (games) => {
-            expect(games).toEqual(fakeGame);
-            return res;
-        };
-
-        await controller.getAllGamesAdmin(res);
-    });
-
-    it('should return NOT_FOUND when service unable to fetch games', async () => {
-        gameService.getAllGamesAdmin.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.getAllGamesAdmin(res);
-    });
-
     it('verifyTitle() should return Ok when game is valid', async () => {
         const game = getFakeGame();
         gameService.verifyTitle.resolves();

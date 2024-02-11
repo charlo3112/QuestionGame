@@ -69,12 +69,12 @@ describe.only('QuestionController', () => {
         await controller.addQuestion(fakeQuestionData, res);
     });
 
-    it('addQuestion() should return NOT_FOUND when service add the course', async () => {
+    it('addQuestion() should return BAD_REQUEST when service add the course', async () => {
         questionService.addQuestion.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;

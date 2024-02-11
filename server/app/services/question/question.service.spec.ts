@@ -36,6 +36,7 @@ describe('QuestionService', () => {
             deleteOne: jest.fn(),
             update: jest.fn(),
             updateOne: jest.fn(),
+            replaceOne: jest.fn(),
         } as unknown as Model<QuestionDocument>;
 
         const module: TestingModule = await Test.createTestingModule({
@@ -155,17 +156,38 @@ describe('QuestionServiceEndToEnd', () => {
         ).rejects.toBeTruthy();
     });
 
+    it('modifyQuestion() should modify the Question attribute', async () => {
+        const questionData = getFakeCreateQuestionDto();
+        const oldText = questionData.text;
+        questionModel.create(new Question(questionData));
+        const newText = 'new Text';
+        questionData.text = newText;
+        await service.modifyQuestion(oldText, questionData);
+        const modifiedQuestion = await questionModel.findOne<Question>({ text: newText });
+        expect(modifiedQuestion.getText()).toEqual(newText);
+    });
+
     it('setters should modify Question properties', async () => {
         const question = getFakeQuestion();
-        question.setPoints = 40;
+        question.setPoints(POINTS_FOR_QUESTION);
         expect(question.getPoints()).toEqual(POINTS_FOR_QUESTION);
-        question.setText = 'new text';
+        question.setText('new text');
         expect(question.getText()).toEqual('new text');
         const newChoices = getFakeChoices();
-        question.setChoices = newChoices;
+        question.setChoices(newChoices);
         expect(question.getChoices()).toEqual(newChoices);
     });
 });
+
+const getFakeCreateQuestionDto = (): CreateQuestionDto => {
+    const questionData: CreateQuestionDto = {
+        type: QuestionType.QCM,
+        text: getRandomString(),
+        points: 40,
+        choices: getFakeChoicesDto(),
+    };
+    return questionData;
+};
 
 const getFakeQuestion = (): Question => {
     const questionData: CreateQuestionDto = {
