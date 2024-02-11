@@ -108,7 +108,6 @@ export class AdminPageComponent {
                                 text: choice.text,
                                 isCorrect: choice.isCorrect,
                             })),
-                            lastModification: question.lastModification,
                         })),
                     };
                     this.downloadFile(filteredOutput, `game-${id}.json`);

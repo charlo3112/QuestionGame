@@ -21,6 +21,5 @@ export class GamePageComponent {
             { text: "C'est du lichi" },
             { text: 'Guillaume en a bu a 9h du matin' },
         ],
-        lastModification: new Date(),
     };
 }

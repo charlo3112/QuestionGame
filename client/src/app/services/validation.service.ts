@@ -96,7 +96,6 @@ export class ValidationService {
                         text: choice.text,
                         isCorrect: choice.isCorrect,
                     })),
-                    lastModification: question.lastModification,
                 })),
             };
 
