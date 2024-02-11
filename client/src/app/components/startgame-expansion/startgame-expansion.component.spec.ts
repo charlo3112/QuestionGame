@@ -29,14 +29,52 @@ describe('StartGameExpansionComponent', () => {
     });
 
     it('should emit startGame event when onStartGame is called', () => {
+        mockGameDetails.visibility = true;
         spyOn(component.startGame, 'emit');
-        component.onStartGame();
+        component.onStartGame(mockGameDetails);
         expect(component.startGame.emit).toHaveBeenCalled();
     });
 
     it('should emit testGame event when onTestGame is called', () => {
+        mockGameDetails.visibility = true;
         spyOn(component.testGame, 'emit');
-        component.onTestGame();
+        component.onTestGame(mockGameDetails);
         expect(component.testGame.emit).toHaveBeenCalled();
+    });
+
+    it('should emit refreshGames event when onRefreshGames is called', () => {
+        spyOn(component.refreshGames, 'emit');
+
+        // Call onRefreshGames
+        component.onRefreshGames();
+
+        // Check if refreshGames event is emitted
+        expect(component.refreshGames.emit).toHaveBeenCalled();
+    });
+
+    it('should not emit startGame event when onStartGame is called with non-visible game', () => {
+        spyOn(component.startGame, 'emit');
+
+        // Set game visibility to false
+        mockGameDetails.visibility = false;
+
+        // Call onStartGame with mock game details
+        component.onStartGame(mockGameDetails);
+
+        // Check if startGame event is not emitted
+        expect(component.startGame.emit).not.toHaveBeenCalled();
+    });
+
+    it('should not emit testGame event when onTestGame is called with non-visible game', () => {
+        spyOn(component.testGame, 'emit');
+
+        // Set game visibility to false
+        mockGameDetails.visibility = false;
+
+        // Call onTestGame with mock game details
+        component.onTestGame(mockGameDetails);
+
+        // Check if testGame event is not emitted
+        expect(component.testGame.emit).not.toHaveBeenCalled();
     });
 });

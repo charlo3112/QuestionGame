@@ -85,6 +85,32 @@ describe('CommunicationService', () => {
         req.flush([]);
     });
 
+    it('should get games', () => {
+        service.getGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should throw an error when getting games', () => {
+        service.getGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
     it('should throw an error when getting admin games', () => {
         service.getAdminGames().subscribe({
             next: (response) => {
@@ -94,6 +120,36 @@ describe('CommunicationService', () => {
         });
 
         const req = httpMock.expectOne(`${baseUrl}/game/admin`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should get game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameByID(gameId).subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush({});
+    });
+
+    it('should throw an error when getting game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameByID(gameId).subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
         expect(req.request.method).toBe('GET');
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
