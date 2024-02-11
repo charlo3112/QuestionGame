@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Choice } from '@app/classes/choice';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { QuestionComponent } from '@app/components/question/question.component';
 import { QuestionType } from '@app/enums/question-type';
 import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game.service';
@@ -58,7 +58,7 @@ const questions: Question[] = [
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
-    imports: [CommonModule, PlayAreaComponent],
+    imports: [CommonModule, QuestionComponent],
 })
 export class GamePageComponent implements OnInit {
     constructor(private readonly gameService: GameService) {}

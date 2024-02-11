@@ -1,23 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
+import { QuestionComponent } from '@app/components/question/question.component';
 import { QuestionType } from '@app/enums/question-type';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
+import { Choice } from '@app/classes/choice';
 
 const mockQuestion = {
     type: QuestionType.Qcm,
     text: 'Question test',
     points: 8,
-    choices: [
-        { text: 'A', isSelected: false },
-        { text: 'B', isSelected: false },
-        { text: 'C', isSelected: false },
-    ],
+    choices: [new Choice('A', true), new Choice('B', false), new Choice('C', false)],
 };
 
 describe('PlayAreaComponent', () => {
-    let component: PlayAreaComponent;
-    let fixture: ComponentFixture<PlayAreaComponent>;
+    let component: QuestionComponent;
+    let fixture: ComponentFixture<QuestionComponent>;
     let timeServiceSpy: SpyObj<TimeService>;
 
     beforeEach(async () => {
@@ -28,7 +25,7 @@ describe('PlayAreaComponent', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(PlayAreaComponent);
+        fixture = TestBed.createComponent(QuestionComponent);
         component = fixture.componentInstance;
         component.question = mockQuestion;
         fixture.detectChanges();
