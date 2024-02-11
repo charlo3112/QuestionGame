@@ -71,7 +71,7 @@ export class ValidationService {
                 }
                 for (let j = 0; j < choices.length; j++) {
                     const choice = choices[j];
-                    if (!choice.text) {
+                    if (!choice.text || choice.text === '') {
                         errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
                     }
                 }
