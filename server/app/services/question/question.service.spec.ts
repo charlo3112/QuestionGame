@@ -4,11 +4,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { QuestionService } from './question.service';
 
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Choice } from '@app/model/database/choice';
 import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
