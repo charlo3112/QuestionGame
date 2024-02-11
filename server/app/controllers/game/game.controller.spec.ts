@@ -1,5 +1,5 @@
 import { Game } from '@app/model/database/game';
-import { ChoiceDto } from '@app/model/dto/choice/choice-game.dto';
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -99,7 +99,7 @@ describe('GameController', () => {
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
@@ -178,7 +178,7 @@ describe('GameController', () => {
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
             return res;
         };
         res.send = () => res;
@@ -198,36 +198,6 @@ describe('GameController', () => {
         res.send = () => res;
 
         await controller.toggleVisibility(game.getGameId(), res);
-    });
-
-    it('should return Ok when get all games admin', async () => {
-        const fakeGame: Game[] = [getFakeGame()];
-        gameService.getAllGamesAdmin.resolves(fakeGame);
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.OK);
-            return res;
-        };
-        res.json = (games) => {
-            expect(games).toEqual(fakeGame);
-            return res;
-        };
-
-        await controller.getAllGamesAdmin(res);
-    });
-
-    it('should return NOT_FOUND when service unable to fetch games', async () => {
-        gameService.getAllGamesAdmin.rejects();
-
-        const res = {} as unknown as Response;
-        res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
-            return res;
-        };
-        res.send = () => res;
-
-        await controller.getAllGamesAdmin(res);
     });
 
     it('verifyTitle() should return Ok when game is valid', async () => {
@@ -279,8 +249,8 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): CreateQuesti
     return questions;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceDto[] => {
-    const choices: ChoiceDto[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoiceDto[] => {
+    const choices: CreateChoiceDto[] = [];
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;

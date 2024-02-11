@@ -35,23 +35,23 @@ export class Question {
         this.points = questionData.points;
         this.lastModification = new Date();
         this.choices = questionData.choices?.map((choiceData) => {
-            return new Choice(choiceData.text, choiceData.isCorrect);
+            return new Choice(choiceData);
         });
     }
 
-    set setPoints(points: number) {
+    setPoints(points: number) {
         if (points > 0) {
             this.points = points;
         }
     }
 
-    set setText(newText: string) {
+    setText(newText: string) {
         if (newText.length > 0) {
             this.text = newText;
         }
     }
 
-    set setChoices(newChoices: Choice[]) {
+    setChoices(newChoices: Choice[]) {
         if (newChoices.length > 0) {
             this.choices = newChoices;
         }

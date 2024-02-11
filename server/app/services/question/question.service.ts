@@ -19,13 +19,37 @@ export class QuestionService {
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
         try {
             if (!(await this.validateQuestion(questionData))) {
-                return Promise.reject('A similar question already exists or the question data is invalid');
+                return Promise.reject('The question data is invalid');
+            } else if (await this.questionModel.findOne({ text: questionData.text })) {
+                return Promise.reject('A similar question already exists');
             }
             const question = new Question(questionData);
             await this.questionModel.create(question);
         } catch (error) {
             this.logger.error(`Failed to insert question: ${error.message || error}`);
-            throw new Error('Failed to insert question');
+            return Promise.reject(`Failed to add question: ${error}`);
+        }
+    }
+
+    async modifyQuestion(oldText: string, newQuestionData: CreateQuestionDto): Promise<void> {
+        try {
+            if (!(await this.validateQuestion(newQuestionData))) {
+                return Promise.reject('The question data is invalid');
+            }
+            const question = new Question(newQuestionData);
+            await this.questionModel.replaceOne(
+                { text: oldText },
+                {
+                    type: question.getType(),
+                    text: question.getText(),
+                    points: question.getPoints(),
+                    lastModification: question.getLastModification(),
+                    choices: question.getChoices(),
+                },
+            );
+        } catch (error) {
+            this.logger.error(`Failed to modify question: ${error.message || error}`);
+            return Promise.reject('Failed to modify question');
         }
     }
 
@@ -43,12 +67,14 @@ export class QuestionService {
     }
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
-        let isUnique = true;
+        let nbOfRightChoices = 0;
         let arePointsCorrect = false;
         let areChoicesCorrect = false;
         const resultModulo = questionData.points.valueOf() % PONDERATION_INCREMENT;
-        if (await this.questionModel.findOne({ text: questionData.text })) {
-            isUnique = false;
+        for (const choice of questionData.choices) {
+            if (choice.isCorrect) {
+                nbOfRightChoices++;
+            }
         }
         if (resultModulo === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
             arePointsCorrect = true;
@@ -56,6 +82,6 @@ export class QuestionService {
         if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
             areChoicesCorrect = true;
         }
-        return isUnique && areChoicesCorrect && arePointsCorrect;
+        return areChoicesCorrect && arePointsCorrect && nbOfRightChoices === 1;
     }
 }

@@ -19,24 +19,6 @@ export class GameController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Get('/admin')
-    async getAllGamesAdmin(@Res() response: Response) {
-        try {
-            const allGames = await this.gamesService.getAllGamesAdmin();
-            response.status(HttpStatus.OK).json(allGames);
-        } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
-        }
-    }
-
-    @ApiOkResponse({
-        description: 'Returns all games',
-        type: Game,
-        isArray: true,
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
-    })
     @Get('/')
     async getAllGames(@Res() response: Response) {
         try {
@@ -52,7 +34,7 @@ export class GameController {
         type: Game,
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Get('/:id')
     async getGameById(@Param('id') id: string, @Res() response: Response) {
@@ -64,7 +46,7 @@ export class GameController {
             }
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 
@@ -72,7 +54,7 @@ export class GameController {
         description: 'title is unique',
     })
     @ApiFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return FOUND http status when request fails',
     })
     @Post('/verify')
     async verifyTitle(@Body() data: { title: string }, @Res() response: Response) {
@@ -92,7 +74,7 @@ export class GameController {
         description: 'Add new game',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Post('/')
     async addGame(@Body() gameDto: CreateGameDto, @Res() response: Response) {
@@ -109,7 +91,7 @@ export class GameController {
         type: Game,
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Patch('/')
     async modifyGame(@Body() gameDto: UpdateGameDto, @Res() response: Response) {
@@ -125,7 +107,7 @@ export class GameController {
         description: 'Toogles Visibility',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Patch('/:id')
     async toggleVisibility(@Param('id') id: string, @Res() response: Response) {
@@ -144,15 +126,16 @@ export class GameController {
         description: 'Delete a game',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
     })
     @Delete('/:id')
     async deleteGameById(@Param('id') id: string, @Res() response: Response) {
         try {
-            await this.gamesService.deleteGameById(id);
-            response.status(HttpStatus.OK).send();
+            if ((await this.gamesService.deleteGameById(id)) !== 0) {
+                response.status(HttpStatus.OK).send();
+            } else response.status(HttpStatus.NOT_FOUND).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
         }
     }
 }
