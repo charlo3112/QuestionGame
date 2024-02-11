@@ -156,15 +156,15 @@ describe('QuestionServiceEndToEnd', () => {
         ).rejects.toBeTruthy();
     });
 
-    // it('modifyQuestion() should modify the Question attribute', async () => {
-    //     const questionData = getFakeCreateQuestionDto();
-    //     const oldText = questionData.text;
-    //     await questionModel.create(new Question(questionData));
-    //     const newText = 'new Text';
-    //     questionData.text = newText;
-    //     await service.modifyQuestion(oldText, questionData);
-    //     expect((await questionModel.findOne<Question>({ text: newText })).getText()).toEqual(newText);
-    // });
+    it('modifyQuestion() should modify the Question attribute', async () => {
+        const questionData = getFakeCreateQuestionDto();
+        const oldText = questionData.text;
+        await questionModel.create(new Question(questionData));
+        const newText = 'new Text';
+        questionData.text = newText;
+        await service.modifyQuestion(oldText, questionData);
+        expect(await questionModel.findOne<Question>({ text: newText })).not.toBeNull();
+    });
 
     it('setters should modify Question properties', async () => {
         const question = getFakeQuestion();
@@ -178,15 +178,15 @@ describe('QuestionServiceEndToEnd', () => {
     });
 });
 
-// const getFakeCreateQuestionDto = (): CreateQuestionDto => {
-//     const questionData: CreateQuestionDto = {
-//         type: QuestionType.QCM,
-//         text: getRandomString(),
-//         points: 40,
-//         choices: getFakeChoicesDto(),
-//     };
-//     return questionData;
-// };
+const getFakeCreateQuestionDto = (): CreateQuestionDto => {
+    const questionData: CreateQuestionDto = {
+        type: QuestionType.QCM,
+        text: getRandomString(),
+        points: 40,
+        choices: getFakeChoicesDto(),
+    };
+    return questionData;
+};
 
 const getFakeQuestion = (): Question => {
     const questionData: CreateQuestionDto = {
