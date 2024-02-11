@@ -1,5 +1,5 @@
+import { Choice } from '@app/classes/choice';
 import { QuestionType } from '@app/enums/question-type';
-import { Choice } from './choice';
 
 export interface Question {
     type: QuestionType;
