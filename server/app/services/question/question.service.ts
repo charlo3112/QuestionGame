@@ -27,7 +27,7 @@ export class QuestionService {
             await this.questionModel.create(question);
         } catch (error) {
             this.logger.error(`Failed to insert question: ${error.message || error}`);
-            throw new Error('Failed to insert question');
+            return Promise.reject(`Failed to add question: ${error}`);
         }
     }
 
@@ -49,7 +49,7 @@ export class QuestionService {
             );
         } catch (error) {
             this.logger.error(`Failed to modify question: ${error.message || error}`);
-            throw new Error('Failed to modify question');
+            return Promise.reject('Failed to modify question');
         }
     }
 

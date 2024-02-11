@@ -1,11 +1,9 @@
 import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
-import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { QuestionService } from '@app/services/question/question.service';
 import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
@@ -26,7 +24,6 @@ import { GameService } from './game.service';
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
-    let questionModel: Model<QuestionDocument>;
 
     beforeEach(async () => {
         // notice that only the functions we call from the model are mocked
@@ -42,29 +39,17 @@ describe('GameService', () => {
             updateOne: jest.fn(),
         } as unknown as Model<GameDocument>;
 
-        questionModel = {
-            countDocuments: jest.fn(),
-            insertMany: jest.fn(),
-            create: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            deleteOne: jest.fn(),
-            update: jest.fn(),
-            updateOne: jest.fn(),
-        } as unknown as Model<QuestionDocument>;
+        // jest.spyOn(GameService.prototype, 'populateDB').mockImplementation(async () => {
+        //     return;
+        // });
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameService,
-                QuestionService,
                 Logger,
                 {
                     provide: getModelToken(Game.name),
                     useValue: gameModel,
-                },
-                {
-                    provide: getModelToken(Question.name),
-                    useValue: questionModel,
                 },
             ],
         }).compile();
@@ -84,7 +69,6 @@ const DELAY_BEFORE_CLOSING_CONNECTION = 200;
 describe('GameServiceEndToEnd', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
-    let questionModel: Model<QuestionDocument>;
     let mongoServer: MongoMemoryServer;
     let connection: Connection;
 
@@ -100,15 +84,14 @@ describe('GameServiceEndToEnd', () => {
                     }),
                 }),
                 MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
-                MongooseModule.forFeature([{ name: Question.name, schema: gameSchema }]),
             ],
-            providers: [GameService, QuestionService, Logger],
+            providers: [GameService, Logger],
         }).compile();
 
         service = module.get<GameService>(GameService);
         gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
-        questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
         connection = await module.get(getConnectionToken());
+        gameModel.deleteMany({});
     });
 
     afterEach((done) => {
@@ -121,10 +104,10 @@ describe('GameServiceEndToEnd', () => {
             done();
         }, DELAY_BEFORE_CLOSING_CONNECTION);
     });
+
     it('should be defined', () => {
         expect(service).toBeDefined();
         expect(gameModel).toBeDefined();
-        expect(questionModel).toBeDefined();
     });
 
     it('start() should populate the database when there is no data', async () => {
@@ -149,7 +132,7 @@ describe('GameServiceEndToEnd', () => {
         await gameModel.create(game);
         const modelGameNb = await gameModel.countDocuments();
         const serviceGames = await service.getAllGames();
-        expect(serviceGames.length).toEqual(modelGameNb);
+        expect(serviceGames.length).toBe(modelGameNb);
     });
 
     it('getGameById() return game with the specified id', async () => {
@@ -168,17 +151,18 @@ describe('GameServiceEndToEnd', () => {
     });
 
     it('modifyGame() should create a new game if the provided id has no match', async () => {
+        await gameModel.deleteMany({});
         const badGameDto = getBadFakeUpdateGameDto();
         await service.modifyGame(badGameDto);
-        expect(await gameModel.countDocuments()).toEqual(1);
+        expect(await gameModel.countDocuments()).toBe(1);
     });
 
     it('getters should return the correct property of the Game', async () => {
         const game = getFakeGame();
-        expect(game.getDescription()).toEqual('test description');
-        expect(game.getDuration()).toEqual(GAME_DURATION);
-        expect(game.getTitle()).toEqual('test title');
-        expect(game.visibility).toEqual(true);
+        expect(game.getDescription()).toBe('test description');
+        expect(game.getDuration()).toBe(GAME_DURATION);
+        expect(game.getTitle()).toBe('test title');
+        expect(game.visibility).toBe(true);
     });
 
     it('toggleVisibility() should toggle the game visiblity', async () => {
@@ -186,37 +170,38 @@ describe('GameServiceEndToEnd', () => {
         game.visibility = false;
         await gameModel.create(game);
         await service.toggleVisibility(game.getGameId());
-        expect((await gameModel.findOne({ gameId: game.getGameId() })).visibility).toEqual(true);
+        expect((await gameModel.findOne({ gameId: game.getGameId() })).visibility).toBe(true);
     });
 
     it('deleteGameById() should delete the game', async () => {
         const game = getFakeGame();
-        gameModel.create(game);
+        await gameModel.create(game);
         expect(await service.deleteGameById(game.getGameId())).toBeGreaterThan(0);
     });
 
-    // it('deleteGameById() should fail if the game does not exist', async () => {
-    //     const game = getFakeGame();
-    //     expect(await service.deleteGameById(game.getGameId())).rejects.toBeTruthy();
-    // });
+    it('deleteGameById() should fail if the game does not exist', async () => {
+        const game = getFakeGame();
+        expect(await service.deleteGameById(game.getGameId())).toBe(0);
+    });
 
     it('addGame() should add the game to the DB', async () => {
+        await gameModel.deleteMany({});
         const gameDto = getFakeCreateGameDto();
         await service.addGame(gameDto);
         const finalGameNb = await gameModel.countDocuments();
-        expect(await gameModel.countDocuments()).toEqual(finalGameNb);
+        expect(await gameModel.countDocuments()).toBe(finalGameNb);
     });
 
-    it('addGame() should fail if mongo query failed', async () => {
-        jest.spyOn(gameModel, 'create').mockImplementation(async () => Promise.reject(''));
+    it('addGame() should fail if the game data is invalid', async () => {
         const gameDto = getFakeCreateGameDto();
-        await expect(service.addGame(gameDto)).rejects.toBeTruthy();
+        gameDto.duration = 1234567;
+        expect(await service.addGame(gameDto)).toBe('');
     });
 
     it('addQuestion() should add a new question to the game', async () => {
         const game = getFakeGame();
         game.addQuestion(getFakeQuestions()[0]);
-        await expect(game.getQuestions().length).toEqual(NEW_NUMBER_OF_QUESTIONS);
+        expect(game.getQuestions().length).toBe(NEW_NUMBER_OF_QUESTIONS);
     });
 
     it('Choice setter should modify the properties of the choice', async () => {
@@ -226,7 +211,7 @@ describe('GameServiceEndToEnd', () => {
         };
         const choice = new Choice(choiceData);
         choice.setText = 'test text';
-        await expect(choice.getText()).toEqual('test text');
+        expect(choice.getText()).toBe('test text');
     });
 });
 

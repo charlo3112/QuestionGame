@@ -1,23 +1,19 @@
 import { Game, GameDocument } from '@app/model/database/game';
-import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { QuestionService } from '@app/services/question/question.service';
 import { MAX_DURATION, MIN_DURATION } from '@common/constants';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs-extra';
 import { Model } from 'mongoose';
 
 @Injectable()
-export class GameService {
-    constructor(
-        @InjectModel(Game.name) private readonly gameModel: Model<GameDocument>,
-        private readonly questionService: QuestionService,
-        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
-    ) {
-        // this.start();
+export class GameService implements OnModuleInit {
+    constructor(@InjectModel(Game.name) private readonly gameModel: Model<GameDocument>) {}
+
+    async onModuleInit(): Promise<void> {
+        await this.start();
     }
 
     async start() {
@@ -59,8 +55,9 @@ export class GameService {
 
     async addGame(gameData: CreateGameDto): Promise<string> {
         try {
-            if (!this.validateGame(gameData)) {
-                return Promise.reject('Invalid game');
+            const resVal = await this.validateGame(gameData);
+            if (!resVal) {
+                return '';
             }
             const game = new Game(gameData);
             await this.gameModel.create(game);
@@ -83,9 +80,6 @@ export class GameService {
     async deleteGameById(id: string): Promise<number> {
         try {
             const res = await this.gameModel.deleteOne({ gameId: id });
-            if (res.deletedCount === 0) {
-                return Promise.reject('Could not find game');
-            }
             return res.deletedCount;
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
