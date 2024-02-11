@@ -1,4 +1,3 @@
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Choice } from '@app/model/database/choice';
 import { Game, GameDocument, gameSchema } from '@app/model/database/game';
 import { Question, QuestionDocument } from '@app/model/database/question';
@@ -7,6 +6,7 @@ import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
