@@ -3,7 +3,7 @@
     <div class="question-bank-box" *ngFor="let question of questions; let i = index">
         <div class="question">
             <h3>{{ i + 1 }}. {{ question.text }}</h3>
-            <h3 *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</h3>
+            <h3 *ngIf="adminMode">{{ getTypeof(question.lastModification) }}</h3>
         </div>
     </div>
 </div>

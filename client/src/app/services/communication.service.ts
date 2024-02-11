@@ -85,6 +85,6 @@ export class CommunicationService {
     }
 
     getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
-        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question/with-modification-dates`, { observe: 'response' });
+        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' });
     }
 }

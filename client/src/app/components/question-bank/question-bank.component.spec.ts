@@ -43,8 +43,32 @@ describe('QuestionBankComponent', () => {
                 lastModification: new Date('2022-03-10T12:30:00.000Z'),
             },
         ];
-        const mockResponse1: HttpResponse<QuestionWithModificationDate[]> = new HttpResponse({ body: mockQuestions, status: 200, statusText: 'OK' });
-        spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse1));
+        const mockResponse: HttpResponse<QuestionWithModificationDate[]> = new HttpResponse({ body: mockQuestions, status: 200, statusText: 'OK' });
+        spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
+        component.loadQuestions();
+        expect(component.questions).toEqual(mockQuestions);
+    });
+
+    it('should load questions when lastModification is string from JSON', () => {
+        const mockQuestion1: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 1?',
+            points: 5,
+            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2023-09-01T08:10:00.000Z'),
+        };
+        const mockQuestion2: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 2?',
+            points: 3,
+            choices: [{ text: 'test' }, { text: 'test2', isCorrect: true }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2022-03-10T12:30:00.000Z'),
+        };
+        const mockQuestion1JSON = JSON.parse(JSON.stringify(mockQuestion1));
+        const mockQuestion2JSON = JSON.parse(JSON.stringify(mockQuestion2));
+        const mockQuestions: QuestionWithModificationDate[] = [mockQuestion1JSON, mockQuestion2JSON];
+        const mockResponse: HttpResponse<QuestionWithModificationDate[]> = new HttpResponse({ body: mockQuestions, status: 200, statusText: 'OK' });
+        spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
         expect(component.questions).toEqual(mockQuestions);
     });
