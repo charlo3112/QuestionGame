@@ -13,6 +13,7 @@ import { AppComponent } from '@app/pages/app/app.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
+import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 
 /**
  * Main module that is used in main.ts.
@@ -37,6 +38,7 @@ import { CreateQuestionComponent } from './components/create-question/create-que
         CreateQuestionComponent,
         AnswersComponent,
         MatGridListModule,
+        QuestionBankComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

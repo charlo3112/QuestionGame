@@ -1,3 +1,4 @@
+import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -11,11 +12,11 @@ export class Choice {
     @Prop({ required: true })
     private text: string;
 
-    constructor(text: string, isCorrect: boolean) {
-        if (text !== undefined && text.length > 0) {
-            this.text = text;
+    constructor(choiceData: CreateChoiceDto) {
+        if (choiceData.text !== undefined && choiceData.text.length > 0) {
+            this.text = choiceData.text;
         }
-        this.isCorrect = isCorrect;
+        this.isCorrect = choiceData.isCorrect;
     }
 
     set setText(newText: string) {

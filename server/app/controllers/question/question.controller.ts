@@ -32,7 +32,7 @@ export class QuestionController {
         description: 'Add new question',
     })
     @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Post('/')
     async addQuestion(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
@@ -40,7 +40,7 @@ export class QuestionController {
             await this.questionsService.addQuestion(questionDto);
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
@@ -50,10 +50,10 @@ export class QuestionController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Delete('/:title')
-    async deleteQuestion(@Param('title') title: string, @Res() response: Response) {
+    @Delete('/:text')
+    async deleteQuestion(@Param('text') text: string, @Res() response: Response) {
         try {
-            await this.questionsService.deleteQuestion(title);
+            await this.questionsService.deleteQuestion(text);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

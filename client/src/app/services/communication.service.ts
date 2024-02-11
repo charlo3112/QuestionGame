@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -40,6 +40,30 @@ export class CommunicationService {
         );
     }
 
+    getGames(): Observable<Result<Game[]>> {
+        return this.http.get<Game[]>(`${this.baseUrl}/game`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game[]>) => {
+                const games = response.body as Game[];
+                return { ok: true, value: games } as Result<Game[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<Game[]>);
+            }),
+        );
+    }
+
+    getGameByID(id: string): Observable<Result<Game>> {
+        return this.http.get<Game>(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<Game>) => {
+                const game = response.body as Game;
+                return { ok: true, value: game } as Result<Game>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching game' } as Result<Game>);
+            }),
+        );
+    }
+
     addGame(game: Game): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
@@ -70,5 +94,13 @@ export class CommunicationService {
                 return of(false);
             }),
         );
+    }
+
+    getAllQuestions(): Observable<HttpResponse<Question[]>> {
+        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    }
+
+    getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
+        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' });
     }
 }
