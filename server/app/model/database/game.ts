@@ -48,7 +48,7 @@ export class Game {
             return new Question(questionData);
         });
 
-        this.visibility = true;
+        this.visibility = false;
         if (gameData.visibility) {
             this.visibility = gameData.visibility;
         }
