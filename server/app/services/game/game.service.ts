@@ -17,7 +17,7 @@ export class GameService {
         private readonly questionService: QuestionService,
         @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
     ) {
-        // this.start();
+        this.start();
     }
 
     async start() {
@@ -62,7 +62,6 @@ export class GameService {
             if (!this.validateGame(gameData)) {
                 return Promise.reject('Invalid game');
             }
-            // await this.questionModel.insertMany(gameData.questions);
             const game = new Game(gameData);
             await this.gameModel.create(game);
             return game.getGameId();
