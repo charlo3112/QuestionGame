@@ -32,7 +32,7 @@ export class AdminController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Get('/admin')
+    @Get('/game')
     async getAllGamesAdmin(@Res() response: Response) {
         try {
             const allGames = await this.gamesService.getAllGamesAdmin();
