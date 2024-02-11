@@ -12,7 +12,7 @@ export type GameDocument = Game & Document;
 export class Game {
     @ApiProperty()
     @Prop({ required: true })
-    visibility: boolean = true;
+    visibility: boolean = false;
 
     @ApiProperty()
     @Prop({ required: true })
