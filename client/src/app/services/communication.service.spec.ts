@@ -80,7 +80,7 @@ describe('CommunicationService', () => {
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/game/admin`);
+        const req = httpMock.expectOne(`${baseUrl}/admin/game`);
         expect(req.request.method).toBe('GET');
         req.flush([]);
     });
@@ -119,7 +119,7 @@ describe('CommunicationService', () => {
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/game/admin`);
+        const req = httpMock.expectOne(`${baseUrl}/admin/game`);
         expect(req.request.method).toBe('GET');
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
