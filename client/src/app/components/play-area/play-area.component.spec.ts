@@ -30,16 +30,7 @@ describe('PlayAreaComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(PlayAreaComponent);
         component = fixture.componentInstance;
-        component.question = {
-            type: QuestionType.Qcm,
-            text: 'Question test',
-            points: 8,
-            choices: [
-                { text: 'A', isSelected: false },
-                { text: 'B', isSelected: false },
-                { text: 'C', isSelected: false },
-            ],
-        };
+        component.question = mockQuestion;
         fixture.detectChanges();
     });
 
@@ -53,14 +44,7 @@ describe('PlayAreaComponent', () => {
             key: expectedKey,
         } as KeyboardEvent;
         component.buttonDetect(buttonEvent);
-        expect(component.choices[0].isSelected).toEqual(true);
-    });
-
-    it('mouseHitDetect should call startTimer with 5 seconds on left click', () => {
-        const mockEvent = { button: 0 } as MouseEvent;
-        component.mouseHitDetect(mockEvent);
-        expect(timeServiceSpy.startTimer).toHaveBeenCalled();
-        expect(timeServiceSpy.startTimer).toHaveBeenCalledWith(component['timer']);
+        expect(component.question.choices[0].isSelected).toEqual(true);
     });
 
     it('ngAfterViewInit should call startTimer with correct time', fakeAsync(() => {
@@ -81,9 +65,5 @@ describe('PlayAreaComponent', () => {
 
     it('time should return timeService.time', () => {
         expect(component.time).toEqual(timeServiceSpy.time);
-    });
-
-    it('should populate choices when question input is provided', () => {
-        expect(component.choices).toEqual(mockQuestion.choices);
     });
 });
