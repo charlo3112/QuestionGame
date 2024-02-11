@@ -39,10 +39,6 @@ export class QuestionBankComponent {
         });
     }
 
-    getTypeof(lastModification: Date | string): string {
-        return typeof lastModification;
-    }
-
     calculateTime(lastModification: Date): string {
         const lastModificationDate = new Date(lastModification);
         const now = new Date();
