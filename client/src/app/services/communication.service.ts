@@ -29,7 +29,7 @@ export class CommunicationService {
     }
 
     getAdminGames(): Observable<Result<Game[]>> {
-        return this.http.get<Game[]>(`${this.baseUrl}/game/admin`, { observe: 'response', responseType: 'json' }).pipe(
+        return this.http.get<Game[]>(`${this.baseUrl}/admin/game`, { observe: 'response', responseType: 'json' }).pipe(
             map((response: HttpResponse<Game[]>) => {
                 const games = response.body as Game[];
                 return { ok: true, value: games } as Result<Game[]>;
