@@ -1,5 +1,5 @@
-import { QuestionType } from '@app/constants';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { QuestionType } from '@common/constants';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';

@@ -1,5 +1,4 @@
-import { QuestionType } from '@app/constants';
-import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
+import { QuestionType } from '@common/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 

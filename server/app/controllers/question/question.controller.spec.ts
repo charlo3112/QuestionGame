@@ -1,9 +1,9 @@
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { QuestionController } from '@app/controllers/question/question.controller';
 import { Question } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';

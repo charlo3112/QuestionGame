@@ -1,6 +1,6 @@
-import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@app/constants';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@common/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

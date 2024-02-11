@@ -1,10 +1,10 @@
-import { MAX_CHOICES_NUMBER, QuestionType } from '@app/constants';
 import { Game } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { GameService } from '@app/services/game/game.service';
+import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
