@@ -181,6 +181,20 @@ describe('GameServiceEndToEnd', () => {
         expect(game.visibility).toEqual(true);
     });
 
+    it('toggleVisibility() should toggle the game visiblity', async () => {
+        const game = getFakeGame();
+        game.visibility = false;
+        await gameModel.create(game);
+        await service.toggleVisibility(game.getGameId());
+        expect((await gameModel.findOne({ gameId: game.getGameId() })).visibility).toEqual(true);
+    });
+
+    it('deleteGameById() should delete the game', async () => {
+        const game = getFakeGame();
+        gameModel.create(game);
+        expect(await service.deleteGameById(game.getGameId())).toBeGreaterThan(0);
+    });
+
     // it('deleteGameById() should fail if the game does not exist', async () => {
     //     const game = getFakeGame();
     //     expect(await service.deleteGameById(game.getGameId())).rejects.toBeTruthy();
