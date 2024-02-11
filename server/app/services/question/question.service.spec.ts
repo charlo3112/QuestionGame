@@ -159,12 +159,11 @@ describe('QuestionServiceEndToEnd', () => {
     // it('modifyQuestion() should modify the Question attribute', async () => {
     //     const questionData = getFakeCreateQuestionDto();
     //     const oldText = questionData.text;
-    //     questionModel.create(new Question(questionData));
+    //     await questionModel.create(new Question(questionData));
     //     const newText = 'new Text';
     //     questionData.text = newText;
     //     await service.modifyQuestion(oldText, questionData);
-    //     const modifiedQuestion = await questionModel.findOne<Question>({ text: newText });
-    //     expect(modifiedQuestion.getText()).toEqual(newText);
+    //     expect((await questionModel.findOne<Question>({ text: newText })).getText()).toEqual(newText);
     // });
 
     it('setters should modify Question properties', async () => {

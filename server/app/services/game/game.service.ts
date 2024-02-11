@@ -80,12 +80,13 @@ export class GameService {
         }
     }
 
-    async deleteGameById(id: string): Promise<void> {
+    async deleteGameById(id: string): Promise<number> {
         try {
             const res = await this.gameModel.deleteOne({ gameId: id });
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find game');
             }
+            return res.deletedCount;
         } catch (error) {
             return Promise.reject(`Failed to delete game: ${error}`);
         }
