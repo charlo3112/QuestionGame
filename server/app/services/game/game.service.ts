@@ -17,7 +17,7 @@ export class GameService {
         private readonly questionService: QuestionService,
         @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
     ) {
-        this.start();
+        // this.start();
     }
 
     async start() {

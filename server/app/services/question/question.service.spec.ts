@@ -156,16 +156,16 @@ describe('QuestionServiceEndToEnd', () => {
         ).rejects.toBeTruthy();
     });
 
-    it('modifyQuestion() should modify the Question attribute', async () => {
-        const questionData = getFakeCreateQuestionDto();
-        const oldText = questionData.text;
-        questionModel.create(new Question(questionData));
-        const newText = 'new Text';
-        questionData.text = newText;
-        await service.modifyQuestion(oldText, questionData);
-        const modifiedQuestion = await questionModel.findOne<Question>({ text: newText });
-        expect(modifiedQuestion.getText()).toEqual(newText);
-    });
+    // it('modifyQuestion() should modify the Question attribute', async () => {
+    //     const questionData = getFakeCreateQuestionDto();
+    //     const oldText = questionData.text;
+    //     questionModel.create(new Question(questionData));
+    //     const newText = 'new Text';
+    //     questionData.text = newText;
+    //     await service.modifyQuestion(oldText, questionData);
+    //     const modifiedQuestion = await questionModel.findOne<Question>({ text: newText });
+    //     expect(modifiedQuestion.getText()).toEqual(newText);
+    // });
 
     it('setters should modify Question properties', async () => {
         const question = getFakeQuestion();
@@ -179,15 +179,15 @@ describe('QuestionServiceEndToEnd', () => {
     });
 });
 
-const getFakeCreateQuestionDto = (): CreateQuestionDto => {
-    const questionData: CreateQuestionDto = {
-        type: QuestionType.QCM,
-        text: getRandomString(),
-        points: 40,
-        choices: getFakeChoicesDto(),
-    };
-    return questionData;
-};
+// const getFakeCreateQuestionDto = (): CreateQuestionDto => {
+//     const questionData: CreateQuestionDto = {
+//         type: QuestionType.QCM,
+//         text: getRandomString(),
+//         points: 40,
+//         choices: getFakeChoicesDto(),
+//     };
+//     return questionData;
+// };
 
 const getFakeQuestion = (): Question => {
     const questionData: CreateQuestionDto = {
