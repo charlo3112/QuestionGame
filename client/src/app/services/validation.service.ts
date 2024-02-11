@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
+import { Choice } from '@app/classes/choice';
+import { QuestionType } from '@app/enums/question-type';
 import { Game } from '@app/interfaces/game';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { Question } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 
 @Injectable({
@@ -92,10 +94,7 @@ export class ValidationService {
                     type: question.type,
                     text: question.text,
                     points: question.points,
-                    choices: question.choices?.map((choice) => ({
-                        text: choice.text,
-                        isCorrect: choice.isCorrect,
-                    })),
+                    choices: question.choices?.map((choice) => new Choice(choice.text, choice.isCorrect)),
                 })),
             };
 
