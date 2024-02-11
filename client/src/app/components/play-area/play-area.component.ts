@@ -24,7 +24,7 @@ export class PlayAreaComponent {
     constructor(private readonly gameService: GameService) {}
 
     get score(): number {
-        return 3;
+        return this.gameService.scoreValue;
     }
 
     get time(): number {
@@ -44,20 +44,6 @@ export class PlayAreaComponent {
         if (!isNaN(value) && value < this.question.choices.length) {
             this.gameService.selectChoice(value);
         }
-    }
-
-    questionVerification() {
-        let numCorrect = 0;
-        let selectedCorrect = 0;
-        for (const choice of this.question.choices) {
-            if (choice.isCorrect) {
-                numCorrect++;
-            }
-            if (choice.isSelected && choice.isCorrect) {
-                selectedCorrect++;
-            }
-        }
-        return numCorrect === selectedCorrect;
     }
 
     chatFocused(focus: boolean) {
