@@ -12,6 +12,10 @@ export interface Question {
     choices: Choice[];
 }
 
+export interface QuestionWithModificationDate extends Question {
+    lastModification: Date;
+}
+
 export const QUESTION_PLACEHOLDER: Question = {
     type: QuestionType.Qcm,
     text: 'What is the text to print?',

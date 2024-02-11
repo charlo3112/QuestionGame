@@ -11,6 +11,7 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { AnswersComponent } from './components/answers/answers.component';
+import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 
 /**
  * Main module that is used in main.ts.
@@ -33,6 +34,7 @@ import { AnswersComponent } from './components/answers/answers.component';
         AdminPageComponent,
         AnswersComponent,
         MatGridListModule,
+        QuestionBankComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
