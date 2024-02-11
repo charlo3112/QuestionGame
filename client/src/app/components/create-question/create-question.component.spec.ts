@@ -10,7 +10,7 @@ import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { Question, QuestionType } from '@app/interfaces/question';
-import * as Constants from '../../../../../constants';
+import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS } from '@common/constants';
 
 describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
@@ -39,7 +39,7 @@ describe('CreateQuestionComponent', () => {
         component = fixture.componentInstance;
         mockValidQuestion = {
             text: 'Quelle est la capitale du Canada ?',
-            points: Constants.MIN_POINT,
+            points: MIN_NB_OF_POINTS,
             choices: [
                 { text: 'Ottawa', isCorrect: true },
                 { text: 'Toronto', isCorrect: false },
@@ -48,7 +48,7 @@ describe('CreateQuestionComponent', () => {
         };
         mockInvalidQuestion = {
             text: 'Quelle est la capitale du Canada ?',
-            points: Constants.MIN_POINT,
+            points: MIN_NB_OF_POINTS,
             choices: [
                 { text: 'Montreal', isCorrect: false },
                 { text: 'Toronto', isCorrect: false },
@@ -63,7 +63,7 @@ describe('CreateQuestionComponent', () => {
     });
     it('should have default values', () => {
         expect(component.questionName).toBe('');
-        expect(component.questionPoints).toBe(Constants.MIN_POINT);
+        expect(component.questionPoints).toBe(MIN_NB_OF_POINTS);
         expect(component.choices.length).toBe(0);
     });
 
@@ -83,12 +83,12 @@ describe('CreateQuestionComponent', () => {
     });
     it('should not add more than 4 choices', () => {
         spyOn(window, 'alert');
-        for (let i = 0; i < Constants.MAX_CHOICES; i++) {
+        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
             component.choices.push({ text: `Choix ${i}`, isCorrect: false });
         }
         component.choiceInput = 'Choix non ajouté';
         component.addChoice();
-        expect(component.choices.length).toBe(Constants.MAX_CHOICES);
+        expect(component.choices.length).toBe(MAX_CHOICES_NUMBER);
         expect(window.alert).toHaveBeenCalledWith('Vous ne pouvez pas ajouter plus de 4 choix.');
     });
 

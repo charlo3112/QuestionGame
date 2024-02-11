@@ -13,8 +13,7 @@ import { RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
-import * as Constants from '../../../../../constants';
-
+import { MAX_DURATION, MIN_DURATION, MIN_QUESTION_NUMBER, NOT_FOUND } from '@common/constants';
 @Component({
     selector: 'app-create-page',
     templateUrl: './create-page.component.html',
@@ -53,7 +52,7 @@ export class CreatePageComponent {
 
     insertQuestion(question: Question) {
         const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index > Constants.NOT_FOUND) {
+        if (index > NOT_FOUND) {
             this.questions[index] = question;
         } else {
             this.questions.push(question);
@@ -102,11 +101,11 @@ export class CreatePageComponent {
             window.alert('Veuillez entrer une description pour le jeu.');
             return false;
         }
-        if (this.duration < Constants.MIN_DURATION || this.duration > Constants.MAX_DURATION) {
+        if (this.duration < MIN_DURATION || this.duration > MAX_DURATION) {
             window.alert('Le temps alloué doit être compris entre 10 et 60.');
             return false;
         }
-        if (this.questions.length < Constants.MIN_QUESTIONS) {
+        if (this.questions.length < MIN_QUESTION_NUMBER) {
             window.alert('Le jeu doit au moins avoir une question.');
             return false;
         }

@@ -2,7 +2,15 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionType } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
-import * as Constants from '../../../../constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_NB_OF_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_NB_OF_POINTS,
+    PONDERATION_INCREMENT,
+} from '@common/constants';
 @Injectable({
     providedIn: 'root',
 })
@@ -20,7 +28,7 @@ export class ValidationService {
 
         if (!game.duration) {
             errors.push('La durée du jeu est requise.');
-        } else if (game.duration > Constants.MAX_DURATION || game.duration < Constants.MIN_DURATION || !Number.isInteger(game.duration)) {
+        } else if (game.duration > MAX_DURATION || game.duration < MIN_DURATION || !Number.isInteger(game.duration)) {
             errors.push('Le temps alloué aux questions est mauvais.');
         }
 
@@ -66,9 +74,9 @@ export class ValidationService {
             errors.push('La question doit avoir un nombre de points.');
         } else if (!Number.isInteger(question.points)) {
             errors.push('Les doivent être un nombre entier.');
-        } else if (question.points > Constants.MAX_POINT || question.points < Constants.MIN_POINT) {
+        } else if (question.points > MAX_NB_OF_POINTS || question.points < MIN_NB_OF_POINTS) {
             errors.push('Les points doivent être compris entre 10 et 100.');
-        } else if (question.points % Constants.DIX !== 0) {
+        } else if (question.points % PONDERATION_INCREMENT !== 0) {
             errors.push('Les points doivent être un multiple de 10.');
         }
     }
@@ -79,10 +87,10 @@ export class ValidationService {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
                 const choices = question.choices;
-                if (choices.length < Constants.MIN_CHOICES) {
+                if (choices.length < MIN_CHOICES_NUMBER) {
                     errors.push('La question doit avoir au minimum deux un choix.');
                 }
-                if (choices.length > Constants.MAX_CHOICES) {
+                if (choices.length > MAX_CHOICES_NUMBER) {
                     errors.push('La question doit avoir au maximum deux choix');
                 }
                 let answer = 0;

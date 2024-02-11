@@ -10,8 +10,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
-import * as Constants from '../../../../../constants';
-import { Question, QuestionType } from '../../interfaces/question';
+import { Question, QuestionType } from '@app/interfaces/question';
+import { MIN_NB_OF_POINTS } from '@common/constants';
 import { CreatePageComponent } from './create-page.component';
 
 describe('CreatePageComponent', () => {
@@ -44,7 +44,7 @@ describe('CreatePageComponent', () => {
         component = fixture.componentInstance;
         mockValidQuestion1 = {
             text: 'Quelle est la capitale du Canada ?',
-            points: Constants.MIN_POINT,
+            points: MIN_NB_OF_POINTS,
             choices: [
                 { text: 'Ottawa', isCorrect: true },
                 { text: 'Toronto', isCorrect: false },
@@ -53,7 +53,7 @@ describe('CreatePageComponent', () => {
         };
         mockValidQuestion2 = {
             text: 'Quelle est la capitale de la France ?',
-            points: Constants.MIN_POINT,
+            points: MIN_NB_OF_POINTS,
             choices: [
                 { text: 'Paris', isCorrect: true },
                 { text: 'Marseille', isCorrect: false },

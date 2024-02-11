@@ -8,9 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import * as Constants from '../../../../../constants';
-import { Choice } from '../../interfaces/choice';
-import { Question, QuestionType } from '../../interfaces/question';
+import { Choice } from '@app/interfaces/choice';
+import { Question, QuestionType } from '@app/interfaces/question';
+import { CommunicationService } from '@app/services/communication.service';
+import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, RESPONSE_CREATED } from '@common/constants';
 
 @Component({
     selector: 'app-create-question',
@@ -35,16 +36,16 @@ export class CreateQuestionComponent implements OnChanges {
     @Output() questionCreated = new EventEmitter<Question>();
 
     questionName: string = '';
-    questionPoints: number = Constants.MIN_POINT;
+    questionPoints: number = MIN_NB_OF_POINTS;
     choiceInput: string = '';
     choices: Choice[] = [];
     editArray: boolean[] = [];
 
-    constructor(/*private communicationService: CommunicationService*/) {}
+    constructor(private communicationService: CommunicationService) {}
 
     addChoice() {
         if (!(this.choiceInput === '')) {
-            if (this.choices.length < Constants.MAX_CHOICES) {
+            if (this.choices.length < MAX_CHOICES_NUMBER) {
                 const newChoice: Choice = {
                     text: this.choiceInput,
                     isCorrect: false,
@@ -72,7 +73,7 @@ export class CreateQuestionComponent implements OnChanges {
 
     resetForm() {
         this.questionName = '';
-        this.questionPoints = Constants.MIN_POINT;
+        this.questionPoints = MIN_NB_OF_POINTS;
         this.choices = [];
     }
 
@@ -86,28 +87,29 @@ export class CreateQuestionComponent implements OnChanges {
         this.choices.splice(index, 1);
     }
 
-    /*
     addToQuestionBank() {
         if (this.choiceVerif()) {
             const newQuestion: Question = {
                 type: QuestionType.Qcm,
                 text: this.questionName,
-                points: this.questionPoints,
+                points: +parseInt(this.questionPoints.toString(), 10),
                 choices: this.choices,
             };
             this.communicationService.addQuestion(newQuestion).subscribe({
                 next: (response) => {
-                    response;
-                    this.questionCreated.emit(newQuestion);
-                    this.resetForm();
+                    if (response.status === RESPONSE_CREATED) {
+                        this.questionCreated.emit(newQuestion);
+                        this.resetForm();
+                    } else {
+                        window.alert("La question n'a pas pu être enregistré.");
+                    }
                 },
                 error: (error) => {
-                    error;
+                    window.alert('Erreur dans la requête');
                 },
             });
         }
     }
-    */
 
     save() {
         if (this.choiceVerif()) {
@@ -154,7 +156,7 @@ export class CreateQuestionComponent implements OnChanges {
         if (this.questionName === '') {
             window.alert('Le champ Question ne peut pas être vide.');
             return false;
-        } else if (this.choices.length < Constants.MIN_CHOICES) {
+        } else if (this.choices.length < MIN_CHOICES_NUMBER) {
             window.alert("Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.");
             return false;
         } else if (!this.hasAnswer()) {
