@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Game } from '@app/interfaces/game';
+import { Result } from '@app/interfaces/result';
+import { CommunicationService } from '@app/services/communication.service';
+import { Subscription } from 'rxjs';
 
 // const description =
 //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' +
@@ -17,14 +21,47 @@ import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
+    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule, MatSnackBarModule],
 })
 export class StartGamePageComponent {
     // Template games to finish functionality
-    games: Game[] = [GAME_PLACEHOLDER, GAME_PLACEHOLDER, GAME_PLACEHOLDER];
-
+    games: Game[] = [];
     title: string = 'Liste de jeux';
-    constructor(private router: Router) {}
+    private subscription = new Subscription();
+    constructor(
+        private router: Router,
+        private readonly communicationService: CommunicationService,
+        private snackBar: MatSnackBar,
+    ) {
+        this.loadGames();
+    }
+
+    loadGames(): void {
+        this.subscription.add(
+            this.communicationService.getGames().subscribe({
+                next: (result: Result<Game[]>) => {
+                    if (result.ok && result.value) {
+                        this.games = result.value;
+                        this.games.forEach((game) => {
+                            game.image = 'assets/logo.png';
+                        });
+                    } else {
+                        this.openSnackBar('Error fetching games');
+                    }
+                },
+                error: () => {
+                    this.openSnackBar('Error fetching games');
+                },
+            }),
+        );
+    }
+
+    openSnackBar(message: string) {
+        this.snackBar.open(message, 'Close');
+    }
+    refreshGames() {
+        this.loadGames();
+    }
 
     startGame(id: string) {
         alert('Start game with id ' + id);
@@ -33,7 +70,7 @@ export class StartGamePageComponent {
     }
 
     testGame(id: string) {
+        // TODO: Add server call to test game for sprint 1
         alert('Test game with id ' + id);
-        // TODO: Add server call to test game
     }
 }

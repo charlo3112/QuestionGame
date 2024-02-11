@@ -1,4 +1,4 @@
-<mat-expansion-panel>
+<mat-expansion-panel *ngIf="gameDetails.visibility">
     <mat-expansion-panel-header>
         <mat-panel-title class="panel-title"> {{ gameDetails.title }} </mat-panel-title>
     </mat-expansion-panel-header>
@@ -7,13 +7,12 @@
             <p class="item-title">Description du jeu:</p>
             <p class="item-content">{{ gameDetails.description }}</p>
             <p class="item-title">Temps alloué:</p>
-            <p class="item-content"></p>
-            <!-- TODO Liste de questions avec un for -->
+            <p class="item-content">{{ gameDetails.duration }} secondes</p>
             <p class="item-title">Questions:</p>
-            <p class="item-content">{{ gameDetails.gameId }}</p>
+            <p class="item-content" *ngFor="let question of gameDetails.questions; index as i">- {{ question.text }}</p>
             <div class="row-container">
-                <button mat-raised-button color="primary" class="game-button" (click)="onStartGame()">Commencer</button>
-                <button mat-raised-button color="warn" class="game-button" (click)="onTestGame()">Tester</button>
+                <button mat-raised-button color="primary" class="game-button" (click)="onStartGame(gameDetails)">Commencer</button>
+                <button mat-raised-button color="warn" class="game-button" (click)="onTestGame(gameDetails)">Tester</button>
             </div>
         </div>
         <span class="spacer"></span>
