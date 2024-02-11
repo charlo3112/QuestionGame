@@ -25,7 +25,7 @@ export class QuestionBankComponent {
                 this.questions.sort((a, b) => {
                     const dateA = new Date(a.lastModification);
                     const dateB = new Date(b.lastModification);
-                    return dateA.getTime() - dateB.getTime();
+                    return dateB.getTime() - dateA.getTime();
                 });
             },
             error: (error) => {
@@ -50,7 +50,7 @@ export class QuestionBankComponent {
         const lastModificationDate = new Date(lastModification);
         const now = new Date();
         const timeDiff = now.getTime() - lastModificationDate.getTime();
-        const day = 1000 * 60 * 60 * 24;
+        const day = 24 * 60 * 60 * 1000;
         if (timeDiff < day) {
             const hours = lastModificationDate.getHours().toString().padStart(2, '0');
             const minutes = lastModificationDate.getMinutes().toString().padStart(2, '0');
