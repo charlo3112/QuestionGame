@@ -1,8 +1,8 @@
-import { MAX_DURATION, MIN_DURATION } from '@app/constants';
 import { Game, GameDocument } from '@app/model/database/game';
 import { Question, QuestionDocument } from '@app/model/database/question';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
+import { MAX_DURATION, MIN_DURATION } from '@common/constants';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as fs from 'fs-extra';
