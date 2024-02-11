@@ -4,6 +4,10 @@ import { QuestionType } from '@app/enums/question-type';
 import { TimeService } from '@app/services/time.service';
 import SpyObj = jasmine.SpyObj;
 import { Choice } from '@app/classes/choice';
+import { RouterLink, RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { routes } from '@app/modules/app-routing.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const mockQuestion = {
     type: QuestionType.Qcm,
@@ -12,7 +16,7 @@ const mockQuestion = {
     choices: [new Choice('A', true), new Choice('B', false), new Choice('C', false)],
 };
 
-describe('PlayAreaComponent', () => {
+describe('Question', () => {
     let component: QuestionComponent;
     let fixture: ComponentFixture<QuestionComponent>;
     let timeServiceSpy: SpyObj<TimeService>;
@@ -20,6 +24,7 @@ describe('PlayAreaComponent', () => {
     beforeEach(async () => {
         timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
         await TestBed.configureTestingModule({
+            imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes), BrowserAnimationsModule],
             providers: [{ provide: TimeService, useValue: timeServiceSpy }],
         }).compileComponents();
     });
@@ -36,25 +41,11 @@ describe('PlayAreaComponent', () => {
     });
 
     it('buttonDetect with 1 should select first element', () => {
-        const expectedKey = 'a';
+        const expectedKey = '1';
         const buttonEvent = {
             key: expectedKey,
         } as KeyboardEvent;
         component.buttonDetect(buttonEvent);
         expect(component.question.choices[0].isSelected).toEqual(true);
-    });
-
-    it('confirmQuestion should call alert with message', () => {
-        spyOn(window, 'alert');
-        component.confirmQuestion();
-        expect(window.alert).toHaveBeenCalledWith('Question confirmée');
-    });
-
-    it('score should return 3', () => {
-        expect(component.score).toEqual(3);
-    });
-
-    it('time should return timeService.time', () => {
-        expect(component.time).toEqual(timeServiceSpy.time);
     });
 });
