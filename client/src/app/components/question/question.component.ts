@@ -22,19 +22,7 @@ export class QuestionComponent {
     isChatFocused: boolean = false;
 
     readonly timer = 60;
-    constructor(private readonly gameService: GameService) {}
-
-    get score(): number {
-        return this.gameService.scoreValue;
-    }
-
-    get time(): number {
-        return this.gameService.time;
-    }
-
-    get message(): string | undefined {
-        return this.gameService.message;
-    }
+    constructor(readonly gameService: GameService) {}
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
@@ -46,20 +34,12 @@ export class QuestionComponent {
             this.gameService.confirmQuestion();
         }
         const value = parseInt(key, 10) - 1;
-        if (!isNaN(value) && value < this.question.choices.length) {
+        if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
             this.gameService.selectChoice(value);
         }
     }
 
-    toggleBonus() {
-        this.gameService.toggleBonus();
-    }
-
     chatFocused(focus: boolean) {
         this.isChatFocused = focus;
-    }
-
-    confirmQuestion() {
-        this.gameService.confirmQuestion();
     }
 }

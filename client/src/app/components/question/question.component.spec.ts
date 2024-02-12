@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { QuestionType } from '@app/enums/question-type';
-import { TimeService } from '@app/services/time.service';
-import SpyObj = jasmine.SpyObj;
 import { Choice } from '@app/classes/choice';
 import { Router } from '@angular/router';
 import { routes } from '@app/modules/app-routing.module';
@@ -10,6 +8,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
+import { GameService } from '@app/services/game.service';
 
 const mockQuestion = {
     type: QuestionType.Qcm,
@@ -21,15 +20,15 @@ const mockQuestion = {
 describe('Question', () => {
     let component: QuestionComponent;
     let fixture: ComponentFixture<QuestionComponent>;
-    let timeServiceSpy: SpyObj<TimeService>;
     let router: Router;
     let location: Location;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
-        timeServiceSpy = jasmine.createSpyObj('TimeService', ['startTimer', 'stopTimer']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['confirmQuestion', 'selectChoice', 'isChoiceCorrect', 'isChoiceIncorrect']);
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
-            providers: [{ provide: TimeService, useValue: timeServiceSpy }],
+            providers: [{ provide: GameService, useValue: gameServiceSpy }],
         }).compileComponents();
     });
 
@@ -52,4 +51,29 @@ describe('Question', () => {
         tick();
         expect(location.path()).toBe('/home');
     }));
+
+    it('should detect enter key', () => {
+        const event = new KeyboardEvent('keydown', { key: 'Enter' });
+        component.buttonDetect(event);
+        expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
+    });
+
+    it('should detect number key', () => {
+        const event = new KeyboardEvent('keydown', { key: '1' });
+        component.buttonDetect(event);
+        expect(gameServiceSpy.selectChoice).toHaveBeenCalledWith(0);
+    });
+
+    it('should not detect number key', () => {
+        const event = new KeyboardEvent('keydown', { key: '0' });
+        component.buttonDetect(event);
+        expect(gameServiceSpy.selectChoice).not.toHaveBeenCalled();
+    });
+
+    it('should not detect when chat is focused', () => {
+        component.chatFocused(true);
+        const event = new KeyboardEvent('keydown', { key: '1' });
+        component.buttonDetect(event);
+        expect(gameServiceSpy.selectChoice).not.toHaveBeenCalled();
+    });
 });

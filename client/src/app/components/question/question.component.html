@@ -6,9 +6,9 @@
         <span id="points" class="big-text">{{ question.points }} points</span>
     </mat-toolbar-row>
     <mat-toolbar-row class="row-container">
-        <p class="big-text">Score total : {{ score }}</p>
-        <h1 *ngIf="message" class="title">{{ message }}</h1>
-        <p *ngIf="time" class="big-text">Temps restant : {{ time }}</p>
+        <p class="big-text">Score total : {{ gameService.score }}</p>
+        <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
+        <p *ngIf="gameService.time" class="big-text">Temps restant : {{ gameService.time }}</p>
         <button mat-raised-button id="abandon-button" routerLink="#/admin/game">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -19,14 +19,14 @@
             <section id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="confirmQuestion()" class="big-text" color="primary">Confirmer</button>
+            <button mat-raised-button id="confirm-button" (click)="gameService.confirmQuestion()" class="big-text" color="primary">Confirmer</button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
-    <mat-slide-toggle (change)="toggleBonus()">
+    <mat-slide-toggle (change)="gameService.toggleBonus()">
         20% bonus points
     </mat-slide-toggle>
-    <div class="bottom" [ngStyle]="{'bottom.%': -time / timer * 100 - 20}"></div>
+    <div class="bottom" [ngStyle]="{'bottom.%': -gameService.time / timer * 100 - 20}"></div>
 </div>

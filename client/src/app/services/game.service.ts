@@ -16,7 +16,7 @@ export class GameService {
     private questions: Question[] = [];
     private i: number = 0;
     private state: GameState = GameState.NotStarted;
-    private score: number = 0;
+    private scoreValue: number = 0;
     private bonus: boolean = false;
 
     constructor(
@@ -24,8 +24,8 @@ export class GameService {
         private readonly router: Router,
     ) {}
 
-    get scoreValue(): number {
-        return this.score;
+    get score(): number {
+        return this.scoreValue;
     }
 
     get time(): number {
@@ -77,7 +77,7 @@ export class GameService {
     startGame(newQuestions: Question[]) {
         this.questions = newQuestions;
         this.i = 0;
-        this.score = 0;
+        this.scoreValue = 0;
         this.state = GameState.AskingQuestion;
         this.askQuestion();
     }
@@ -92,7 +92,7 @@ export class GameService {
         }
         this.state = GameState.ShowResults;
         this.timeService.stopTimer();
-        this.score += this.scoreQuestion();
+        this.scoreValue += this.scoreQuestion();
 
         this.timeService.setTimeout(() => {
             this.advanceState();
