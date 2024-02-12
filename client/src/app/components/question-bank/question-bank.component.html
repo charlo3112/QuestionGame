@@ -1,11 +1,21 @@
 <div class="question-bank" *ngIf="questions && questions.length > 0">
-    <mat-card class="question" *ngFor="let question of questions; let i = index" [ngClass]="{ 'highlighted': question === highlightedQuestion }" (click)="toggleHighlight(question)">
+    <mat-card
+        class="question"
+        *ngFor="let question of questions; let i = index"
+        [ngClass]="{ highlighted: question === highlightedQuestion }"
+        (click)="toggleHighlight(question)"
+    >
         <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }}</mat-card-content>
         <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
-        <button mat-icon-button class="edit-button" [ngClass]="{ 'highlighted': question === highlightedQuestion }">
+        <button mat-icon-button class="edit-button" [ngClass]="{ highlighted: question === highlightedQuestion }">
             <mat-icon class="question-edit">mode_edit</mat-icon>
         </button>
-        <button mat-icon-button class="delete-button" [ngClass]="{ 'highlighted': question === highlightedQuestion }">
+        <button
+            mat-icon-button
+            class="delete-button"
+            [ngClass]="{ highlighted: question === highlightedQuestion }"
+            (click)="deleteQuestion(question.text)"
+        >
             <mat-icon class="question-delete">delete</mat-icon>
         </button>
     </mat-card>
