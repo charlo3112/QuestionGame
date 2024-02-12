@@ -81,13 +81,13 @@ export class CommunicationService {
         );
     }
 
-    getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
+    getAllQuestionsWithModificationDates(): Observable<Result<QuestionWithModificationDate[]>> {
         return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' }).pipe(
             map((response: HttpResponse<QuestionWithModificationDate[]>) => {
-                return response;
+                return { ok: true, value: response.body as QuestionWithModificationDate[] } as Result<QuestionWithModificationDate[]>;
             }),
             catchError(() => {
-                return of({ ok: false, error: 'Error fetching games' } as unknown as HttpResponse<QuestionWithModificationDate[]>);
+                return of({ ok: false, error: 'Error fetching games' } as Result<QuestionWithModificationDate[]>);
             }),
         );
     }

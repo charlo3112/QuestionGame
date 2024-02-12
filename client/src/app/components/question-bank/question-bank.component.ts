@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS } from '@common/constants';
 
@@ -25,8 +26,11 @@ export class QuestionBankComponent {
 
     loadQuestions() {
         this.communicationService.getAllQuestionsWithModificationDates().subscribe({
-            next: (response) => {
-                this.questions = response.body || [];
+            next: (response: Result<QuestionWithModificationDate[]>) => {
+                if (!response.ok) {
+                    throw new Error('Error fetching questions');
+                }
+                this.questions = response.value;
                 this.questions.sort((a, b) => {
                     if (typeof a.lastModification === 'string' && typeof b.lastModification === 'string') {
                         const dateA = new Date(a.lastModification);

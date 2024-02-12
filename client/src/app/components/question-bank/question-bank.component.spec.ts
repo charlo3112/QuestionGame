@@ -1,6 +1,7 @@
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { QuestionType, QuestionWithModificationDate } from '@app/interfaces/question';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
@@ -43,11 +44,19 @@ describe('QuestionBankComponent', () => {
                 lastModification: new Date('2022-03-10T12:30:00.000Z'),
             },
         ];
-        const mockResponse: HttpResponse<QuestionWithModificationDate[]> = new HttpResponse({ body: mockQuestions, status: 200, statusText: 'OK' });
+        const mockResponse: Result<QuestionWithModificationDate[]> = { ok: true, value: mockQuestions };
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
         expect(component.questions).toEqual(mockQuestions);
     });
+
+    // it('should throw error when getAllQuestionsWithModificationDates fails', () => {
+    //     const errorResponse = { ok: false, error: 'Error fetching questions' } as Result<QuestionWithModificationDate[]>;
+    //     spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(errorResponse));
+    //     expect(() => {
+    //         component.loadQuestions();
+    //     }).toThrowError('Error fetching questions');
+    // });
 
     it('should load questions when lastModification is string from JSON', () => {
         const mockQuestion1: QuestionWithModificationDate = {
@@ -67,7 +76,7 @@ describe('QuestionBankComponent', () => {
         const mockQuestion1JSON = JSON.parse(JSON.stringify(mockQuestion1));
         const mockQuestion2JSON = JSON.parse(JSON.stringify(mockQuestion2));
         const mockQuestions: QuestionWithModificationDate[] = [mockQuestion1JSON, mockQuestion2JSON];
-        const mockResponse: HttpResponse<QuestionWithModificationDate[]> = new HttpResponse({ body: mockQuestions, status: 200, statusText: 'OK' });
+        const mockResponse: Result<QuestionWithModificationDate[]> = { ok: true, value: mockQuestions };
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
         expect(component.questions).toEqual(mockQuestions);
