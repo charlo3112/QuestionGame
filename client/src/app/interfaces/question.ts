@@ -58,6 +58,7 @@ export const questions: Question[] = [
         choices: [new Choice('Oui', false), new Choice('Non', true)],
     },
 ];
+
 export const QUESTION_PLACEHOLDER: Question = {
     type: QuestionType.Qcm,
     text: 'What is the text to print?',
