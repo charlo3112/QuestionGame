@@ -29,3 +29,7 @@
     align-items: center;
     padding-bottom: 16px;
 }
+
+.highlighted {
+    background-color: map.get(constant.$blue-palette, 800);
+}

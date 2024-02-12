@@ -3,10 +3,9 @@ import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { QuestionWithModificationDate } from '@app/interfaces/question';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS } from '@common/constants';
-const MINUS_ONE = -1;
 
 @Component({
     selector: 'app-question-bank',
@@ -18,7 +17,7 @@ const MINUS_ONE = -1;
 export class QuestionBankComponent {
     @Input() adminMode = false;
     questions: QuestionWithModificationDate[] = [];
-    highlightedQuestionIndex: number = MINUS_ONE;
+    highlightedQuestion: Question | null;
 
     constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
@@ -73,7 +72,7 @@ export class QuestionBankComponent {
         });
     }
 
-    toggleHighlight(index: number): void {
-        this.highlightedQuestionIndex = index === this.highlightedQuestionIndex ? MINUS_ONE : index;
+    toggleHighlight(question: Question | null): void {
+        this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
     }
 }
