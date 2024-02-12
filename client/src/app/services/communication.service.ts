@@ -81,11 +81,22 @@ export class CommunicationService {
         );
     }
 
-    getAllQuestions(): Observable<HttpResponse<Question[]>> {
-        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
+        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' }).pipe(
+            map((response: HttpResponse<QuestionWithModificationDate[]>) => {
+                return response;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as unknown as HttpResponse<QuestionWithModificationDate[]>);
+            }),
+        );
     }
 
-    getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
-        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    deleteQuestion(text: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
+    }
+
+    addQuestion(question: Question): Observable<HttpResponse<Question>> {
+        return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
     }
 }

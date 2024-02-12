@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { QuestionWithModificationDate } from '@app/interfaces/question';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS } from '@common/constants';
 
@@ -8,12 +11,13 @@ import { DAY_IN_MS } from '@common/constants';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink, MatIconModule, MatCardModule],
     standalone: true,
 })
 export class QuestionBankComponent {
     @Input() adminMode = false;
     questions: QuestionWithModificationDate[] = [];
+    highlightedQuestion: Question | null;
 
     constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
@@ -54,5 +58,21 @@ export class QuestionBankComponent {
             const dayOfMonth = lastModificationDate.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${dayOfMonth}`;
         }
+    }
+
+    deleteQuestion(questionText: string) {
+        this.communicationService.deleteQuestion(questionText).subscribe({
+            next: () => {
+                this.questions = this.questions.filter((question) => question.text !== questionText);
+                window.alert('la question ' + questionText + ' a été supprimée avec succès ');
+            },
+            error: () => {
+                throw new Error('Error deleting question');
+            },
+        });
+    }
+
+    toggleHighlight(question: Question | null): void {
+        this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
     }
 }

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
 
@@ -7,7 +9,7 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
     templateUrl: './bank-question-page.component.html',
     styleUrls: ['./bank-question-page.component.scss'],
     standalone: true,
-    imports: [QuestionBankComponent],
+    imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule],
 })
 export class BankQuestionPageComponent implements OnInit {
     constructor(private router: Router) {}
