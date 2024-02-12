@@ -111,10 +111,15 @@ describe('QuestionBankComponent', () => {
 
     it('toggleHighlight should highlight the selected question', () => {
         const mockQuestion: QuestionWithModificationDate = {
-            type: QuestionType.Qcm,
+            type: QuestionType.QCM,
             text: 'What is this test number 1?',
             points: 5,
-            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            choices: [
+                { text: 'test', isCorrect: true, isSelected: false },
+                { text: 'test2', isCorrect: false, isSelected: false },
+                { text: 'test3', isCorrect: true, isSelected: false },
+                { text: 'test4', isCorrect: false, isSelected: false },
+            ],
             lastModification: new Date('2023-09-01T08:10:00.000Z'),
         };
         component.toggleHighlight(mockQuestion);
