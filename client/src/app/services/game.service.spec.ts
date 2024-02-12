@@ -99,6 +99,12 @@ describe('Game', () => {
         expect(service.isChoiceIncorrect(0)).toBeFalsy();
     });
 
+    it('should return true when the choice is selected and incorrect', () => {
+        service.selectChoice(2);
+        service['state'] = GameState.ShowResults;
+        expect(service.isChoiceIncorrect(2)).toBeTruthy();
+    });
+
     it('should return true when the choice is incorrect', () => {
         service['state'] = GameState.ShowResults;
         service['questions'][0].choices[0].isSelected = false;
@@ -141,9 +147,17 @@ describe('Game', () => {
     it('should navigate when GameOver', fakeAsync(() => {
         service['i'] = questions.length - 1;
         service.confirmQuestion();
-        service['state'] = GameState.Gameover;
         tick(timeConfirmMs + 1);
         expect(mockRouter.navigate).toHaveBeenCalled();
+    }));
+
+    it('should stay in the same state when finishing the game', fakeAsync(() => {
+        service['i'] = questions.length - 1;
+        service.confirmQuestion();
+        service['state'] = GameState.Gameover;
+        tick(timeConfirmMs + 1);
+
+        expect(service.currentState).toBe(GameState.Gameover);
     }));
 
     it('should advance when question elapsed', fakeAsync(() => {
@@ -153,6 +167,18 @@ describe('Game', () => {
         spyOn(service, 'confirmQuestion');
         tick(timeQuestionMs + 1);
         expect(service.confirmQuestion).toHaveBeenCalled();
+    }));
+
+    it('should advance when question confirmed', fakeAsync(() => {
+        service.toggleBonus();
+        service.selectChoice(0);
+        service.selectChoice(1);
+        service.confirmQuestion();
+        // Necessary to avoid going through the game.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        spyOn<any>(service, 'askQuestion');
+        tick(timeConfirmMs + 1);
+        expect(service['askQuestion']).toHaveBeenCalled();
     }));
 
     it('should toggle the bonus', () => {
