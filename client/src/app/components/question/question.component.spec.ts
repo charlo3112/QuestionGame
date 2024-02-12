@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { QuestionComponent } from '@app/components/question/question.component';
-import { QuestionType } from '@app/enums/question-type';
 import { Choice } from '@app/classes/choice';
 import { Router } from '@angular/router';
 import { routes } from '@app/modules/app-routing.module';
@@ -9,9 +8,10 @@ import { By } from '@angular/platform-browser';
 import { Location } from '@angular/common';
 import { RouterTestingModule } from '@angular/router/testing';
 import { GameService } from '@app/services/game.service';
+import { QuestionType } from '@common/constants';
 
 const mockQuestion = {
-    type: QuestionType.Qcm,
+    type: QuestionType.QCM,
     text: 'Question test',
     points: 8,
     choices: [new Choice('A', true), new Choice('B', false), new Choice('C', false)],

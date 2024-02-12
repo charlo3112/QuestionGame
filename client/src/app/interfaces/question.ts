@@ -1,5 +1,5 @@
 import { Choice } from '@app/classes/choice';
-import { QuestionType } from '@app/enums/question-type';
+import { QuestionType } from '@common/constants';
 
 export interface Question {
     type: QuestionType;
@@ -14,7 +14,7 @@ export interface QuestionWithModificationDate extends Question {
 
 export const questions: Question[] = [
     {
-        type: QuestionType.Qcm,
+        type: QuestionType.QCM,
         text: "Pourquoi le jus de lichi n'est pas bon?",
         points: 8,
         choices: [
@@ -25,7 +25,7 @@ export const questions: Question[] = [
         ],
     },
     {
-        type: QuestionType.Qcm,
+        type: QuestionType.QCM,
         text: 'Pourquoi le Rust est un langage supérieur pour le frontend?',
         points: 8,
         choices: [
@@ -35,13 +35,13 @@ export const questions: Question[] = [
         ],
     },
     {
-        type: QuestionType.Qcm,
+        type: QuestionType.QCM,
         text: 'Quel est mieux angular ou React?',
         points: 8,
         choices: [new Choice('Les deux sont horribles', false), new Choice('Angular?', true), new Choice('React', false)],
     },
     {
-        type: QuestionType.Qcm,
+        type: QuestionType.QCM,
         text: "Comment utiliser Git d'une manière optimale?",
         points: 8,
         choices: [
@@ -52,7 +52,7 @@ export const questions: Question[] = [
         ],
     },
     {
-        type: QuestionType.Qcm,
+        type: QuestionType.QCM,
         text: 'Est-ce que nous avons fait tous ce que nous avons promis?',
         points: 8,
         choices: [new Choice('Oui', false), new Choice('Non', true)],
@@ -60,8 +60,8 @@ export const questions: Question[] = [
 ];
 
 export const QUESTION_PLACEHOLDER: Question = {
-    type: QuestionType.Qcm,
+    type: QuestionType.QCM,
     text: 'What is the text to print?',
     points: 42,
-    choices: [{ text: 'hello_world' }, { text: 'test' }, { text: 'lorem_ipsum' }],
+    choices: [new Choice('hello_world', true), new Choice('test', false), new Choice('lorem_ipsum', false)],
 };

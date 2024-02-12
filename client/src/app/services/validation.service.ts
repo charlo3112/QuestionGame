@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Choice } from '@app/classes/choice';
-import { QuestionType } from '@app/enums/question-type';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
+import { QuestionType } from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -61,7 +61,7 @@ export class ValidationService {
             errors.push('La question doit avoir un type valide.');
         }
 
-        if (question.type === QuestionType.Qcm) {
+        if (question.type === QuestionType.QCM) {
             if (!Array.isArray(question.choices)) {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
