@@ -1,4 +1,4 @@
-import { Question } from '@app/interfaces/question';
+import { QUESTION_PLACEHOLDER, Question } from '@app/interfaces/question';
 
 export interface Game {
     gameId: string;
