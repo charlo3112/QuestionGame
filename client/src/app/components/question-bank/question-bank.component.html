@@ -1,9 +1,17 @@
-<h2>Banque de questions</h2>
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Banque de questions</h1>
+</mat-toolbar>
+
 <div class="question-bank" *ngIf="questions && questions.length > 0">
-    <div class="question-bank-box" *ngFor="let question of questions; let i = index">
-        <div class="question">
-            <h3>{{ i + 1 }}. {{ question.text }}</h3>
-            <h3 *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</h3>
-        </div>
-    </div>
+    <mat-card class="question" *ngFor="let question of questions; let i = index">
+        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }}</mat-card-content>
+        <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
+        <button mat-icon-button class="edit-button">
+            <mat-icon class="question-edit">mode_edit</mat-icon>
+        </button>
+        <button mat-icon-button class="delete-button">
+            <mat-icon class="question-delete">delete</mat-icon>
+        </button>
+    </mat-card>
 </div>

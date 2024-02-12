@@ -1,5 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink } from '@angular/router';
 import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS } from '@common/constants';
@@ -8,7 +12,7 @@ import { DAY_IN_MS } from '@common/constants';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [CommonModule],
+    imports: [CommonModule, MatToolbarModule, RouterLink, MatIconModule, MatCardModule],
     standalone: true,
 })
 export class QuestionBankComponent {
@@ -55,4 +59,6 @@ export class QuestionBankComponent {
             return `${year}-${month}-${dayOfMonth}`;
         }
     }
+
+    deleteQuestion(questionId: string) {}
 }
