@@ -12,6 +12,7 @@ import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { AnswersComponent } from './components/answers/answers.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
+import { BankQuestionPageComponent } from './pages/bank-question-page/bank-question-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -35,6 +36,7 @@ import { QuestionBankComponent } from './components/question-bank/question-bank.
         AnswersComponent,
         MatGridListModule,
         QuestionBankComponent,
+        BankQuestionPageComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],

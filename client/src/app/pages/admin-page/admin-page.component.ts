@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { HttpStatusCode } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -35,7 +35,7 @@ import { Subscription } from 'rxjs';
         MatDialogModule,
     ],
 })
-export class AdminPageComponent {
+export class AdminPageComponent implements OnInit {
     login: boolean;
 
     games: Game[] = [];
@@ -45,7 +45,9 @@ export class AdminPageComponent {
         private readonly communicationService: CommunicationService,
         private snackBar: MatSnackBar,
         public dialog: MatDialog,
-    ) {
+    ) {}
+
+    ngOnInit() {
         this.loadGames();
         const storedLogin = sessionStorage.getItem('login');
         if (storedLogin !== null) {
