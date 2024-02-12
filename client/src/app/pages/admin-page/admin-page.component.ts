@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
+import { Choice } from '@app/classes/choice';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
@@ -104,10 +105,7 @@ export class AdminPageComponent {
                             type: question.type,
                             text: question.text,
                             points: question.points,
-                            choices: question.choices?.map((choice) => ({
-                                text: choice.text,
-                                isCorrect: choice.isCorrect,
-                            })),
+                            choices: question.choices?.map((choice) => new Choice(choice.text, choice.isCorrect)),
                         })),
                     };
                     this.downloadFile(filteredOutput, `game-${id}.json`);
