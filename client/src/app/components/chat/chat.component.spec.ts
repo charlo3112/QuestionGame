@@ -19,4 +19,51 @@ describe('ChatComponent', () => {
     it('should create', () => {
         expect(component).toBeTruthy();
     });
+
+    it('should focus', () => {
+        let emitted = false;
+        component.isChatFocused.subscribe((event: boolean) => {
+            emitted = event;
+        });
+        component.onFocus();
+        expect(emitted).toBeTrue();
+    });
+
+    it('should focusOut', () => {
+        let emitted = true;
+        component.isChatFocused.subscribe((event: boolean) => {
+            emitted = event;
+        });
+        component.onFocusOut();
+        expect(emitted).toBeFalse();
+    });
+
+    it('should chatSubmit', () => {
+        component.chatInput = 'test';
+        component.chatSubmit();
+        expect(component.chat).toEqual(['test']);
+        expect(component.chatInput).toEqual('');
+    });
+
+    it('should not chatSubmit', () => {
+        component.chatInput = '';
+        component.chatSubmit();
+        expect(component.chat).toEqual([]);
+    });
+
+    it('should buttonDetect', () => {
+        component.chatInput = 'test';
+        spyOn(component, 'chatSubmit');
+        const event = new KeyboardEvent('keydown', { key: 'Enter' });
+        component.buttonDetect(event);
+        expect(component.chatSubmit).toHaveBeenCalled();
+    });
+
+    it('should not buttonDetect', () => {
+        component.chatInput = 'test';
+        spyOn(component, 'chatSubmit');
+        const event = new KeyboardEvent('keydown', { key: 'Space' });
+        component.buttonDetect(event);
+        expect(component.chatSubmit).not.toHaveBeenCalled();
+    });
 });

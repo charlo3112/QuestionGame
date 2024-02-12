@@ -9,12 +9,12 @@
     <button
         mat-raised-button
         class="answer"
-        [ngClass]="{ selected: choice.isSelected, 'good': isChoiceCorrect(i), 'bad': isChoiceIncorrect(i) }"
-        (click)="questionSelected(i)"
+        [ngClass]="{ selected: choice.isSelected, 'good': gameService.isChoiceCorrect(i), 'bad': gameService.isChoiceIncorrect(i) }"
+        (click)="gameService.selectChoice(i)"
         *ngFor="let choice of choices; let i = index"
     >   
         <span> {{ (i + 1).toString() + ' - ' + choice.text }} </span>
-        <mat-icon *ngIf="isChoiceCorrect(i)" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
-        <mat-icon *ngIf="isChoiceIncorrect(i)" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
+        <mat-icon *ngIf="gameService.isChoiceCorrect(i)" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
+        <mat-icon *ngIf="gameService.isChoiceIncorrect(i)" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
     </button>
 </div>

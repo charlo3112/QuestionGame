@@ -15,21 +15,9 @@ import { GameService } from '@app/services/game.service';
 export class AnswersComponent {
     @Input() choices: Choice[] = [];
 
-    constructor(private readonly gameService: GameService) {}
+    constructor(readonly gameService: GameService) {}
 
     getAnswerClass() {
         return `answers-${this.choices.length}`;
-    }
-
-    questionSelected(index: number) {
-        this.gameService.selectChoice(index);
-    }
-
-    isChoiceCorrect(index: number): boolean | undefined {
-        return this.gameService.isChoiceCorrect(index);
-    }
-
-    isChoiceIncorrect(index: number): boolean | undefined {
-        return this.gameService.isChoiceIncorrect(index);
     }
 }
