@@ -131,27 +131,27 @@ export class CreatePageComponent implements OnInit {
         this.router.navigate(['/admin']);
     }
 
-    private createGame(game: Game): void {
+    createGame(game: Game): void {
         this.communicationService.addGame(game).subscribe({
             next: () => {
-                window.alert('Jeu ' + game.title + ' a été créer avec succès');
+                window.alert('Le jeu a été créé avec succès !');
             },
             error: () => {
                 window.alert('Erreur lors de la création du jeu');
             },
         });
     }
-    private updateGame(game: Game): void {
+    updateGame(game: Game): void {
         this.communicationService.editGame(game).subscribe({
             next: () => {
-                window.alert('Jeu ' + game.title + ' a été modifié avec succès');
+                window.alert('Le jeu a été modifié avec succès !');
             },
             error: () => {
                 window.alert('Erreur lors de la mise à jour du jeu');
             },
         });
     }
-    private verifyLogin(): boolean {
+    verifyLogin(): boolean {
         const storedLogin = sessionStorage.getItem('login');
         if (storedLogin !== null) {
             this.login = JSON.parse(storedLogin);
@@ -162,7 +162,7 @@ export class CreatePageComponent implements OnInit {
         return this.login;
     }
 
-    private loadGameData(gameId: string) {
+    loadGameData(gameId: string) {
         this.communicationService.getGameById(gameId).subscribe({
             next: (game) => {
                 this.fillForm(game, gameId);
@@ -173,7 +173,7 @@ export class CreatePageComponent implements OnInit {
         });
     }
 
-    private fillForm(game: Game, id: string) {
+    fillForm(game: Game, id: string) {
         this.isEditing = true;
         this.id = id;
         this.title = game.title;
@@ -183,7 +183,7 @@ export class CreatePageComponent implements OnInit {
         this.visibility = game.visibility;
     }
 
-    private resetForm() {
+    resetForm() {
         this.isEditing = false;
         this.title = '';
         this.description = '';
