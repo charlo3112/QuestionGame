@@ -1,6 +1,7 @@
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { ValidationService } from './validation.service';
+import { Choice } from '@app/classes/choice';
 
 describe('ValidationService', () => {
     let service: ValidationService;
@@ -20,10 +21,7 @@ describe('ValidationService', () => {
                         text: 'Test Question',
                         points: 10,
                         type: 'QCM',
-                        choices: [
-                            { text: 'Choice 1', isCorrect: true },
-                            { text: 'Choice 2', isCorrect: false },
-                        ],
+                        choices: [new Choice('Choice 1', true), new Choice('Choice 2', false)],
                     },
                 ],
             } as unknown as Partial<Game>;
@@ -61,7 +59,7 @@ describe('ValidationService', () => {
                 text: 'What is the capital of France?',
                 points: 5,
                 type: 'QCM',
-                choices: [{ text: 'Paris', isCorrect: true }],
+                choices: [new Choice('Paris', true)],
             } as unknown as Partial<Question>;
             expect(service.validateQuestion(question)).toEqual([]);
         });
@@ -89,7 +87,7 @@ describe('ValidationService', () => {
         it('should report errors for each choice', () => {
             const question = {
                 type: 'QCM',
-                choices: [{ text: 'Paris', isCorrect: true }, { isCorrect: false }],
+                choices: [new Choice('Paris', true), new Choice('', false)],
             } as unknown as Partial<Question>;
             const errors = service.validateQuestion(question);
             expect(errors).toContain('Le choix 2 de la question doit avoir un texte.');
@@ -115,10 +113,7 @@ describe('ValidationService', () => {
                         text: 'Test Question',
                         points: 10,
                         type: 'QCM',
-                        choices: [
-                            { text: 'Choice 1', isCorrect: true },
-                            { text: 'Choice 2', isCorrect: false },
-                        ],
+                        choices: [new Choice('Choice 1', true), new Choice('Choice 2', false)],
                     },
                 ],
             } as unknown as Partial<Game>;
@@ -133,10 +128,7 @@ describe('ValidationService', () => {
                         type: 'QCM',
                         text: 'Test Question',
                         points: 10,
-                        choices: [
-                            { text: 'Choice 1', isCorrect: true },
-                            { text: 'Choice 2', isCorrect: false },
-                        ],
+                        choices: [new Choice('Choice 1', true), new Choice('Choice 2', false)],
                     },
                 ],
             } as unknown as Partial<Game>;

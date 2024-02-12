@@ -1,8 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { QuestionType, QuestionWithModificationDate } from '@app/interfaces/question';
+import { Choice } from '@app/classes/choice';
+import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { QuestionType } from '@common/constants';
 import { of } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
 
@@ -30,17 +32,17 @@ describe('QuestionBankComponent', () => {
     it('should load questions', () => {
         const mockQuestions: QuestionWithModificationDate[] = [
             {
-                type: QuestionType.Qcm,
+                type: QuestionType.QCM,
                 text: 'What is this test number 1?',
                 points: 5,
-                choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+                choices: [new Choice('test', true), new Choice('test2', false), new Choice('test3', true), new Choice('test4', false)],
                 lastModification: new Date('2023-09-01T08:10:00.000Z'),
             },
             {
-                type: QuestionType.Qcm,
+                type: QuestionType.QCM,
                 text: 'What is this test number 2?',
                 points: 3,
-                choices: [{ text: 'test' }, { text: 'test2', isCorrect: true }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+                choices: [new Choice('test', false), new Choice('test2', true), new Choice('test3', true), new Choice('test4', false)],
                 lastModification: new Date('2022-03-10T12:30:00.000Z'),
             },
         ];
@@ -60,17 +62,17 @@ describe('QuestionBankComponent', () => {
 
     it('should load questions when lastModification is string from JSON', () => {
         const mockQuestion1: QuestionWithModificationDate = {
-            type: QuestionType.Qcm,
+            type: QuestionType.QCM,
             text: 'What is this test number 1?',
             points: 5,
-            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            choices: [new Choice('test', true), new Choice('test2', false), new Choice('test3', true), new Choice('test4', false)],
             lastModification: new Date('2023-09-01T08:10:00.000Z'),
         };
         const mockQuestion2: QuestionWithModificationDate = {
-            type: QuestionType.Qcm,
+            type: QuestionType.QCM,
             text: 'What is this test number 2?',
             points: 3,
-            choices: [{ text: 'test' }, { text: 'test2', isCorrect: true }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            choices: [new Choice('test', false), new Choice('test2', true), new Choice('test3', true), new Choice('test4', false)],
             lastModification: new Date('2022-03-10T12:30:00.000Z'),
         };
         const mockQuestion1JSON = JSON.parse(JSON.stringify(mockQuestion1));

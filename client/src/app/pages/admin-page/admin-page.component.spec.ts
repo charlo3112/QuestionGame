@@ -143,7 +143,7 @@ describe('AdminPageComponent', () => {
 
     it('should emit delete event when delete button is clicked', () => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'deleteGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -153,7 +153,7 @@ describe('AdminPageComponent', () => {
 
     it('should delete game when deleteGame is called', fakeAsync(() => {
         component.login = true;
-        component.games = [GAME_PLACEHOLDER];
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
 
         component.deleteGame(GAME_PLACEHOLDER.gameId);
@@ -183,6 +183,7 @@ describe('AdminPageComponent', () => {
 
     it('should emit export event when export button is clicked', () => {
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'exportGame');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -192,6 +193,7 @@ describe('AdminPageComponent', () => {
 
     it('should export game when exportGame is called', fakeAsync(() => {
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
         component.exportGame(GAME_PLACEHOLDER.gameId);
@@ -204,6 +206,7 @@ describe('AdminPageComponent', () => {
             throwError(() => new HttpErrorResponse({ status: 500, statusText: 'Internal Server Error' })),
         );
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
         component.exportGame(GAME_PLACEHOLDER.gameId);
@@ -214,6 +217,7 @@ describe('AdminPageComponent', () => {
     it('should should show snackbar when exportGame is called and no data is received', fakeAsync(() => {
         communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: 404 })));
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
         component.exportGame(GAME_PLACEHOLDER.gameId);
@@ -223,6 +227,7 @@ describe('AdminPageComponent', () => {
 
     it('should emit toggleVisibility event when toggleVisibility button is clicked', () => {
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'toggleGameVisibility');
         const gamePreview = fixture.debugElement.query(By.directive(AdminGamePreviewComponent));
@@ -232,6 +237,7 @@ describe('AdminPageComponent', () => {
 
     it('should toggle game visibility when toggleGameVisibility is called', fakeAsync(() => {
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
 
         component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
@@ -243,6 +249,7 @@ describe('AdminPageComponent', () => {
 
     it('should not toogle game visibility when toggleGameVisibility is called with invalid id', fakeAsync(() => {
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
 
         component.toggleGameVisibility('none');
@@ -256,6 +263,7 @@ describe('AdminPageComponent', () => {
         communicationServiceSpy.toggleGameVisibility.and.returnValue(throwError(() => new HttpErrorResponse({ status: 404 })));
 
         component.login = true;
+        component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
         component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
@@ -278,7 +286,6 @@ describe('AdminPageComponent', () => {
 
     it('should show snackbar when openImportDialog is called and error occurs', fakeAsync(() => {
         communicationServiceSpy.addGame.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-
         component.login = true;
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
