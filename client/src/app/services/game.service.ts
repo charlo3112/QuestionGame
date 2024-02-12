@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 
 const timeConfirmMs = 3000;
 const timeQuestionS = 60;
-const questionValue = 10;
 const bonusMultiplier = 1.2;
 
 @Injectable({
@@ -119,6 +118,7 @@ export class GameService {
 
     private scoreQuestion(): number {
         if (this.isResponseGood()) {
+            const questionValue = this.questions[this.i].points;
             return this.bonus ? questionValue * bonusMultiplier : questionValue;
         }
         return 0;
