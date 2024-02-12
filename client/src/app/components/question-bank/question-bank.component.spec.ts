@@ -97,4 +97,16 @@ describe('QuestionBankComponent', () => {
         const result = component.calculateTime(olderModificationDate);
         expect(result).toEqual(expectedResult);
     });
+
+    it('toggleHighlight should highlight the selected question', () => {
+        const mockQuestion: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 1?',
+            points: 5,
+            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2023-09-01T08:10:00.000Z'),
+        };
+        component.toggleHighlight(mockQuestion);
+        expect(component.highlightedQuestion).toEqual(mockQuestion);
+    });
 });
