@@ -39,7 +39,7 @@ import { MIN_DURATION, NOT_FOUND } from '@common/constants';
     ],
 })
 export class CreatePageComponent implements OnInit {
-    pageTilte: string;
+    pageTitle: string;
     showChildren: boolean = false;
     isEditing: boolean = false;
 
@@ -60,16 +60,15 @@ export class CreatePageComponent implements OnInit {
         private communicationService: CommunicationService,
         private validationService: ValidationService,
     ) {}
-
     ngOnInit() {
         if (this.verifyLogin()) {
             this.route.paramMap.subscribe((params) => {
                 const gameId = params.get('id');
                 if (gameId) {
-                    this.pageTilte = "Édition d'un jeu existant";
+                    this.pageTitle = "Édition d'un jeu existant";
                     this.loadGameData(gameId);
                 } else {
-                    this.pageTilte = "Création d'un nouveau jeu";
+                    this.pageTitle = "Création d'un nouveau jeu";
                     this.resetForm();
                 }
             });
@@ -90,7 +89,7 @@ export class CreatePageComponent implements OnInit {
     deleteQuestion(index: number): void {
         this.questions.splice(index, 1);
     }
-    drop(event: CdkDragDrop<string[]>): void {
+    drop(event: CdkDragDrop<Question[]>): void {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
     editQuestion(question: Question) {

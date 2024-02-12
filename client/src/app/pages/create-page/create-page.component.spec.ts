@@ -1,4 +1,4 @@
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -10,8 +10,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { EMPTY_QUESTION, Question, QuestionType } from '@app/interfaces/question';
 import { MIN_NB_OF_POINTS } from '@common/constants';
 import { CreatePageComponent } from './create-page.component';
 
@@ -20,6 +21,7 @@ describe('CreatePageComponent', () => {
     let fixture: ComponentFixture<CreatePageComponent>;
     let mockValidQuestion1: Question;
     let mockValidQuestion2: Question;
+    let router: Router;
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
@@ -33,7 +35,7 @@ describe('CreatePageComponent', () => {
                 MatIconModule,
                 MatListModule,
                 DragDropModule,
-                RouterModule.forRoot([]),
+                RouterTestingModule.withRoutes([]),
                 NoopAnimationsModule,
                 CreatePageComponent,
                 HttpClientModule,
@@ -44,6 +46,8 @@ describe('CreatePageComponent', () => {
     beforeEach(() => {
         fixture = TestBed.createComponent(CreatePageComponent);
         component = fixture.componentInstance;
+        router = TestBed.inject(Router);
+        spyOn(router, 'navigate');
         mockValidQuestion1 = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
@@ -74,6 +78,28 @@ describe('CreatePageComponent', () => {
         expect(component.isEditing).toBeFalse();
         expect(component.questions.length).toBe(0);
         expect(component.selectedQuestion).toBeNull();
+    });
+
+    // ngOnInit
+    it('should resetForm if verifyLogin is true and create game if no game id', () => {
+        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+        component.ngOnInit();
+        expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
+    });
+
+    /*
+    it('should load game data if verifyLogin is true and edit game', () => {
+        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+
+        component.ngOnInit();
+        expect(component.pageTitle).toEqual("Édition d'un jeu existant");
+    });
+    */
+
+    it('should go back to admin if verifyLogin is false', () => {
+        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
+        component.ngOnInit();
+        expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     });
 
     // insertQuestion
@@ -117,6 +143,21 @@ describe('CreatePageComponent', () => {
     });
 
     // drop
+    it('should reorder questions correctly when drop is called', () => {
+        component.questions = [mockValidQuestion1, mockValidQuestion2];
+        const startIndex = 0;
+        const endIndex = 1;
+        const event: CdkDragDrop<Question[]> = {
+            previousIndex: startIndex,
+            currentIndex: endIndex,
+            isPointerOverContainer: true,
+            distance: { x: 0, y: 0 },
+        } as CdkDragDrop<Question[]>;
+
+        component.drop(event);
+        expect(component.questions[startIndex]).toEqual(mockValidQuestion2);
+        expect(component.questions[endIndex]).toEqual(mockValidQuestion1);
+    });
 
     // editQuestion et la selection d'une question à éditer
     it('should set selectedQuestion to the question to edit and show the child component', () => {
@@ -128,8 +169,30 @@ describe('CreatePageComponent', () => {
     });
 
     // openCreateQuestion
+    it('should open the question creation form', () => {
+        expect(component.showChildren).toBeFalse();
+        expect(component.selectedQuestion).toBeNull();
+        component.openCreateQuestion();
+        expect(component.showChildren).toBeTrue();
+        expect(component.selectedQuestion).toEqual(EMPTY_QUESTION);
+    });
 
     // closeCreateQuestion
+    it('should close the question creation or editing form', () => {
+        component.showChildren = true;
+        component.closeCreateQuestion();
+        expect(component.showChildren).toBeFalse();
+    });
 
     // save
+
+    // createGame
+
+    // updateGame
+
+    // loadGameData
+
+    // fillForm
+
+    // resetForm
 });

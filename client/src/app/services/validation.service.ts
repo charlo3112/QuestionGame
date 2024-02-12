@@ -89,7 +89,7 @@ export class ValidationService {
                     errors.push('La question doit avoir au minimum deux choix.');
                 }
                 if (choices.length > MAX_CHOICES_NUMBER) {
-                    errors.push('La question doit avoir au maximum quatre choix');
+                    errors.push('La question doit avoir au maximum quatre choix.');
                 }
                 let answer = 0;
                 for (let j = 0; j < choices.length; j++) {

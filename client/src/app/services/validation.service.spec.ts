@@ -169,10 +169,25 @@ describe('ValidationService', () => {
             expect(errors).toContain('Les choix de la question doivent être un tableau.');
         });
 
-        it('should report that it needs at least one choice', () => {
+        it('should report that it needs at least two choices', () => {
             const question = { type: 'QCM', choices: [] };
             const errors = service.validateQuestion(question as unknown as Partial<Question>);
             expect(errors).toContain('La question doit avoir au minimum deux choix.');
+        });
+
+        it('should report that it needs a maximum of 4 choices', () => {
+            const question = {
+                type: 'QCM',
+                choices: [
+                    { text: 'Paris', isCorrect: true },
+                    { text: 'Marseille', isCorrect: false },
+                    { text: 'Lyon', isCorrect: false },
+                    { text: 'Toulouse', isCorrect: false },
+                    { text: 'Nice', isCorrect: false },
+                ],
+            } as unknown as Partial<Question>;
+            const errors = service.validateQuestion(question);
+            expect(errors).toContain('La question doit avoir au maximum quatre choix.');
         });
 
         it('should report errors for each choice', () => {
