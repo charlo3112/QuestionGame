@@ -68,6 +68,10 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
 
+    deleteQuestion(text: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/admin/question-bank/${text}`, { observe: 'response', responseType: 'text' });
+    }
+
     login(password: string): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
     }

@@ -60,5 +60,12 @@ export class QuestionBankComponent {
         }
     }
 
-    deleteQuestion(questionId: string) {}
+    deleteQuestion(questionText: string) {
+        this.communicationService.deleteQuestion(questionText).subscribe({
+            next: (response) => {},
+            error: () => {
+                throw new Error('Error deleting question');
+            },
+        });
+    }
 }
