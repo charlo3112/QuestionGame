@@ -1,8 +1,3 @@
-<mat-toolbar color="primary" class="toolbar">
-    <a routerLink="#"><img src="assets/logo.png" /></a>
-    <h1 class="title">Banque de questions</h1>
-</mat-toolbar>
-
 <div class="question-bank" *ngIf="questions && questions.length > 0">
     <mat-card class="question" *ngFor="let question of questions; let i = index">
         <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }}</mat-card-content>
