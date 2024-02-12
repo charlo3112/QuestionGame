@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
+import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -84,11 +84,14 @@ export class CommunicationService {
         );
     }
 
-    getAllQuestions(): Observable<HttpResponse<Question[]>> {
-        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
-    }
-
     getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
-        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' });
+        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' }).pipe(
+            map((response: HttpResponse<QuestionWithModificationDate[]>) => {
+                return response;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as unknown as HttpResponse<QuestionWithModificationDate[]>);
+            }),
+        );
     }
 }
