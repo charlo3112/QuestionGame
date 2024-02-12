@@ -74,6 +74,7 @@ export class CommunicationService {
 
     verifyTitle(title: string): Observable<boolean> {
         return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title }).pipe(
+            map(() => true),
             catchError(() => {
                 return of(false);
             }),
