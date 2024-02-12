@@ -90,10 +90,9 @@ export class GameService {
         if (this.state !== GameState.AskingQuestion) {
             return;
         }
-        this.state = GameState.ShowResults;
+        this.advanceState();
         this.timeService.stopTimer();
         this.scoreValue += this.scoreQuestion();
-
         this.timeService.setTimeout(() => {
             this.advanceState();
             if (this.state === GameState.Gameover) {
