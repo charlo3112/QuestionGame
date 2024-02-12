@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS } from '@common/constants';
+const MINUS_ONE = -1;
 
 @Component({
     selector: 'app-question-bank',
@@ -17,6 +18,7 @@ import { DAY_IN_MS } from '@common/constants';
 export class QuestionBankComponent {
     @Input() adminMode = false;
     questions: QuestionWithModificationDate[] = [];
+    highlightedQuestionIndex: number = MINUS_ONE;
 
     constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
@@ -61,10 +63,17 @@ export class QuestionBankComponent {
 
     deleteQuestion(questionText: string) {
         this.communicationService.deleteQuestion(questionText).subscribe({
-            next: (response) => {},
+            next: () => {
+                this.questions = this.questions.filter((question) => question.text !== questionText);
+                window.alert('la question ' + questionText + ' a été supprimée avec succès ');
+            },
             error: () => {
                 throw new Error('Error deleting question');
             },
         });
+    }
+
+    toggleHighlight(index: number): void {
+        this.highlightedQuestionIndex = index === this.highlightedQuestionIndex ? MINUS_ONE : index;
     }
 }

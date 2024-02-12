@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { QuestionWithModificationDate } from '@app/interfaces/question';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -68,10 +68,6 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
 
-    deleteQuestion(text: string): Observable<HttpResponse<string>> {
-        return this.http.delete(`${this.baseUrl}/admin/question-bank/${text}`, { observe: 'response', responseType: 'text' });
-    }
-
     login(password: string): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
     }
@@ -93,5 +89,13 @@ export class CommunicationService {
                 return of({ ok: false, error: 'Error fetching games' } as unknown as HttpResponse<QuestionWithModificationDate[]>);
             }),
         );
+    }
+
+    deleteQuestion(text: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
+    }
+
+    addQuestion(question: Question): Observable<HttpResponse<Question>> {
+        return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
     }
 }
