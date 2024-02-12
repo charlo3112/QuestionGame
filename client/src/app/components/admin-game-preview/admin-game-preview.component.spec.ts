@@ -4,13 +4,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
 import { AdminGamePreviewComponent } from './admin-game-preview.component';
 
 describe('AdminGamePreviewComponent', () => {
     let component: AdminGamePreviewComponent;
     let fixture: ComponentFixture<AdminGamePreviewComponent>;
+    let mockGameDetails: Game;
     let router: Router;
     let location: Location;
 
@@ -23,7 +24,8 @@ describe('AdminGamePreviewComponent', () => {
     beforeEach(async () => {
         fixture = TestBed.createComponent(AdminGamePreviewComponent);
         component = fixture.componentInstance;
-        component.gameDetails = GAME_PLACEHOLDER;
+        mockGameDetails = GAME_PLACEHOLDER;
+        component.gameDetails = mockGameDetails;
         fixture.detectChanges();
         router = TestBed.inject(Router);
         location = TestBed.inject(Location);

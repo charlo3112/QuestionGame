@@ -17,7 +17,7 @@ export const GAME_PLACEHOLDER: Game = {
     description: 'Game description',
     duration: 10,
     lastModification: '01-01-2024',
-    questions: [],
+    questions: [QUESTION_PLACEHOLDER],
     image: 'assets/logo.png',
     visibility: true,
 };
