@@ -1,6 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { QUESTION_PLACEHOLDER } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 
 describe('CommunicationService', () => {
@@ -212,5 +213,61 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/game/verify/`);
         expect(req.request.method).toBe('POST');
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should get all questions', () => {
+        service.getAllQuestionsWithModificationDates().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should throw an error when getting all questions', () => {
+        service.getAllQuestionsWithModificationDates().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should delete a question', () => {
+        const text = 'test-text';
+
+        service.deleteQuestion(text).subscribe({
+            next: (response) => {
+                expect(response.body).toBe('');
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question/${text}`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should add a question', () => {
+        const question = QUESTION_PLACEHOLDER;
+
+        service.addQuestion(question).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(question);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('POST');
+        req.flush(question);
     });
 });

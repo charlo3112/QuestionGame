@@ -109,6 +109,12 @@ describe('AdminPageComponent', () => {
         expect(gamePreviews.length).toBe(component.games.length);
     });
 
+    it('should display game previews when already logged in', () => {
+        sessionStorage.setItem('login', 'true');
+        component.ngOnInit();
+        expect(component.login).toBeTrue();
+    });
+
     it('should handle login', () => {
         component.handleLogin(true);
         expect(component.login).toBeTrue();
