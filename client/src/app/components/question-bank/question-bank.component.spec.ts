@@ -158,4 +158,12 @@ describe('QuestionBankComponent', () => {
         component.sendQuestion();
         expect(component.sendQuestionSelected.emit).toHaveBeenCalled();
     });
+
+    it('should close the form when the question is sent', () => {
+        spyOn(component.closeAdd, 'emit');
+        spyOn(component, 'loadQuestions');
+        component.closeCreateQuestion();
+        expect(component.closeAdd.emit).toHaveBeenCalled();
+        expect(component.loadQuestions).toHaveBeenCalled();
+    });
 });
