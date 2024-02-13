@@ -1,7 +1,11 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="/"><img src="assets/logo.png" /></a>
+    <h1 class="title">{{ pageTitle }}</h1>
+    <span class="spacer"></span>
+    <button *ngIf="login" routerLink="/admin" mat-flat-button>Admin</button>
+</mat-toolbar>
+
 <div class="container">
-    <div class="header">
-        <h1>{{ pageTitle }}</h1>
-    </div>
     <div class="form-container">
         <div class="left">
             <h2>Informations</h2>
