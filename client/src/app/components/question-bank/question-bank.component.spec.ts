@@ -7,6 +7,13 @@ import { CommunicationService } from '@app/services/communication.service';
 import { QuestionType } from '@common/constants';
 import { of, throwError } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+class MatSnackBarStub {
+    open() {
+        return;
+    }
+}
 
 describe('QuestionBankComponent', () => {
     let component: QuestionBankComponent;
@@ -17,7 +24,7 @@ describe('QuestionBankComponent', () => {
         TestBed.configureTestingModule({
             declarations: [],
             imports: [HttpClientModule],
-            providers: [CommunicationService],
+            providers: [CommunicationService, { provide: MatSnackBar, useClass: MatSnackBarStub }],
         });
         fixture = TestBed.createComponent(QuestionBankComponent);
         component = fixture.componentInstance;
