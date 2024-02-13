@@ -1,12 +1,12 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { QuestionComponent } from '@app/components/question/question.component';
-import { Choice } from '@app/classes/choice';
-import { Router } from '@angular/router';
-import { routes } from '@app/modules/app-routing.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { By } from '@angular/platform-browser';
 import { Location } from '@angular/common';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { Choice } from '@app/classes/choice';
+import { QuestionComponent } from '@app/components/question/question.component';
+import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game.service';
 import { QuestionType } from '@common/constants';
 
@@ -49,7 +49,7 @@ describe('Question', () => {
     it('should navigate on abandon', fakeAsync(() => {
         fixture.debugElement.query(By.css('#abandon-button')).nativeElement.click();
         tick();
-        expect(location.path()).toBe('/home');
+        expect(location.path()).toBe('/new');
     }));
 
     it('should detect enter key', () => {

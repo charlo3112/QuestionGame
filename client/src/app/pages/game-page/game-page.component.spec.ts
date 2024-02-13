@@ -1,21 +1,28 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GamePageComponent } from './game-page.component';
-import { RouterTestingModule } from '@angular/router/testing';
-import { RouterLink, RouterModule } from '@angular/router';
-import { routes } from '@app/modules/app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterLink, RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { questions } from '@app/interfaces/question';
+import { routes } from '@app/modules/app-routing.module';
+import { GameService } from '@app/services/game.service';
+import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
+    let gameServiceSpy: jasmine.SpyObj<GameService>;
+    const questionsPlace = questions;
 
     beforeEach(async () => {
+        gameServiceSpy = jasmine.createSpyObj('GameService', ['startGame', 'getCurrent']);
         await TestBed.configureTestingModule({
-            imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes), BrowserAnimationsModule],
+            imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes), BrowserAnimationsModule, GamePageComponent],
+            providers: [{ provide: GameService, useValue: gameServiceSpy }],
         }).compileComponents();
     });
 
     beforeEach(() => {
+        spyOn(window.history, 'state').and.returnValue({ question: questions });
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -23,5 +30,22 @@ describe('GamePageComponent', () => {
 
     it('should create', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('should call startGame with state questions if available', () => {
+        const state = { questionsPlace };
+        spyOn(window.history, 'state').and.returnValue(state);
+
+        component.ngOnInit();
+
+        expect(gameServiceSpy.startGame).toHaveBeenCalledWith(questions);
+    });
+    it('should call startGame with placeholder questions if state questions are not available', () => {
+        const state = {};
+        spyOn(window.history, 'state').and.returnValue(state);
+
+        component.ngOnInit();
+
+        expect(gameServiceSpy.startGame).toHaveBeenCalledWith(questions);
     });
 });

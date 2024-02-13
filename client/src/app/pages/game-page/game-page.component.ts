@@ -12,6 +12,9 @@ import { GameService } from '@app/services/game.service';
     imports: [QuestionComponent, CommonModule],
 })
 export class GamePageComponent implements OnInit {
+    questions: Question[] = [];
+    placeholderQuestions = questions;
+
     constructor(private readonly gameService: GameService) {}
 
     get question(): Question | undefined {
@@ -19,6 +22,11 @@ export class GamePageComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.gameService.startGame(questions);
+        const state = window.history.state;
+        if (state && state.questions) {
+            this.gameService.startGame(state.questions);
+        } else {
+            this.gameService.startGame(this.placeholderQuestions); // Starts with placeholder questions
+        }
     }
 }
