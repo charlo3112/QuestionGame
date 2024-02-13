@@ -21,4 +21,7 @@ export class CreateQuestionDto {
 
     @ApiProperty()
     choices?: CreateChoiceDto[];
+
+    @ApiProperty({ required: false })
+    oldText?: string;
 }

@@ -169,11 +169,12 @@ export class CreateQuestionComponent implements OnChanges {
     editQuestion() {
         if (this.questionToDelete !== '') {
             this.communicationService
-                .editQuestion(this.questionToDelete, {
+                .editQuestion({
                     type: QuestionType.QCM,
                     text: this.questionName,
                     points: this.questionPoints,
                     choices: this.choices,
+                    oldText: this.questionToDelete,
                 })
                 .subscribe({
                     next: () => {
