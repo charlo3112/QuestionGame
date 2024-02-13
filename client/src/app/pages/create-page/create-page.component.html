@@ -2,7 +2,8 @@
     <a routerLink="/"><img src="assets/logo.png" class="logo" /></a>
     <h1 class="title">{{ pageTitle }}</h1>
     <span class="spacer"></span>
-    <button *ngIf="login" routerLink="/admin" mat-flat-button>Admin</button>
+    <button routerLink="/admin/question-bank" mat-flat-button>Banque de Questions</button>
+    <button routerLink="/admin" mat-flat-button>Admin</button>
 </mat-toolbar>
 
 <div class="form-container">
@@ -31,7 +32,6 @@
             </mat-form-field>
         </mat-card-content>
         <mat-card-actions class="information-button">
-            <button mat-raised-button color="primary">Banque de questions</button>
             <button mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
         </mat-card-actions>
     </mat-card>
