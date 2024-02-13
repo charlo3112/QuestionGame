@@ -1,3 +1,4 @@
+import { CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -110,18 +111,6 @@ describe('CreateQuestionComponent', () => {
         expect(component.choices[1].text).toBe('Choix 3');
     });
 
-    // test de la fonction ngOnChanges()
-    /*
-    it('should call fillform when questionData is provided', () => {
-        const changesObj: SimpleChanges = {
-            questionData: new SimpleChange({}, mockValidQuestion, true),
-        };
-        spyOn(component, 'fillForm');
-        component.ngOnChanges(changesObj);
-        expect(component.fillForm).toHaveBeenCalledWith(mockValidQuestion);
-    });
-    */
-
     it('should call resetForm when questionData is not provided', () => {
         const changesObj: SimpleChanges = {
             questionData: new SimpleChange({}, null, false),
@@ -131,39 +120,21 @@ describe('CreateQuestionComponent', () => {
         expect(component.resetForm).toHaveBeenCalled();
     });
 
-    // test de la fonction ngOnChanges(), resetForm() et fillForm()
-
-    /*
-    it('should fill the form if we edit an already created question', () => {
-        const newQuestion: Question = {
-            text: 'Quelle est la capitale du Canada ?',
-            points: 10,
-            choices: [
-                { text: 'Ottawa', isCorrect: true },
-                { text: 'Toronto', isCorrect: false },
-            ],
-            type: QuestionType.Qcm,
+    it('should call fillForm method when questionData changes and is not null', () => {
+        const question: Question = {
+            type: QuestionType.QCM,
+            text: '',
+            points: 0,
+            choices: [],
         };
-
-        const changesObj: SimpleChanges = {
-            questionData: new SimpleChange(undefined, newQuestion, true),
+        const changesObj = {
+            questionData: new SimpleChange(null, question, true),
         };
+        component.questionData = question;
+        spyOn(component, 'fillForm');
         component.ngOnChanges(changesObj);
-        fixture.detectChanges();
-
-        expect(component.questionName).toEqual(newQuestion.text);
-        expect(component.questionPoints).toEqual(newQuestion.points);
-        expect(component.choices).toEqual(newQuestion.choices);
+        expect(component.fillForm).toHaveBeenCalled();
     });
-
-    it('should reset the form when questionData is null', () => {
-        component.ngOnChanges({
-            questionData: new SimpleChange({ text: 'Moc question', points: 20, choices: [] }, null, true),
-        });
-        expect(component.questionName).toBe('');
-        expect(component.questionPoints).toBe(10);
-        expect(component.choices.length).toBe(0);
-    });*/
 
     // test pour fillForm
     it('should fill the form with the correct question attributes', () => {
@@ -279,5 +250,18 @@ describe('CreateQuestionComponent', () => {
         spyOn(component, 'addToQuestionBank');
         component.editQuestion();
         expect(component.addToQuestionBank).toHaveBeenCalled();
+    });
+
+    // The method should move the selected choice to the new index in the 'choices' array.
+    it('should move the selected choice to the new index in the choices array', () => {
+        const choices: Choice[] = [new Choice('Choice 1', false), new Choice('Choice 2', false), new Choice('Choice 3', false)];
+        component.choices = choices;
+        const event: CdkDragDrop<Choice[]> = {
+            previousIndex: 0,
+            currentIndex: 2,
+            item: null as unknown as CdkDrag<Choice[]>,
+        } as CdkDragDrop<Choice[]>;
+        component.drop(event);
+        expect(component.choices).toEqual([new Choice('Choice 2', false), new Choice('Choice 3', false), new Choice('Choice 1', false)]);
     });
 });

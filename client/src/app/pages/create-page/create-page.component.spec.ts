@@ -285,7 +285,7 @@ describe('CreatePageComponent', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 
-    it('should update a game if the form is valid', () => {
+    it('should update a game if the form is valid', fakeAsync(() => {
         component.isEditing = true;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
@@ -294,40 +294,45 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
+        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    });
+    }));
 
     // createGame
-    it('should create a game if the communicationService doesnt return an error', () => {
+    it('should create a game if the communicationService doesnt return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
         component.createGame(mockValidGame);
+        tick();
         expect(snackBarSpy.open).toHaveBeenCalled();
-    });
+    }));
 
-    it('should not create a game if the communicationService return an error', () => {
+    it('should not create a game if the communicationService return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'addGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.createGame(mockValidGame);
+        tick();
         expect(snackBarSpy.open).toHaveBeenCalled();
-    });
+    }));
 
     // updateGame
-    it('should update a game if the communicationService doesnt return an error', () => {
+    it('should update a game if the communicationService doesnt return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
         component.updateGame(mockValidGame);
+        tick();
         expect(snackBarSpy.open).toHaveBeenCalled();
-    });
+    }));
 
-    it('should not update a game if the communicationService return an error', () => {
+    it('should not update a game if the communicationService return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'editGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.updateGame(mockValidGame);
+        tick();
         expect(snackBarSpy.open).toHaveBeenCalled();
-    });
+    }));
 
     // loadGameData
     it('should load the game data if the game id is valid', () => {
