@@ -1,7 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +16,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/classes/choice';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
@@ -160,7 +160,7 @@ describe('CreatePageComponent', () => {
     });
 
     // insertQuestionFromCreate
-    it('should insert a question from the create and close the create', () => {
+    it('should insert a question from the createQuestion page and insert it', () => {
         component.questions = [mockValidQuestion1];
         const newQuestion: Question = mockValidQuestion2;
         expect(component.questions.length).toBe(1);
@@ -169,6 +169,18 @@ describe('CreatePageComponent', () => {
         expect(component.questions.length).toBe(2);
         expect(component.questions[1]).toEqual(newQuestion);
         expect(component.closeCreateQuestion).toHaveBeenCalled();
+    });
+
+    it('should update an existing question', () => {
+        component.questionTitleToEdit = mockValidQuestion1.text;
+        component.questions = [mockValidQuestion1];
+        const updatedQuestion: Question = {
+            ...mockValidQuestion1,
+            text: 'Quelle est la capitale de la France ?',
+        };
+        component.insertQuestionFromCreate(updatedQuestion);
+        expect(component.questions.length).toBe(1);
+        expect(component.questions[0].text).toBe(updatedQuestion.text);
     });
 
     // deleteQuestion
@@ -334,5 +346,18 @@ describe('CreatePageComponent', () => {
         spyOn(communicationService, 'getGameById').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.loadGameData('1');
         expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
+    // resetForm
+    it('should reset the form', () => {
+        component.title = 'Test titre';
+        component.questions = [mockValidQuestion1, mockValidQuestion2];
+        component.description = 'Test description';
+        component.duration = MIN_DURATION;
+        component.resetForm();
+        expect(component.title).toBe('');
+        expect(component.questions).toEqual([]);
+        expect(component.description).toBe('');
+        expect(component.duration).toBe(MIN_DURATION);
     });
 });
