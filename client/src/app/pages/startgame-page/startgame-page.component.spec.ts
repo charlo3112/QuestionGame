@@ -93,20 +93,22 @@ describe('StartGamePageComponent', () => {
         expect(component.loadGames).toHaveBeenCalled();
     });
     it('should navigate to loading page when starting a game', () => {
-        const gameId = '1';
+        const game = GAME_PLACEHOLDER;
         spyOn(window, 'alert');
         spyOn(router, 'navigate');
 
-        component.startGame(gameId);
+        component.startGame(game);
 
-        expect(window.alert).toHaveBeenCalledWith('Start game with id ' + gameId);
+        expect(window.alert).toHaveBeenCalledWith('Start game with id ' + game.gameId);
         expect(router.navigate).toHaveBeenCalledWith(['/loading']);
     });
-    // TODO: Add server call to start game TEST
-    it('should alert when testGame is called', () => {
-        const gameId = '1';
-        spyOn(window, 'alert');
-        component.testGame(gameId);
-        expect(window.alert).toHaveBeenCalledWith('Test game with id ' + gameId);
+
+    it('should navigate to game page when testing a game', () => {
+        const game = GAME_PLACEHOLDER;
+        spyOn(router, 'navigate');
+
+        component.testGame(game);
+
+        expect(router.navigate).toHaveBeenCalledWith(['/game'], { state: { questions: game.questions } });
     });
 });

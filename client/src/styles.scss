@@ -27,8 +27,7 @@ body {
     background: url('assets/sand.svg'), linear-gradient(to top, #fdce7d, #ffc254);
     height: 100%;
     margin: 0;
-    background-repeat: no-repeat;
-    background-attachment: fixed;    background-repeat: stretch;
+    background-size: stretch;
     background-blend-mode: luminosity;
 }
 
@@ -46,7 +45,6 @@ body {
         font-weight: bold;
     }
 }
-
 
 .spacer {
     flex: 1 1 auto;

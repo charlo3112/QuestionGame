@@ -1,25 +1,32 @@
-import { Component } from '@angular/core';
-import { PlayAreaComponent } from '@app/components/play-area/play-area.component';
-import { SidebarComponent } from '@app/components/sidebar/sidebar.component';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { QuestionComponent } from '@app/components/question/question.component';
+import { Question, questions } from '@app/interfaces/question';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
-    imports: [PlayAreaComponent, SidebarComponent],
+    imports: [QuestionComponent, CommonModule],
 })
-export class GamePageComponent {
-    readonly question: Question = {
-        type: QuestionType.Qcm,
-        text: "Pourquoi le jus de lichi n'est pas bon?",
-        points: 8,
-        choices: [
-            { text: 'Guillaume en boit' },
-            { text: 'Guillaume a apporter 2 boites' },
-            { text: "C'est du lichi" },
-            { text: 'Guillaume en a bu a 9h du matin' },
-        ],
-    };
+export class GamePageComponent implements OnInit {
+    questions: Question[] = [];
+    placeholderQuestions = questions;
+
+    constructor(private readonly gameService: GameService) {}
+
+    get question(): Question | undefined {
+        return this.gameService.getCurrent();
+    }
+
+    ngOnInit(): void {
+        const state = window.history.state;
+        if (state && state.questions) {
+            this.gameService.startGame(state.questions);
+        } else {
+            this.gameService.startGame(this.placeholderQuestions); // Starts with placeholder questions
+        }
+    }
 }

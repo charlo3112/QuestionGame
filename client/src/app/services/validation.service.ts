@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Choice } from '@app/classes/choice';
 import { Game } from '@app/interfaces/game';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { Question } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import {
     MAX_CHOICES_NUMBER,
@@ -10,7 +11,9 @@ import {
     MIN_DURATION,
     MIN_NB_OF_POINTS,
     PONDERATION_INCREMENT,
+    QuestionType,
 } from '@common/constants';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -80,7 +83,7 @@ export class ValidationService {
     }
 
     checkQCM(question: Partial<Question>, errors: string[]): void {
-        if (question.type === QuestionType.Qcm) {
+        if (question.type === QuestionType.QCM) {
             if (!Array.isArray(question.choices)) {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
@@ -97,7 +100,7 @@ export class ValidationService {
                     if (choice.isCorrect) {
                         answer++;
                     }
-                    if (!choice.text) {
+                    if (!choice.text || choice.text === '') {
                         errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
                     }
                 }
@@ -122,10 +125,7 @@ export class ValidationService {
                     type: question.type,
                     text: question.text,
                     points: question.points,
-                    choices: question.choices?.map((choice) => ({
-                        text: choice.text,
-                        isCorrect: choice.isCorrect,
-                    })),
+                    choices: question.choices?.map((choice) => new Choice(choice.text, choice.isCorrect)),
                 })),
             };
 
