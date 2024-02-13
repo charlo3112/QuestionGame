@@ -111,4 +111,8 @@ export class CommunicationService {
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
     }
+
+    editQuestion(oldText: string, updatedQuestionData: Question): Observable<HttpResponse<Question>> {
+        return this.http.patch<Question>(`${this.baseUrl}/question/${oldText}`, updatedQuestionData, { observe: 'response' });
+    }
 }

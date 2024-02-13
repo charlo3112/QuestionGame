@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
@@ -12,7 +12,11 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
     imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink],
 })
 export class BankQuestionPageComponent implements OnInit {
-    constructor(private router: Router) {}
+    showAddQuestion = false;
+    constructor(
+        private router: Router,
+        private cdr: ChangeDetectorRef,
+    ) {}
 
     ngOnInit() {
         const storedLogin = sessionStorage.getItem('login');
@@ -20,5 +24,10 @@ export class BankQuestionPageComponent implements OnInit {
         if (!login) {
             this.router.navigate(['/admin']);
         }
+    }
+
+    handleCloseAdd() {
+        this.showAddQuestion = false;
+        this.cdr.detectChanges();
     }
 }

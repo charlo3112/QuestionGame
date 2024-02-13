@@ -168,29 +168,14 @@ export class CreateQuestionComponent implements OnChanges {
 
     editQuestion() {
         if (this.questionToDelete !== '') {
-            window.alert(this.questionToDelete);
-            this.communicationService.deleteQuestion(this.questionToDelete).subscribe({
-                next: () => {
-                    const newQuestion: Question = {
-                        type: QuestionType.QCM,
-                        text: this.questionName,
-                        points: +parseInt(this.questionPoints.toString(), 10),
-                        choices: this.choices,
-                    };
-                    this.communicationService.addQuestion(newQuestion).subscribe({
-                        next: () => {
-                            this.resetForm();
-                            this.closeForm.emit();
-                        },
-                        error: () => {
-                            window.alert('Erreur dans la requête');
-                        },
-                    });
-                },
-                error: () => {
-                    window.alert('Erreur dans la requête');
-                },
+            this.communicationService.editQuestion(this.questionToDelete, {
+                type: QuestionType.QCM,
+                text: this.questionName,
+                points: this.questionPoints,
+                choices: this.choices,
             });
+            this.resetForm();
+            this.closeForm.emit();
         } else {
             this.addToQuestionBank();
         }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -18,14 +18,12 @@ import { DAY_IN_MS, NOT_FOUND } from '@common/constants';
 })
 export class QuestionBankComponent {
     @Input() adminMode = false;
+    @Input() showChildren = false;
+    @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
     questionsWithModificationDate: QuestionWithModificationDate[] = [];
     highlightedQuestion: QuestionWithModificationDate | null;
-    showChildren = false;
 
-    constructor(
-        private communicationService: CommunicationService,
-        private cdr: ChangeDetectorRef,
-    ) {
+    constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
     }
 
@@ -102,6 +100,7 @@ export class QuestionBankComponent {
 
     closeCreateQuestion() {
         this.showChildren = false;
-        this.cdr.detectChanges();
+        this.loadQuestions();
+        this.closeAdd.emit();
     }
 }
