@@ -5,7 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
 
 @Component({
-    selector: 'app-bank-question-page',
+    selector: 'app-question-bank-page',
     templateUrl: './question-bank-page.component.html',
     styleUrls: ['./question-bank-page.component.scss'],
     standalone: true,

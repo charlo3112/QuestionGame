@@ -12,10 +12,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Choice } from '@app/classes/choice';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { Question } from '@app/interfaces/question';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
@@ -240,10 +240,44 @@ describe('CreateQuestionComponent', () => {
         });
     });
 
+    it('should add the question to the question bank', () => {
+        component.fillForm(mockValidQuestion);
+        spyOn(communicationService, 'addQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
+        component.addToQuestionBank();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
     it('should alert if there is an error during the add', () => {
         spyOn(component, 'openSnackBar');
         component.fillForm(mockInvalidQuestion);
         component.addToQuestionBank();
         expect(component.openSnackBar).toHaveBeenCalledWith("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
+    });
+
+    // test de la fonction editQuestion if()
+    it('should edit the question if there is a question to edit', () => {
+        component.questionToDelete = mockValidQuestion.text;
+        component.fillForm(mockValidQuestion);
+        const mockResponse: HttpResponse<QuestionWithModificationDate> = new HttpResponse({ status: 200, statusText: 'OK' });
+        spyOn(communicationService, 'modifyQuestion').and.returnValue(of(mockResponse));
+        spyOn(component.closeForm, 'emit');
+        component.editQuestion();
+        expect(component.closeForm.emit).toHaveBeenCalled();
+    });
+
+    it('should alert if there is an error during the edit', () => {
+        component.questionToDelete = mockValidQuestion.text;
+        component.fillForm(mockValidQuestion);
+        spyOn(communicationService, 'modifyQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
+        component.editQuestion();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
+    // test de la fonction editQuestion else()
+    it('should not edit the question if there is no question to edit', () => {
+        component.questionToDelete = '';
+        spyOn(component, 'addToQuestionBank');
+        component.editQuestion();
+        expect(component.addToQuestionBank).toHaveBeenCalled();
     });
 });

@@ -20,11 +20,11 @@
         </div>
 
         <div *ngIf="choices.length > 0" class="list-container">
-            <mat-list>
-                <mat-list-item *ngFor="let choice of choices; let i = index">
-                    <div class="choice-content">
+            <mat-list cdkDropList (cdkDropListDropped)="drop($event)">
+                <mat-list-item *ngFor="let choice of choices; let i = index" cdkDrag>
+                    <div cdkDropList class="choice-content">
                         <div *ngIf="!editArray[i]; else editMode" class="choice-value editable" (click)="startEdit(i)">
-                            {{ choice.text }}
+                            {{ i + 1 }}. {{ choice.text }}
                         </div>
                         <ng-template #editMode>
                             <mat-form-field class="edit-input">

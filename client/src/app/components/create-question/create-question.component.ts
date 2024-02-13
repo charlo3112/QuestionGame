@@ -121,6 +121,7 @@ export class CreateQuestionComponent implements OnChanges {
                 next: (response) => {
                     if (response.status === RESPONSE_CREATED) {
                         this.questionCreated.emit(newQuestion);
+                        this.closeForm.emit();
                         this.resetForm();
                     }
                 },
@@ -203,12 +204,11 @@ export class CreateQuestionComponent implements OnChanges {
                         this.resetForm();
                     },
                     error: () => {
-                        throw new Error('Error deleting question');
+                        this.openSnackBar('Error deleting question');
                     },
                 });
         } else {
             this.addToQuestionBank();
-            window.location.reload();
         }
     }
 }
