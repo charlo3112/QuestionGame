@@ -10,6 +10,7 @@ import { AdminLoginComponent } from '@app/components/admin-login/admin-login.com
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -179,7 +180,7 @@ describe('AdminPageComponent', () => {
     it('should open snackbar when openSnackBar is called', () => {
         spyOn(component['snackBar'], 'open');
         component.openSnackBar('message');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message', undefined, { duration: SNACKBAR_DURATION });
     });
 
     it('should emit export event when export button is clicked', () => {
