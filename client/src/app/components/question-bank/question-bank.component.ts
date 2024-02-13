@@ -25,7 +25,7 @@ export class QuestionBankComponent {
     @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
     @Output() sendQuestionSelected: EventEmitter<Question> = new EventEmitter<Question>();
     questionsWithModificationDate: QuestionWithModificationDate[] = [];
-    highlightedQuestion: QuestionWithModificationDate | undefined;
+    highlightedQuestion: QuestionWithModificationDate | null;
     questionToAdd: Question = QUESTION_PLACEHOLDER;
 
     constructor(
@@ -43,13 +43,9 @@ export class QuestionBankComponent {
                 }
                 this.questionsWithModificationDate = response.value;
                 this.questionsWithModificationDate.sort((a, b) => {
-                    if (typeof a.lastModification === 'string' && typeof b.lastModification === 'string') {
-                        const dateA = new Date(a.lastModification);
-                        const dateB = new Date(b.lastModification);
-                        return dateB.getTime() - dateA.getTime();
-                    } else {
-                        return b.lastModification.getTime() - a.lastModification.getTime();
-                    }
+                    const dateA = new Date(a.lastModification);
+                    const dateB = new Date(b.lastModification);
+                    return dateB.getTime() - dateA.getTime();
                 });
             },
             error: () => {
@@ -100,8 +96,8 @@ export class QuestionBankComponent {
         });
     }
 
-    toggleHighlight(question: QuestionWithModificationDate | undefined): void {
-        this.highlightedQuestion = question === this.highlightedQuestion ? undefined : question;
+    toggleHighlight(question: QuestionWithModificationDate | null): void {
+        this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
     }
 
     editQuestion(question: QuestionWithModificationDate) {
