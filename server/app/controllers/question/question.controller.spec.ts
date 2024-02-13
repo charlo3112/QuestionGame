@@ -49,6 +49,33 @@ describe.only('QuestionController', () => {
         await controller.getAllQuestions(res);
     });
 
+    it('modifyQuestion() should modify the question attributes', async () => {
+        const fakeCreateQuestionDto: CreateQuestionDto = {
+            text: 'old Text',
+            type: QuestionType.QCM,
+            points: 20,
+        };
+
+        const fakeUpdateQuestionDto: CreateQuestionDto = {
+            text: 'new Text',
+            type: QuestionType.QCM,
+            points: 40,
+        };
+
+        const oldText = fakeCreateQuestionDto.text;
+        questionService.addQuestion(fakeCreateQuestionDto);
+        questionService.modifyQuestion.resolves();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.modifyQuestion(oldText, fakeUpdateQuestionDto, res);
+    });
+
     it('getAnswers() should return the answers to the question', async () => {
         const fakeQuestion = getFakeQuestions()[0];
         questionService.getAnswers.resolves([true, false, false, false]);
