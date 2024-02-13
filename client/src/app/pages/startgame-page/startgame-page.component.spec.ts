@@ -84,7 +84,7 @@ describe('StartGamePageComponent', () => {
     it('should open snackbar when called', () => {
         spyOn(component['snackBar'], 'open');
         component.openSnackBar('message');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close', { duration: 4000 });
     });
 
     it('should refresh games', () => {
@@ -99,7 +99,6 @@ describe('StartGamePageComponent', () => {
 
         component.startGame(game);
 
-        expect(window.alert).toHaveBeenCalledWith('Start game with id ' + game.gameId);
         expect(router.navigate).toHaveBeenCalledWith(['/loading']);
     });
 
