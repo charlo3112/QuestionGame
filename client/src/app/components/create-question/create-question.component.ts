@@ -100,8 +100,6 @@ export class CreateQuestionComponent implements OnChanges {
                     if (response.status === RESPONSE_CREATED) {
                         this.questionCreated.emit(newQuestion);
                         this.resetForm();
-                    } else {
-                        window.alert("La question n'a pas pu être enregistré.");
                     }
                 },
                 error: () => {
