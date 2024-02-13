@@ -1,7 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -112,8 +112,10 @@ describe('CreatePageComponent', () => {
 
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+        spyOn(component, 'resetForm');
         component.ngOnInit();
         expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
+        expect(component.resetForm).toHaveBeenCalled();
     });
 
     // it('should load game data if verifyLogin is true and edit game', fakeAsync(() => {
