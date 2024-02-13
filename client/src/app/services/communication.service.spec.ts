@@ -183,6 +183,41 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
+    it('should throw an error when logging in', () => {
+        const mockPassword = 'password';
+
+        service.login(mockPassword).subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+        });
+
+        const mockError = new ProgressEvent('network error');
+        const mockUrl = `${baseUrl}/admin`;
+        const mockRequest = { password: mockPassword };
+
+        const req = httpMock.expectOne(mockUrl);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual(mockRequest);
+
+        req.error(mockError);
+    });
+
+    it('should get game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameById(gameId).subscribe({
+            next: (response) => {
+                expect(response).toBeInstanceOf(Object);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush({});
+    });
+
     it('should verify title', () => {
         const title = 'title';
 
