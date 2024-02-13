@@ -15,6 +15,7 @@ import { ImportDialogComponent } from '@app/components/import-dialog/import-dial
 import { Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -80,7 +81,9 @@ export class AdminPageComponent implements OnInit {
     }
 
     openSnackBar(message: string) {
-        this.snackBar.open(message, 'Close');
+        this.snackBar.open(message, undefined, {
+            duration: SNACKBAR_DURATION,
+        });
     }
 
     deleteGame(id: string) {

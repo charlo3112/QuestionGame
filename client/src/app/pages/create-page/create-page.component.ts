@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +18,7 @@ import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
-import { MIN_DURATION, NOT_FOUND } from '@common/constants';
+import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-create-page',
@@ -40,6 +41,7 @@ import { MIN_DURATION, NOT_FOUND } from '@common/constants';
         FormsModule,
         RouterLink,
         MatToolbarModule,
+        MatCardModule,
     ],
 })
 export class CreatePageComponent implements OnInit {
@@ -83,10 +85,6 @@ export class CreatePageComponent implements OnInit {
         }
     }
 
-    openSnackBar(message: string) {
-        this.snackBar.open(message, 'Close');
-    }
-
     insertQuestion(question: Question) {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index > NOT_FOUND) {
@@ -122,7 +120,9 @@ export class CreatePageComponent implements OnInit {
         };
         const validationErrors = this.validationService.validateGame(gameToValidate);
         if (validationErrors.length > 0) {
-            this.openSnackBar('Erreurs de validation: \n' + validationErrors.join('\n'));
+            this.snackBar.open('Erreurs de validation: \n' + validationErrors.join('\n'), undefined, {
+                duration: SNACKBAR_DURATION,
+            });
             return;
         }
         const newGame: Game = {
@@ -143,22 +143,30 @@ export class CreatePageComponent implements OnInit {
     createGame(game: Game): void {
         this.communicationService.addGame(game).subscribe({
             next: () => {
-                this.openSnackBar('Le jeu a été créé avec succès !');
+                this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
                 this.router.navigate(['/admin']);
             },
             error: () => {
-                this.openSnackBar('Erreur lors de la création du jeu');
+                this.snackBar.open('Erreur lors de la création du jeu', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
             },
         });
     }
     updateGame(game: Game): void {
         this.communicationService.editGame(game).subscribe({
             next: () => {
-                this.openSnackBar('Le jeu a été modifié avec succès !');
+                this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
                 this.router.navigate(['/admin']);
             },
             error: () => {
-                this.openSnackBar('Erreur lors de la modification du jeu');
+                this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
             },
         });
     }
@@ -179,7 +187,9 @@ export class CreatePageComponent implements OnInit {
                 this.fillForm(game, gameId);
             },
             error: () => {
-                this.openSnackBar('Erreur lors du chargement du jeu');
+                this.snackBar.open('Erreur lors du chargement du jeu', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
                 this.router.navigate(['/admin']);
             },
         });

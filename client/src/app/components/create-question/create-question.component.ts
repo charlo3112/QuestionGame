@@ -3,15 +3,19 @@ import { CommonModule, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Choice } from '@app/classes/choice';
 import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType, RESPONSE_CREATED } from '@common/constants';
+import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType, RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-create-question',
@@ -29,6 +33,9 @@ import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType,
         ReactiveFormsModule,
         DragDropModule,
         NgIf,
+        MatCardModule,
+        MatListModule,
+        MatSlideToggleModule,
     ],
     standalone: true,
 })
@@ -45,7 +52,19 @@ export class CreateQuestionComponent implements OnChanges {
     editArray: boolean[] = [];
     questionToDelete: string = '';
 
-    constructor(private communicationService: CommunicationService) {}
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    weights = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+
+    constructor(
+        private communicationService: CommunicationService,
+        private snackBar: MatSnackBar,
+    ) {}
+
+    openSnackBar(message: string) {
+        this.snackBar.open(message, undefined, {
+            duration: SNACKBAR_DURATION,
+        });
+    }
 
     addChoice() {
         if (!(this.choiceInput === '')) {
@@ -55,10 +74,10 @@ export class CreateQuestionComponent implements OnChanges {
                 this.choiceInput = '';
                 this.editArray.push(false);
             } else {
-                window.alert('Vous ne pouvez pas ajouter plus de 4 choix.');
+                this.openSnackBar('Vous ne pouvez pas ajouter plus de 4 choix.');
             }
         } else {
-            window.alert('Le champ Choix doit être rempli pour créer un choix.');
+            this.openSnackBar('Le champ Choix doit être rempli pour créer un choix.');
         }
     }
 
@@ -105,7 +124,7 @@ export class CreateQuestionComponent implements OnChanges {
                     }
                 },
                 error: () => {
-                    window.alert('Erreur dans la requête');
+                    this.openSnackBar('Erreur dans la requête');
                 },
             });
         }
@@ -154,13 +173,13 @@ export class CreateQuestionComponent implements OnChanges {
     }
     choiceVerif(): boolean {
         if (this.questionName === '') {
-            window.alert('Le champ Question ne peut pas être vide.');
+            this.openSnackBar('Le champ Question ne peut pas être vide.');
             return false;
         } else if (this.choices.length < MIN_CHOICES_NUMBER) {
-            window.alert("Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.");
+            this.openSnackBar("Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.");
             return false;
         } else if (!this.hasAnswer()) {
-            window.alert("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
+            this.openSnackBar("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
             return false;
         }
         return true;

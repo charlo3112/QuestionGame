@@ -79,21 +79,21 @@ describe('CreateQuestionComponent', () => {
         expect(component.choices[0].text).toBe('Nouveau choix');
     });
     it('should not add a choice when input is empty', () => {
-        spyOn(window, 'alert');
+        spyOn(component, 'openSnackBar');
         component.choiceInput = '';
         component.addChoice();
         expect(component.choices.length).toBe(0);
-        expect(window.alert).toHaveBeenCalledWith('Le champ Choix doit être rempli pour créer un choix.');
+        expect(component.openSnackBar).toHaveBeenCalledWith('Le champ Choix doit être rempli pour créer un choix.');
     });
     it('should not add more than 4 choices', () => {
-        spyOn(window, 'alert');
+        spyOn(component, 'openSnackBar');
         for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
             component.choices.push(new Choice('Choix ' + i, false));
         }
         component.choiceInput = 'Choix non ajouté';
         component.addChoice();
         expect(component.choices.length).toBe(MAX_CHOICES_NUMBER);
-        expect(window.alert).toHaveBeenCalledWith('Vous ne pouvez pas ajouter plus de 4 choix.');
+        expect(component.openSnackBar).toHaveBeenCalledWith('Vous ne pouvez pas ajouter plus de 4 choix.');
     });
 
     // test de la fonction deleteChoice()
@@ -171,12 +171,12 @@ describe('CreateQuestionComponent', () => {
 
     // test pour choiceVerif
     it('should return false if the question name is empty', () => {
-        spyOn(window, 'alert');
+        spyOn(component, 'openSnackBar');
         mockValidQuestion.text = '';
         component.fillForm(mockValidQuestion);
         component.questionName = '';
         expect(component.choiceVerif()).toBe(false);
-        expect(window.alert).toHaveBeenCalledWith('Le champ Question ne peut pas être vide.');
+        expect(component.openSnackBar).toHaveBeenCalledWith('Le champ Question ne peut pas être vide.');
     });
 
     // test de la fonction save(), choiceVerif() et hasAnswer()
@@ -237,9 +237,9 @@ describe('CreateQuestionComponent', () => {
     });
 
     it('should alert if there is an error during the add', () => {
-        spyOn(window, 'alert');
+        spyOn(component, 'openSnackBar');
         component.fillForm(mockInvalidQuestion);
         component.addToQuestionBank();
-        expect(window.alert).toHaveBeenCalledWith("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
+        expect(component.openSnackBar).toHaveBeenCalledWith("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
     });
 });
