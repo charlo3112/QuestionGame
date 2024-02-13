@@ -203,6 +203,21 @@ describe('CommunicationService', () => {
         req.error(mockError);
     });
 
+    it('should add a question', () => {
+        const question = QUESTION_PLACEHOLDER;
+
+        service.addQuestion(question).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(question);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('POST');
+        req.flush(question);
+    });
+
     it('should get game by id', () => {
         const gameId = 'test-id';
 
@@ -216,6 +231,25 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
         expect(req.request.method).toBe('GET');
         req.flush({});
+    });
+
+    it('should catch error when editing game', () => {
+        const updatedGame: Game = {
+            ...GAME_PLACEHOLDER,
+            title: 'Updated Title',
+            description: 'Updated Description',
+        };
+
+        service.editGame(updatedGame).subscribe({
+            error: (error) => {
+                expect(error).toBeTruthy();
+            },
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toEqual('PATCH');
+        expect(req.request.body).toEqual(updatedGame);
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
 
     it('should verify title', () => {
@@ -309,18 +343,5 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
-    it('should add a question', () => {
-        const question = QUESTION_PLACEHOLDER;
-
-        service.addQuestion(question).subscribe({
-            next: (response) => {
-                expect(response.body).toEqual(question);
-            },
-            error: fail,
-        });
-
-        const req = httpMock.expectOne(`${baseUrl}/question`);
-        expect(req.request.method).toBe('POST');
-        req.flush(question);
-    });
+    // it('should modify a question', () => {});
 });
