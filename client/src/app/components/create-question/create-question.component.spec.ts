@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Choice } from '@app/classes/choice';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
@@ -22,8 +23,11 @@ describe('CreateQuestionComponent', () => {
     let mockValidQuestion: Question;
     let mockInvalidQuestion: Question;
     let communicationService: CommunicationService;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
+        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [
                 FormsModule,
@@ -36,7 +40,7 @@ describe('CreateQuestionComponent', () => {
                 NoopAnimationsModule,
                 HttpClientModule,
             ],
-            providers: [CommunicationService],
+            providers: [CommunicationService, { provide: MatSnackBar, useValue: snackBarSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(CreateQuestionComponent);
         component = fixture.componentInstance;
