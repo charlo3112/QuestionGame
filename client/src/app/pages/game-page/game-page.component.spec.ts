@@ -22,7 +22,6 @@ describe('GamePageComponent', () => {
     });
 
     beforeEach(() => {
-        spyOn(window.history, 'state').and.returnValue({ question: questions });
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

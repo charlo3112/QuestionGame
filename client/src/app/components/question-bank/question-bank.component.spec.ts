@@ -1,5 +1,7 @@
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Choice } from '@app/classes/choice';
 import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
@@ -7,8 +9,6 @@ import { CommunicationService } from '@app/services/communication.service';
 import { QuestionType } from '@common/constants';
 import { of, throwError } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 class MatSnackBarStub {
     open() {
@@ -140,7 +140,7 @@ describe('QuestionBankComponent', () => {
     it('should toggleHighlight when the selected question is already highlighted', () => {
         component.highlightedQuestion = mockQuestion;
         component.toggleHighlight(mockQuestion);
-        expect(component.highlightedQuestion).toBeUndefined();
+        expect(component.highlightedQuestion).toBeNull();
     });
 
     it('should warn the user if a question is not highlighted', () => {
