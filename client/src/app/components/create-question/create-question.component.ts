@@ -36,6 +36,7 @@ export class CreateQuestionComponent implements OnChanges {
     @Input() questionData: Question | null = null;
     @Input() isInQuestionBank: boolean = false;
     @Output() questionCreated = new EventEmitter<Question>();
+    @Output() closeForm: EventEmitter<void> = new EventEmitter<void>();
 
     questionName: string = '';
     questionPoints: number = MIN_NB_OF_POINTS;
@@ -179,6 +180,7 @@ export class CreateQuestionComponent implements OnChanges {
                     this.communicationService.addQuestion(newQuestion).subscribe({
                         next: () => {
                             this.resetForm();
+                            this.closeForm.emit();
                         },
                         error: () => {
                             window.alert('Erreur dans la requête');

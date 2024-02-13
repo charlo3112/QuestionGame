@@ -32,6 +32,6 @@
         [isInQuestionBank]="true"
         [questionData]="highlightedQuestion"
         (questionCreated)="highlightedQuestion ? insertQuestion(highlightedQuestion) : null"
-        (closeForm)="this.showChildren = false"
+        (closeForm)="closeCreateQuestion()"
     ></app-create-question>
 </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -22,7 +22,10 @@ export class QuestionBankComponent {
     highlightedQuestion: QuestionWithModificationDate | null;
     showChildren = false;
 
-    constructor(private communicationService: CommunicationService) {
+    constructor(
+        private communicationService: CommunicationService,
+        private cdr: ChangeDetectorRef,
+    ) {
         this.loadQuestions();
     }
 
@@ -95,5 +98,10 @@ export class QuestionBankComponent {
             this.questionsWithModificationDate.push(question);
         }
         this.showChildren = false;
+    }
+
+    closeCreateQuestion() {
+        this.showChildren = false;
+        this.cdr.detectChanges();
     }
 }
