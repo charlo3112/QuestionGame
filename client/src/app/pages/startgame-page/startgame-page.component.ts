@@ -58,20 +58,21 @@ export class StartGamePageComponent {
     }
 
     openSnackBar(message: string) {
-        this.snackBar.open(message, 'Close');
+        this.snackBar.open(message, 'Close', {
+            duration: 4000,
+        });
     }
     refreshGames() {
         this.loadGames();
     }
 
     startGame(game: Game) {
-        alert('Start game with id ' + game.gameId);
-        // TODO: Add server call to start game
+        this.openSnackBar('Starting game : ' + game.title);
+        // TODO: Add server call to start game (NOT FOR SPRINT 1)
         this.router.navigate(['/loading']);
     }
 
     testGame(game: Game) {
-        // TODO: Add server call to test game for sprint 1
         this.router.navigate(['/game'], { state: { questions: game.questions } });
     }
 }
