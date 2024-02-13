@@ -5,10 +5,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
+import { Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { Subscription } from 'rxjs';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 
 // const description =
 //     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' +
@@ -25,7 +25,7 @@ import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 })
 export class StartGamePageComponent {
     // Template games to finish functionality
-    games: Game[] = [GAME_PLACEHOLDER, GAME_PLACEHOLDER, GAME_PLACEHOLDER];
+    games: Game[] = [];
 
     title: string = 'Liste de jeux';
     private subscription = new Subscription();
@@ -64,14 +64,14 @@ export class StartGamePageComponent {
         this.loadGames();
     }
 
-    startGame(id: string) {
-        alert('Start game with id ' + id);
+    startGame(game: Game) {
+        alert('Start game with id ' + game.gameId);
         // TODO: Add server call to start game
         this.router.navigate(['/loading']);
     }
 
-    testGame(id: string) {
+    testGame(game: Game) {
         // TODO: Add server call to test game for sprint 1
-        alert('Test game with id ' + id);
+        this.router.navigate(['/game'], { state: { questions: game.questions } });
     }
 }
