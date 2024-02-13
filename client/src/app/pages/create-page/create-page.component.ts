@@ -14,7 +14,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
+import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
@@ -42,11 +43,13 @@ import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
         RouterLink,
         MatToolbarModule,
         MatCardModule,
+        QuestionBankComponent,
     ],
 })
 export class CreatePageComponent implements OnInit {
     pageTitle: string;
     showChildren: boolean = false;
+    showPage: boolean = true;
     isEditing: boolean = false;
 
     login: boolean;
@@ -84,14 +87,20 @@ export class CreatePageComponent implements OnInit {
             this.router.navigate(['/admin']);
         }
     }
-
-    insertQuestion(question: Question) {
+    insertQuestion(question: Question): void {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index > NOT_FOUND) {
             this.questions[index] = question;
         } else {
             this.questions.push(question);
         }
+    }
+    insertQuestionFromBank(question: Question) {
+        this.insertQuestion(question);
+        this.closeQuestionBank();
+    }
+    insertQuestionFromCreate(question: Question) {
+        this.insertQuestion(question);
         this.closeCreateQuestion();
     }
     deleteQuestion(index: number): void {
@@ -103,6 +112,13 @@ export class CreatePageComponent implements OnInit {
     editQuestion(question: Question) {
         this.selectedQuestion = question;
         this.showChildren = true;
+    }
+    openQuestionBank() {
+        this.showPage = false;
+        this.selectedQuestion = EMPTY_QUESTION;
+    }
+    closeQuestionBank() {
+        this.showPage = true;
     }
     openCreateQuestion() {
         this.showChildren = true;

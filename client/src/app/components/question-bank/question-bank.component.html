@@ -31,6 +31,9 @@
         </button>
     </mat-card>
 </div>
+<div *ngIf="!adminMode" class="add-button-containter">
+    <button mat-raised-button color="primary" (click)="sendQuestion()">Ajouter au jeu</button>
+</div>
 <div *ngIf="showChildren" class="question-creation">
     <app-create-question
         [questionMongoId]="highlightedQuestion ? highlightedQuestion.mongoId : ''"

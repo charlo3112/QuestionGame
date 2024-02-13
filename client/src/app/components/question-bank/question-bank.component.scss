@@ -8,6 +8,7 @@
     color: white;
     background-color: map.get(constant.$blue-palette, 500);
     margin: 1%;
+    cursor: pointer;
 }
 
 .edit-button,
@@ -41,4 +42,11 @@
 
 .cursor-pointer {
     cursor: pointer;
+}
+
+.add-button-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-top: 15px;
 }

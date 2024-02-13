@@ -32,11 +32,14 @@
             </mat-form-field>
         </mat-card-content>
         <mat-card-actions class="information-button">
+            <button mat-raised-button color="primary" (click)="openQuestionBank()">Selectionner une question depuis la banque</button>
+        </mat-card-actions>
+        <mat-card-actions class="information-button">
             <button mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
         </mat-card-actions>
     </mat-card>
 
-    <mat-card *ngIf="!showChildren" class="right">
+    <mat-card *ngIf="!showChildren && showPage" class="right">
         <mat-card-header>
             <h2>Questions</h2>
         </mat-card-header>
@@ -68,7 +71,16 @@
         *ngIf="showChildren"
         class="right"
         [questionData]="selectedQuestion"
-        (questionCreated)="insertQuestion($event)"
+        (questionCreated)="insertQuestionFromCreate($event)"
         (closeForm)="closeCreateQuestion()"
     ></app-create-question>
+
+    <app-question-bank
+        *ngIf="!showPage"
+        class="right"
+        (sendQuestionSelected)="insertQuestionFromBank($event)"
+        (closeForm)="closeQuestionBank()"
+        [adminMode]="false"
+    >
+    </app-question-bank>
 </div>
