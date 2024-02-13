@@ -25,7 +25,7 @@ export class QuestionBankComponent {
     @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
     @Output() sendQuestionSelected: EventEmitter<Question> = new EventEmitter<Question>();
     questionsWithModificationDate: QuestionWithModificationDate[] = [];
-    highlightedQuestion: QuestionWithModificationDate | null;
+    highlightedQuestion: QuestionWithModificationDate | undefined;
     questionToAdd: Question = QUESTION_PLACEHOLDER;
 
     constructor(
@@ -100,8 +100,8 @@ export class QuestionBankComponent {
         });
     }
 
-    toggleHighlight(question: QuestionWithModificationDate | null): void {
-        this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
+    toggleHighlight(question: QuestionWithModificationDate | undefined): void {
+        this.highlightedQuestion = question === this.highlightedQuestion ? undefined : question;
     }
 
     editQuestion(question: QuestionWithModificationDate) {
