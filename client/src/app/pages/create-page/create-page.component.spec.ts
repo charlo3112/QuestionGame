@@ -1,4 +1,3 @@
-/* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -116,24 +115,6 @@ describe('CreatePageComponent', () => {
         component.ngOnInit();
         expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
     });
-
-    // it('should load game data if verifyLogin is true and edit game', fakeAsync(() => {
-    //     spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-    //     TestBed.overrideProvider(ActivatedRoute, {
-    //         useValue: {
-    //             paramMap: of(convertToParamMap({ id: '123' })),
-    //         },
-    //     });
-    //     TestBed.configureTestingModule({
-    //         declarations: [CreatePageComponent],
-    //     });
-    //     fixture = TestBed.createComponent(CreatePageComponent);
-    //     component = fixture.componentInstance;
-    //     spyOn(component, 'verifyLogin').and.returnValue(true);
-    //     fixture.detectChanges();
-    //     tick();
-    //     expect(component.pageTitle).toEqual("Édition d'un jeu existant");
-    // }));
 
     it('should go back to admin if verifyLogin is false', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
