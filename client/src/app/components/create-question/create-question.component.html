@@ -58,6 +58,9 @@
             </mat-form-field>
         </div>
     </div>
-    <button class="button" (click)="addToQuestionBank()" mat-raised-button color="primary">Ajouter au jeu et à la banque</button>
-    <button class="button" (click)="save()" mat-raised-button color="primary">Ajouter au jeu</button>
+    <button class="button" (click)="addToQuestionBank()" mat-raised-button color="primary" *ngIf="!isInQuestionBank">
+        Ajouter au jeu et à la banque
+    </button>
+    <button class="button" (click)="save()" mat-raised-button color="primary" *ngIf="!isInQuestionBank">Ajouter au jeu</button>
+    <button class="button" (click)="editQuestion()" mat-raised-button color="primary" *ngIf="isInQuestionBank">Sauvegarder</button>
 </div>

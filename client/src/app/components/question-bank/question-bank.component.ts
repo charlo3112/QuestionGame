@@ -3,22 +3,24 @@ import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
+import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
-import { DAY_IN_MS } from '@common/constants';
+import { DAY_IN_MS, NOT_FOUND } from '@common/constants';
 
 @Component({
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [CommonModule, RouterLink, MatIconModule, MatCardModule],
+    imports: [CommonModule, RouterLink, MatIconModule, MatCardModule, CreateQuestionComponent],
     standalone: true,
 })
 export class QuestionBankComponent {
     @Input() adminMode = false;
-    questions: QuestionWithModificationDate[] = [];
-    highlightedQuestion: Question | null;
+    questionsWithModificationDate: QuestionWithModificationDate[] = [];
+    highlightedQuestion: QuestionWithModificationDate | null;
+    showChildren = false;
 
     constructor(private communicationService: CommunicationService) {
         this.loadQuestions();
@@ -30,8 +32,8 @@ export class QuestionBankComponent {
                 if (!response.ok) {
                     throw new Error('Error fetching questions');
                 }
-                this.questions = response.value;
-                this.questions.sort((a, b) => {
+                this.questionsWithModificationDate = response.value;
+                this.questionsWithModificationDate.sort((a, b) => {
                     if (typeof a.lastModification === 'string' && typeof b.lastModification === 'string') {
                         const dateA = new Date(a.lastModification);
                         const dateB = new Date(b.lastModification);
@@ -67,7 +69,7 @@ export class QuestionBankComponent {
     deleteQuestion(questionText: string) {
         this.communicationService.deleteQuestion(questionText).subscribe({
             next: () => {
-                this.questions = this.questions.filter((question) => question.text !== questionText);
+                this.questionsWithModificationDate = this.questionsWithModificationDate.filter((question) => question.text !== questionText);
                 window.alert('la question ' + questionText + ' a été supprimée avec succès ');
             },
             error: () => {
@@ -76,7 +78,22 @@ export class QuestionBankComponent {
         });
     }
 
-    toggleHighlight(question: Question | null): void {
+    toggleHighlight(question: QuestionWithModificationDate | null): void {
         this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
+    }
+
+    editQuestion(question: QuestionWithModificationDate) {
+        this.highlightedQuestion = question;
+        this.showChildren = true;
+    }
+
+    insertQuestion(question: QuestionWithModificationDate) {
+        const index = this.questionsWithModificationDate.findIndex((q) => q.text === question.text);
+        if (index > NOT_FOUND) {
+            this.questionsWithModificationDate[index] = question;
+        } else {
+            this.questionsWithModificationDate.push(question);
+        }
+        this.showChildren = false;
     }
 }

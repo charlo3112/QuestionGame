@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,11 +28,13 @@ import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType,
         MatCheckboxModule,
         ReactiveFormsModule,
         DragDropModule,
+        NgIf,
     ],
     standalone: true,
 })
 export class CreateQuestionComponent implements OnChanges {
     @Input() questionData: Question | null = null;
+    @Input() isInQuestionBank: boolean = false;
     @Output() questionCreated = new EventEmitter<Question>();
 
     questionName: string = '';
@@ -40,6 +42,7 @@ export class CreateQuestionComponent implements OnChanges {
     choiceInput: string = '';
     choices: Choice[] = [];
     editArray: boolean[] = [];
+    questionToDelete: string = '';
 
     constructor(private communicationService: CommunicationService) {}
 
@@ -78,6 +81,7 @@ export class CreateQuestionComponent implements OnChanges {
         this.questionName = question.text;
         this.questionPoints = question.points;
         this.choices = [...question.choices];
+        this.questionToDelete = question.text;
     }
 
     deleteChoice(index: number): void {
@@ -159,5 +163,34 @@ export class CreateQuestionComponent implements OnChanges {
             return false;
         }
         return true;
+    }
+
+    editQuestion() {
+        if (this.questionToDelete !== '') {
+            window.alert(this.questionToDelete);
+            this.communicationService.deleteQuestion(this.questionToDelete).subscribe({
+                next: () => {
+                    const newQuestion: Question = {
+                        type: QuestionType.QCM,
+                        text: this.questionName,
+                        points: +parseInt(this.questionPoints.toString(), 10),
+                        choices: this.choices,
+                    };
+                    this.communicationService.addQuestion(newQuestion).subscribe({
+                        next: () => {
+                            this.resetForm();
+                        },
+                        error: () => {
+                            window.alert('Erreur dans la requête');
+                        },
+                    });
+                },
+                error: () => {
+                    window.alert('Erreur dans la requête');
+                },
+            });
+        } else {
+            this.addToQuestionBank();
+        }
     }
 }
