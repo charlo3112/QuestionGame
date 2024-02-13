@@ -112,8 +112,10 @@ describe('CreatePageComponent', () => {
 
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+        spyOn(component, 'resetForm');
         component.ngOnInit();
         expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
+        expect(component.resetForm).toHaveBeenCalled();
     });
 
     it('should go back to admin if verifyLogin is false', () => {
