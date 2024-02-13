@@ -68,8 +68,13 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
 
-    login(password: string): Observable<HttpResponse<string>> {
-        return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
+    login(password: string): Observable<boolean> {
+        return this.http.post<boolean>(`${this.baseUrl}/admin`, { password }).pipe(
+            map(() => true),
+            catchError(() => {
+                return of(false);
+            }),
+        );
     }
 
     addQuestion(question: Question): Observable<HttpResponse<Question>> {

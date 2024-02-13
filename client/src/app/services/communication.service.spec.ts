@@ -174,9 +174,8 @@ describe('CommunicationService', () => {
 
         service.login(password).subscribe({
             next: (response) => {
-                expect(response.body).toBe('');
+                expect(response).toBeTrue();
             },
-            error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/admin`);

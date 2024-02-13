@@ -36,7 +36,7 @@ describe('AdminPageComponent', () => {
         );
         communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '' })));
         communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.login.and.returnValue(of(true));
         communicationServiceSpy.exportGame.and.returnValue(
             of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: JSON.stringify(GAME_PLACEHOLDER) })),
         );
@@ -131,7 +131,7 @@ describe('AdminPageComponent', () => {
     });
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Forbidden })));
+        communicationServiceSpy.login.and.returnValue(of(false));
         component.login = false;
         fixture.detectChanges();
         spyOn(component, 'handleLogin');

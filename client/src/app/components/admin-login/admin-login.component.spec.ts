@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
@@ -14,7 +13,7 @@ describe('AdminLoginComponent', () => {
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['login']);
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.login.and.returnValue(of(true));
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule, NoopAnimationsModule],
@@ -40,7 +39,7 @@ describe('AdminLoginComponent', () => {
     });
 
     it('#onSubmit should not emit if password is incorrect', () => {
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Forbidden })));
+        communicationServiceSpy.login.and.returnValue(of(false));
         component.loginForm.controls.password.setValue('wrong');
         spyOn(component.loginSuccess, 'emit');
         component.onSubmit();
