@@ -6,8 +6,8 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
 
 @Component({
     selector: 'app-bank-question-page',
-    templateUrl: './bank-question-page.component.html',
-    styleUrls: ['./bank-question-page.component.scss'],
+    templateUrl: './question-bank-page.component.html',
+    styleUrls: ['./question-bank-page.component.scss'],
     standalone: true,
     imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink],
 })

@@ -14,7 +14,7 @@ import { CreatePageComponent } from '@app/pages/create-page/create-page.componen
 import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
-import { BankQuestionPageComponent } from './pages/bank-question-page/bank-question-page.component';
+import { BankQuestionPageComponent } from './pages/question-bank-page/question-bank-page.component';
 
 /**
  * Main module that is used in main.ts.

@@ -7,7 +7,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { BankQuestionPageComponent } from './bank-question-page.component';
+import { BankQuestionPageComponent } from './question-bank-page.component';
 
 describe('BankQuestionPageComponent', () => {
     let component: BankQuestionPageComponent;

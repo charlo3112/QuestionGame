@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
-import { BankQuestionPageComponent } from '@app/pages/bank-question-page/bank-question-page.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+import { BankQuestionPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
 import { StartGamePageComponent } from '@app/pages/startgame-page/startgame-page.component';
 
 export const routes: Routes = [
