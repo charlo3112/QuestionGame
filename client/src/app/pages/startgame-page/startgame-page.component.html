@@ -6,7 +6,12 @@
     <div class="accordion-container">
         <mat-accordion>
             <div *ngFor="let game of games; index as i">
-                <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game.gameId)" (testGame)="testGame(game.gameId)">
+                <app-startgame-expansion
+                    [gameDetails]="game"
+                    (startGame)="startGame(game)"
+                    (testGame)="testGame(game)"
+                    (refreshGames)="refreshGames()"
+                >
                 </app-startgame-expansion>
             </div>
         </mat-accordion>
