@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
@@ -119,5 +119,12 @@ export class CommunicationService {
 
     modifyQuestion(updatedQuestionData: QuestionWithModificationDate): Observable<HttpResponse<QuestionWithModificationDate>> {
         return this.http.patch<QuestionWithModificationDate>(`${this.baseUrl}/question`, updatedQuestionData, { observe: 'response' });
+    }
+
+    getAnswers(questionText: string): Observable<boolean[]> {
+        const params = new HttpParams().set('questionText', questionText);
+        return this.http
+            .get<boolean[]>(`${this.baseUrl}/question`, { params, observe: 'response' })
+            .pipe(map((response: HttpResponse<boolean[]>) => response.body as boolean[]));
     }
 }
