@@ -9,9 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
@@ -36,6 +37,8 @@ import { MIN_DURATION, NOT_FOUND } from '@common/constants';
         CreatePageComponent,
         CreateQuestionComponent,
         FormsModule,
+        RouterLink,
+        MatToolbarModule,
     ],
 })
 export class CreatePageComponent implements OnInit {
