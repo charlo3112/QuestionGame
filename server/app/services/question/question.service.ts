@@ -82,13 +82,14 @@ export class QuestionService {
 
     async validateQuestion(questionData: CreateQuestionDto): Promise<boolean> {
         let nbOfRightChoices = 0;
+        let nbOfWrongChoices = 0;
         let arePointsCorrect = false;
         let areChoicesCorrect = false;
         const resultModulo = questionData.points.valueOf() % PONDERATION_INCREMENT;
         for (const choice of questionData.choices) {
             if (choice.isCorrect) {
                 nbOfRightChoices++;
-            }
+            } else nbOfWrongChoices++;
         }
         if (resultModulo === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
             arePointsCorrect = true;
@@ -96,6 +97,6 @@ export class QuestionService {
         if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
             areChoicesCorrect = true;
         }
-        return areChoicesCorrect && arePointsCorrect && nbOfRightChoices === 1;
+        return areChoicesCorrect && arePointsCorrect && nbOfRightChoices >= 1 && nbOfWrongChoices >= 0;
     }
 }

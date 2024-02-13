@@ -41,12 +41,29 @@ describe.only('QuestionController', () => {
             expect(code).toEqual(HttpStatus.OK);
             return res;
         };
-        res.json = (courses) => {
-            expect(courses).toEqual(fakeQuestions);
+        res.json = (questions) => {
+            expect(questions).toEqual(fakeQuestions);
             return res;
         };
 
         await controller.getAllQuestions(res);
+    });
+
+    it('getAnswers() should return the answers to the question', async () => {
+        const fakeQuestion = getFakeQuestions()[0];
+        questionService.getAnswers.resolves([true, false, false, false]);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (answers) => {
+            expect(answers).toEqual([true, false, false, false]);
+            return res;
+        };
+
+        await controller.getAnswers(fakeQuestion.getText(), res);
     });
 
     it('addQuestion() should succeed if service able to add the course', async () => {
