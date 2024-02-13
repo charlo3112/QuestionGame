@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,14 +14,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/classes/choice';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
 
 describe('CreatePageComponent', () => {
@@ -32,9 +33,17 @@ describe('CreatePageComponent', () => {
     let router: Router;
     let mockValidGame: Game;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let routeSpy: jasmine.SpyObj<ActivatedRoute>;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
+        paramMapSpy.get.and.returnValue();
+
+        routeSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+            paramMap: of(paramMapSpy) as Observable<ParamMap>,
+        });
 
         await TestBed.configureTestingModule({
             imports: [
@@ -54,7 +63,10 @@ describe('CreatePageComponent', () => {
                 HttpClientTestingModule,
                 MatToolbarModule,
             ],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
+            providers: [
+                { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: ActivatedRoute, useValue: routeSpy },
+            ],
         }).compileComponents();
         fixture = TestBed.createComponent(CreatePageComponent);
         component = fixture.componentInstance;
@@ -145,6 +157,25 @@ describe('CreatePageComponent', () => {
 
         expect(component.questions.length).toBe(1);
         expect(component.questions[0].points).toBe(updatedQuestion.points);
+    });
+
+    it("should set pageTitle to \"Édition d'un jeu existant\" when there is an 'id' parameter in the route", () => {
+        const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
+        paramMapSpy.get.and.returnValue('1');
+
+        routeSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+            paramMap: of(paramMapSpy) as Observable<ParamMap>,
+        });
+
+        component['route'] = routeSpy;
+
+        spyOn(component, 'verifyLogin').and.returnValue(true);
+        spyOn(component, 'loadGameData');
+
+        component.ngOnInit();
+
+        expect(component.loadGameData).toHaveBeenCalledWith('1');
+        expect(component.pageTitle).toBe("Édition d'un jeu existant");
     });
 
     // insertQuestionFromBank
