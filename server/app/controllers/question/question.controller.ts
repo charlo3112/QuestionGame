@@ -35,10 +35,10 @@ export class QuestionController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Get('/:text')
-    async getAnswers(@Param('text') text: string, @Res() response: Response) {
+    @Get('/')
+    async getAnswers(@Body() questionText: string, @Res() response: Response) {
         try {
-            const answers = await this.questionsService.getAnswers(text);
+            const answers = await this.questionsService.getAnswers(questionText);
             response.status(HttpStatus.OK).json(answers);
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);
@@ -58,22 +58,6 @@ export class QuestionController {
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
-        }
-    }
-
-    @ApiCreatedResponse({
-        description: 'modifies a question',
-    })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_MODIFIED http status when request fails',
-    })
-    @Post('/:text')
-    async modifyQuestion(@Param('text') text: string, @Body() questionDto: CreateQuestionDto, @Res() response: Response) {
-        try {
-            await this.questionsService.modifyQuestion(text, questionDto);
-            response.status(HttpStatus.OK).send();
-        } catch (error) {
-            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }
     }
 
