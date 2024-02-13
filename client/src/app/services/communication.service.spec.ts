@@ -1,7 +1,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
-import { Message } from '@common/message';
 
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -26,48 +26,191 @@ describe('CommunicationService', () => {
         expect(service).toBeTruthy();
     });
 
-    it('should return expected message (HttpClient called once)', () => {
-        const expectedMessage: Message = { body: 'Hello', title: 'World' };
+    it('should toggle game visibility', () => {
+        const gameId = '123';
 
-        // check the content of the mocked call
-        service.basicGet().subscribe({
-            next: (response: Message) => {
-                expect(response.title).toEqual(expectedMessage.title);
-                expect(response.body).toEqual(expectedMessage.body);
+        service.toggleGameVisibility(gameId).subscribe({
+            next: (response) => {
+                expect(response.body).toBe('');
             },
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/example`);
-        expect(req.request.method).toBe('GET');
-        // actually send the request
-        req.flush(expectedMessage);
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('PATCH');
+        req.flush('');
     });
 
-    it('should not return any message when sending a POST request (HttpClient called once)', () => {
-        const sentMessage: Message = { body: 'Hello', title: 'World' };
-        // subscribe to the mocked call
-        service.basicPost(sentMessage).subscribe({
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            next: () => {},
+    it('should delete a game', () => {
+        const gameId = 'test-id';
+
+        service.deleteGame(gameId).subscribe({
+            next: (response) => {
+                expect(response.body).toBe(''); // DELETE might not return a body
+            },
             error: fail,
         });
-        const req = httpMock.expectOne(`${baseUrl}/example/send`);
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should export a game', () => {
+        const gameId = 'export-id';
+
+        service.exportGame(gameId).subscribe({
+            next: (response) => {
+                expect(response.body).toBeInstanceOf(String);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        expect(req.request.responseType).toBe('text');
+        req.flush('');
+    });
+
+    it('should get admin games', () => {
+        service.getAdminGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/admin/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should get games', () => {
+        service.getGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should throw an error when getting games', () => {
+        service.getGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should throw an error when getting admin games', () => {
+        service.getAdminGames().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/admin/game`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should get game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameByID(gameId).subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush({});
+    });
+
+    it('should throw an error when getting game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameByID(gameId).subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should add a game', () => {
+        const game = GAME_PLACEHOLDER;
+
+        service.addGame(game).subscribe({
+            next: (response) => {
+                expect(response.body).toBe('');
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
         expect(req.request.method).toBe('POST');
-        // actually send the request
-        req.flush(sentMessage);
+        req.flush('');
     });
 
-    it('should handle http error safely', () => {
-        service.basicGet().subscribe({
-            next: (response: Message) => {
-                expect(response).toBeUndefined();
+    it('should login', () => {
+        const password = 'password';
+
+        service.login(password).subscribe({
+            next: (response) => {
+                expect(response.body).toBe('');
             },
             error: fail,
         });
 
-        const req = httpMock.expectOne(`${baseUrl}/example`);
-        expect(req.request.method).toBe('GET');
-        req.error(new ProgressEvent('Random error occurred'));
+        const req = httpMock.expectOne(`${baseUrl}/admin`);
+        expect(req.request.method).toBe('POST');
+        req.flush('');
+    });
+
+    it('should verify title', () => {
+        const title = 'title';
+
+        service.verifyTitle(title).subscribe({
+            next: (response) => {
+                expect(response).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/verify/`);
+        expect(req.request.method).toBe('POST');
+        req.flush(true);
+    });
+
+    it('should throw an error when verifying title', () => {
+        const title = 'title';
+
+        service.verifyTitle(title).subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/verify/`);
+        expect(req.request.method).toBe('POST');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
 });
