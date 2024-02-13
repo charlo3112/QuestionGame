@@ -61,6 +61,22 @@ export class QuestionController {
         }
     }
 
+    @ApiCreatedResponse({
+        description: 'modifies a question',
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_MODIFIED http status when request fails',
+    })
+    @Post('/:text')
+    async modifyQuestion(@Param('text') text: string, @Body() questionDto: CreateQuestionDto, @Res() response: Response) {
+        try {
+            await this.questionsService.modifyQuestion(text, questionDto);
+            response.status(HttpStatus.OK).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
+        }
+    }
+
     @ApiOkResponse({
         description: 'Delete a question',
     })
