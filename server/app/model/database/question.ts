@@ -11,6 +11,10 @@ export type QuestionDocument = Question & Document;
 export class Question {
     @ApiProperty()
     @Prop({ required: true })
+    choices?: Choice[];
+
+    @ApiProperty()
+    @Prop({ required: true })
     private type: QuestionType;
 
     @ApiProperty()
@@ -24,10 +28,6 @@ export class Question {
     @ApiProperty()
     @Prop({ required: true })
     private lastModification: Date;
-
-    @ApiProperty()
-    @Prop({ required: true })
-    private choices?: Choice[];
 
     constructor(questionData: CreateQuestionDto) {
         this.type = questionData.type;
