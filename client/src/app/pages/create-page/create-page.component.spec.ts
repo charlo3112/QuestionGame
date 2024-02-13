@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -29,8 +31,11 @@ describe('CreatePageComponent', () => {
     let communicationService: CommunicationService;
     let router: Router;
     let mockValidGame: Game;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
+        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [
                 FormsModule,
@@ -47,7 +52,9 @@ describe('CreatePageComponent', () => {
                 CreatePageComponent,
                 HttpClientModule,
                 HttpClientTestingModule,
+                MatToolbarModule,
             ],
+            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(CreatePageComponent);
         component = fixture.componentInstance;
@@ -220,7 +227,7 @@ describe('CreatePageComponent', () => {
         component.description = 'test description';
         component.duration = MIN_DURATION;
         component.save();
-        expect(window.alert).toHaveBeenCalledWith('Erreurs de validation: \nLe nom du jeu est requis.');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Erreurs de validation: \nLe nom du jeu est requis.', 'Close');
     });
 
     it('should create a game if the form is valid', () => {
@@ -253,14 +260,14 @@ describe('CreatePageComponent', () => {
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
         component.createGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Le jeu a été créé avec succès !');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Le jeu a été créé avec succès !', 'Close');
     });
 
     it('should not create a game if the communicationService return an error', () => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'addGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.createGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Erreur lors de la création du jeu', 'Close');
     });
 
     // updateGame
@@ -269,14 +276,14 @@ describe('CreatePageComponent', () => {
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
         component.updateGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Le jeu a été modifié avec succès !');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Le jeu a été modifié avec succès !', 'Close');
     });
 
     it('should not update a game if the communicationService return an error', () => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'editGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.updateGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la mise à jour du jeu');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Erreur lors de la modification du jeu', 'Close');
     });
 
     // loadGameData
@@ -293,6 +300,6 @@ describe('CreatePageComponent', () => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'getGameById').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.loadGameData('1');
-        expect(window.alert).toHaveBeenCalledWith('Une erreur est survenue lors du chargement des champs');
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Erreur lors du chargement du jeu', 'Close');
     });
 });

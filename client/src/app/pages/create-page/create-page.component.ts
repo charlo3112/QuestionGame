@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
@@ -57,11 +58,13 @@ export class CreatePageComponent implements OnInit {
     visibility: boolean;
     selectedQuestion: Question | null = null;
 
+    // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private route: ActivatedRoute,
         private communicationService: CommunicationService,
         private validationService: ValidationService,
+        private snackBar: MatSnackBar,
     ) {}
     ngOnInit() {
         if (this.verifyLogin()) {
@@ -78,6 +81,10 @@ export class CreatePageComponent implements OnInit {
         } else {
             this.router.navigate(['/admin']);
         }
+    }
+
+    openSnackBar(message: string) {
+        this.snackBar.open(message, 'Close');
     }
 
     insertQuestion(question: Question) {
@@ -115,7 +122,7 @@ export class CreatePageComponent implements OnInit {
         };
         const validationErrors = this.validationService.validateGame(gameToValidate);
         if (validationErrors.length > 0) {
-            window.alert('Erreurs de validation: \n' + validationErrors.join('\n'));
+            this.openSnackBar('Erreurs de validation: \n' + validationErrors.join('\n'));
             return;
         }
         const newGame: Game = {
@@ -131,26 +138,27 @@ export class CreatePageComponent implements OnInit {
         } else {
             this.createGame(newGame);
         }
-        this.router.navigate(['/admin']);
     }
 
     createGame(game: Game): void {
         this.communicationService.addGame(game).subscribe({
             next: () => {
-                window.alert('Le jeu a été créé avec succès !');
+                this.openSnackBar('Le jeu a été créé avec succès !');
+                this.router.navigate(['/admin']);
             },
             error: () => {
-                window.alert('Erreur lors de la création du jeu');
+                this.openSnackBar('Erreur lors de la création du jeu');
             },
         });
     }
     updateGame(game: Game): void {
         this.communicationService.editGame(game).subscribe({
             next: () => {
-                window.alert('Le jeu a été modifié avec succès !');
+                this.openSnackBar('Le jeu a été modifié avec succès !');
+                this.router.navigate(['/admin']);
             },
             error: () => {
-                window.alert('Erreur lors de la mise à jour du jeu');
+                this.openSnackBar('Erreur lors de la modification du jeu');
             },
         });
     }
@@ -171,7 +179,8 @@ export class CreatePageComponent implements OnInit {
                 this.fillForm(game, gameId);
             },
             error: () => {
-                window.alert('Une erreur est survenue lors du chargement des champs');
+                this.openSnackBar('Erreur lors du chargement du jeu');
+                this.router.navigate(['/admin']);
             },
         });
     }
