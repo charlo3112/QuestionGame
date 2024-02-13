@@ -9,7 +9,9 @@
         <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
         <button
             mat-icon-button
-            class="edit-button"
+            #tooltip="matTooltip"
+            matTooltip="Modifier la question"
+            class="edit-button cursor-pointer"
             [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
             *ngIf="adminMode"
             (click)="editQuestion(question)"
@@ -18,7 +20,9 @@
         </button>
         <button
             mat-icon-button
-            class="delete-button"
+            #tooltip="matTooltip"
+            matTooltip="Supprimer la question"
+            class="delete-button cursor-pointer"
             [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
             *ngIf="adminMode"
             (click)="deleteQuestion(question.mongoId)"

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionWithModificationDate } from '@app/interfaces/question';
@@ -13,7 +14,7 @@ import { DAY_IN_MS, NOT_FOUND } from '@common/constants';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [CommonModule, RouterLink, MatIconModule, MatCardModule, CreateQuestionComponent],
+    imports: [CommonModule, RouterLink, MatIconModule, MatCardModule, CreateQuestionComponent, MatTooltipModule],
     standalone: true,
 })
 export class QuestionBankComponent {

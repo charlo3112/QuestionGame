@@ -16,6 +16,10 @@
     background-color: map.get(constant.$blue-palette, 500);
     border: none;
 }
+.edit-button:hover,
+.delete-button:hover {
+    color: lightgray;
+}
 
 .admin-mode-time {
     margin-left: auto;
@@ -28,8 +32,13 @@
     text-align: center;
     align-items: center;
     padding-bottom: 16px;
+    font-size: 1.2em;
 }
 
 .highlighted {
     background-color: map.get(constant.$blue-palette, 800);
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
