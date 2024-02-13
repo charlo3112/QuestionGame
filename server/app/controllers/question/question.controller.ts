@@ -1,7 +1,7 @@
 import { Question } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
@@ -58,6 +58,22 @@ export class QuestionController {
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @ApiCreatedResponse({
+        description: 'modifies a question',
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_MODIFIED http status when request fails',
+    })
+    @Patch('/:text')
+    async modifyQuestion(@Param('text') text: string, @Body() questionDto: CreateQuestionDto, @Res() response: Response) {
+        try {
+            await this.questionsService.modifyQuestion(text, questionDto);
+            response.status(HttpStatus.OK).send();
+        } catch (error) {
+            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
         }
     }
 
