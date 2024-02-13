@@ -15,7 +15,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
@@ -127,7 +127,7 @@ export class CreatePageComponent implements OnInit {
     closeCreateQuestion() {
         this.showChildren = false;
     }
-    save(): void {
+    async save(): Promise<void> {
         const gameToValidate: Partial<Game> = {
             title: this.title,
             description: this.description,
@@ -150,41 +150,37 @@ export class CreatePageComponent implements OnInit {
 
         if (this.isEditing) {
             newGame.gameId = this.id;
-            this.updateGame(newGame);
+            await this.updateGame(newGame);
         } else {
-            this.createGame(newGame);
+            await this.createGame(newGame);
         }
     }
 
-    createGame(game: Game): void {
-        this.communicationService.addGame(game).subscribe({
-            next: () => {
-                this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
-                    duration: SNACKBAR_DURATION,
-                });
-                this.router.navigate(['/admin']);
-            },
-            error: () => {
-                this.snackBar.open('Erreur lors de la création du jeu', undefined, {
-                    duration: SNACKBAR_DURATION,
-                });
-            },
-        });
+    async createGame(game: Game): Promise<void> {
+        try {
+            await this.communicationService.addGame(game);
+            this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+            this.router.navigate(['/admin']);
+        } catch (e) {
+            this.snackBar.open('Erreur lors de la création du jeu', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+        }
     }
-    updateGame(game: Game): void {
-        this.communicationService.editGame(game).subscribe({
-            next: () => {
-                this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
-                    duration: SNACKBAR_DURATION,
-                });
-                this.router.navigate(['/admin']);
-            },
-            error: () => {
-                this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
-                    duration: SNACKBAR_DURATION,
-                });
-            },
-        });
+    async updateGame(game: Game): Promise<void> {
+        try {
+            await this.communicationService.editGame(game);
+            this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+            this.router.navigate(['/admin']);
+        } catch (e) {
+            this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+        }
     }
     verifyLogin(): boolean {
         const storedLogin = sessionStorage.getItem('login');
