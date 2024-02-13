@@ -168,14 +168,22 @@ export class CreateQuestionComponent implements OnChanges {
 
     editQuestion() {
         if (this.questionToDelete !== '') {
-            this.communicationService.editQuestion(this.questionToDelete, {
-                type: QuestionType.QCM,
-                text: this.questionName,
-                points: this.questionPoints,
-                choices: this.choices,
-            });
-            this.resetForm();
-            this.closeForm.emit();
+            this.communicationService
+                .editQuestion(this.questionToDelete, {
+                    type: QuestionType.QCM,
+                    text: this.questionName,
+                    points: this.questionPoints,
+                    choices: this.choices,
+                })
+                .subscribe({
+                    next: () => {
+                        this.closeForm.emit();
+                        this.resetForm();
+                    },
+                    error: () => {
+                        throw new Error('Error deleting question');
+                    },
+                });
         } else {
             this.addToQuestionBank();
         }
