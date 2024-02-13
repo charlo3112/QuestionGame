@@ -1,0 +1,121 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.header {
+    text-align: left;
+    margin-bottom: 20px;
+    width: 100%;
+    background-color: orange;
+    h1 {
+        margin-left: 16px;
+    }
+}
+
+.form-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.left {
+    margin-left: 16px;
+    .information-field {
+        margin-bottom: 5px;
+    }
+}
+
+.mat-form-field {
+    width: 100%;
+    font-size: 1.25rem;
+}
+
+input[matInput],
+textarea[matInput],
+.mat-select {
+    font-size: 1.25rem;
+}
+
+.mat-slider {
+    height: 2rem;
+    margin-top: 10px;
+}
+
+.left,
+.right,
+.question-creation {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 50%;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 0;
+}
+
+.second-list {
+    background-color: #f2f2f2;
+    overflow: auto;
+    margin-bottom: 10px;
+    width: 50%;
+    min-width: 200px;
+    height: 300px;
+    padding: 5px;
+    overflow-y: auto;
+}
+
+.question-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(255, 255, 255);
+    margin-bottom: 5px;
+}
+
+.question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    h3 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-right: 5px;
+        flex-grow: 1;
+    }
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+        cursor: grab;
+    }
+}
+
+.icons-container {
+    flex-shrink: 0;
+    align-items: right;
+}
+
+.add-icon,
+.edit-icon,
+.delete-icon {
+    cursor: pointer;
+    margin-left: 10px;
+    flex-shrink: 0;
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+}
+button[mat-fab] {
+    width: 40px;
+    height: 40px;
+    min-width: 0;
+    border-radius: 50%;
+}
+
+.save-btn {
+    align-self: left;
+    margin-top: 20px;
+}

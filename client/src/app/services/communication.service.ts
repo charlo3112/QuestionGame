@@ -72,6 +72,22 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
     }
 
+    addQuestion(question: Question): Observable<HttpResponse<Question>> {
+        return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
+    }
+
+    getGameById(gameId: string): Observable<Game> {
+        return this.http.get<Game>(`${this.baseUrl}/game/${gameId}`, { observe: 'response' }).pipe(map((response) => response.body as Game));
+    }
+
+    editGame(updatedGameData: Game): Observable<HttpResponse<Game>> {
+        return this.http.patch<Game>(`${this.baseUrl}/game`, updatedGameData, { observe: 'response' }).pipe(
+            catchError((error) => {
+                return of(error);
+            }),
+        );
+    }
+
     verifyTitle(title: string): Observable<boolean> {
         return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title }).pipe(
             map(() => true),
@@ -94,9 +110,5 @@ export class CommunicationService {
 
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
-    }
-
-    addQuestion(question: Question): Observable<HttpResponse<Question>> {
-        return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
     }
 }

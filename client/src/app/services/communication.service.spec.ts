@@ -1,9 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { QUESTION_PLACEHOLDER } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
     let service: CommunicationService;
@@ -226,6 +225,26 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/question`);
         expect(req.request.method).toBe('GET');
         req.flush([]);
+    });
+
+    it('should send a patch request to update a game and return the updated game', () => {
+        const updatedGame: Game = {
+            ...GAME_PLACEHOLDER,
+            title: 'Updated Title',
+            description: 'Updated Description',
+        };
+
+        service.editGame(updatedGame).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(updatedGame);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toEqual('PATCH');
+        expect(req.request.body).toEqual(updatedGame);
+        req.flush(updatedGame);
     });
 
     it('should throw an error when getting all questions', () => {

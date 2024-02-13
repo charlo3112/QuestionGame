@@ -1,13 +1,28 @@
+import { Choice } from '@app/classes/choice';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
+import { QuestionType } from '@common/constants';
 import { ValidationService } from './validation.service';
-import { Choice } from '@app/classes/choice';
 
 describe('ValidationService', () => {
     let service: ValidationService;
+    let mockValidQuestion1: Question;
+    let mockValidQuestion2: Question;
 
     beforeEach(() => {
         service = new ValidationService();
+        mockValidQuestion1 = {
+            text: 'Quelle est la capitale du Canada ?',
+            points: 10,
+            choices: [new Choice('Ottawa', true), new Choice('Toronto', false)],
+            type: QuestionType.QCM,
+        };
+        mockValidQuestion2 = {
+            text: 'Quelle est la capitale de la France ?',
+            points: 10,
+            choices: [new Choice('Ottawa', true), new Choice('Toronto', false)],
+            type: QuestionType.QCM,
+        };
     });
 
     describe('validateGame', () => {
@@ -15,7 +30,7 @@ describe('ValidationService', () => {
             const game = {
                 title: 'Test Game',
                 description: 'Test Description',
-                duration: 120,
+                duration: 60,
                 questions: [
                     {
                         text: 'Test Question',
@@ -51,15 +66,81 @@ describe('ValidationService', () => {
             expect(errors).toContain('Question 1:');
             expect(errors).toContain('La question doit avoir un type valide.');
         });
+
+        it('should report error for game duration too short', () => {
+            const game = {
+                title: 'Test Game',
+                description: 'Test Description',
+                duration: 5,
+                questions: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Game>;
+            const errors = service.validateGame(game);
+            expect(errors).toContain('Le temps alloué aux questions est mauvais.');
+        });
+
+        it('should report error for game duration too long', () => {
+            const game = {
+                title: 'Test Game',
+                description: 'Test Description',
+                duration: 65,
+                questions: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Game>;
+            const errors = service.validateGame(game);
+            expect(errors).toContain('Le temps alloué aux questions est mauvais.');
+        });
+
+        it('should report error for game duration being a decimal', () => {
+            const game = {
+                title: 'Test Game',
+                description: 'Test Description',
+                duration: 20.5,
+                questions: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Game>;
+            const errors = service.validateGame(game);
+            expect(errors).toContain('Le temps alloué aux questions est mauvais.');
+        });
+
+        it('should report error for question points too low', () => {
+            const question = {
+                text: 'Test Question',
+                points: 0,
+                type: 'QCM',
+                choices: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Question>;
+            const errors = service.validateQuestion(question);
+            expect(errors).toContain('Les points doivent être compris entre 10 et 100.');
+        });
+
+        it('should report error for question points too high', () => {
+            const question = {
+                text: 'Test Question',
+                points: 110,
+                type: 'QCM',
+                choices: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Question>;
+            const errors = service.validateQuestion(question);
+            expect(errors).toContain('Les points doivent être compris entre 10 et 100.');
+        });
+
+        it('should report error for question points not being a multiple of 10', () => {
+            const question = {
+                text: 'Test Question',
+                points: 25,
+                type: 'QCM',
+                choices: [mockValidQuestion1, mockValidQuestion2],
+            } as unknown as Partial<Question>;
+            const errors = service.validateQuestion(question);
+            expect(errors).toContain('Les points doivent être un multiple de 10.');
+        });
     });
 
     describe('validateQuestion', () => {
         it('should validate a complete question object without errors', () => {
             const question = {
                 text: 'What is the capital of France?',
-                points: 5,
+                points: 10,
                 type: 'QCM',
-                choices: [new Choice('Paris', true)],
+                choices: [new Choice('Paris', true), new Choice('Marseille', false)],
             } as unknown as Partial<Question>;
             expect(service.validateQuestion(question)).toEqual([]);
         });
@@ -78,10 +159,25 @@ describe('ValidationService', () => {
             expect(errors).toContain('Les choix de la question doivent être un tableau.');
         });
 
-        it('should report that it needs at least one choice', () => {
+        it('should report that it needs at least two choices', () => {
             const question = { type: 'QCM', choices: [] };
             const errors = service.validateQuestion(question as unknown as Partial<Question>);
-            expect(errors).toContain('La question doit avoir au moins un choix.');
+            expect(errors).toContain('La question doit avoir au minimum deux choix.');
+        });
+
+        it('should report that it needs a maximum of 4 choices', () => {
+            const question = {
+                type: 'QCM',
+                choices: [
+                    { text: 'Paris', isCorrect: true },
+                    { text: 'Marseille', isCorrect: false },
+                    { text: 'Lyon', isCorrect: false },
+                    { text: 'Toulouse', isCorrect: false },
+                    { text: 'Nice', isCorrect: false },
+                ],
+            } as unknown as Partial<Question>;
+            const errors = service.validateQuestion(question);
+            expect(errors).toContain('La question doit avoir au maximum quatre choix.');
         });
 
         it('should report errors for each choice', () => {
@@ -106,7 +202,7 @@ describe('ValidationService', () => {
                 test: 'test',
                 title: 'Test Game',
                 description: 'Test Description',
-                duration: 120,
+                duration: 60,
                 lastModification: '2021-01-01',
                 questions: [
                     {
@@ -121,7 +217,8 @@ describe('ValidationService', () => {
             const expectedGame = {
                 title: 'Test Game',
                 description: 'Test Description',
-                duration: 120,
+                visibility: false,
+                duration: 60,
                 lastModification: '2021-01-01',
                 questions: [
                     {

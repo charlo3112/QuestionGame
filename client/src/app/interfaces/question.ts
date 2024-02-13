@@ -65,3 +65,10 @@ export const QUESTION_PLACEHOLDER: Question = {
     points: 42,
     choices: [new Choice('hello_world', true), new Choice('test', false), new Choice('lorem_ipsum', false)],
 };
+
+export const EMPTY_QUESTION: Question = {
+    type: QuestionType.QCM,
+    text: '',
+    points: 0,
+    choices: [],
+};
