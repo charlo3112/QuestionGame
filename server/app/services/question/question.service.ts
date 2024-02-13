@@ -16,6 +16,20 @@ export class QuestionService {
         return await this.questionModel.find<Question>({});
     }
 
+    async getAnswers(questionText: string): Promise<boolean[]> {
+        const filter = { text: questionText };
+        const question = await this.questionModel.findOne(filter);
+        if (!question) {
+            return [];
+        }
+        const choices = question.choices;
+        const answers: boolean[] = [];
+        for (const choice of choices) {
+            answers.push(choice.isCorrect);
+        }
+        return answers;
+    }
+
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
         try {
             if (!(await this.validateQuestion(questionData))) {

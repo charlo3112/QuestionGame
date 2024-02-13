@@ -111,6 +111,16 @@ describe('QuestionServiceEndToEnd', () => {
         expect((await service.getAllQuestions()).length).toEqual(1);
     });
 
+    it('getAnswers() return the answers of a question', async () => {
+        const question = getFakeCreateQuestionDto();
+        await service.addQuestion(question);
+        const answers = await service.getAnswers(question.text);
+        expect(answers[0]).toBe(true);
+        expect(answers[1]).toBe(false);
+        expect(answers[2]).toBe(false);
+        expect(answers[3]).toBe(false);
+    });
+
     it('deleteQuestion() should delete the question', async () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
