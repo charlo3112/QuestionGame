@@ -20,6 +20,7 @@ import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
 import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-create-page',
@@ -166,7 +167,7 @@ export class CreatePageComponent implements OnInit {
 
     async createGame(game: Game): Promise<void> {
         try {
-            await this.communicationService.addGame(game);
+            await lastValueFrom(this.communicationService.addGame(game));
             this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
                 duration: SNACKBAR_DURATION,
             });
@@ -179,7 +180,7 @@ export class CreatePageComponent implements OnInit {
     }
     async updateGame(game: Game): Promise<void> {
         try {
-            await this.communicationService.editGame(game);
+            await lastValueFrom(this.communicationService.editGame(game));
             this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
                 duration: SNACKBAR_DURATION,
             });
