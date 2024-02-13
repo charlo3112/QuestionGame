@@ -1,9 +1,9 @@
-import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { QuestionType, QuestionWithModificationDate } from '@app/interfaces/question';
+import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { Question, QuestionType, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
 
 describe('QuestionBankComponent', () => {
@@ -50,13 +50,22 @@ describe('QuestionBankComponent', () => {
         expect(component.questions).toEqual(mockQuestions);
     });
 
-    // it('should throw error when getAllQuestionsWithModificationDates fails', () => {
-    //     const errorResponse = { ok: false, error: 'Error fetching questions' } as Result<QuestionWithModificationDate[]>;
-    //     spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(errorResponse));
-    //     expect(() => {
-    //         component.loadQuestions();
-    //     }).toThrowError('Error fetching questions');
-    // });
+    it('should throw error when getAllQuestionsWithModificationDates return error', fakeAsync(() => {
+        const errorResponse = { ok: false, error: 'Error fetching questions' } as Result<QuestionWithModificationDate[]>;
+        spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(errorResponse));
+        expect(() => {
+            component.loadQuestions();
+            tick();
+        }).toThrowError('Error fetching questions');
+    }));
+
+    it('should throw error when getAllQuestionsWithModificationDates fails', fakeAsync(() => {
+        spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(throwError(() => 'errorResponse'));
+        expect(() => {
+            component.loadQuestions();
+            tick();
+        }).toThrowError('Error fetching questions');
+    }));
 
     it('should load questions when lastModification is string from JSON', () => {
         const mockQuestion1: QuestionWithModificationDate = {
@@ -81,14 +90,6 @@ describe('QuestionBankComponent', () => {
         component.loadQuestions();
         expect(component.questions).toEqual(mockQuestions);
     });
-
-    // it('should throw error when getAllQuestionsWithModificationDates fails', () => {
-    //     const errorResponse = { status: 404, statusText: 'Not Found' };
-    //     spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(throwError(() => errorResponse));
-    //     expect(() => {
-    //         component.loadQuestions();
-    //     }).toThrowError('Error fetching questions');
-    // });
 
     it('should calculate time correctly for recent modification', () => {
         const recentModificationDate = new Date();
@@ -117,5 +118,50 @@ describe('QuestionBankComponent', () => {
         };
         component.toggleHighlight(mockQuestion);
         expect(component.highlightedQuestion).toEqual(mockQuestion);
+    });
+
+    it('deleteQuestion should delete the selected question', () => {
+        const mockQuestion: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 1?',
+            points: 5,
+            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2023-09-01T08:10:00.000Z'),
+        };
+        const mockQuestions: QuestionWithModificationDate[] = [mockQuestion];
+        component.questions = mockQuestions;
+        spyOn(communicationService, 'deleteQuestion').and.returnValue(of({} as HttpResponse<string>));
+        component.deleteQuestion(mockQuestion.text);
+        expect(component.questions).toEqual([]);
+    });
+
+    it('should throw error when deleteQuestion fails', fakeAsync(() => {
+        const mockQuestion: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 1?',
+            points: 5,
+            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2023-09-01T08:10:00.000Z'),
+        };
+        const mockQuestions: QuestionWithModificationDate[] = [mockQuestion];
+        component.questions = mockQuestions;
+        spyOn(communicationService, 'deleteQuestion').and.returnValue(throwError(() => 'errorResponse'));
+        expect(() => {
+            component.deleteQuestion(mockQuestion.text);
+            tick();
+        }).toThrowError('Error deleting question');
+    }));
+
+    it('should toggleHighlight when the selected question is already highlighted', () => {
+        const mockQuestion: QuestionWithModificationDate = {
+            type: QuestionType.Qcm,
+            text: 'What is this test number 1?',
+            points: 5,
+            choices: [{ text: 'test', isCorrect: true }, { text: 'test2' }, { text: 'test3', isCorrect: true }, { text: 'test4' }],
+            lastModification: new Date('2023-09-01T08:10:00.000Z'),
+        };
+        component.highlightedQuestion = mockQuestion;
+        component.toggleHighlight(mockQuestion);
+        expect(component.highlightedQuestion).toEqual(null as unknown as Question);
     });
 });
