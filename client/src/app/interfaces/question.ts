@@ -67,7 +67,7 @@ export const QUESTION_PLACEHOLDER: Question = {
 };
 
 export const EMPTY_QUESTION: Question = {
-    type: QuestionType.Qcm,
+    type: QuestionType.QCM,
     text: '',
     points: 0,
     choices: [],

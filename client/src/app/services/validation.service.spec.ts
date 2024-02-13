@@ -140,7 +140,7 @@ describe('ValidationService', () => {
                 text: 'What is the capital of France?',
                 points: 10,
                 type: 'QCM',
-                choices: [new Choice('Paris', true)],
+                choices: [new Choice('Paris', true), new Choice('Marseille', false)],
             } as unknown as Partial<Question>;
             expect(service.validateQuestion(question)).toEqual([]);
         });

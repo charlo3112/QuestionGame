@@ -13,10 +13,11 @@ import { MatSliderModule } from '@angular/material/slider';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { EMPTY_QUESTION, Question, QuestionType } from '@app/interfaces/question';
+import { Choice } from '@app/classes/choice';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MIN_DURATION, MIN_NB_OF_POINTS } from '@common/constants';
+import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
 import { of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
 
@@ -62,20 +63,14 @@ describe('CreatePageComponent', () => {
         mockValidQuestion1 = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
-            choices: [
-                { text: 'Ottawa', isCorrect: true },
-                { text: 'Toronto', isCorrect: false },
-            ],
-            type: QuestionType.Qcm,
+            choices: [new Choice('Ottawa', true), new Choice('Toronto', false)],
+            type: QuestionType.QCM,
         };
         mockValidQuestion2 = {
             text: 'Quelle est la capitale de la France ?',
             points: MIN_NB_OF_POINTS,
-            choices: [
-                { text: 'Paris', isCorrect: true },
-                { text: 'Marseille', isCorrect: false },
-            ],
-            type: QuestionType.Qcm,
+            choices: [new Choice('Paris', true), new Choice('Lyon', false)],
+            type: QuestionType.QCM,
         };
         mockValidGame = {
             ...GAME_PLACEHOLDER,
