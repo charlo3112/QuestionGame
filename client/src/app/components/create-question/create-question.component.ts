@@ -42,6 +42,7 @@ import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType,
 export class CreateQuestionComponent implements OnChanges {
     @Input() questionData: Question | null = null;
     @Input() isInQuestionBank: boolean = false;
+    @Input() questionMongoId: string = '';
     @Output() questionCreated = new EventEmitter<Question>();
     @Output() closeForm: EventEmitter<void> = new EventEmitter<void>();
 
@@ -188,12 +189,13 @@ export class CreateQuestionComponent implements OnChanges {
     editQuestion() {
         if (this.questionToDelete !== '') {
             this.communicationService
-                .editQuestion({
+                .modifyQuestion({
                     type: QuestionType.QCM,
                     text: this.questionName,
                     points: this.questionPoints,
                     choices: this.choices,
-                    oldText: this.questionToDelete,
+                    lastModification: new Date(),
+                    mongoId: this.questionMongoId,
                 })
                 .subscribe({
                     next: () => {
@@ -206,6 +208,7 @@ export class CreateQuestionComponent implements OnChanges {
                 });
         } else {
             this.addToQuestionBank();
+            window.location.reload();
         }
     }
 }

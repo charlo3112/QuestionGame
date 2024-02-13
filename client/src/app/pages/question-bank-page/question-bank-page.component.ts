@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
@@ -13,10 +13,7 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
 })
 export class QuestionBankPageComponent implements OnInit {
     showAddQuestion = false;
-    constructor(
-        private router: Router,
-        private cdr: ChangeDetectorRef,
-    ) {}
+    constructor(private router: Router) {}
 
     ngOnInit() {
         const storedLogin = sessionStorage.getItem('login');
@@ -28,6 +25,5 @@ export class QuestionBankPageComponent implements OnInit {
 
     handleCloseAdd() {
         this.showAddQuestion = false;
-        this.cdr.detectChanges();
     }
 }

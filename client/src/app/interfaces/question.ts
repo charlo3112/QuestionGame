@@ -13,10 +13,6 @@ export interface QuestionWithModificationDate extends Question {
     mongoId: string;
 }
 
-export interface QuestionUpdate extends Question {
-    oldText: string;
-}
-
 export const questions: Question[] = [
     {
         type: QuestionType.QCM,

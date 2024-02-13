@@ -1,7 +1,7 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
-import { Question, QuestionUpdate, QuestionWithModificationDate } from '@app/interfaces/question';
+import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -117,7 +117,7 @@ export class CommunicationService {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
     }
 
-    editQuestion(updatedQuestionData: QuestionUpdate): Observable<HttpResponse<Question>> {
-        return this.http.patch<Question>(`${this.baseUrl}/question/`, updatedQuestionData, { observe: 'response' });
+    modifyQuestion(updatedQuestionData: QuestionWithModificationDate): Observable<HttpResponse<QuestionWithModificationDate>> {
+        return this.http.patch<QuestionWithModificationDate>(`${this.baseUrl}/question`, updatedQuestionData, { observe: 'response' });
     }
 }
