@@ -118,24 +118,6 @@ describe('CreatePageComponent', () => {
         expect(component.resetForm).toHaveBeenCalled();
     });
 
-    // it('should load game data if verifyLogin is true and edit game', fakeAsync(() => {
-    //     spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-    //     TestBed.overrideProvider(ActivatedRoute, {
-    //         useValue: {
-    //             paramMap: of(convertToParamMap({ id: '123' })),
-    //         },
-    //     });
-    //     TestBed.configureTestingModule({
-    //         declarations: [CreatePageComponent],
-    //     });
-    //     fixture = TestBed.createComponent(CreatePageComponent);
-    //     component = fixture.componentInstance;
-    //     spyOn(component, 'verifyLogin').and.returnValue(true);
-    //     fixture.detectChanges();
-    //     tick();
-    //     expect(component.pageTitle).toEqual("Édition d'un jeu existant");
-    // }));
-
     it('should go back to admin if verifyLogin is false', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
         component.ngOnInit();
@@ -284,6 +266,7 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
+        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 

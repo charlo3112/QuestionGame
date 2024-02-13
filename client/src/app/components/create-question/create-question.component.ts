@@ -15,7 +15,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Choice } from '@app/classes/choice';
 import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType, RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MIN_CHOICES_NUMBER,
+    MIN_NB_OF_POINTS,
+    QuestionType,
+    RESPONSE_CREATED,
+    SNACKBAR_DURATION,
+    WEIGHTS_QUESTIONS,
+} from '@common/constants';
 
 @Component({
     selector: 'app-create-question',
@@ -53,8 +61,7 @@ export class CreateQuestionComponent implements OnChanges {
     editArray: boolean[] = [];
     questionToDelete: string = '';
 
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-    weights = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+    weights = WEIGHTS_QUESTIONS;
 
     constructor(
         private communicationService: CommunicationService,
