@@ -28,6 +28,23 @@ export class QuestionController {
         }
     }
 
+    @ApiOkResponse({
+        description: 'Returns the question answers',
+        isArray: true,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when request fails',
+    })
+    @Get('/')
+    async getAnswers(@Body() questionText: string, @Res() response: Response) {
+        try {
+            const answers = await this.questionsService.getAnswers(questionText);
+            response.status(HttpStatus.OK).json(answers);
+        } catch (error) {
+            response.status(HttpStatus.NOT_FOUND).send(error.message);
+        }
+    }
+
     @ApiCreatedResponse({
         description: 'Add new question',
     })
@@ -53,7 +70,7 @@ export class QuestionController {
     @Patch('/')
     async modifyQuestion(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
         try {
-            await this.questionsService.modifyQuestion(questionDto.oldText, questionDto);
+            await this.questionsService.modifyQuestion(questionDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_MODIFIED).send(error.message);

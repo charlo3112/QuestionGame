@@ -23,5 +23,5 @@ export class CreateQuestionDto {
     choices?: CreateChoiceDto[];
 
     @ApiProperty({ required: false })
-    oldText?: string;
+    mongoId?: string;
 }

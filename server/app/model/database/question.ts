@@ -19,11 +19,11 @@ export class Question {
 
     @ApiProperty()
     @Prop({ required: true })
-    private type: QuestionType;
+    text: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private text: string;
+    private type: QuestionType;
 
     @ApiProperty()
     @Prop({ required: true })

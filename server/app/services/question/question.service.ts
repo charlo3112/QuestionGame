@@ -16,7 +16,7 @@ export class QuestionService {
         const questions = await this.questionModel.find<Question>({});
         for (const question of questions) {
             // eslint-disable-next-line no-underscore-dangle
-            question.mongoId = await (await this.questionModel.findOne({ text: question.getText() }))._id;
+            question.mongoId = await (await this.questionModel.findOne({ text: question.text }))._id;
         }
         return questions;
     }
@@ -56,14 +56,14 @@ export class QuestionService {
         }
     }
 
-    async modifyQuestion(oldText: string, newQuestionData: CreateQuestionDto): Promise<void> {
+    async modifyQuestion(newQuestionData: CreateQuestionDto): Promise<void> {
         try {
             if (!(await this.validateQuestion(newQuestionData))) {
                 return Promise.reject('The question data is invalid');
             }
             const question = new Question(newQuestionData);
             await this.questionModel.replaceOne(
-                { text: oldText },
+                { _id: newQuestionData.mongoId },
                 {
                     type: question.getType(),
                     text: question.getText(),
