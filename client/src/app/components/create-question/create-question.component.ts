@@ -8,10 +8,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Choice } from '@app/interfaces/choice';
-import { Question, QuestionType } from '@app/interfaces/question';
+import { Choice } from '@app/classes/choice';
+import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, RESPONSE_CREATED } from '@common/constants';
+import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType, RESPONSE_CREATED } from '@common/constants';
 
 @Component({
     selector: 'app-create-question',
@@ -46,10 +46,7 @@ export class CreateQuestionComponent implements OnChanges {
     addChoice() {
         if (!(this.choiceInput === '')) {
             if (this.choices.length < MAX_CHOICES_NUMBER) {
-                const newChoice: Choice = {
-                    text: this.choiceInput,
-                    isCorrect: false,
-                };
+                const newChoice: Choice = new Choice(this.choiceInput, false);
                 this.choices.push(newChoice);
                 this.choiceInput = '';
                 this.editArray.push(false);
@@ -90,7 +87,7 @@ export class CreateQuestionComponent implements OnChanges {
     addToQuestionBank() {
         if (this.choiceVerif()) {
             const newQuestion: Question = {
-                type: QuestionType.Qcm,
+                type: QuestionType.QCM,
                 text: this.questionName,
                 points: +parseInt(this.questionPoints.toString(), 10),
                 choices: this.choices,
@@ -100,8 +97,6 @@ export class CreateQuestionComponent implements OnChanges {
                     if (response.status === RESPONSE_CREATED) {
                         this.questionCreated.emit(newQuestion);
                         this.resetForm();
-                    } else {
-                        window.alert("La question n'a pas pu être enregistré.");
                     }
                 },
                 error: () => {
@@ -114,7 +109,7 @@ export class CreateQuestionComponent implements OnChanges {
     save() {
         if (this.choiceVerif()) {
             const newQuestion: Question = {
-                type: QuestionType.Qcm,
+                type: QuestionType.QCM,
                 text: this.questionName,
                 points: this.questionPoints,
                 choices: this.choices,

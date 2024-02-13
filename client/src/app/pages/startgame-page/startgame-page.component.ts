@@ -26,6 +26,7 @@ import { Subscription } from 'rxjs';
 export class StartGamePageComponent {
     // Template games to finish functionality
     games: Game[] = [];
+
     title: string = 'Liste de jeux';
     private subscription = new Subscription();
     constructor(
@@ -63,14 +64,14 @@ export class StartGamePageComponent {
         this.loadGames();
     }
 
-    startGame(id: string) {
-        alert('Start game with id ' + id);
+    startGame(game: Game) {
+        alert('Start game with id ' + game.gameId);
         // TODO: Add server call to start game
         this.router.navigate(['/loading']);
     }
 
-    testGame(id: string) {
+    testGame(game: Game) {
         // TODO: Add server call to test game for sprint 1
-        alert('Test game with id ' + id);
+        this.router.navigate(['/game'], { state: { questions: game.questions } });
     }
 }

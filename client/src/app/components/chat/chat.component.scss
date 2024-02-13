@@ -1,0 +1,19 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.chat {
+    background-color: white;
+    height: 61.2vh;
+}
+
+.chat-text {
+    height: 100%;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.chat-input {
+    margin-top: auto;
+    margin-bottom: -1.25em;
+}

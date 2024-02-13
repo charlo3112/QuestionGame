@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Choice } from '@app/interfaces/choice';
+import { Choice } from '@app/classes/choice';
 import { AnswersComponent } from './answers.component';
 
 describe('AnswerComponent', () => {
@@ -21,7 +21,7 @@ describe('AnswerComponent', () => {
 
     describe('getAnswerClass', () => {
         it('should return a string with the length of answers', () => {
-            const choices: Choice[] = [{ text: 'A' }, { text: 'B' }, { text: 'C' }];
+            const choices: Choice[] = [new Choice('A', false), new Choice('B', true), new Choice('C', false)];
             component.choices = choices;
             expect(component.getAnswerClass()).toEqual('answers-3');
         });

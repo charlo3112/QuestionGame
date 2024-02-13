@@ -70,4 +70,19 @@ describe('TimeService', () => {
         expect(service['interval']).toBeFalsy();
         discardPeriodicTasks();
     }));
+
+    it('should execute when time is elapsed', fakeAsync(() => {
+        const spy = jasmine.createSpy();
+        service.startTimer(TIMEOUT, spy);
+        tick((TIMEOUT + 1) * MS_SECOND);
+        expect(spy).toHaveBeenCalled();
+        discardPeriodicTasks();
+    }));
+
+    it('setTimeout should call setTimeout', fakeAsync(() => {
+        const spy = jasmine.createSpy();
+        service.setTimeout(spy, TIMEOUT * MS_SECOND);
+        tick((TIMEOUT + 1) * MS_SECOND);
+        expect(spy).toHaveBeenCalled();
+    }));
 });
