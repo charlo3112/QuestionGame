@@ -120,15 +120,16 @@ describe('AdminPageComponent', () => {
         expect(component.login).toBeTrue();
     });
 
-    it('login component should emit loginSuccess event when login is successful', () => {
+    it('login component should emit loginSuccess event when login is successful', fakeAsync(() => {
         component.login = false;
         fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('log2990-202');
         loginComponent.onSubmit();
+        tick();
         expect(component.handleLogin).toHaveBeenCalledWith(true);
-    });
+    }));
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
         communicationServiceSpy.login.and.returnValue(of(false));
