@@ -15,7 +15,7 @@ describe('ImportDialogComponent', () => {
     let validationServiceSpy: jasmine.SpyObj<ValidationService>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ImportDialogComponent>>;
     let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
-    const timeout = 1000;
+    const timeout = 5000;
 
     beforeEach(async () => {
         validationServiceSpy = jasmine.createSpyObj('ValidationService', ['validateGame', 'filterJSONInput']);

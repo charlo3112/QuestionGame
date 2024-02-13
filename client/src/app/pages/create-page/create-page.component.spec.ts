@@ -1,7 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -115,21 +115,24 @@ describe('CreatePageComponent', () => {
         component.ngOnInit();
         expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
     });
-    /*
-    it('should load game data if verifyLogin is true and edit game', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-        TestBed.overrideProvider(ActivatedRoute, {
-            useValue: {
-                paramMap: of(convertToParamMap({ id: '123' })),
-            },
-        });
-        fixture = TestBed.createComponent(CreatePageComponent);
-        component = fixture.componentInstance;
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-        fixture.detectChanges();
-        expect(component.pageTitle).toEqual("Édition d'un jeu existant");
-    });
-    */
+
+    // it('should load game data if verifyLogin is true and edit game', fakeAsync(() => {
+    //     spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+    //     TestBed.overrideProvider(ActivatedRoute, {
+    //         useValue: {
+    //             paramMap: of(convertToParamMap({ id: '123' })),
+    //         },
+    //     });
+    //     TestBed.configureTestingModule({
+    //         declarations: [CreatePageComponent],
+    //     });
+    //     fixture = TestBed.createComponent(CreatePageComponent);
+    //     component = fixture.componentInstance;
+    //     spyOn(component, 'verifyLogin').and.returnValue(true);
+    //     fixture.detectChanges();
+    //     tick();
+    //     expect(component.pageTitle).toEqual("Édition d'un jeu existant");
+    // }));
 
     it('should go back to admin if verifyLogin is false', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
@@ -158,6 +161,30 @@ describe('CreatePageComponent', () => {
 
         expect(component.questions.length).toBe(1);
         expect(component.questions[0].points).toBe(updatedQuestion.points);
+    });
+
+    // insertQuestionFromBank
+    it('should insert a question from the question bank and close the bank', () => {
+        component.questions = [mockValidQuestion1];
+        const newQuestion: Question = mockValidQuestion2;
+        expect(component.questions.length).toBe(1);
+        spyOn(component, 'closeQuestionBank');
+        component.insertQuestionFromBank(newQuestion);
+        expect(component.questions.length).toBe(2);
+        expect(component.questions[1]).toEqual(newQuestion);
+        expect(component.closeQuestionBank).toHaveBeenCalled();
+    });
+
+    // insertQuestionFromCreate
+    it('should insert a question from the create and close the create', () => {
+        component.questions = [mockValidQuestion1];
+        const newQuestion: Question = mockValidQuestion2;
+        expect(component.questions.length).toBe(1);
+        spyOn(component, 'closeCreateQuestion');
+        component.insertQuestionFromCreate(newQuestion);
+        expect(component.questions.length).toBe(2);
+        expect(component.questions[1]).toEqual(newQuestion);
+        expect(component.closeCreateQuestion).toHaveBeenCalled();
     });
 
     // deleteQuestion
@@ -203,6 +230,22 @@ describe('CreatePageComponent', () => {
         expect(component.showChildren).toBeTrue();
     });
 
+    // openQuestionBank
+    it('should open the question bank', () => {
+        component.showPage = true;
+        expect(component.selectedQuestion).toBeNull();
+        component.openQuestionBank();
+        expect(component.showPage).toBeFalse();
+        expect(component.selectedQuestion).toEqual(EMPTY_QUESTION);
+    });
+
+    // closeQuestionBank
+    it('should close the question bank', () => {
+        component.showPage = false;
+        component.closeQuestionBank();
+        expect(component.showPage).toBeTrue();
+    });
+
     // openCreateQuestion
     it('should open the question creation form', () => {
         expect(component.showChildren).toBeFalse();
@@ -239,7 +282,6 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
-        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 
