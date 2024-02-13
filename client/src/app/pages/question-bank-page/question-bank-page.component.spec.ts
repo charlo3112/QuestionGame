@@ -7,17 +7,17 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { BankQuestionPageComponent } from './question-bank-page.component';
+import { QuestionBankPageComponent } from './question-bank-page.component';
 
 describe('BankQuestionPageComponent', () => {
-    let component: BankQuestionPageComponent;
-    let fixture: ComponentFixture<BankQuestionPageComponent>;
+    let component: QuestionBankPageComponent;
+    let fixture: ComponentFixture<QuestionBankPageComponent>;
     let router: Router;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [
-                BankQuestionPageComponent,
+                QuestionBankPageComponent,
                 QuestionBankComponent,
                 MatToolbarModule,
                 MatButtonModule,
@@ -27,7 +27,7 @@ describe('BankQuestionPageComponent', () => {
                 HttpClientModule,
             ],
         });
-        fixture = TestBed.createComponent(BankQuestionPageComponent);
+        fixture = TestBed.createComponent(QuestionBankPageComponent);
         sessionStorage.setItem('login', 'true');
         component = fixture.componentInstance;
         fixture.detectChanges();

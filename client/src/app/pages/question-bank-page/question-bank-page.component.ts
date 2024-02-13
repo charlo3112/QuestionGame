@@ -11,7 +11,7 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
     standalone: true,
     imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink],
 })
-export class BankQuestionPageComponent implements OnInit {
+export class QuestionBankPageComponent implements OnInit {
     showAddQuestion = false;
     constructor(
         private router: Router,
