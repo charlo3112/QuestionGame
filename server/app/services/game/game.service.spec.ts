@@ -39,10 +39,6 @@ describe('GameService', () => {
             updateOne: jest.fn(),
         } as unknown as Model<GameDocument>;
 
-        // jest.spyOn(GameService.prototype, 'populateDB').mockImplementation(async () => {
-        //     return;
-        // });
-
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 GameService,
@@ -127,12 +123,23 @@ describe('GameServiceEndToEnd', () => {
         expect(spyPopulateDB).not.toHaveBeenCalled();
     });
 
-    it('getAllGames() return all games in database', async () => {
+    it('getAllGames() return all visible games in database', async () => {
+        const game1 = getFakeGame();
+        game1.visibility = false;
+        await gameModel.create(game1);
+        const game2 = getFakeGame();
+        await gameModel.create(game2);
+        const serviceGames = await service.getAllGames();
+        expect(serviceGames.length).toBe(1);
+    });
+
+    it('getAllGamesAdmin() return all games in database', async () => {
         const game = getFakeGame();
         await gameModel.create(game);
-        const modelGameNb = await gameModel.countDocuments();
-        const serviceGames = await service.getAllGames();
-        expect(serviceGames.length).toBe(modelGameNb);
+        const game2 = getFakeGame();
+        await gameModel.create(game2);
+        const serviceGames = await service.getAllGamesAdmin();
+        expect(serviceGames.length).toBe(2);
     });
 
     it('getGameById() return game with the specified id', async () => {
