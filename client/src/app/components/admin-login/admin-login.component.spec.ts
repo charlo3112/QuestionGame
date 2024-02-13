@@ -1,6 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 
-import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communication.service';
 import { of } from 'rxjs';
@@ -14,7 +13,7 @@ describe('AdminLoginComponent', () => {
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('ExampleService', ['login']);
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.login.and.returnValue(of(true));
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule, NoopAnimationsModule],
@@ -32,19 +31,21 @@ describe('AdminLoginComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    it('#onSubmit should emit true if password is correct', () => {
+    it('#onSubmit should emit true if password is correct', fakeAsync(() => {
         component.loginForm.controls.password.setValue('log2990-202');
         spyOn(component.loginSuccess, 'emit');
         component.onSubmit();
+        tick();
         expect(component.loginSuccess.emit).toHaveBeenCalledWith(true);
-    });
+    }));
 
-    it('#onSubmit should not emit if password is incorrect', () => {
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Forbidden })));
+    it('#onSubmit should not emit if password is incorrect', fakeAsync(() => {
+        communicationServiceSpy.login.and.returnValue(of(false));
         component.loginForm.controls.password.setValue('wrong');
         spyOn(component.loginSuccess, 'emit');
         component.onSubmit();
+        tick();
         expect(component.loginSuccess.emit).not.toHaveBeenCalled();
         expect(component.error).toBeTrue();
-    });
+    }));
 });

@@ -1,11 +1,11 @@
 import { NgIf } from '@angular/common';
-import { HttpStatusCode } from '@angular/common/http';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { CommunicationService } from '@app/services/communication.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-login',
@@ -23,17 +23,15 @@ export class AdminLoginComponent {
     });
 
     constructor(private readonly communicationService: CommunicationService) {}
-    onSubmit() {
-        this.error = true;
+    async onSubmit() {
         if (this.loginForm.value.password) {
-            this.communicationService.login(this.loginForm.value.password).subscribe({
-                next: (response) => {
-                    if (response.status === HttpStatusCode.Ok) {
-                        this.error = false;
-                        this.loginSuccess.emit(true);
-                    }
-                },
-            });
+            const response = await lastValueFrom(this.communicationService.login(this.loginForm.value.password));
+            if (response) {
+                this.error = false;
+                this.loginSuccess.emit(true);
+            } else {
+                this.error = true;
+            }
         }
     }
 }

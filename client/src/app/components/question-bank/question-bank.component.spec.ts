@@ -1,7 +1,7 @@
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Choice } from '@app/classes/choice';
-import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
+import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { QuestionType } from '@common/constants';
@@ -49,7 +49,7 @@ describe('QuestionBankComponent', () => {
         const mockResponse: Result<QuestionWithModificationDate[]> = { ok: true, value: mockQuestions };
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
-        expect(component.questions).toEqual(mockQuestions);
+        expect(component.questionsWithModificationDate).toEqual(mockQuestions);
     });
 
     it('should throw error when getAllQuestionsWithModificationDates return error', fakeAsync(() => {
@@ -90,7 +90,7 @@ describe('QuestionBankComponent', () => {
         const mockResponse: Result<QuestionWithModificationDate[]> = { ok: true, value: mockQuestions };
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
-        expect(component.questions).toEqual(mockQuestions);
+        expect(component.questionsWithModificationDate).toEqual(mockQuestions);
     });
 
     it('should calculate time correctly for recent modification', () => {
@@ -131,10 +131,10 @@ describe('QuestionBankComponent', () => {
             lastModification: new Date('2023-09-01T08:10:00.000Z'),
         };
         const mockQuestions: QuestionWithModificationDate[] = [mockQuestion];
-        component.questions = mockQuestions;
+        component.questionsWithModificationDate = mockQuestions;
         spyOn(communicationService, 'deleteQuestion').and.returnValue(of({} as HttpResponse<string>));
         component.deleteQuestion(mockQuestion.text);
-        expect(component.questions).toEqual([]);
+        expect(component.questionsWithModificationDate).toEqual([]);
     });
 
     it('should throw error when deleteQuestion fails', fakeAsync(() => {
@@ -146,7 +146,7 @@ describe('QuestionBankComponent', () => {
             lastModification: new Date('2023-09-01T08:10:00.000Z'),
         };
         const mockQuestions: QuestionWithModificationDate[] = [mockQuestion];
-        component.questions = mockQuestions;
+        component.questionsWithModificationDate = mockQuestions;
         spyOn(communicationService, 'deleteQuestion').and.returnValue(throwError(() => 'errorResponse'));
         expect(() => {
             component.deleteQuestion(mockQuestion.text);
@@ -164,6 +164,6 @@ describe('QuestionBankComponent', () => {
         };
         component.highlightedQuestion = mockQuestion;
         component.toggleHighlight(mockQuestion);
-        expect(component.highlightedQuestion).toEqual(null as unknown as Question);
+        expect(component.highlightedQuestion).toEqual(null as unknown as QuestionWithModificationDate);
     });
 });
