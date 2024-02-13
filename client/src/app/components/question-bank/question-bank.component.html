@@ -1,9 +1,45 @@
-<h2>Banque de questions</h2>
-<div class="question-bank" *ngIf="questions && questions.length > 0">
-    <div class="question-bank-box" *ngFor="let question of questions; let i = index">
-        <div class="question">
-            <h3>{{ i + 1 }}. {{ question.text }}</h3>
-            <h3 *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</h3>
-        </div>
-    </div>
+<div class="question-bank" *ngIf="questionsWithModificationDate && questionsWithModificationDate.length > 0 && !showChildren">
+    <mat-card
+        class="question"
+        *ngFor="let question of questionsWithModificationDate; let i = index"
+        [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
+        (click)="!adminMode && toggleHighlight(question)"
+    >
+        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }}</mat-card-content>
+        <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
+        <button
+            mat-icon-button
+            #tooltip="matTooltip"
+            matTooltip="Modifier la question"
+            class="edit-button cursor-pointer"
+            [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
+            *ngIf="adminMode"
+            (click)="editQuestion(question)"
+        >
+            <mat-icon class="question-edit">mode_edit</mat-icon>
+        </button>
+        <button
+            mat-icon-button
+            #tooltip="matTooltip"
+            matTooltip="Supprimer la question"
+            class="delete-button cursor-pointer"
+            [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
+            *ngIf="adminMode"
+            (click)="deleteQuestion(question.mongoId)"
+        >
+            <mat-icon class="question-delete">delete</mat-icon>
+        </button>
+    </mat-card>
+</div>
+<div *ngIf="!adminMode" class="add-button-containter">
+    <button mat-raised-button color="primary" (click)="sendQuestion()">Ajouter au jeu</button>
+</div>
+<div *ngIf="showChildren" class="question-creation">
+    <app-create-question
+        [questionMongoId]="highlightedQuestion ? highlightedQuestion.mongoId : ''"
+        [isInQuestionBank]="true"
+        [questionData]="highlightedQuestion"
+        (questionCreated)="highlightedQuestion ? insertQuestion(highlightedQuestion) : null"
+        (closeForm)="closeCreateQuestion()"
+    ></app-create-question>
 </div>

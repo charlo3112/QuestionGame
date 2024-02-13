@@ -7,6 +7,7 @@ import { Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-import-dialog',
@@ -38,9 +39,12 @@ export class ImportDialogComponent {
         reader.readAsText(file);
     }
 
-    onImport(): void {
-        if (this.validationErrors.length === 0 && this.data.ok && this.validName) {
-            this.dialogRef.close(this.data.value);
+    async onImport(): Promise<void> {
+        if (this.validationErrors.length === 0 && this.data.ok) {
+            await this.verifyName(this.data.value.title as string);
+            if (this.validName) {
+                this.dialogRef.close(this.data.value);
+            }
         }
     }
 
@@ -48,27 +52,22 @@ export class ImportDialogComponent {
         this.dialogRef.close();
     }
 
-    verifyAndSetNewName(event: Event): void {
+    async verifyAndSetNewName(event: Event): Promise<void> {
         const input = event.target as HTMLInputElement | null;
         if (input) {
             const name = input.value;
             if (this.data.ok) {
                 this.data.value.title = name;
             }
-            this.verifyName(name);
+            await this.verifyName(name);
         }
     }
 
-    verifyName(name: string): void {
-        this.validName = false;
-        this.communicationService.verifyTitle(name).subscribe({
-            next: (res) => {
-                this.validName = res;
-            },
-        });
+    async verifyName(name: string): Promise<void> {
+        this.validName = await lastValueFrom(this.communicationService.verifyTitle(name));
     }
 
-    private loadFile(reader: FileReader): void {
+    private async loadFile(reader: FileReader): Promise<void> {
         const text = reader.result as string;
         let game;
         this.validationErrors = ['Le format du jeu est invalide.'];
@@ -86,7 +85,7 @@ export class ImportDialogComponent {
         const res = this.validationService.filterJSONInput(text);
         if (res.ok) {
             this.data = { ok: true, value: res.value };
-            this.verifyName(res.value.title as string);
+            await this.verifyName(res.value.title as string);
         } else {
             this.validationErrors.push(res.error);
         }

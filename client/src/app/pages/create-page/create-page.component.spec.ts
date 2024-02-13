@@ -1,7 +1,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -29,8 +31,11 @@ describe('CreatePageComponent', () => {
     let communicationService: CommunicationService;
     let router: Router;
     let mockValidGame: Game;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
+        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [
                 FormsModule,
@@ -47,7 +52,9 @@ describe('CreatePageComponent', () => {
                 CreatePageComponent,
                 HttpClientModule,
                 HttpClientTestingModule,
+                MatToolbarModule,
             ],
+            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(CreatePageComponent);
         component = fixture.componentInstance;
@@ -105,24 +112,11 @@ describe('CreatePageComponent', () => {
 
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
+        spyOn(component, 'resetForm');
         component.ngOnInit();
         expect(component.pageTitle).toEqual("Création d'un nouveau jeu");
+        expect(component.resetForm).toHaveBeenCalled();
     });
-    /*
-    it('should load game data if verifyLogin is true and edit game', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-        TestBed.overrideProvider(ActivatedRoute, {
-            useValue: {
-                paramMap: of(convertToParamMap({ id: '123' })),
-            },
-        });
-        fixture = TestBed.createComponent(CreatePageComponent);
-        component = fixture.componentInstance;
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
-        fixture.detectChanges();
-        expect(component.pageTitle).toEqual("Édition d'un jeu existant");
-    });
-    */
 
     it('should go back to admin if verifyLogin is false', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
@@ -151,6 +145,30 @@ describe('CreatePageComponent', () => {
 
         expect(component.questions.length).toBe(1);
         expect(component.questions[0].points).toBe(updatedQuestion.points);
+    });
+
+    // insertQuestionFromBank
+    it('should insert a question from the question bank and close the bank', () => {
+        component.questions = [mockValidQuestion1];
+        const newQuestion: Question = mockValidQuestion2;
+        expect(component.questions.length).toBe(1);
+        spyOn(component, 'closeQuestionBank');
+        component.insertQuestionFromBank(newQuestion);
+        expect(component.questions.length).toBe(2);
+        expect(component.questions[1]).toEqual(newQuestion);
+        expect(component.closeQuestionBank).toHaveBeenCalled();
+    });
+
+    // insertQuestionFromCreate
+    it('should insert a question from the create and close the create', () => {
+        component.questions = [mockValidQuestion1];
+        const newQuestion: Question = mockValidQuestion2;
+        expect(component.questions.length).toBe(1);
+        spyOn(component, 'closeCreateQuestion');
+        component.insertQuestionFromCreate(newQuestion);
+        expect(component.questions.length).toBe(2);
+        expect(component.questions[1]).toEqual(newQuestion);
+        expect(component.closeCreateQuestion).toHaveBeenCalled();
     });
 
     // deleteQuestion
@@ -196,6 +214,22 @@ describe('CreatePageComponent', () => {
         expect(component.showChildren).toBeTrue();
     });
 
+    // openQuestionBank
+    it('should open the question bank', () => {
+        component.showPage = true;
+        expect(component.selectedQuestion).toBeNull();
+        component.openQuestionBank();
+        expect(component.showPage).toBeFalse();
+        expect(component.selectedQuestion).toEqual(EMPTY_QUESTION);
+    });
+
+    // closeQuestionBank
+    it('should close the question bank', () => {
+        component.showPage = false;
+        component.closeQuestionBank();
+        expect(component.showPage).toBeTrue();
+    });
+
     // openCreateQuestion
     it('should open the question creation form', () => {
         expect(component.showChildren).toBeFalse();
@@ -220,10 +254,10 @@ describe('CreatePageComponent', () => {
         component.description = 'test description';
         component.duration = MIN_DURATION;
         component.save();
-        expect(window.alert).toHaveBeenCalledWith('Erreurs de validation: \nLe nom du jeu est requis.');
+        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
-    it('should create a game if the form is valid', () => {
+    it('should create a game if the form is valid', fakeAsync(() => {
         component.isEditing = false;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
@@ -232,10 +266,11 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
+        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    });
+    }));
 
-    it('should update a game if the form is valid', () => {
+    it('should update a game if the form is valid', fakeAsync(() => {
         component.isEditing = true;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
@@ -244,40 +279,45 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
+        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    });
+    }));
 
     // createGame
-    it('should create a game if the communicationService doesnt return an error', () => {
+    it('should create a game if the communicationService doesnt return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
         component.createGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Le jeu a été créé avec succès !');
-    });
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    }));
 
-    it('should not create a game if the communicationService return an error', () => {
+    it('should not create a game if the communicationService return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'addGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.createGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la création du jeu');
-    });
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    }));
 
     // updateGame
-    it('should update a game if the communicationService doesnt return an error', () => {
+    it('should update a game if the communicationService doesnt return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
         component.updateGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Le jeu a été modifié avec succès !');
-    });
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    }));
 
-    it('should not update a game if the communicationService return an error', () => {
+    it('should not update a game if the communicationService return an error', fakeAsync(() => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'editGame').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.updateGame(mockValidGame);
-        expect(window.alert).toHaveBeenCalledWith('Erreur lors de la mise à jour du jeu');
-    });
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    }));
 
     // loadGameData
     it('should load the game data if the game id is valid', () => {
@@ -293,6 +333,6 @@ describe('CreatePageComponent', () => {
         spyOn(window, 'alert');
         spyOn(communicationService, 'getGameById').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.loadGameData('1');
-        expect(window.alert).toHaveBeenCalledWith('Une erreur est survenue lors du chargement des champs');
+        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 });

@@ -1,8 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { QUESTION_PLACEHOLDER } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
     let service: CommunicationService;
@@ -174,9 +174,8 @@ describe('CommunicationService', () => {
 
         service.login(password).subscribe({
             next: (response) => {
-                expect(response.body).toBe('');
+                expect(response).toBeTrue();
             },
-            error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/admin`);
@@ -214,6 +213,19 @@ describe('CommunicationService', () => {
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
 
+    it('should get all questions', () => {
+        service.getAllQuestionsWithModificationDates().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
     it('should send a patch request to update a game and return the updated game', () => {
         const updatedGame: Game = {
             ...GAME_PLACEHOLDER,
@@ -232,5 +244,48 @@ describe('CommunicationService', () => {
         expect(req.request.method).toEqual('PATCH');
         expect(req.request.body).toEqual(updatedGame);
         req.flush(updatedGame);
+    });
+
+    it('should throw an error when getting all questions', () => {
+        service.getAllQuestionsWithModificationDates().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should delete a question', () => {
+        const text = 'test-text';
+
+        service.deleteQuestion(text).subscribe({
+            next: (response) => {
+                expect(response.body).toBe('');
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question/${text}`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should add a question', () => {
+        const question = QUESTION_PLACEHOLDER;
+
+        service.addQuestion(question).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(question);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('POST');
+        req.flush(question);
     });
 });

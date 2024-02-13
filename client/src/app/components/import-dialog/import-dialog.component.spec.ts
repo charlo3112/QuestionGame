@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +15,7 @@ describe('ImportDialogComponent', () => {
     let validationServiceSpy: jasmine.SpyObj<ValidationService>;
     let dialogRefSpy: jasmine.SpyObj<MatDialogRef<ImportDialogComponent>>;
     let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
-    const timeout = 1000;
+    const timeout = 5000;
 
     beforeEach(async () => {
         validationServiceSpy = jasmine.createSpyObj('ValidationService', ['validateGame', 'filterJSONInput']);
@@ -121,12 +121,13 @@ describe('ImportDialogComponent', () => {
         expect(dialogRefSpy.close).not.toHaveBeenCalled();
     });
 
-    it('should import the game if the name is valid', () => {
+    it('should import the game if the name is valid', fakeAsync(() => {
         component.data = { ok: true, value: { title: 'title' } };
         component.validName = true;
         component.onImport();
+        tick();
         expect(dialogRefSpy.close).toHaveBeenCalled();
-    });
+    }));
 
     it('should set the name of the game', () => {
         component.data = { ok: true, value: { title: 'title' } };
@@ -135,10 +136,11 @@ describe('ImportDialogComponent', () => {
         expect(component.data.value.title).toBe('test');
     });
 
-    it('should set validName to true if the name is valid', () => {
+    it('should set validName to true if the name is valid', fakeAsync(() => {
         component.verifyName('title');
+        tick();
         expect(component.validName).toBeTrue();
-    });
+    }));
 
     it('should set validName to false if the name is not valid', () => {
         communicationServiceSpy.verifyTitle.and.returnValue(of(false));

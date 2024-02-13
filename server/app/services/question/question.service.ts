@@ -13,7 +13,18 @@ export class QuestionService {
     ) {}
 
     async getAllQuestions(): Promise<Question[]> {
-        return await this.questionModel.find<Question>({});
+        const questions = await this.questionModel.find<Question>({});
+        for (const question of questions) {
+            // eslint-disable-next-line no-underscore-dangle
+            question.mongoId = await (await this.questionModel.findOne({ text: question.text }))._id;
+        }
+        return questions;
+    }
+
+    async getMongoId(text: string): Promise<string> {
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = (await this.questionModel.findOne({ text }))._id;
+        return mongoId;
     }
 
     async getAnswers(questionText: string): Promise<boolean[]> {
@@ -45,14 +56,14 @@ export class QuestionService {
         }
     }
 
-    async modifyQuestion(oldText: string, newQuestionData: CreateQuestionDto): Promise<void> {
+    async modifyQuestion(newQuestionData: CreateQuestionDto): Promise<void> {
         try {
             if (!(await this.validateQuestion(newQuestionData))) {
                 return Promise.reject('The question data is invalid');
             }
             const question = new Question(newQuestionData);
             await this.questionModel.replaceOne(
-                { text: oldText },
+                { _id: newQuestionData.mongoId },
                 {
                     type: question.getType(),
                     text: question.getText(),
@@ -67,11 +78,9 @@ export class QuestionService {
         }
     }
 
-    async deleteQuestion(text: string): Promise<void> {
+    async deleteQuestion(mongoId: string): Promise<void> {
         try {
-            const res = await this.questionModel.deleteOne({
-                text,
-            });
+            const res = await this.questionModel.deleteOne({ _id: mongoId });
             if (res.deletedCount === 0) {
                 return Promise.reject('Could not find question');
             }

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
-import { catchError, map, Observable, of } from 'rxjs';
+import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -68,8 +68,13 @@ export class CommunicationService {
         return this.http.post(`${this.baseUrl}/game`, game, { observe: 'response', responseType: 'text' });
     }
 
-    login(password: string): Observable<HttpResponse<string>> {
-        return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
+    login(password: string): Observable<boolean> {
+        return this.http.post<boolean>(`${this.baseUrl}/admin`, { password }).pipe(
+            map(() => true),
+            catchError(() => {
+                return of(false);
+            }),
+        );
     }
 
     addQuestion(question: Question): Observable<HttpResponse<Question>> {
@@ -90,17 +95,29 @@ export class CommunicationService {
 
     verifyTitle(title: string): Observable<boolean> {
         return this.http.post<boolean>(`${this.baseUrl}/game/verify/`, { title }).pipe(
+            map(() => true),
             catchError(() => {
                 return of(false);
             }),
         );
     }
 
-    getAllQuestions(): Observable<HttpResponse<Question[]>> {
-        return this.http.get<Question[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    getAllQuestionsWithModificationDates(): Observable<Result<QuestionWithModificationDate[]>> {
+        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' }).pipe(
+            map((response: HttpResponse<QuestionWithModificationDate[]>) => {
+                return { ok: true, value: response.body as QuestionWithModificationDate[] } as Result<QuestionWithModificationDate[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<QuestionWithModificationDate[]>);
+            }),
+        );
     }
 
-    getAllQuestionsWithModificationDates(): Observable<HttpResponse<QuestionWithModificationDate[]>> {
-        return this.http.get<QuestionWithModificationDate[]>(`${this.baseUrl}/question`, { observe: 'response' });
+    deleteQuestion(text: string): Observable<HttpResponse<string>> {
+        return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
+    }
+
+    modifyQuestion(updatedQuestionData: QuestionWithModificationDate): Observable<HttpResponse<QuestionWithModificationDate>> {
+        return this.http.patch<QuestionWithModificationDate>(`${this.baseUrl}/question`, updatedQuestionData, { observe: 'response' });
     }
 }

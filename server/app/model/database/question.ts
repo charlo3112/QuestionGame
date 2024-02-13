@@ -10,16 +10,20 @@ export type QuestionDocument = Question & Document;
 @Schema()
 export class Question {
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: false })
+    mongoId?: string;
+
+    @ApiProperty()
+    @Prop({ required: false })
     choices?: Choice[];
 
     @ApiProperty()
     @Prop({ required: true })
-    private type: QuestionType;
+    text: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private text: string;
+    private type: QuestionType;
 
     @ApiProperty()
     @Prop({ required: true })

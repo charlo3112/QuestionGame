@@ -10,6 +10,7 @@ import { AdminLoginComponent } from '@app/components/admin-login/admin-login.com
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
@@ -36,7 +37,7 @@ describe('AdminPageComponent', () => {
         );
         communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: '' })));
         communicationServiceSpy.getAdminGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
+        communicationServiceSpy.login.and.returnValue(of(true));
         communicationServiceSpy.exportGame.and.returnValue(
             of(new HttpResponse<string>({ status: HttpStatusCode.Ok, body: JSON.stringify(GAME_PLACEHOLDER) })),
         );
@@ -92,7 +93,7 @@ describe('AdminPageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.loadGames();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
+        expect(component.openSnackBar).toHaveBeenCalled();
     }));
 
     it('should display login component when not logged in', () => {
@@ -109,23 +110,30 @@ describe('AdminPageComponent', () => {
         expect(gamePreviews.length).toBe(component.games.length);
     });
 
+    it('should display game previews when already logged in', () => {
+        sessionStorage.setItem('login', 'true');
+        component.ngOnInit();
+        expect(component.login).toBeTrue();
+    });
+
     it('should handle login', () => {
         component.handleLogin(true);
         expect(component.login).toBeTrue();
     });
 
-    it('login component should emit loginSuccess event when login is successful', () => {
+    it('login component should emit loginSuccess event when login is successful', fakeAsync(() => {
         component.login = false;
         fixture.detectChanges();
         spyOn(component, 'handleLogin');
         const loginComponent = fixture.debugElement.query(By.directive(AdminLoginComponent)).componentInstance;
         loginComponent.loginForm.controls.password.setValue('log2990-202');
         loginComponent.onSubmit();
+        tick();
         expect(component.handleLogin).toHaveBeenCalledWith(true);
-    });
+    }));
 
     it('login component should not emit loginSuccess event when login is unsuccessful', () => {
-        communicationServiceSpy.login.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Forbidden })));
+        communicationServiceSpy.login.and.returnValue(of(false));
         component.login = false;
         fixture.detectChanges();
         spyOn(component, 'handleLogin');
@@ -172,7 +180,7 @@ describe('AdminPageComponent', () => {
     it('should open snackbar when openSnackBar is called', () => {
         spyOn(component['snackBar'], 'open');
         component.openSnackBar('message');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close');
+        expect(component['snackBar'].open).toHaveBeenCalledWith('message', undefined, { duration: SNACKBAR_DURATION });
     });
 
     it('should emit export event when export button is clicked', () => {

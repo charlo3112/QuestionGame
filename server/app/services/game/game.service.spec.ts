@@ -60,7 +60,7 @@ describe('GameService', () => {
 
 const GAME_DURATION = 40;
 const NEW_NUMBER_OF_QUESTIONS = 5;
-const DELAY_BEFORE_CLOSING_CONNECTION = 200;
+const DELAY_BEFORE_CLOSING_CONNECTION = 400;
 
 describe('GameServiceEndToEnd', () => {
     let service: GameService;

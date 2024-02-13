@@ -1,6 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { HttpStatusCode } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -15,6 +15,7 @@ import { ImportDialogComponent } from '@app/components/import-dialog/import-dial
 import { Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -36,7 +37,7 @@ import { Subscription } from 'rxjs';
         MatDialogModule,
     ],
 })
-export class AdminPageComponent {
+export class AdminPageComponent implements OnInit {
     login: boolean;
 
     games: Game[] = [];
@@ -46,7 +47,9 @@ export class AdminPageComponent {
         private readonly communicationService: CommunicationService,
         private snackBar: MatSnackBar,
         public dialog: MatDialog,
-    ) {
+    ) {}
+
+    ngOnInit() {
         this.loadGames();
         const storedLogin = sessionStorage.getItem('login');
         if (storedLogin !== null) {
@@ -78,7 +81,9 @@ export class AdminPageComponent {
     }
 
     openSnackBar(message: string) {
-        this.snackBar.open(message, 'Close');
+        this.snackBar.open(message, undefined, {
+            duration: SNACKBAR_DURATION,
+        });
     }
 
     deleteGame(id: string) {

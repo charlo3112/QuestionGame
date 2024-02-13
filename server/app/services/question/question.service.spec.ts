@@ -125,7 +125,9 @@ describe('QuestionServiceEndToEnd', () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
         await questionModel.create(question);
-        await service.deleteQuestion(question.getText());
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
+        await service.deleteQuestion(mongoId);
         expect(await questionModel.countDocuments()).toEqual(0);
     });
 
@@ -168,12 +170,14 @@ describe('QuestionServiceEndToEnd', () => {
 
     it('modifyQuestion() should modify the Question attribute', async () => {
         const questionData = getFakeCreateQuestionDto();
-        const oldText = questionData.text;
         await questionModel.create(new Question(questionData));
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: questionData.text }))._id;
+        questionData.mongoId = mongoId;
         const newText = 'new Text';
         questionData.text = newText;
-        await service.modifyQuestion(oldText, questionData);
-        expect(await questionModel.findOne<Question>({ text: newText })).not.toBeNull();
+        await service.modifyQuestion(questionData);
+        expect(await (await questionModel.findOne<Question>({ _id: mongoId })).text).toBe(newText);
     });
 
     it('setters should modify Question properties', async () => {

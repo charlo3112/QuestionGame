@@ -67,10 +67,10 @@ export class QuestionController {
     @ApiNotFoundResponse({
         description: 'Return NOT_MODIFIED http status when request fails',
     })
-    @Patch('/:text')
-    async modifyQuestion(@Param('text') text: string, @Body() questionDto: CreateQuestionDto, @Res() response: Response) {
+    @Patch('/')
+    async modifyQuestion(@Body() questionDto: CreateQuestionDto, @Res() response: Response) {
         try {
-            await this.questionsService.modifyQuestion(text, questionDto);
+            await this.questionsService.modifyQuestion(questionDto);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_MODIFIED).send(error.message);
@@ -83,10 +83,10 @@ export class QuestionController {
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when request fails',
     })
-    @Delete('/:text')
-    async deleteQuestion(@Param('text') text: string, @Res() response: Response) {
+    @Delete('/:mongoId')
+    async deleteQuestion(@Param('mongoId') id: string, @Res() response: Response) {
         try {
-            await this.questionsService.deleteQuestion(text);
+            await this.questionsService.deleteQuestion(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
             response.status(HttpStatus.NOT_FOUND).send(error.message);

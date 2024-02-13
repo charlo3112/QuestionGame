@@ -62,8 +62,8 @@ describe.only('QuestionController', () => {
             points: 40,
         };
 
-        const oldText = fakeCreateQuestionDto.text;
         questionService.addQuestion(fakeCreateQuestionDto);
+        fakeUpdateQuestionDto.mongoId = await questionService.getMongoId(fakeCreateQuestionDto.text);
         questionService.modifyQuestion.resolves();
 
         const res = {} as unknown as Response;
@@ -73,7 +73,7 @@ describe.only('QuestionController', () => {
         };
         res.send = () => res;
 
-        await controller.modifyQuestion(oldText, fakeUpdateQuestionDto, res);
+        await controller.modifyQuestion(fakeUpdateQuestionDto, res);
     });
 
     it('getAnswers() should return the answers to the question', async () => {

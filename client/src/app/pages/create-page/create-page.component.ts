@@ -3,19 +3,23 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
-import { MIN_DURATION, NOT_FOUND } from '@common/constants';
+import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-create-page',
@@ -36,11 +40,16 @@ import { MIN_DURATION, NOT_FOUND } from '@common/constants';
         CreatePageComponent,
         CreateQuestionComponent,
         FormsModule,
+        RouterLink,
+        MatToolbarModule,
+        MatCardModule,
+        QuestionBankComponent,
     ],
 })
 export class CreatePageComponent implements OnInit {
     pageTitle: string;
     showChildren: boolean = false;
+    showPage: boolean = true;
     isEditing: boolean = false;
 
     login: boolean;
@@ -54,11 +63,13 @@ export class CreatePageComponent implements OnInit {
     visibility: boolean;
     selectedQuestion: Question | null = null;
 
+    // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private route: ActivatedRoute,
         private communicationService: CommunicationService,
         private validationService: ValidationService,
+        private snackBar: MatSnackBar,
     ) {}
     ngOnInit() {
         if (this.verifyLogin()) {
@@ -76,14 +87,20 @@ export class CreatePageComponent implements OnInit {
             this.router.navigate(['/admin']);
         }
     }
-
-    insertQuestion(question: Question) {
+    insertQuestion(question: Question): void {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index > NOT_FOUND) {
             this.questions[index] = question;
         } else {
             this.questions.push(question);
         }
+    }
+    insertQuestionFromBank(question: Question) {
+        this.insertQuestion(question);
+        this.closeQuestionBank();
+    }
+    insertQuestionFromCreate(question: Question) {
+        this.insertQuestion(question);
         this.closeCreateQuestion();
     }
     deleteQuestion(index: number): void {
@@ -96,6 +113,13 @@ export class CreatePageComponent implements OnInit {
         this.selectedQuestion = question;
         this.showChildren = true;
     }
+    openQuestionBank() {
+        this.showPage = false;
+        this.selectedQuestion = EMPTY_QUESTION;
+    }
+    closeQuestionBank() {
+        this.showPage = true;
+    }
     openCreateQuestion() {
         this.showChildren = true;
         this.selectedQuestion = EMPTY_QUESTION;
@@ -103,7 +127,7 @@ export class CreatePageComponent implements OnInit {
     closeCreateQuestion() {
         this.showChildren = false;
     }
-    save(): void {
+    async save(): Promise<void> {
         const gameToValidate: Partial<Game> = {
             title: this.title,
             description: this.description,
@@ -112,7 +136,9 @@ export class CreatePageComponent implements OnInit {
         };
         const validationErrors = this.validationService.validateGame(gameToValidate);
         if (validationErrors.length > 0) {
-            window.alert('Erreurs de validation: \n' + validationErrors.join('\n'));
+            this.snackBar.open('Erreurs de validation: \n' + validationErrors.join('\n'), undefined, {
+                duration: SNACKBAR_DURATION,
+            });
             return;
         }
         const newGame: Game = {
@@ -124,32 +150,37 @@ export class CreatePageComponent implements OnInit {
 
         if (this.isEditing) {
             newGame.gameId = this.id;
-            this.updateGame(newGame);
+            await this.updateGame(newGame);
         } else {
-            this.createGame(newGame);
+            await this.createGame(newGame);
         }
-        this.router.navigate(['/admin']);
     }
 
-    createGame(game: Game): void {
-        this.communicationService.addGame(game).subscribe({
-            next: () => {
-                window.alert('Le jeu a été créé avec succès !');
-            },
-            error: () => {
-                window.alert('Erreur lors de la création du jeu');
-            },
-        });
+    async createGame(game: Game): Promise<void> {
+        try {
+            await this.communicationService.addGame(game);
+            this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+            this.router.navigate(['/admin']);
+        } catch (e) {
+            this.snackBar.open('Erreur lors de la création du jeu', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+        }
     }
-    updateGame(game: Game): void {
-        this.communicationService.editGame(game).subscribe({
-            next: () => {
-                window.alert('Le jeu a été modifié avec succès !');
-            },
-            error: () => {
-                window.alert('Erreur lors de la mise à jour du jeu');
-            },
-        });
+    async updateGame(game: Game): Promise<void> {
+        try {
+            await this.communicationService.editGame(game);
+            this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+            this.router.navigate(['/admin']);
+        } catch (e) {
+            this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+        }
     }
     verifyLogin(): boolean {
         const storedLogin = sessionStorage.getItem('login');
@@ -168,7 +199,10 @@ export class CreatePageComponent implements OnInit {
                 this.fillForm(game, gameId);
             },
             error: () => {
-                window.alert('Une erreur est survenue lors du chargement des champs');
+                this.snackBar.open('Erreur lors du chargement du jeu', undefined, {
+                    duration: SNACKBAR_DURATION,
+                });
+                this.router.navigate(['/admin']);
             },
         });
     }

@@ -1,0 +1,9 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Banque de questions</h1>
+    <span class="spacer"></span>
+    <button mat-flat-button routerLink="/admin">Admin</button>
+    <button mat-flat-button (click)="showAddQuestion = true">Ajouter Question</button>
+</mat-toolbar>
+
+<app-question-bank [adminMode]="true" [showChildren]="showAddQuestion" (closeAdd)="handleCloseAdd()"></app-question-bank>
