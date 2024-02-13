@@ -1,75 +1,74 @@
 <mat-toolbar color="primary" class="toolbar">
-    <a routerLink="/"><img src="assets/logo.png" /></a>
+    <a routerLink="/"><img src="assets/logo.png" class="logo" /></a>
     <h1 class="title">{{ pageTitle }}</h1>
     <span class="spacer"></span>
     <button *ngIf="login" routerLink="/admin" mat-flat-button>Admin</button>
 </mat-toolbar>
 
-<div class="container">
-    <div class="form-container">
-        <div class="left">
+<div class="form-container">
+    <mat-card class="left">
+        <mat-card-header>
             <h2>Informations</h2>
-            <div class="information">
-                <div class="information-field">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Nom</mat-label>
-                        <input matInput name="title" [(ngModel)]="title" required />
-                    </mat-form-field>
-                </div>
-                <div class="information-field">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Mode de jeu</mat-label>
-                        <mat-select>
-                            <mat-option value="one">Classique</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="information-field">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Description du jeu</mat-label>
-                        <textarea matInput [(ngModel)]="description"></textarea>
-                    </mat-form-field>
-                </div>
-                <div class="information-field">
-                    <mat-form-field appearance="fill">
-                        <mat-label>Temps alloué : </mat-label>
-                        <input matInput type="number" min="10" max="60" step="1" [(ngModel)]="duration" required />
-                    </mat-form-field>
-                </div>
-            </div>
-            <button class="button" mat-raised-button color="primary">Banque de questions</button>
-            <button class="save-btn" mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
-        </div>
-        <div *ngIf="!showChildren" class="right">
-            <h2>Questions</h2>
-            <div cdkDropList class="second-list" (cdkDropListDropped)="drop($event)">
-                <div *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
-                    <div class="question">
-                        <h3>{{ i + 1 }}. {{ question.text }}</h3>
-                        <div class="icons-container">
-                            <mat-icon
-                                class="edit-icon"
-                                aria-hidden="false"
-                                fontIcon="edit"
-                                color="accent"
-                                (click)="editQuestion(question)"
-                            ></mat-icon>
-                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)" color="warn"></mat-icon>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        </mat-card-header>
+        <mat-card-content class="information-content">
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Nom</mat-label>
+                <input class="input-field" matInput name="title" [(ngModel)]="title" required />
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Mode de jeu</mat-label>
+                <mat-select class="input-field" required>
+                    <mat-option value="one">Classique</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Description du jeu</mat-label>
+                <textarea class="input-field" matInput [(ngModel)]="description" required=""></textarea>
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Temps alloué : </mat-label>
+                <input class="input-field" matInput type="number" min="10" max="60" step="1" [(ngModel)]="duration" required />
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions class="information-button">
+            <button mat-raised-button color="primary">Banque de questions</button>
+            <button mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
+        </mat-card-actions>
+    </mat-card>
 
+    <mat-card *ngIf="!showChildren" class="right">
+        <mat-card-header>
+            <h2>Questions</h2>
+        </mat-card-header>
+        <mat-card-content>
+            <div cdkDropList (cdkDropListDropped)="drop($event)">
+                <mat-card *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
+                    <mat-card-header>
+                        <mat-card-title>{{ i + 1 }}. {{ question.text }}</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-actions>
+                        <button mat-icon-button aria-label="Modifier" color="accent" (click)="editQuestion(question)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button aria-label="Supprimer" color="warn" (click)="deleteQuestion(i)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
             <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" (click)="openCreateQuestion()">
                 <mat-icon>add</mat-icon>
             </button>
-        </div>
-        <div *ngIf="showChildren" class="question-creation">
-            <app-create-question
-                [questionData]="selectedQuestion"
-                (questionCreated)="insertQuestion($event)"
-                (closeForm)="closeCreateQuestion()"
-            ></app-create-question>
-        </div>
-    </div>
+        </mat-card-actions>
+    </mat-card>
+
+    <app-create-question
+        *ngIf="showChildren"
+        class="right"
+        [questionData]="selectedQuestion"
+        (questionCreated)="insertQuestion($event)"
+        (closeForm)="closeCreateQuestion()"
+    ></app-create-question>
 </div>

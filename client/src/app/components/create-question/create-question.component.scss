@@ -1,99 +1,78 @@
-.body {
+.edit-card {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 20px; /* Add padding to create space between content and bottom buttons */
+}
+
+.question-field,
+.choice-field,
+.question-weight {
+    width: 100%;
+}
+
+.choice-field {
     display: flex;
-    flex-direction: column;
+    align-items: flex-end; /* Align the add choice button to the bottom of the input field */
+    margin-bottom: 20px;
     align-items: center;
-    text-align: center;
-}
-.header {
-    width: 100%;
-    margin-bottom: 25px;
 }
 
-mat-form-field {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+.choice-field mat-form-field {
+    flex: 1;
+    margin-right: 10px;
 }
 
-button {
-    display: block;
-    margin: 10px auto;
-}
-
-.question-field {
-    width: 300px;
-}
-
-.list-container {
-    background-color: #f2f2f2;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 500px;
-    box-sizing: border-box;
-}
-
-.choices-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-}
-
-.choice-item {
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    background-color: #ffffff;
+.bottom-buttons {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-    width: 100%;
-    overflow: hidden;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.bottom-buttons button {
+    margin-left: 10px; /* Add some space between buttons */
 }
 
 .choice-content {
     display: flex;
     align-items: center;
-    gap: 10px;
-    width: calc(100% - 10px);
-    overflow: hidden;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 .choice-value {
-    font-weight: bold;
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    flex: 1;
+    cursor: pointer;
+}
+
+.edit-input {
+    flex: 1;
 }
 
 .delete-button {
-    cursor: pointer;
-    border: none;
-    background: transparent;
-    &:hover {
-        background: rgba(0, 0, 0, 0.1);
-    }
+    margin-left: 10px;
 }
 
-.choice-field {
-    width: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    mat-form-field {
-        flex-grow: 1;
-        margin-right: 10px;
-    }
+.delete-button:hover {
+    background-color: transparent;
 }
 
-.edit-class {
-    display: flex;
-    width: 100%;
+.choice-content:hover .delete-button {
+    display: block;
 }
-.edit-input {
-    width: 100%;
+
+.choice-content:hover .mat-slide-toggle {
+    opacity: 0.7;
+}
+
+.mat-slide-toggle {
+    margin-left: 10px;
+}
+
+.list-container {
+    margin-top: 20px;
+}
+
+.question-weight {
+    margin-top: 20px;
 }
