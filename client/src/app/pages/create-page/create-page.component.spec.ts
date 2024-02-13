@@ -1,7 +1,8 @@
+/* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, TestBed, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -282,6 +283,7 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
+        tick();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 
