@@ -1,0 +1,63 @@
+<div class="body">
+    <div class="header">
+        <h2>Édition de question</h2>
+    </div>
+    <div class="content">
+        <mat-form-field class="question-field">
+            <mat-label>Question</mat-label>
+            <input matInput [(ngModel)]="questionName" required />
+        </mat-form-field>
+        <h2>Liste des choix de réponse</h2>
+
+        <div class="choice-field">
+            <mat-form-field>
+                <mat-label>Choix</mat-label>
+                <input matInput [(ngModel)]="choiceInput" (keyup.enter)="addChoice()" />
+            </mat-form-field>
+            <button mat-icon-button (click)="addChoice()" aria-label="Ajouter un choix">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <div *ngIf="choices.length > 0" class="list-container">
+            <div cdkDropList id="choicesSelect" class="choices-list" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let choice of choices; let i = index" cdkDrag class="choice-item">
+                    <div class="choice-content">
+                        <ng-container *ngIf="!editArray[i]">
+                            <span class="choice-value" [ngClass]="{ editable: editArray[i] }" (click)="startEdit(i)">{{ choice.text }}</span>
+                            <h4>Bonne réponse :</h4>
+                            <mat-checkbox class="right-answer" [(ngModel)]="choice.isCorrect" color="primary"></mat-checkbox>
+                            <button mat-icon-button class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
+                                <mat-icon class="delete-icon" color="warn">close</mat-icon>
+                            </button>
+                        </ng-container>
+                        <div *ngIf="editArray[i]" class="choice-field" class="edit class">
+                            <mat-form-field class="edit-input">
+                                <input matInput [(ngModel)]="choice.text" (blur)="saveEdit(i)" (keyup.enter)="saveEdit(i)" />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="question-weight">
+            <mat-form-field>
+                <mat-label>Pondération</mat-label>
+                <select matNativeControl [(ngModel)]="questionPoints" required>
+                    <option [value]="10">10</option>
+                    <option [value]="20">20</option>
+                    <option [value]="30">30</option>
+                    <option [value]="40">40</option>
+                    <option [value]="50">50</option>
+                    <option [value]="60">60</option>
+                    <option [value]="70">70</option>
+                    <option [value]="80">80</option>
+                    <option [value]="90">90</option>
+                    <option [value]="100">100</option>
+                </select>
+            </mat-form-field>
+        </div>
+    </div>
+    <button class="button" (click)="addToQuestionBank()" mat-raised-button color="primary">Ajouter au jeu et à la banque</button>
+    <button class="button" (click)="save()" mat-raised-button color="primary">Ajouter au jeu</button>
+</div>

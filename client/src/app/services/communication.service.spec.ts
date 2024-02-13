@@ -1,6 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 
 describe('CommunicationService', () => {
@@ -212,5 +212,25 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/game/verify/`);
         expect(req.request.method).toBe('POST');
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should send a patch request to update a game and return the updated game', () => {
+        const updatedGame: Game = {
+            ...GAME_PLACEHOLDER,
+            title: 'Updated Title',
+            description: 'Updated Description',
+        };
+
+        service.editGame(updatedGame).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(updatedGame);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toEqual('PATCH');
+        expect(req.request.body).toEqual(updatedGame);
+        req.flush(updatedGame);
     });
 });

@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="header">
+        <h1>{{ pageTitle }}</h1>
+    </div>
+    <div class="form-container">
+        <div class="left">
+            <h2>Informations</h2>
+            <div class="information">
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Nom</mat-label>
+                        <input matInput [(ngModel)]="title" required />
+                    </mat-form-field>
+                </div>
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Mode de jeu</mat-label>
+                        <mat-select>
+                            <mat-option value="one">Classique</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Description du jeu</mat-label>
+                        <textarea matInput [(ngModel)]="description"></textarea>
+                    </mat-form-field>
+                </div>
+                <div class="information-field">
+                    <mat-form-field appearance="fill">
+                        <mat-label>Temps alloué : </mat-label>
+                        <input matInput type="number" min="10" max="60" step="1" [(ngModel)]="duration" required />
+                    </mat-form-field>
+                </div>
+            </div>
+            <button class="button" mat-raised-button color="primary">Banque de questions</button>
+            <button class="save-btn" mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
+        </div>
+        <div *ngIf="!showChildren" class="right">
+            <h2>Questions</h2>
+            <div cdkDropList class="second-list" (cdkDropListDropped)="drop($event)">
+                <div *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
+                    <div class="question">
+                        <h3>{{ i + 1 }}. {{ question.text }}</h3>
+                        <div class="icons-container">
+                            <mat-icon
+                                class="edit-icon"
+                                aria-hidden="false"
+                                fontIcon="edit"
+                                color="accent"
+                                (click)="editQuestion(question)"
+                            ></mat-icon>
+                            <mat-icon class="delete-icon" aria-hidden="false" fontIcon="close" (click)="deleteQuestion(i)" color="warn"></mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" (click)="openCreateQuestion()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        <div *ngIf="showChildren" class="question-creation">
+            <app-create-question
+                [questionData]="selectedQuestion"
+                (questionCreated)="insertQuestion($event)"
+                (closeForm)="closeCreateQuestion()"
+            ></app-create-question>
+        </div>
+    </div>
+</div>

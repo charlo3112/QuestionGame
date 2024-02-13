@@ -3,7 +3,16 @@ import { Choice } from '@app/classes/choice';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
-import { QuestionType } from '@common/constants';
+import {
+    MAX_CHOICES_NUMBER,
+    MAX_DURATION,
+    MAX_NB_OF_POINTS,
+    MIN_CHOICES_NUMBER,
+    MIN_DURATION,
+    MIN_NB_OF_POINTS,
+    PONDERATION_INCREMENT,
+    QuestionType,
+} from '@common/constants';
 
 @Injectable({
     providedIn: 'root',
@@ -22,6 +31,8 @@ export class ValidationService {
 
         if (!game.duration) {
             errors.push('La durée du jeu est requise.');
+        } else if (game.duration > MAX_DURATION || game.duration < MIN_DURATION || !Number.isInteger(game.duration)) {
+            errors.push('Le temps alloué aux questions est mauvais.');
         }
 
         if (!Array.isArray(game.questions)) {
@@ -40,7 +51,6 @@ export class ValidationService {
                 }
             }
         }
-
         return errors;
     }
 
@@ -50,35 +60,55 @@ export class ValidationService {
         if (!question.text) {
             errors.push('La question doit avoir un texte.');
         }
-
-        if (!question.points) {
-            errors.push('La question doit avoir un nombre de points.');
-        }
-
+        this.checkPoints(question, errors);
         if (!question.type) {
             errors.push('La question doit avoir un type.');
         } else if (!Object.values(QuestionType).includes(question.type)) {
             errors.push('La question doit avoir un type valide.');
         }
 
+        this.checkQCM(question, errors);
+
+        return errors;
+    }
+
+    checkPoints(question: Partial<Question>, errors: string[]): void {
+        if (question.points === undefined || question.points === null) {
+            errors.push('La question doit avoir un nombre de points.');
+        } else if (question.points > MAX_NB_OF_POINTS || question.points < MIN_NB_OF_POINTS) {
+            errors.push('Les points doivent être compris entre 10 et 100.');
+        } else if (question.points % PONDERATION_INCREMENT !== 0) {
+            errors.push('Les points doivent être un multiple de 10.');
+        }
+    }
+
+    checkQCM(question: Partial<Question>, errors: string[]): void {
         if (question.type === QuestionType.QCM) {
             if (!Array.isArray(question.choices)) {
                 errors.push('Les choix de la question doivent être un tableau.');
             } else {
                 const choices = question.choices;
-                if (choices.length === 0) {
-                    errors.push('La question doit avoir au moins un choix.');
+                if (choices.length < MIN_CHOICES_NUMBER) {
+                    errors.push('La question doit avoir au minimum deux choix.');
                 }
+                if (choices.length > MAX_CHOICES_NUMBER) {
+                    errors.push('La question doit avoir au maximum quatre choix.');
+                }
+                let answer = 0;
                 for (let j = 0; j < choices.length; j++) {
                     const choice = choices[j];
+                    if (choice.isCorrect) {
+                        answer++;
+                    }
                     if (!choice.text || choice.text === '') {
                         errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
                     }
                 }
+                if (answer === 0 || answer === choices.length) {
+                    errors.push('Les choix de réponse sont fautifs');
+                }
             }
         }
-
-        return errors;
     }
 
     filterJSONInput(jsonString: string): Result<Partial<Game>> {
@@ -89,6 +119,7 @@ export class ValidationService {
                 title: parsedInput.title,
                 description: parsedInput.description,
                 duration: parsedInput.duration,
+                visibility: false,
                 lastModification: parsedInput.lastModification,
                 questions: parsedInput.questions?.map((question) => ({
                     type: question.type,

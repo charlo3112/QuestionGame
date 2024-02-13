@@ -10,7 +10,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
+import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { AnswersComponent } from './components/answers/answers.component';
+import { CreateQuestionComponent } from './components/create-question/create-question.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 
 /**
@@ -32,6 +34,8 @@ import { QuestionBankComponent } from './components/question-bank/question-bank.
         MatIconModule,
         ReactiveFormsModule,
         AdminPageComponent,
+        CreatePageComponent,
+        CreateQuestionComponent,
         AnswersComponent,
         MatGridListModule,
         QuestionBankComponent,

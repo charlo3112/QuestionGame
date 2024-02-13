@@ -1,0 +1,99 @@
+.body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.header {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+mat-form-field {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button {
+    display: block;
+    margin: 10px auto;
+}
+
+.question-field {
+    width: 300px;
+}
+
+.list-container {
+    background-color: #f2f2f2;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    box-sizing: border-box;
+}
+
+.choices-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.choice-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+}
+
+.choice-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: calc(100% - 10px);
+    overflow: hidden;
+}
+
+.choice-value {
+    font-weight: bold;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delete-button {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    &:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+}
+
+.choice-field {
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    mat-form-field {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+}
+
+.edit-class {
+    display: flex;
+    width: 100%;
+}
+.edit-input {
+    width: 100%;
+}

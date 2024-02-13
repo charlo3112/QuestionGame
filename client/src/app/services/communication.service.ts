@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
-import { Observable, catchError, map, of } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -70,6 +70,22 @@ export class CommunicationService {
 
     login(password: string): Observable<HttpResponse<string>> {
         return this.http.post(`${this.baseUrl}/admin`, { password }, { observe: 'response', responseType: 'text' });
+    }
+
+    addQuestion(question: Question): Observable<HttpResponse<Question>> {
+        return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
+    }
+
+    getGameById(gameId: string): Observable<Game> {
+        return this.http.get<Game>(`${this.baseUrl}/game/${gameId}`, { observe: 'response' }).pipe(map((response) => response.body as Game));
+    }
+
+    editGame(updatedGameData: Game): Observable<HttpResponse<Game>> {
+        return this.http.patch<Game>(`${this.baseUrl}/game`, updatedGameData, { observe: 'response' }).pipe(
+            catchError((error) => {
+                return of(error);
+            }),
+        );
     }
 
     verifyTitle(title: string): Observable<boolean> {
