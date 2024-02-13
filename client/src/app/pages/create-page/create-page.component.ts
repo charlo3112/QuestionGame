@@ -15,7 +15,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
@@ -51,6 +51,7 @@ export class CreatePageComponent implements OnInit {
     showChildren: boolean = false;
     showPage: boolean = true;
     isEditing: boolean = false;
+    questionTitleToEdit: string = '';
 
     login: boolean;
     id: string;
@@ -100,7 +101,13 @@ export class CreatePageComponent implements OnInit {
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        this.insertQuestion(question);
+        if (this.questionTitleToEdit === '') {
+            this.insertQuestion(question);
+        } else {
+            const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
+            this.questions[index] = question;
+            this.questionTitleToEdit = '';
+        }
         this.closeCreateQuestion();
     }
     deleteQuestion(index: number): void {
@@ -110,6 +117,7 @@ export class CreatePageComponent implements OnInit {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
     editQuestion(question: Question) {
+        this.questionTitleToEdit = question.text;
         this.selectedQuestion = question;
         this.showChildren = true;
     }
