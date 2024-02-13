@@ -67,11 +67,10 @@ export class QuestionBankComponent {
         }
     }
 
-    deleteQuestion(questionText: string) {
-        this.communicationService.deleteQuestion(questionText).subscribe({
+    deleteQuestion(questionMongoId: string) {
+        this.communicationService.deleteQuestion(questionMongoId).subscribe({
             next: () => {
-                this.questionsWithModificationDate = this.questionsWithModificationDate.filter((question) => question.text !== questionText);
-                window.alert('la question ' + questionText + ' a été supprimée avec succès ');
+                this.questionsWithModificationDate = this.questionsWithModificationDate.filter((question) => question.mongoId !== questionMongoId);
             },
             error: () => {
                 throw new Error('Error deleting question');

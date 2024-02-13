@@ -10,6 +10,11 @@ export interface Question {
 
 export interface QuestionWithModificationDate extends Question {
     lastModification: Date;
+    mongoId: string;
+}
+
+export interface QuestionUpdate extends Question {
+    oldText: string;
 }
 
 export const questions: Question[] = [

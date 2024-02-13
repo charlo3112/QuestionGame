@@ -21,7 +21,7 @@
             class="delete-button"
             [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
             *ngIf="adminMode"
-            (click)="deleteQuestion(question.text)"
+            (click)="deleteQuestion(question.mongoId)"
         >
             <mat-icon class="question-delete">delete</mat-icon>
         </button>

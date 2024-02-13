@@ -10,7 +10,11 @@ export type QuestionDocument = Question & Document;
 @Schema()
 export class Question {
     @ApiProperty()
-    @Prop({ required: true })
+    @Prop({ required: false })
+    mongoId?: string;
+
+    @ApiProperty()
+    @Prop({ required: false })
     choices?: Choice[];
 
     @ApiProperty()
