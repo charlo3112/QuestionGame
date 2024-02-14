@@ -56,6 +56,32 @@ export class GameController {
     }
 
     @ApiOkResponse({
+        description: 'Get question answers for a specified game',
+        type: Game,
+    })
+    @ApiNotFoundResponse({
+        description: 'Return NOT_FOUND http status when the game doesnt exist',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when the requesti fails',
+    })
+    @Get('/:id/:questionNumber')
+    async getAnswerQuestion(@Param('id') id: string, @Param('questionNumber') questionNumber: string, @Res() response: Response) {
+        try {
+            const number = parseInt(questionNumber, 10);
+            const answers = await this.gamesService.getAnswers(id, number);
+            if (!answers) {
+                response.status(HttpStatus.NOT_FOUND).send('Game not found');
+                return;
+            }
+            response.status(HttpStatus.OK).json(answers);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
         description: 'title is unique',
     })
     @ApiFoundResponse({

@@ -226,6 +226,45 @@ describe('GameController', () => {
 
         await controller.verifyTitle({ title: '' }, res);
     });
+
+    it('should return answers for a specified question', async () => {
+        gameService.getAnswers.resolves(null);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAnswerQuestion('test', '10', res);
+    });
+
+    it('should return BAD_REQUEST when error occurs', async () => {
+        gameService.getAnswers.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAnswerQuestion('', '', res);
+    });
+
+    it('should return NOT_FOUND when game not found', async () => {
+        gameService.getAnswers.resolves(null);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAnswerQuestion('', '', res);
+    });
 });
 
 const getFakeGame = (): Game => {

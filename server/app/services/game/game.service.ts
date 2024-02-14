@@ -119,4 +119,17 @@ export class GameService implements OnModuleInit {
     async verifyTitle(title: string): Promise<boolean> {
         return (await this.gameModel.findOne({ title })) ? true : false;
     }
+
+    async getAnswers(id: string, number: number): Promise<boolean[]> {
+        const game = await this.getGameById(id);
+        if (!game) {
+            return null;
+        }
+        const choices = game.getQuestions()[number - 1].choices;
+        const answers = [];
+        for (const choice of choices) {
+            answers.push(choice.isCorrect);
+        }
+        return answers;
+    }
 }
