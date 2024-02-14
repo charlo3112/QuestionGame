@@ -1,9 +1,10 @@
+import { HttpClientModule } from '@angular/common/http';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { GameService } from './game.service';
-import { questions } from '@app/interfaces/question';
-import { GameState } from '@app/enums/game-state';
-import { Choice } from '@app/classes/choice';
 import { Router } from '@angular/router';
+import { Choice } from '@app/classes/choice';
+import { GameState } from '@app/enums/game-state';
+import { questions } from '@app/interfaces/question';
+import { GameService } from './game.service';
 import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
@@ -29,12 +30,14 @@ describe('Game', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
+            imports: [HttpClientModule],
             providers: [
                 { provide: Router, useValue: mockRouter },
                 { provide: TimeService, useValue: timeService },
             ],
         });
         service = TestBed.inject(GameService);
+
         service.startGame(
             questions.map((question) => ({ ...question, choices: question.choices.map((choice) => new Choice(choice.text, choice.isCorrect)) })),
         );
