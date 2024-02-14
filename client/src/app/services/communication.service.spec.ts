@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
-import { QUESTION_PLACEHOLDER } from '@app/interfaces/question';
+import { QUESTION_PLACEHOLDER, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
+import { QuestionType, RESPONSE_OK } from '@common/constants';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
     let service: CommunicationService;
@@ -183,6 +185,75 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
+    it('should throw an error when logging in', () => {
+        const mockPassword = 'password';
+
+        service.login(mockPassword).subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+        });
+
+        const mockError = new ProgressEvent('network error');
+        const mockUrl = `${baseUrl}/admin`;
+        const mockRequest = { password: mockPassword };
+
+        const req = httpMock.expectOne(mockUrl);
+        expect(req.request.method).toEqual('POST');
+        expect(req.request.body).toEqual(mockRequest);
+
+        req.error(mockError);
+    });
+
+    it('should add a question', () => {
+        const question = QUESTION_PLACEHOLDER;
+
+        service.addQuestion(question).subscribe({
+            next: (response) => {
+                expect(response.body).toEqual(question);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('POST');
+        req.flush(question);
+    });
+
+    it('should get game by id', () => {
+        const gameId = 'test-id';
+
+        service.getGameById(gameId).subscribe({
+            next: (response) => {
+                expect(response).toBeInstanceOf(Object);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush({});
+    });
+
+    it('should catch error when editing game', () => {
+        const updatedGame: Game = {
+            ...GAME_PLACEHOLDER,
+            title: 'Updated Title',
+            description: 'Updated Description',
+        };
+
+        service.editGame(updatedGame).subscribe({
+            error: (error) => {
+                expect(error).toBeTruthy();
+            },
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game`);
+        expect(req.request.method).toEqual('PATCH');
+        expect(req.request.body).toEqual(updatedGame);
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
     it('should verify title', () => {
         const title = 'title';
 
@@ -274,18 +345,62 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
-    it('should add a question', () => {
-        const question = QUESTION_PLACEHOLDER;
+    it('should get answers', () => {
+        const gameId = 'test-id';
 
-        service.addQuestion(question).subscribe({
+        service.getAnswers(gameId).subscribe({
             next: (response) => {
-                expect(response.body).toEqual(question);
+                expect(response).toBeTruthy();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question?questionText=${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should modify a question', () => {
+        const updatedQuestionData: QuestionWithModificationDate = {
+            choices: [
+                {
+                    text: "Guillaume dit n'importe quoi",
+                    isCorrect: false,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaume a juste casse encore',
+                    isCorrect: false,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaum ne peut plus toucher au serveur',
+                    isCorrect: true,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaume',
+                    isCorrect: false,
+                    isSelected: false,
+                },
+            ],
+            text: 'Pourquoi le patch fonctionne',
+            type: QuestionType.QCM,
+            points: 40,
+            lastModification: new Date('2024-02-13T15:54:34.948Z'),
+            mongoId: '65caec096c7ce91a0482e745',
+        };
+        service.modifyQuestion(updatedQuestionData).subscribe({
+            next: (response) => {
+                expect(response.status).toBe(RESPONSE_OK);
+                expect(response.body).toEqual(updatedQuestionData);
             },
             error: fail,
         });
 
         const req = httpMock.expectOne(`${baseUrl}/question`);
-        expect(req.request.method).toBe('POST');
-        req.flush(question);
+        expect(req.request.method).toBe('PATCH');
+        expect(req.request.body).toEqual(updatedQuestionData);
+        req.flush(updatedQuestionData);
     });
 });

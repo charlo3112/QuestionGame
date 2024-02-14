@@ -43,13 +43,9 @@ export class QuestionBankComponent {
                 }
                 this.questionsWithModificationDate = response.value;
                 this.questionsWithModificationDate.sort((a, b) => {
-                    if (typeof a.lastModification === 'string' && typeof b.lastModification === 'string') {
-                        const dateA = new Date(a.lastModification);
-                        const dateB = new Date(b.lastModification);
-                        return dateB.getTime() - dateA.getTime();
-                    } else {
-                        return b.lastModification.getTime() - a.lastModification.getTime();
-                    }
+                    const dateA = new Date(a.lastModification);
+                    const dateB = new Date(b.lastModification);
+                    return dateB.getTime() - dateA.getTime();
                 });
             },
             error: () => {

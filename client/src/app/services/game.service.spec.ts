@@ -11,6 +11,9 @@ const timeConfirmMs = 3000;
 const timeQuestionMs = 60000;
 
 class TimeServiceStub {
+    get time(): number {
+        return 2;
+    }
     startTimer(startValue: number, execute: () => void) {
         setTimeout(execute, 0);
     }
@@ -187,5 +190,13 @@ describe('Game', () => {
     it('should toggle the bonus', () => {
         service.toggleBonus();
         expect(service['bonus']).toBeTruthy();
+    });
+
+    it('should return the same time as timeService', () => {
+        expect(service.time).toEqual(2);
+    });
+
+    it('should return 0 at the start of the game', () => {
+        expect(service.score).toEqual(0);
     });
 });

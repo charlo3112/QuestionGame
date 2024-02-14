@@ -301,6 +301,7 @@ describe('CreatePageComponent', () => {
     });
 
     it('should create a game if the form is valid', fakeAsync(() => {
+        const delayForNavigationMs = 500;
         component.isEditing = false;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
@@ -309,11 +310,12 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
-        tick();
+        tick(delayForNavigationMs);
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 
     it('should update a game if the form is valid', fakeAsync(() => {
+        const delayForNavigationMs = 500;
         component.isEditing = true;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
@@ -322,7 +324,7 @@ describe('CreatePageComponent', () => {
         component.save();
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
-        tick();
+        tick(delayForNavigationMs);
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     }));
 
