@@ -13,7 +13,7 @@ export class AdminController {
         description: 'login success',
     })
     @ApiForbiddenResponse({
-        description: 'failed to login',
+        description: 'Return FORBIDDEN http status failed to login',
     })
     @Post('/')
     async login(@Body() loginData: { password: string }, @Res() response: Response) {

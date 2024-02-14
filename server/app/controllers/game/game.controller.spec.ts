@@ -51,12 +51,12 @@ describe('GameController', () => {
         await controller.getAllGames(res);
     });
 
-    it('getAllGames() should return NOT_FOUND when service unable to fetch games', async () => {
+    it('getAllGames() should return BAD_REQUEST when service unable to fetch games', async () => {
         gameService.getAllGames.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
@@ -99,7 +99,7 @@ describe('GameController', () => {
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
@@ -120,12 +120,12 @@ describe('GameController', () => {
         await controller.addGame(getFakeCreateGameDto(), res);
     });
 
-    it('addGame() should return NOT_MODIFIED when service add the game', async () => {
+    it('addGame() should return BAD_REQUEST when service add the game', async () => {
         gameService.addGame.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
@@ -178,7 +178,7 @@ describe('GameController', () => {
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.INTERNAL_SERVER_ERROR);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
@@ -214,12 +214,12 @@ describe('GameController', () => {
         await controller.verifyTitle({ title: game.getTitle() }, res);
     });
 
-    it('verifyTitle() should return FOUND when error occurs', async () => {
+    it('verifyTitle() should return BAD_REQUEST when error occurs', async () => {
         gameService.verifyTitle.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.FOUND);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
