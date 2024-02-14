@@ -9,12 +9,7 @@ import { Game } from '@app/interfaces/game';
 import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { Subscription } from 'rxjs';
-
-// const description =
-//     'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' +
-//     ' Integer ullamcorper, leo vel elementum congue, libero leo pharetra nulla, sit amet pulvinar risus arcu ut nunc.' +
-//     ' Curabitur at ipsum interdum, efficitur odio a, ornare lacus. Pellentesque blandit dui massa, in faucibus dui finibus a.' +
-//     'Aenean et ex sed velit viverra porta. Fusce non blandit urna, eget pretium ligula. Fusce in commodo nulla. Phasellus a odio metus.';
+import { tap } from 'rxjs/operators';
 
 @Component({
     selector: 'app-start-game-page',
@@ -24,7 +19,6 @@ import { Subscription } from 'rxjs';
     imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule, MatSnackBarModule],
 })
 export class StartGamePageComponent {
-    // Template games to finish functionality
     games: Game[] = [];
 
     title: string = 'Liste de jeux';
@@ -73,6 +67,28 @@ export class StartGamePageComponent {
     }
 
     testGame(game: Game) {
-        this.router.navigate(['/game'], { state: { questions: game.questions } });
+        const gameId = game.gameId;
+
+        this.communicationService
+            .getGameByID(gameId)
+            .pipe(
+                tap((result: Result<Game>) => {
+                    if (!result.ok || !result.value) {
+                        this.openSnackBar('Jeux supprimé, veuillez en choisir un autre');
+                        this.loadGames();
+                    }
+                }),
+            )
+            .subscribe((result: Result<Game>) => {
+                if (result.ok && result.value) {
+                    const newGame = result.value;
+                    if (newGame.visibility) {
+                        this.router.navigate(['/game'], { state: { questions: newGame.questions } });
+                    } else {
+                        this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
+                        this.loadGames();
+                    }
+                }
+            });
     }
 }

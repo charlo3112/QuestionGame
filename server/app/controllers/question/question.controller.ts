@@ -2,7 +2,7 @@ import { Question } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
-import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @ApiTags('Questions')
@@ -15,8 +15,9 @@ export class QuestionController {
         type: Question,
         isArray: true,
     })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Get('/')
     async getAllQuestions(@Res() response: Response) {
@@ -24,16 +25,17 @@ export class QuestionController {
             const allQuestions = await this.questionsService.getAllQuestions();
             response.status(HttpStatus.OK).json(allQuestions);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
     @ApiOkResponse({
-        description: 'Returns the question answers',
+        description: 'Returns the question answers for a specified question',
         isArray: true,
     })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Get('/')
     async getAnswers(@Body() questionText: string, @Res() response: Response) {
@@ -41,14 +43,15 @@ export class QuestionController {
             const answers = await this.questionsService.getAnswers(questionText);
             response.status(HttpStatus.OK).json(answers);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
     @ApiCreatedResponse({
         description: 'Add new question',
     })
-    @ApiNotFoundResponse({
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
         description: 'Return BAD_REQUEST http status when request fails',
     })
     @Post('/')
@@ -64,7 +67,8 @@ export class QuestionController {
     @ApiCreatedResponse({
         description: 'modifies a question',
     })
-    @ApiNotFoundResponse({
+    @ApiResponse({
+        status: HttpStatus.NOT_MODIFIED,
         description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Patch('/')
@@ -80,8 +84,9 @@ export class QuestionController {
     @ApiOkResponse({
         description: 'Delete a question',
     })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when the question cant be found',
     })
     @Delete('/:mongoId')
     async deleteQuestion(@Param('mongoId') id: string, @Res() response: Response) {
@@ -89,7 +94,7 @@ export class QuestionController {
             await this.questionsService.deleteQuestion(id);
             response.status(HttpStatus.OK).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 }

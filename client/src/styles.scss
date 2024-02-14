@@ -24,10 +24,12 @@ html,
 body {
     margin: 0;
     font-family: Roboto, 'Helvetica Neue', sans-serif;
-    background: url('assets/sand.svg'), linear-gradient(to top, #fdce7d, #ffc254);
     height: 100%;
     margin: 0;
-    background-size: stretch;
+    background: url('assets/sand.svg'), linear-gradient(to top, #fdce7d, #ffc254);
+    background-size:
+        cover,
+        200% 200%;
     background-blend-mode: luminosity;
 }
 

@@ -11,8 +11,8 @@
             <p class="item-title">Questions:</p>
             <p class="item-content" *ngFor="let question of gameDetails.questions; index as i">- {{ question.text }}</p>
             <div class="row-container">
-                <button mat-raised-button color="primary" class="game-button" (click)="onStartGame(gameDetails)">Commencer</button>
-                <button mat-raised-button color="warn" class="game-button" (click)="onTestGame(gameDetails)">Tester</button>
+                <button mat-raised-button color="primary" class="game-button" (click)="onStartGame()">Commencer</button>
+                <button mat-raised-button color="warn" class="game-button" (click)="onTestGame()">Tester</button>
             </div>
         </div>
         <span class="spacer"></span>
