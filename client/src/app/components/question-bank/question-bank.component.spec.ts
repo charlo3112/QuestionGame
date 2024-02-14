@@ -129,7 +129,7 @@ describe('QuestionBankComponent', () => {
     }));
 
     it('should throw error when deleteQuestion fails', fakeAsync(() => {
-        component.questionsWithModificationDate = mockQuestions;
+        component.questionsWithModificationDate = [];
         spyOn(communicationService, 'deleteQuestion').and.returnValue(throwError(() => 'errorResponse'));
         expect(() => {
             component.deleteQuestion(mockQuestion.mongoId);
@@ -144,6 +144,8 @@ describe('QuestionBankComponent', () => {
     });
 
     it('should warn the user if a question is not highlighted', () => {
+        component.highlightedQuestion = null;
+        fixture.detectChanges();
         spyOn(component['snackBar'], 'open');
         component.sendQuestion();
         expect(component['snackBar'].open).toHaveBeenCalled();
