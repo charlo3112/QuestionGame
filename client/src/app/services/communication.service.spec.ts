@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
-import { QUESTION_PLACEHOLDER } from '@app/interfaces/question';
+import { QUESTION_PLACEHOLDER, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
+import { QuestionType, RESPONSE_OK } from '@common/constants';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
     let service: CommunicationService;
@@ -343,5 +345,47 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
-    // it('should modify a question', () => {});
+    it('should modify a question', () => {
+        const updatedQuestionData: QuestionWithModificationDate = {
+            choices: [
+                {
+                    text: "Guillaume dit n'importe quoi",
+                    isCorrect: false,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaume a juste casse encore',
+                    isCorrect: false,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaum ne peut plus toucher au serveur',
+                    isCorrect: true,
+                    isSelected: false,
+                },
+                {
+                    text: 'Guillaume',
+                    isCorrect: false,
+                    isSelected: false,
+                },
+            ],
+            text: 'Pourquoi le patch fonctionne',
+            type: QuestionType.QCM,
+            points: 40,
+            lastModification: new Date('2024-02-13T15:54:34.948Z'),
+            mongoId: '65caec096c7ce91a0482e745',
+        };
+        service.modifyQuestion(updatedQuestionData).subscribe({
+            next: (response) => {
+                expect(response.status).toBe(RESPONSE_OK);
+                expect(response.body).toEqual(updatedQuestionData);
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question`);
+        expect(req.request.method).toBe('PATCH');
+        expect(req.request.body).toEqual(updatedQuestionData);
+        req.flush(updatedQuestionData);
+    });
 });
