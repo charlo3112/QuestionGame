@@ -98,18 +98,33 @@ export class CreatePageComponent implements OnInit {
         }
     }
     insertQuestionFromBank(question: Question) {
-        this.insertQuestion(question);
+        if (this.verifPresenceQuestion(question)) {
+            this.insertQuestion(question);
+        }
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        if (this.questionTitleToEdit === '') {
-            this.insertQuestion(question);
-        } else {
-            const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
-            this.questions[index] = question;
-            this.questionTitleToEdit = '';
+        if (this.verifPresenceQuestion(question)) {
+            if (this.questionTitleToEdit === '') {
+                this.insertQuestion(question);
+            } else {
+                const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
+                this.questions[index] = question;
+                this.questionTitleToEdit = '';
+            }
         }
         this.closeCreateQuestion();
+    }
+    verifPresenceQuestion(question: Question): boolean {
+        const index = this.questions.findIndex((q) => q.text === question.text);
+        if (index !== NOT_FOUND) {
+            this.snackBar.open("Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.", undefined, {
+                duration: SNACKBAR_DURATION,
+            });
+            return false;
+        } else {
+            return true;
+        }
     }
     deleteQuestion(index: number): void {
         this.questions.splice(index, 1);
