@@ -3,7 +3,7 @@ import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
-import { ApiCreatedResponse, ApiFoundResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiFoundResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 
 @ApiTags('Games')
@@ -16,8 +16,9 @@ export class GameController {
         type: Game,
         isArray: true,
     })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_FOUND http status when request fails',
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Get('/')
     async getAllGames(@Res() response: Response) {
@@ -25,7 +26,7 @@ export class GameController {
             const allGames = await this.gamesService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
         } catch (error) {
-            response.status(HttpStatus.NOT_FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
@@ -34,7 +35,11 @@ export class GameController {
         type: Game,
     })
     @ApiNotFoundResponse({
-        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+        description: 'Return NOT_FOUND http status when the game doesnt exist',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when the requesti fails',
     })
     @Get('/:id')
     async getGameById(@Param('id') id: string, @Res() response: Response) {
@@ -46,7 +51,7 @@ export class GameController {
             }
             response.status(HttpStatus.OK).json(game);
         } catch (error) {
-            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
@@ -54,7 +59,11 @@ export class GameController {
         description: 'title is unique',
     })
     @ApiFoundResponse({
-        description: 'Return FOUND http status when request fails',
+        description: 'Return FOUND http status the game already exists',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Post('/verify')
     async verifyTitle(@Body() data: { title: string }, @Res() response: Response) {
@@ -66,15 +75,16 @@ export class GameController {
                 response.status(HttpStatus.OK).send();
             }
         } catch (error) {
-            response.status(HttpStatus.FOUND).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
     @ApiCreatedResponse({
         description: 'Add new game',
     })
-    @ApiNotFoundResponse({
-        description: 'Return NOT_MODIFIED http status when request fails',
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
     })
     @Post('/')
     async addGame(@Body() gameDto: CreateGameDto, @Res() response: Response) {
@@ -82,7 +92,7 @@ export class GameController {
             await this.gamesService.addGame(gameDto);
             response.status(HttpStatus.CREATED).send();
         } catch (error) {
-            response.status(HttpStatus.NOT_MODIFIED).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 
@@ -90,7 +100,8 @@ export class GameController {
         description: 'Modify a game',
         type: Game,
     })
-    @ApiNotFoundResponse({
+    @ApiResponse({
+        status: HttpStatus.NOT_MODIFIED,
         description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Patch('/')
@@ -106,7 +117,8 @@ export class GameController {
     @ApiOkResponse({
         description: 'Toogles Visibility',
     })
-    @ApiNotFoundResponse({
+    @ApiResponse({
+        status: HttpStatus.NOT_MODIFIED,
         description: 'Return NOT_MODIFIED http status when request fails',
     })
     @Patch('/:id')
@@ -125,8 +137,12 @@ export class GameController {
     @ApiOkResponse({
         description: 'Delete a game',
     })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
+    })
     @ApiNotFoundResponse({
-        description: 'Return INTERNAL_SERVER_ERROR http status when request fails',
+        description: 'Return NOT_FOUND http status when the game cannot be found',
     })
     @Delete('/:id')
     async deleteGameById(@Param('id') id: string, @Res() response: Response) {
@@ -135,7 +151,7 @@ export class GameController {
                 response.status(HttpStatus.OK).send();
             } else response.status(HttpStatus.NOT_FOUND).send();
         } catch (error) {
-            response.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }
     }
 }
