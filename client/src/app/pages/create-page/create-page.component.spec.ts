@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -13,14 +14,14 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/classes/choice';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
 
 describe('CreatePageComponent', () => {
@@ -32,9 +33,17 @@ describe('CreatePageComponent', () => {
     let router: Router;
     let mockValidGame: Game;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+    let routeSpy: jasmine.SpyObj<ActivatedRoute>;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
+        paramMapSpy.get.and.returnValue();
+
+        routeSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+            paramMap: of(paramMapSpy) as Observable<ParamMap>,
+        });
 
         await TestBed.configureTestingModule({
             imports: [
@@ -54,7 +63,10 @@ describe('CreatePageComponent', () => {
                 HttpClientTestingModule,
                 MatToolbarModule,
             ],
-            providers: [{ provide: MatSnackBar, useValue: snackBarSpy }],
+            providers: [
+                { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: ActivatedRoute, useValue: routeSpy },
+            ],
         }).compileComponents();
         fixture = TestBed.createComponent(CreatePageComponent);
         component = fixture.componentInstance;
@@ -147,6 +159,25 @@ describe('CreatePageComponent', () => {
         expect(component.questions[0].points).toBe(updatedQuestion.points);
     });
 
+    it("should set pageTitle to \"Édition d'un jeu existant\" when there is an 'id' parameter in the route", () => {
+        const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
+        paramMapSpy.get.and.returnValue('1');
+
+        routeSpy = jasmine.createSpyObj('ActivatedRoute', [], {
+            paramMap: of(paramMapSpy) as Observable<ParamMap>,
+        });
+
+        component['route'] = routeSpy;
+
+        spyOn(component, 'verifyLogin').and.returnValue(true);
+        spyOn(component, 'loadGameData');
+
+        component.ngOnInit();
+
+        expect(component.loadGameData).toHaveBeenCalledWith('1');
+        expect(component.pageTitle).toBe("Édition d'un jeu existant");
+    });
+
     // insertQuestionFromBank
     it('should insert a question from the question bank and close the bank', () => {
         component.questions = [mockValidQuestion1];
@@ -160,7 +191,7 @@ describe('CreatePageComponent', () => {
     });
 
     // insertQuestionFromCreate
-    it('should insert a question from the create and close the create', () => {
+    it('should insert a question from the createQuestion page and insert it', () => {
         component.questions = [mockValidQuestion1];
         const newQuestion: Question = mockValidQuestion2;
         expect(component.questions.length).toBe(1);
@@ -169,6 +200,18 @@ describe('CreatePageComponent', () => {
         expect(component.questions.length).toBe(2);
         expect(component.questions[1]).toEqual(newQuestion);
         expect(component.closeCreateQuestion).toHaveBeenCalled();
+    });
+
+    it('should update an existing question', () => {
+        component.questionTitleToEdit = mockValidQuestion1.text;
+        component.questions = [mockValidQuestion1];
+        const updatedQuestion: Question = {
+            ...mockValidQuestion1,
+            text: 'Quelle est la capitale de la France ?',
+        };
+        component.insertQuestionFromCreate(updatedQuestion);
+        expect(component.questions.length).toBe(1);
+        expect(component.questions[0].text).toBe(updatedQuestion.text);
     });
 
     // deleteQuestion
@@ -334,5 +377,18 @@ describe('CreatePageComponent', () => {
         spyOn(communicationService, 'getGameById').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.loadGameData('1');
         expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
+    // resetForm
+    it('should reset the form', () => {
+        component.title = 'Test titre';
+        component.questions = [mockValidQuestion1, mockValidQuestion2];
+        component.description = 'Test description';
+        component.duration = MIN_DURATION;
+        component.resetForm();
+        expect(component.title).toBe('');
+        expect(component.questions).toEqual([]);
+        expect(component.description).toBe('');
+        expect(component.duration).toBe(MIN_DURATION);
     });
 });

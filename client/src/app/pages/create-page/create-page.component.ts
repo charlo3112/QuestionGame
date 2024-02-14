@@ -15,11 +15,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
 import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-create-page',
@@ -51,6 +52,7 @@ export class CreatePageComponent implements OnInit {
     showChildren: boolean = false;
     showPage: boolean = true;
     isEditing: boolean = false;
+    questionTitleToEdit: string = '';
 
     login: boolean;
     id: string;
@@ -100,7 +102,13 @@ export class CreatePageComponent implements OnInit {
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        this.insertQuestion(question);
+        if (this.questionTitleToEdit === '') {
+            this.insertQuestion(question);
+        } else {
+            const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
+            this.questions[index] = question;
+            this.questionTitleToEdit = '';
+        }
         this.closeCreateQuestion();
     }
     deleteQuestion(index: number): void {
@@ -110,6 +118,7 @@ export class CreatePageComponent implements OnInit {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
     editQuestion(question: Question) {
+        this.questionTitleToEdit = question.text;
         this.selectedQuestion = question;
         this.showChildren = true;
     }
@@ -158,7 +167,7 @@ export class CreatePageComponent implements OnInit {
 
     async createGame(game: Game): Promise<void> {
         try {
-            await this.communicationService.addGame(game);
+            await lastValueFrom(this.communicationService.addGame(game));
             this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
                 duration: SNACKBAR_DURATION,
             });
@@ -171,7 +180,7 @@ export class CreatePageComponent implements OnInit {
     }
     async updateGame(game: Game): Promise<void> {
         try {
-            await this.communicationService.editGame(game);
+            await lastValueFrom(this.communicationService.editGame(game));
             this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
                 duration: SNACKBAR_DURATION,
             });
