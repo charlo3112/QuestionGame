@@ -37,10 +37,10 @@ export class QuestionController {
         status: HttpStatus.BAD_REQUEST,
         description: 'Return BAD_REQUEST http status when request fails',
     })
-    @Get('/')
-    async getAnswers(@Body() questionText: string, @Res() response: Response) {
+    @Get('/:text')
+    async getAnswers(@Param('text') codedText: string, @Res() response: Response) {
         try {
-            const answers = await this.questionsService.getAnswers(questionText);
+            const answers = await this.questionsService.getAnswers(decodeURIComponent(codedText));
             response.status(HttpStatus.OK).json(answers);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
