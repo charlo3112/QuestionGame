@@ -345,6 +345,21 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
+    it('should get answers', () => {
+        const gameId = 'test-id';
+
+        service.getAnswers(gameId).subscribe({
+            next: (response) => {
+                expect(response).toBeTruthy();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/question?questionText=${gameId}`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
     it('should modify a question', () => {
         const updatedQuestionData: QuestionWithModificationDate = {
             choices: [

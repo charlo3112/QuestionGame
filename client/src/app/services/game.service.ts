@@ -81,6 +81,7 @@ export class GameService {
         this.questions = newQuestions;
         this.i = 0;
         this.scoreValue = 0;
+        this.timeService.stopTimer();
         this.state = GameState.AskingQuestion;
         this.askQuestion();
     }
