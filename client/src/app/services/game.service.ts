@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Question } from '@app/interfaces/question';
-import { TimeService } from './time.service';
-import { GameState } from '@app/enums/game-state';
 import { Router } from '@angular/router';
+import { GameState } from '@app/enums/game-state';
+import { Question } from '@app/interfaces/question';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { CommunicationService } from './communication.service';
+import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
 const timeQuestionS = 60;
@@ -21,6 +24,7 @@ export class GameService {
     constructor(
         private readonly timeService: TimeService,
         private readonly router: Router,
+        private readonly communicationService: CommunicationService,
     ) {}
 
     get score(): number {
@@ -112,8 +116,21 @@ export class GameService {
         });
     }
 
-    private isResponseGood(): boolean {
-        return this.questions[this.i].choices.filter((c) => c.isCorrect === c.isSelected).length === this.questions[this.i].choices.length;
+    private getAnswers(): Observable<boolean[]> {
+        return this.communicationService.getAnswers(this.questions[this.i].text);
+    }
+
+    private isResponseGood(): Observable<boolean> {
+        return this.getAnswers().pipe(
+            map((answers) => {
+                for (let i = 0; i < this.questions[this.i].choices.length; i++) {
+                    if (this.questions[this.i].choices[i].isSelected !== answers[i]) {
+                        return false;
+                    }
+                }
+                return true;
+            }),
+        );
     }
 
     private scoreQuestion(): number {
