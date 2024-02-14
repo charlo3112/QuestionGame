@@ -18,7 +18,7 @@ export class GamePageComponent implements OnInit {
     constructor(private readonly gameService: GameService) {}
 
     get question(): Question | undefined {
-        return this.gameService.getCurrent();
+        return this.gameService.currentQuestion;
     }
 
     ngOnInit(): void {
