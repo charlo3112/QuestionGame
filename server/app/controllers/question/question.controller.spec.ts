@@ -146,12 +146,12 @@ describe.only('QuestionController', () => {
         await controller.deleteQuestion('', res);
     });
 
-    it('deleteQuestion() should return NOT_FOUND when service cannot delete the question', async () => {
+    it('deleteQuestion() should return BAD_REQUEST when service cannot delete the question', async () => {
         questionService.deleteQuestion.rejects();
 
         const res = {} as unknown as Response;
         res.status = (code) => {
-            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
             return res;
         };
         res.send = () => res;
