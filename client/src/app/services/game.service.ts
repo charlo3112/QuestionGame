@@ -3,16 +3,16 @@ import { Router } from '@angular/router';
 import { GameState } from '@app/enums/game-state';
 import { Question } from '@app/interfaces/question';
 import { TimeService } from './time.service';
+import { Game } from '@app/interfaces/game';
 
 const timeConfirmMs = 3000;
-const timeQuestionS = 60;
 const bonusMultiplier = 1.2;
 
 @Injectable({
     providedIn: 'root',
 })
 export class GameService {
-    private questions: Question[] = [];
+    private game: Game;
     private i: number = 0;
     private state: GameState = GameState.NotStarted;
     private scoreValue: number = 0;
@@ -38,9 +38,9 @@ export class GameService {
     get currentQuestion(): Question | undefined {
         switch (this.state) {
             case GameState.AskingQuestion:
-                return this.questions[this.i];
+                return this.game.questions[this.i];
             case GameState.ShowResults:
-                return this.questions[this.i];
+                return this.game.questions[this.i];
             default:
                 return undefined;
         }
@@ -55,7 +55,7 @@ export class GameService {
         if (this.state !== GameState.ShowResults) {
             return false;
         }
-        const choice = this.questions[this.i].choices[index];
+        const choice = this.game.questions[this.i].choices[index];
         return choice.isCorrect && choice.isSelected;
     }
 
@@ -63,18 +63,18 @@ export class GameService {
         if (this.state !== GameState.ShowResults) {
             return false;
         }
-        const choice = this.questions[this.i].choices[index];
+        const choice = this.game.questions[this.i].choices[index];
         return (!choice.isCorrect && choice.isSelected) || (choice.isCorrect && !choice.isSelected);
     }
 
     selectChoice(index: number) {
         if (this.state === GameState.AskingQuestion) {
-            this.questions[this.i].choices[index].isSelected = !this.questions[this.i].choices[index].isSelected;
+            this.game.questions[this.i].choices[index].isSelected = !this.game.questions[this.i].choices[index].isSelected;
         }
     }
 
-    startGame(newQuestions: Question[]) {
-        this.questions = newQuestions;
+    startGame(newGame: Game) {
+        this.game = newGame;
         this.i = 0;
         this.scoreValue = 0;
         this.timeService.stopTimer();
@@ -104,15 +104,15 @@ export class GameService {
     }
 
     private askQuestion() {
-        this.timeService.startTimer(timeQuestionS, () => {
+        this.timeService.startTimer(this.game.duration, () => {
             this.confirmQuestion();
         });
     }
 
     private isResponseGood(): boolean {
-        const length = this.questions[this.i].choices.length;
+        const length = this.game.questions[this.i].choices.length;
         for (let i = 0; i < length; ++i) {
-            if (this.questions[this.i].choices[i].isSelected !== this.questions[this.i].choices[i].isCorrect) {
+            if (this.game.questions[this.i].choices[i].isSelected !== this.game.questions[this.i].choices[i].isCorrect) {
                 return false;
             }
         }
@@ -121,7 +121,7 @@ export class GameService {
 
     private scoreQuestion(): number {
         if (this.isResponseGood()) {
-            const questionValue = this.questions[this.i].points;
+            const questionValue = this.game.questions[this.i].points;
             return this.bonus ? questionValue * bonusMultiplier : questionValue;
         }
         return 0;
@@ -133,7 +133,7 @@ export class GameService {
                 this.state = GameState.ShowResults;
                 break;
             case GameState.ShowResults:
-                this.state = ++this.i < this.questions.length ? GameState.AskingQuestion : GameState.Gameover;
+                this.state = ++this.i < this.game.questions.length ? GameState.AskingQuestion : GameState.Gameover;
                 break;
             case GameState.Gameover:
                 this.state = GameState.Gameover;
