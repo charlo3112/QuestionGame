@@ -113,6 +113,10 @@ export class CommunicationService {
         );
     }
 
+    getLeaderBoard(): Observable<PLayer[]> {
+        return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' });
+    }
+
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
     }

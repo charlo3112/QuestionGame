@@ -17,6 +17,7 @@ import { QuestionBankComponent } from './components/question-bank/question-bank.
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
 import { HistogramComponent } from './histogram/histogram.component';
 import { ScoreBoardComponent } from './score-board/score-board.component';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
 /**
  * Main module that is used in main.ts.
@@ -25,7 +26,7 @@ import { ScoreBoardComponent } from './score-board/score-board.component';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, HistogramComponent, ScoreBoardComponent],
+    declarations: [AppComponent, HistogramComponent, ScoreBoardComponent, LeaderboardComponent],
     imports: [
         AppRoutingModule,
         BrowserAnimationsModule,
