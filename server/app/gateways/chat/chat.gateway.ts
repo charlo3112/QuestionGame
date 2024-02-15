@@ -8,6 +8,7 @@ import { Server, Socket } from 'socket.io';
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
+    private roomMessages: Map<string, Message[]> = new Map();
 
     constructor(private readonly logger: Logger) {}
 
@@ -24,6 +25,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         };
 
         if (client.rooms.has(roomId)) {
+            if (!this.roomMessages.has(roomId)) {
+                this.roomMessages.set(roomId, []);
+            }
+            this.roomMessages.get(roomId)?.push(messageToSend);
+
             this.server.to(roomId).emit('receive_message', messageToSend);
             this.logger.log(`Message sent in room ${roomId} by ${name}`);
         }
@@ -34,9 +40,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
         this.logger.log(`Client ${client.id} joined room ${roomId}`);
     }
 
+    @SubscribeMessage('get_messages')
+    handleGetMessages(client: Socket, roomId: string): void {
+        if (!client.rooms.has(roomId)) {
+            return;
+        }
+        const messages = this.roomMessages.get(roomId) || [];
+        client.emit('receive_messages', messages);
+    }
+
     @SubscribeMessage('leave_room')
     handleLeaveRoom(client: Socket, roomId: string): void {
         client.leave(roomId);
+        const room = this.server.sockets.adapter.rooms.get(roomId);
+        if (room && room.size === 0) {
+            this.server.sockets.adapter.rooms.delete(roomId);
+            this.roomMessages.delete(roomId);
+        }
         this.logger.log(`Client ${client.id} left room ${roomId}`);
     }
 

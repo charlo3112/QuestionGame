@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Message, PayloadMessage } from '@common/message.interface';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 export class ChatService {
     private socket: Socket;
     private messageSubject: Subject<Message> = new Subject<Message>();
+    private initialMessagesSubject: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>([]);
 
     constructor() {
         this.connect();
@@ -28,18 +29,33 @@ export class ChatService {
         this.socket.emit('leave_room', roomId);
     }
 
-    getMessages(): Observable<Message> {
+    getMessage(): Observable<Message> {
         return this.messageSubject.asObservable();
+    }
+
+    getInitialMessages(): Observable<Message[]> {
+        return this.initialMessagesSubject.asObservable();
+    }
+
+    getMessages(roomId: string): void {
+        this.socket.emit('get_messages', roomId);
     }
 
     private connect() {
         this.socket = io(environment.wsUrl, { transports: ['websocket'] });
-        this.listenForMessages();
+        this.listenForMessage();
+        this.listenForInitialMessages();
     }
 
-    private listenForMessages() {
+    private listenForMessage() {
         this.socket.on('receive_message', (message: Message) => {
             this.messageSubject.next(message);
+        });
+    }
+
+    private listenForInitialMessages() {
+        this.socket.on('receive_messages', (messages: Message[]) => {
+            this.initialMessagesSubject.next(messages);
         });
     }
 }

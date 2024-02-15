@@ -34,10 +34,13 @@ export class ChatComponent implements OnDestroy {
     chat: Message[] = [];
     chatInput: string = '';
     private messagesSubscription: Subscription;
+    private initialMessagesSubscription: Subscription;
 
     constructor(private chatService: ChatService) {
-        this.subscribeToMessages();
+        this.subscribeToInitialMessages();
+        this.subscribeToRealTimeMessages();
         this.chatService.joinRoom('RoomId');
+        this.chatService.getMessages('RoomId');
     }
 
     @HostListener('keydown', ['$event'])
@@ -59,6 +62,9 @@ export class ChatComponent implements OnDestroy {
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
+        if (this.initialMessagesSubscription) {
+            this.initialMessagesSubscription.unsubscribe();
+        }
         this.chatService.leaveRoom('RoomId');
     }
     onFocus() {
@@ -69,12 +75,30 @@ export class ChatComponent implements OnDestroy {
         this.isChatFocused.emit(false);
     }
 
-    private subscribeToMessages() {
-        this.messagesSubscription = this.chatService.getMessages().subscribe({
+    private subscribeToInitialMessages() {
+        this.initialMessagesSubscription = this.chatService.getInitialMessages().subscribe({
+            next: (messages: Message[]) => {
+                this.chat = messages;
+            },
+            error: (err) => console.error(err),
+            complete: () => console.log('Initial message stream completed'),
+        });
+    }
+
+    private subscribeToRealTimeMessages() {
+        this.messagesSubscription = this.chatService.getMessage().subscribe({
             next: (message: Message) => {
                 this.chat.push(message);
             },
             error: (err) => console.error(err),
+            complete: () => console.log('Real-time message stream completed'),
+        });
+        this.sortMessagesByTimestamp();
+    }
+
+    private sortMessagesByTimestamp() {
+        this.chat.sort((a, b) => {
+            return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         });
     }
 }
