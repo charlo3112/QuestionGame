@@ -1,63 +1,54 @@
+import { MAX_MESSAGE_LENGTH } from '@common/constants';
+import { Message } from '@common/message.interface';
 import { Injectable, Logger } from '@nestjs/common';
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID, WORD_MIN_LENGTH } from './chat.gateway.constants';
-import { ChatEvents } from './chat.gateway.events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer() private server: Server;
 
-    private readonly room = PRIVATE_ROOM_ID;
-
     constructor(private readonly logger: Logger) {}
 
-    @SubscribeMessage(ChatEvents.Validate)
-    validate(socket: Socket, word: string) {
-        socket.emit(ChatEvents.WordValidated, word?.length > WORD_MIN_LENGTH);
-    }
+    @SubscribeMessage('send_message')
+    handleMessage(client: Socket, payload: { roomId: string; message: string; name: string }): void {
+        const { roomId, message, name } = payload;
+        const trimmedMessage = message.substring(0, MAX_MESSAGE_LENGTH);
+        const timestamp = new Date().toLocaleTimeString();
 
-    @SubscribeMessage(ChatEvents.ValidateACK)
-    validateWithAck(_: Socket, word: string) {
-        return { isValid: word?.length > WORD_MIN_LENGTH };
-    }
+        const messageToSend: Message = {
+            name,
+            message: trimmedMessage,
+            timestamp,
+        };
 
-    @SubscribeMessage(ChatEvents.BroadcastAll)
-    broadcastAll(socket: Socket, message: string) {
-        this.server.emit(ChatEvents.MassMessage, `${socket.id} : ${message}`);
-    }
-
-    @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket) {
-        socket.join(this.room);
-    }
-
-    @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, message: string) {
-        // Seulement un membre de la salle peut envoyer un message aux autres
-        if (socket.rooms.has(this.room)) {
-            this.server.to(this.room).emit(ChatEvents.RoomMessage, `${socket.id} : ${message}`);
+        if (client.rooms.has(roomId)) {
+            this.server.to(roomId).emit('receive_message', messageToSend);
+            this.logger.log(`Message sent in room ${roomId} by ${name}`);
         }
     }
-
-    afterInit() {
-        setInterval(() => {
-            this.emitTime();
-        }, DELAY_BEFORE_EMITTING_TIME);
+    @SubscribeMessage('join_room')
+    handleJoinRoom(client: Socket, roomId: string): void {
+        client.join(roomId);
+        this.logger.log(`Client ${client.id} joined room ${roomId}`);
     }
 
-    handleConnection(socket: Socket) {
-        this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-        // message initial
-        socket.emit(ChatEvents.Hello, 'Hello World!');
+    @SubscribeMessage('leave_room')
+    handleLeaveRoom(client: Socket, roomId: string): void {
+        client.leave(roomId);
+        this.logger.log(`Client ${client.id} left room ${roomId}`);
     }
 
-    handleDisconnect(socket: Socket) {
-        this.logger.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
+    afterInit(): void {
+        this.logger.log('WebSocket server initialized!');
     }
 
-    private emitTime() {
-        this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
+    handleConnection(client: Socket): void {
+        this.logger.log(`Client connected: ${client.id}`);
+    }
+
+    handleDisconnect(client: Socket): void {
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 }

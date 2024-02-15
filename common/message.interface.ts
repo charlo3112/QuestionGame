@@ -4,7 +4,7 @@ export interface Message {
     timestamp: string;
 }
 
-export interface payloadMessage {
+export interface PayloadMessage {
     name: string;
     message: string;
     roomId: string;
