@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatService } from '@app/services/chat.service';
+import { MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Subscription } from 'rxjs';
 
@@ -33,6 +34,7 @@ export class ChatComponent implements OnDestroy {
     @Output() isChatFocused = new EventEmitter<boolean>();
     chat: Message[] = [];
     chatInput: string = '';
+    maxLength = MAX_MESSAGE_LENGTH;
     private messagesSubscription: Subscription;
     private initialMessagesSubscription: Subscription;
 
@@ -83,6 +85,7 @@ export class ChatComponent implements OnDestroy {
             error: (err) => console.error(err),
             complete: () => console.log('Initial message stream completed'),
         });
+        this.sortMessagesByTimestamp();
     }
 
     private subscribeToRealTimeMessages() {
@@ -97,7 +100,7 @@ export class ChatComponent implements OnDestroy {
     }
 
     private sortMessagesByTimestamp() {
-        this.chat.sort((a, b) => {
+        this.chat = this.chat.sort((a, b) => {
             return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         });
     }
