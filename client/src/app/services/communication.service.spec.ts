@@ -2,7 +2,7 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
-import { QUESTION_PLACEHOLDER, QuestionWithModificationDate } from '@app/interfaces/question';
+import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { QuestionType, RESPONSE_OK } from '@common/constants';
 describe('CommunicationService', () => {
@@ -206,7 +206,7 @@ describe('CommunicationService', () => {
     });
 
     it('should add a question', () => {
-        const question = QUESTION_PLACEHOLDER;
+        const question = QUESTIONS_PLACEHOLDER[0];
 
         service.addQuestion(question).subscribe({
             next: (response) => {

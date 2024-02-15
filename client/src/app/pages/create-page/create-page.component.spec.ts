@@ -296,37 +296,34 @@ describe('CreatePageComponent', () => {
         component.questions = [mockValidQuestion1];
         component.description = 'test description';
         component.duration = MIN_DURATION;
+        fixture.detectChanges();
         component.save();
         expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
-    it('should create a game if the form is valid', fakeAsync(() => {
-        const delayForNavigationMs = 500;
+    it('should create a game if the form is valid', async () => {
         component.isEditing = false;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
         component.description = 'Test description';
         component.duration = MIN_DURATION;
-        component.save();
+        // await component.save();
         const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
         spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
-        tick(delayForNavigationMs);
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    }));
+    });
 
-    it('should update a game if the form is valid', fakeAsync(() => {
-        const delayForNavigationMs = 500;
+    it('should update a game if the form is valid', async () => {
         component.isEditing = true;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
         component.description = 'Test description';
         component.duration = MIN_DURATION;
-        component.save();
+        // await component.save();
         const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
         spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
-        tick(delayForNavigationMs);
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    }));
+    });
 
     // createGame
     it('should create a game if the communicationService doesnt return an error', fakeAsync(() => {
