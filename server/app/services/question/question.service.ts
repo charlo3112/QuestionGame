@@ -16,7 +16,7 @@ export class QuestionService {
         const questions = await this.questionModel.find<Question>({});
         for (const question of questions) {
             // eslint-disable-next-line no-underscore-dangle
-            question.mongoId = await (await this.questionModel.findOne({ text: question.text }))._id;
+            question.mongoId = question._id;
         }
         return questions;
     }
