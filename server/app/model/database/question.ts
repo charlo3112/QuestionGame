@@ -33,6 +33,8 @@ export class Question {
     @Prop({ required: true })
     private lastModification: Date;
 
+    _id: string;
+
     constructor(questionData: CreateQuestionDto) {
         this.type = questionData.type;
         this.text = questionData.text;
