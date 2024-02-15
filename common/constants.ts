@@ -26,6 +26,7 @@ export const SNACKBAR_DURATION = 2000;
 export const WEIGHTS_QUESTIONS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 export const MAX_MESSAGE_LENGTH = 200;
+export const MAX_GAME_CODE = 9999;
 
 export enum QuestionType {
     QCM = 'QCM',
