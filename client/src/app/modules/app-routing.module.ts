@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
+import { JoinGamePageComponent } from '@app/pages/joingame-page/joingame-page/joingame-page.component';
 import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
@@ -18,6 +19,7 @@ export const routes: Routes = [
     { path: 'admin', component: AdminPageComponent },
     { path: 'loading', component: LoadingPageComponent },
     { path: 'admin/question-bank', component: QuestionBankPageComponent },
+    { path: 'join', component: JoinGamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
