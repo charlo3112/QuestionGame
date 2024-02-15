@@ -31,7 +31,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             this.roomMessages.get(roomId)?.push(messageToSend);
 
             this.server.to(roomId).emit('receive_message', messageToSend);
-            this.logger.log(`Message sent in room ${roomId} by ${name}`);
+            this.logger.debug(`${trimmedMessage} sent in room ${roomId} by ${name}`);
         }
     }
     @SubscribeMessage('join_room')
@@ -53,8 +53,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     handleLeaveRoom(client: Socket, roomId: string): void {
         client.leave(roomId);
         const room = this.server.sockets.adapter.rooms.get(roomId);
-        if (room && room.size === 0) {
-            this.server.sockets.adapter.rooms.delete(roomId);
+        if (!room || room.size === 0) {
             this.roomMessages.delete(roomId);
         }
         this.logger.log(`Client ${client.id} left room ${roomId}`);
@@ -69,6 +68,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
     }
 
     handleDisconnect(client: Socket): void {
+        const rooms = this.server.sockets.adapter.rooms;
+        this.roomMessages.forEach((value, key) => {
+            if (!rooms.has(key)) {
+                this.roomMessages.delete(key);
+            }
+        });
         this.logger.log(`Client disconnected: ${client.id}`);
     }
 }

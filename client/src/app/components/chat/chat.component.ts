@@ -59,13 +59,13 @@ export class ChatComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
+        this.chatService.leaveRoom('RoomId');
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
         if (this.initialMessagesSubscription) {
             this.initialMessagesSubscription.unsubscribe();
         }
-        this.chatService.leaveRoom('RoomId');
     }
     onFocus() {
         this.isChatFocused.emit(true);
