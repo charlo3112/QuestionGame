@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
     providedIn: 'root',
 })
-export class ChatService {
+export class WebSocketService {
     private socket: Socket;
     private messageSubject: Subject<Message> = new Subject<Message>();
     private initialMessagesSubject: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>([]);
@@ -18,9 +18,10 @@ export class ChatService {
 
     sendMessage(message: string, name: string, roomId: string): void {
         const payload: PayloadMessage = { roomId, message, name };
-        this.socket.emit('send_message', payload);
+        this.socket.emit('message:send', payload);
     }
 
+    // TODO: join and leave room are temporary, they will be removed when the system of waiting room is implemented
     joinRoom(roomId: string): void {
         this.socket.emit('join_room', roomId);
     }
@@ -38,7 +39,7 @@ export class ChatService {
     }
 
     getMessages(roomId: string): void {
-        this.socket.emit('get_messages', roomId);
+        this.socket.emit('messages:get', roomId);
     }
 
     private connect() {
@@ -48,13 +49,13 @@ export class ChatService {
     }
 
     private listenForMessage() {
-        this.socket.on('receive_message', (message: Message) => {
+        this.socket.on('message:receive', (message: Message) => {
             this.messageSubject.next(message);
         });
     }
 
     private listenForInitialMessages() {
-        this.socket.on('receive_messages', (messages: Message[]) => {
+        this.socket.on('messages:list', (messages: Message[]) => {
             this.initialMessagesSubject.next(messages);
         });
     }

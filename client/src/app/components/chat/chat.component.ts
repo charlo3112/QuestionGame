@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-import { ChatService } from '@app/services/chat.service';
+import { WebSocketService } from '@app/services/websocket.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Subscription } from 'rxjs';
@@ -38,11 +38,11 @@ export class ChatComponent implements OnDestroy {
     private messagesSubscription: Subscription;
     private initialMessagesSubscription: Subscription;
 
-    constructor(private chatService: ChatService) {
+    constructor(private webSocketService: WebSocketService) {
         this.subscribeToInitialMessages();
         this.subscribeToRealTimeMessages();
-        this.chatService.joinRoom('RoomId');
-        this.chatService.getMessages('RoomId');
+        this.webSocketService.joinRoom('RoomId');
+        this.webSocketService.getMessages('RoomId');
     }
 
     @HostListener('keydown', ['$event'])
@@ -55,13 +55,13 @@ export class ChatComponent implements OnDestroy {
 
     chatSubmit() {
         if (this.chatInput.trim()) {
-            this.chatService.sendMessage(this.chatInput, 'YourMum', 'RoomId');
+            this.webSocketService.sendMessage(this.chatInput, 'YourMum', 'RoomId');
             this.chatInput = '';
         }
     }
 
     ngOnDestroy() {
-        this.chatService.leaveRoom('RoomId');
+        this.webSocketService.leaveRoom('RoomId');
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
@@ -78,7 +78,7 @@ export class ChatComponent implements OnDestroy {
     }
 
     private subscribeToInitialMessages() {
-        this.initialMessagesSubscription = this.chatService.getInitialMessages().subscribe({
+        this.initialMessagesSubscription = this.webSocketService.getInitialMessages().subscribe({
             next: (messages: Message[]) => {
                 this.chat = messages;
             },
@@ -89,7 +89,7 @@ export class ChatComponent implements OnDestroy {
     }
 
     private subscribeToRealTimeMessages() {
-        this.messagesSubscription = this.chatService.getMessage().subscribe({
+        this.messagesSubscription = this.webSocketService.getMessage().subscribe({
             next: (message: Message) => {
                 this.chat.push(message);
             },

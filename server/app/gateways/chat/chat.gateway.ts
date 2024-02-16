@@ -1,18 +1,24 @@
+import { RoomManagementService } from '@app/services/room-management.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
     private roomMessages: Map<string, Message[]> = new Map();
 
-    constructor(private readonly logger: Logger) {}
+    constructor(
+        private readonly logger: Logger,
+        private readonly roomManager: RoomManagementService,
+    ) {
+        // this.roomManager.setGatewayCallback(this.handleJoinRoom.bind(this), this.handleLeaveRoom.bind(this));
+    }
 
-    @SubscribeMessage('send_message')
+    @SubscribeMessage('message:send')
     handleMessage(client: Socket, payload: { roomId: string; message: string; name: string }): void {
         const { roomId, message, name } = payload;
         const trimmedMessage = message.substring(0, MAX_MESSAGE_LENGTH);
@@ -30,37 +36,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, On
             }
             this.roomMessages.get(roomId)?.push(messageToSend);
 
-            this.server.to(roomId).emit('receive_message', messageToSend);
+            this.server.to(roomId).emit('message:receive', messageToSend);
             this.logger.debug(`${trimmedMessage} sent in room ${roomId} by ${name}`);
         }
     }
-    @SubscribeMessage('join_room')
-    handleJoinRoom(client: Socket, roomId: string): void {
-        client.join(roomId);
-        this.logger.log(`Client ${client.id} joined room ${roomId}`);
-    }
 
-    @SubscribeMessage('get_messages')
+    @SubscribeMessage('messages:get')
     handleGetMessages(client: Socket, roomId: string): void {
         if (!client.rooms.has(roomId)) {
             return;
         }
         const messages = this.roomMessages.get(roomId) || [];
-        client.emit('receive_messages', messages);
-    }
-
-    @SubscribeMessage('leave_room')
-    handleLeaveRoom(client: Socket, roomId: string): void {
-        client.leave(roomId);
-        const room = this.server.sockets.adapter.rooms.get(roomId);
-        if (!room || room.size === 0) {
-            this.roomMessages.delete(roomId);
-        }
-        this.logger.log(`Client ${client.id} left room ${roomId}`);
-    }
-
-    afterInit(): void {
-        this.logger.log('WebSocket server initialized!');
+        client.emit('messages:list', messages);
     }
 
     handleConnection(client: Socket): void {
