@@ -25,6 +25,7 @@ describe('GamePageComponent', () => {
         fixture = TestBed.createComponent(GamePageComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        Object.defineProperties(window, { history: { value: { state: {} } } });
     });
 
     it('should create', () => {
