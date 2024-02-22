@@ -1,4 +1,7 @@
 <mat-card class="chat">
+    <mat-card class="name">
+        <h2>{{ this.username }}</h2>
+    </mat-card>
     <div class="chat-text">
         <p *ngFor="let text of chat.reverse()">{{ text.name }} ({{ text.timestamp }}): {{ text.message }}</p>
     </div>

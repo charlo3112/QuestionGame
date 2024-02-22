@@ -32,6 +32,8 @@ import { Subscription } from 'rxjs';
 })
 export class ChatComponent implements OnDestroy {
     @Output() isChatFocused = new EventEmitter<boolean>();
+    username: string = 'YourMum';
+    roomID: string = 'RoomId';
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
@@ -41,8 +43,8 @@ export class ChatComponent implements OnDestroy {
     constructor(private webSocketService: WebSocketService) {
         this.subscribeToInitialMessages();
         this.subscribeToRealTimeMessages();
-        this.webSocketService.joinRoom('RoomId');
-        this.webSocketService.getMessages('RoomId');
+        this.webSocketService.joinRoom(this.roomID);
+        this.webSocketService.getMessages(this.roomID);
     }
 
     @HostListener('keydown', ['$event'])
@@ -55,7 +57,7 @@ export class ChatComponent implements OnDestroy {
 
     chatSubmit() {
         if (this.chatInput.trim()) {
-            this.webSocketService.sendMessage(this.chatInput, 'YourMum', 'RoomId');
+            this.webSocketService.sendMessage(this.chatInput, this.username, this.roomID);
             this.chatInput = '';
         }
     }
