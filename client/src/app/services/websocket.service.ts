@@ -42,8 +42,12 @@ export class WebSocketService {
         this.socket.emit('messages:get', roomId);
     }
 
+    private createSocket(): Socket {
+        return io(environment.wsUrl, { transports: ['websocket'] });
+    }
+
     private connect() {
-        this.socket = io(environment.wsUrl, { transports: ['websocket'] });
+        this.socket = this.createSocket();
         this.listenForMessage();
         this.listenForInitialMessages();
     }

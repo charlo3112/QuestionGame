@@ -32,7 +32,7 @@ import { Subscription } from 'rxjs';
 })
 export class ChatComponent implements OnDestroy {
     @Output() isChatFocused = new EventEmitter<boolean>();
-    username: string = 'YourMum';
+    username: string = 'username';
     roomID: string = 'RoomId';
     chat: Message[] = [];
     chatInput: string = '';
