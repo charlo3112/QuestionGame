@@ -84,8 +84,8 @@ export class ChatComponent implements OnDestroy {
             next: (messages: Message[]) => {
                 this.chat = messages;
             },
-            error: (err) => console.error(err),
-            complete: () => console.log('Initial message stream completed'),
+            // error: (err) => console.error(err),
+            // complete: () => console.log('Initial message stream completed'),
         });
         this.sortMessagesByTimestamp();
     }
@@ -95,8 +95,8 @@ export class ChatComponent implements OnDestroy {
             next: (message: Message) => {
                 this.chat.push(message);
             },
-            error: (err) => console.error(err),
-            complete: () => console.log('Real-time message stream completed'),
+            // error: (err) => console.error(err),
+            // complete: () => console.log('Real-time message stream completed'),
         });
         this.sortMessagesByTimestamp();
     }
