@@ -302,26 +302,28 @@ describe('CreatePageComponent', () => {
     });
 
     it('should create a game if the form is valid', async () => {
+        const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
+        spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
         component.isEditing = false;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
         component.description = 'Test description';
         component.duration = MIN_DURATION;
-        // await component.save();
-        const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
-        spyOn(communicationService, 'addGame').and.returnValue(of(mockResponse));
+        fixture.detectChanges();
+        await component.save();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     });
 
     it('should update a game if the form is valid', async () => {
+        const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
+        spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
         component.isEditing = true;
         component.title = 'Test titre';
         component.questions = [mockValidQuestion1, mockValidQuestion2];
         component.description = 'Test description';
         component.duration = MIN_DURATION;
-        // await component.save();
-        const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
-        spyOn(communicationService, 'editGame').and.returnValue(of(mockResponse));
+        fixture.detectChanges();
+        await component.save();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     });
 
