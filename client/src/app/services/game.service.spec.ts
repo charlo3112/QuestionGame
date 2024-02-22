@@ -188,4 +188,8 @@ describe('Game', () => {
     it('should return 0 at the start of the game', () => {
         expect(service.score).toEqual(0);
     });
+
+    it('should return the max time of the game', () => {
+        expect(service.maxTime).toEqual(GAME_PLACEHOLDER.duration);
+    });
 });

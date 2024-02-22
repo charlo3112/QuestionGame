@@ -32,6 +32,10 @@ export class GameService {
         return this.timeService.time;
     }
 
+    get maxTime(): number {
+        return this.game.duration;
+    }
+
     get currentState(): GameState {
         return this.state;
     }
