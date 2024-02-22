@@ -21,7 +21,6 @@ export class QuestionComponent {
     @Input() question: Question;
     isChatFocused: boolean = false;
 
-    readonly timer = 60;
     constructor(readonly gameService: GameService) {}
 
     @HostListener('keydown', ['$event'])

@@ -57,7 +57,7 @@
     position: fixed;
     right: 0;
     border-top: 4em solid transparent;
-    border-image: url('/assets/wave.svg') 400 stretch;
+    border-image: url('../../../assets/wave.svg') 400 stretch;
     background-color: constant.$wave-color;
     background-clip: padding-box;
     height: 100vh;

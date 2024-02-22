@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
     imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink],
 })
 export class QuestionBankPageComponent implements OnInit {
+    @ViewChild(QuestionBankComponent) child!: QuestionBankComponent;
     showAddQuestion = false;
     constructor(private router: Router) {}
 
@@ -25,5 +26,10 @@ export class QuestionBankPageComponent implements OnInit {
 
     handleCloseAdd() {
         this.showAddQuestion = false;
+    }
+
+    handleCreateQuestion() {
+        this.showAddQuestion = true;
+        this.child.toggleHighlight(null);
     }
 }

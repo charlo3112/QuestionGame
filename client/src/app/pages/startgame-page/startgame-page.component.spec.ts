@@ -93,7 +93,7 @@ describe('StartGamePageComponent', () => {
         expect(component.loadGames).toHaveBeenCalled();
     });
     it('should navigate to loading page when starting a game', () => {
-        const game = GAME_PLACEHOLDER;
+        const game = structuredClone(GAME_PLACEHOLDER);
         spyOn(window, 'alert');
         spyOn(router, 'navigate');
 
@@ -103,7 +103,7 @@ describe('StartGamePageComponent', () => {
     });
 
     it('should navigate to game page when game visibility is true', fakeAsync(() => {
-        const game = GAME_PLACEHOLDER;
+        const game = structuredClone(GAME_PLACEHOLDER);
         game.visibility = true;
         const mockResult = { ok: true, value: game };
         communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockResult.value } as Result<Game>));
@@ -114,7 +114,7 @@ describe('StartGamePageComponent', () => {
 
         tick();
 
-        expect(router.navigate).toHaveBeenCalledWith(['/game'], { state: { questions: game.questions } });
+        expect(router.navigate).toHaveBeenCalledWith(['/game'], { state: { game } });
     }));
 
     it('should display snack bar message and reload games list when game visibility is false', fakeAsync(() => {

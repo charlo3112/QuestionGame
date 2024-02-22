@@ -83,7 +83,7 @@ export class StartGamePageComponent {
                 if (result.ok && result.value) {
                     const newGame = result.value;
                     if (newGame.visibility) {
-                        this.router.navigate(['/game'], { state: { questions: newGame.questions } });
+                        this.router.navigate(['/game'], { state: { game: newGame } });
                     } else {
                         this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
                         this.loadGames();
