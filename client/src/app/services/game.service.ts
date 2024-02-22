@@ -17,6 +17,7 @@ export class GameService {
     private state: GameState = GameState.NotStarted;
     private scoreValue: number = 0;
     private bonus: boolean = false;
+    private choicesSelected: boolean[] = [false, false, false, false];
 
     constructor(
         private readonly timeService: TimeService,
@@ -51,12 +52,16 @@ export class GameService {
         return 'Vous avez un bonus!';
     }
 
+    isChoiceSelected(index: number): boolean {
+        return this.choicesSelected[index];
+    }
+
     isChoiceCorrect(index: number): boolean {
         if (this.state !== GameState.ShowResults) {
             return false;
         }
         const choice = this.game.questions[this.i].choices[index];
-        return choice.isCorrect && choice.isSelected;
+        return choice.isCorrect;
     }
 
     isChoiceIncorrect(index: number): boolean {
@@ -64,12 +69,12 @@ export class GameService {
             return false;
         }
         const choice = this.game.questions[this.i].choices[index];
-        return (!choice.isCorrect && choice.isSelected) || (choice.isCorrect && !choice.isSelected);
+        return !choice.isCorrect;
     }
 
     selectChoice(index: number) {
         if (this.state === GameState.AskingQuestion) {
-            this.game.questions[this.i].choices[index].isSelected = !this.game.questions[this.i].choices[index].isSelected;
+            this.choicesSelected[index] = !this.choicesSelected[index];
         }
     }
 
@@ -112,7 +117,7 @@ export class GameService {
     private isResponseGood(): boolean {
         const length = this.game.questions[this.i].choices.length;
         for (let i = 0; i < length; ++i) {
-            if (this.game.questions[this.i].choices[i].isSelected !== this.game.questions[this.i].choices[i].isCorrect) {
+            if (this.choicesSelected[i] !== this.game.questions[this.i].choices[i].isCorrect) {
                 return false;
             }
         }
@@ -133,6 +138,7 @@ export class GameService {
                 this.state = GameState.ShowResults;
                 break;
             case GameState.ShowResults:
+                for (let i = 0; i < this.game.questions[this.i].choices.length; ++i) this.choicesSelected[i] = false;
                 this.state = ++this.i < this.game.questions.length ? GameState.AskingQuestion : GameState.Gameover;
                 break;
             case GameState.Gameover:

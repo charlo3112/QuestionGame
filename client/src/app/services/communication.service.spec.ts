@@ -366,22 +366,18 @@ describe('CommunicationService', () => {
                 {
                     text: "Guillaume dit n'importe quoi",
                     isCorrect: false,
-                    isSelected: false,
                 },
                 {
                     text: 'Guillaume a juste casse encore',
                     isCorrect: false,
-                    isSelected: false,
                 },
                 {
                     text: 'Guillaum ne peut plus toucher au serveur',
                     isCorrect: true,
-                    isSelected: false,
                 },
                 {
                     text: 'Guillaume',
                     isCorrect: false,
-                    isSelected: false,
                 },
             ],
             text: 'Pourquoi le patch fonctionne',

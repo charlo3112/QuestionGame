@@ -73,8 +73,8 @@ describe('Game', () => {
         service.toggleBonus();
         service.selectChoice(0);
         service['state'] = GameState.ShowResults;
-        service['game'].questions[0].choices[0].isSelected = true;
-        service['game'].questions[0].choices[1].isSelected = true;
+        service.selectChoice(0);
+        service.selectChoice(1);
         expect(service.message).toEqual('Vous avez un bonus!');
     });
 
@@ -117,12 +117,12 @@ describe('Game', () => {
     it('should not allow to select choice when the state is not asking question', () => {
         service['state'] = GameState.ShowResults;
         service.selectChoice(0);
-        expect(service['game'].questions[0].choices[0].isSelected).toBeFalsy();
+        expect(service['choicesSelected'][0]).toBeFalsy();
     });
 
     it('should allow to select choice when the state is asking question', () => {
         service.selectChoice(0);
-        expect(service['game'].questions[0].choices[0].isSelected).toBeTruthy();
+        expect(service['choicesSelected'][0]).toBeTruthy();
     });
 
     it('should not confirm a question when the state is not AskingQuestion', () => {
