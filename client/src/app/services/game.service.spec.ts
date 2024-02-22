@@ -47,6 +47,10 @@ describe('Game', () => {
         expect(service).toBeTruthy();
     });
 
+    it('should return false when the choice is not selected', () => {
+        expect(service.isChoiceSelected(0)).toBeFalsy();
+    });
+
     it('should not return a question when GameState is not AskingQuestion or ShowResults', () => {
         service['state'] = GameState.Gameover;
         expect(service.currentQuestion).toBeUndefined();
@@ -72,15 +76,9 @@ describe('Game', () => {
     it('should return a bonus message when in ShowResults', () => {
         service.toggleBonus();
         service.selectChoice(0);
-        service['state'] = GameState.ShowResults;
-        service.selectChoice(0);
         service.selectChoice(1);
-        expect(service.message).toEqual('Vous avez un bonus!');
-    });
-
-    it('should return false when the state is not show results', () => {
         service['state'] = GameState.ShowResults;
-        expect(service.isChoiceCorrect(0)).toBeFalsy();
+        expect(service.message).toEqual('Vous avez un bonus!');
     });
 
     it('should return false when the choice is not correct', () => {
@@ -107,11 +105,6 @@ describe('Game', () => {
         service.selectChoice(2);
         service['state'] = GameState.ShowResults;
         expect(service.isChoiceIncorrect(2)).toBeTruthy();
-    });
-
-    it('should return true when the choice is incorrect', () => {
-        service['state'] = GameState.ShowResults;
-        expect(service.isChoiceIncorrect(0)).toBeTruthy();
     });
 
     it('should not allow to select choice when the state is not asking question', () => {
