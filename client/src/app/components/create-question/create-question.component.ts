@@ -133,7 +133,7 @@ export class CreateQuestionComponent implements OnChanges {
                     }
                 },
                 error: () => {
-                    this.openSnackBar('Erreur dans la requête');
+                    this.openSnackBar('La question est déjà dans la banque de questions.');
                 },
             });
         }
