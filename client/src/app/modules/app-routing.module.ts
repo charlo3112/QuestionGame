@@ -6,6 +6,7 @@ import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
+import { ResultPageComponent } from '@app/pages/result-page/result-page.component';
 import { StartGamePageComponent } from '@app/pages/startgame-page/startgame-page.component';
 
 export const routes: Routes = [
@@ -18,6 +19,7 @@ export const routes: Routes = [
     { path: 'admin', component: AdminPageComponent },
     { path: 'loading', component: LoadingPageComponent },
     { path: 'admin/question-bank', component: QuestionBankPageComponent },
+    { path: 'result', component: ResultPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

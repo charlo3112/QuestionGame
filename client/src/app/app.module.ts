@@ -11,13 +11,13 @@ import { AppRoutingModule } from '@app/modules/app-routing.module';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
+import { ResultPageComponent } from '@app/pages/result-page/result-page.component';
 import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
+import { HistogramComponent } from './components/histogram/histogram.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
+import { ScoreBoardComponent } from './components/score-board/score-board.component';
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
-import { HistogramComponent } from './histogram/histogram.component';
-import { ScoreBoardComponent } from './score-board/score-board.component';
-import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
 /**
  * Main module that is used in main.ts.
@@ -26,7 +26,7 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, HistogramComponent, ScoreBoardComponent, LeaderboardComponent],
+    declarations: [AppComponent],
     imports: [
         AppRoutingModule,
         BrowserAnimationsModule,
@@ -44,6 +44,9 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
         MatGridListModule,
         QuestionBankComponent,
         QuestionBankPageComponent,
+        HistogramComponent,
+        ScoreBoardComponent,
+        ResultPageComponent,
     ],
     providers: [],
     bootstrap: [AppComponent],
