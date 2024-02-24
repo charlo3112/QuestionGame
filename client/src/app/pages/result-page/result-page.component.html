@@ -4,7 +4,31 @@
     <span class="spacer"></span>
 </mat-toolbar>
 <div class="Result container">
-    <app-leaderboard></app-leaderboard>
-    <app-histogram></app-histogram>
+    <button (click)="showStats = false">Scoreboard</button>
+    <button (click)="showStats = true">Stats</button>
+    <ng-container *ngIf="!showStats; else statsSection">
+        <app-leaderboard></app-leaderboard>
+    </ng-container>
+    <ng-template #statsSection>
+        <div class="Graphs container">
+            <button (click)="navigatePrevious()">Previous</button>
+            <h2>{{ graphTypes[currentGraphIndex] }}</h2>
+            <button (click)="navigateNext()">Next</button>
+            
+            <!-- Display the appropriate graph based on the currentGraphIndex -->
+            <div *ngIf="graphTypes[currentGraphIndex] === 'Bar Chart'">
+                <!-- Include your bar chart component here -->
+                <app-bar-chart></app-bar-chart>
+            </div>
+            <div *ngIf="graphTypes[currentGraphIndex] === 'Line Chart'">
+                <!-- Include your line chart component here -->
+                <app-line-chart></app-line-chart>
+            </div>
+            <div *ngIf="graphTypes[currentGraphIndex] === 'Pie Chart'">
+                <!-- Include your pie chart component here -->
+                <app-pie-chart></app-pie-chart>
+            </div>
+        </div>
+    </ng-template>
     <app-chat> </app-chat>
 </div>
