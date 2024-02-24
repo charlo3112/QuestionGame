@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
@@ -9,7 +10,7 @@ import { SNACKBAR_DURATION } from '@common/constants';
     styleUrls: ['./leaderboard.component.css'],
 })
 export class LeaderboardComponent implements OnInit {
-    leaderboard: unknown[] = [];
+    leaderboard: Player[] = [];
 
     constructor(
         private communicationService: CommunicationService,
@@ -21,8 +22,19 @@ export class LeaderboardComponent implements OnInit {
     }
 
     fetchLeaderboard() {
-        this.communicationService.getLeaderboard().subscribe((data: unknown[]) => {
-            this.leaderboard = data;
+        this.communicationService.getLeaderboard().subscribe({
+            next: (response: Result<Player[]>) => {
+                if (!response.ok) {
+                    throw new Error('Error fetching questions');
+                }
+                this.leaderboard = response.value;
+                this.leaderboard.sort((a, b) => {
+                    return b.getScore() - a.getScore();
+                });
+            },
+            error: () => {
+                throw new Error('Error fetching questions');
+            },
         });
     }
     openSnackBar(message: string) {

@@ -113,8 +113,15 @@ export class CommunicationService {
         );
     }
 
-    getLeaderBoard(): Observable<PLayer[]> {
-        return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' });
+    getLeaderboard(): Observable<Result<PLayer[]>> {
+        return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' }).pipe(
+            map((response: HttpResponse<Player[]>) => {
+                return { ok: true, value: response.body as Player[] } as Result<Player[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching games' } as Result<Player[]>);
+            }),
+        );
     }
 
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
