@@ -20,6 +20,7 @@ export class CommunicationService {
             responseType: 'text',
         });
     }
+
     deleteGame(id: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
     }
