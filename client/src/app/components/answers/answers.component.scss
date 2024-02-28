@@ -5,11 +5,11 @@
     display: grid;
     gap: 0.69em;
     .good {
-        background-color: green;
+        background-color: map.get(constant.$green-palette, 500);
     }
     
     .bad {
-        background-color: red;
+        background-color: map.get(constant.$orange-palette, 700);
     }
 }
 
@@ -45,7 +45,15 @@
 }
 
 .selected {
-    border: 3px solid red;
+    border: 0.2em solid map.get(constant.$blue-palette, 300);
+}
+
+.selected.good {
+    border-color: map.get(constant.$green-palette, 200);
+}
+
+.selected.bad {
+    border-color: map.get(constant.$orange-palette, 300);
 }
 
 .solution {

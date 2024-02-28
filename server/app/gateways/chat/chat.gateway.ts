@@ -1,63 +1,66 @@
+import { RoomManagementService } from '@app/services/room-management.service';
+import { MAX_MESSAGE_LENGTH } from '@common/constants';
+import { Message } from '@common/message.interface';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { DELAY_BEFORE_EMITTING_TIME, PRIVATE_ROOM_ID, WORD_MIN_LENGTH } from './chat.gateway.constants';
-import { ChatEvents } from './chat.gateway.events';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() private server: Server;
+    private roomMessages: Map<string, Message[]> = new Map();
 
-    private readonly room = PRIVATE_ROOM_ID;
-
-    constructor(private readonly logger: Logger) {}
-
-    @SubscribeMessage(ChatEvents.Validate)
-    validate(socket: Socket, word: string) {
-        socket.emit(ChatEvents.WordValidated, word?.length > WORD_MIN_LENGTH);
+    constructor(
+        private readonly logger: Logger,
+        private readonly roomManager: RoomManagementService,
+    ) {
+        // this.roomManager.setGatewayCallback(this.handleJoinRoom.bind(this), this.handleLeaveRoom.bind(this));
     }
 
-    @SubscribeMessage(ChatEvents.ValidateACK)
-    validateWithAck(_: Socket, word: string) {
-        return { isValid: word?.length > WORD_MIN_LENGTH };
-    }
+    @SubscribeMessage('message:send')
+    handleMessage(client: Socket, payload: { roomId: string; message: string; name: string }): void {
+        const { roomId, message, name } = payload;
+        const trimmedMessage = message.substring(0, MAX_MESSAGE_LENGTH);
+        const timestamp = new Date().toLocaleTimeString();
 
-    @SubscribeMessage(ChatEvents.BroadcastAll)
-    broadcastAll(socket: Socket, message: string) {
-        this.server.emit(ChatEvents.MassMessage, `${socket.id} : ${message}`);
-    }
+        const messageToSend: Message = {
+            name,
+            message: trimmedMessage,
+            timestamp,
+        };
 
-    @SubscribeMessage(ChatEvents.JoinRoom)
-    joinRoom(socket: Socket) {
-        socket.join(this.room);
-    }
+        if (client.rooms.has(roomId)) {
+            if (!this.roomMessages.has(roomId)) {
+                this.roomMessages.set(roomId, []);
+            }
+            this.roomMessages.get(roomId)?.push(messageToSend);
 
-    @SubscribeMessage(ChatEvents.RoomMessage)
-    roomMessage(socket: Socket, message: string) {
-        // Seulement un membre de la salle peut envoyer un message aux autres
-        if (socket.rooms.has(this.room)) {
-            this.server.to(this.room).emit(ChatEvents.RoomMessage, `${socket.id} : ${message}`);
+            this.server.to(roomId).emit('message:receive', messageToSend);
+            this.logger.debug(`${trimmedMessage} sent in room ${roomId} by ${name}`);
         }
     }
 
-    afterInit() {
-        setInterval(() => {
-            this.emitTime();
-        }, DELAY_BEFORE_EMITTING_TIME);
+    @SubscribeMessage('messages:get')
+    handleGetMessages(client: Socket, roomId: string): void {
+        if (!client.rooms.has(roomId)) {
+            return;
+        }
+        const messages = this.roomMessages.get(roomId) || [];
+        client.emit('messages:list', messages);
     }
 
-    handleConnection(socket: Socket) {
-        this.logger.log(`Connexion par l'utilisateur avec id : ${socket.id}`);
-        // message initial
-        socket.emit(ChatEvents.Hello, 'Hello World!');
+    handleConnection(client: Socket): void {
+        this.logger.log(`Client connected: ${client.id}`);
     }
 
-    handleDisconnect(socket: Socket) {
-        this.logger.log(`Déconnexion par l'utilisateur avec id : ${socket.id}`);
-    }
-
-    private emitTime() {
-        this.server.emit(ChatEvents.Clock, new Date().toLocaleTimeString());
+    handleDisconnect(client: Socket): void {
+        const rooms = this.server.sockets.adapter.rooms;
+        this.roomMessages.forEach((value, key) => {
+            if (!rooms.has(key)) {
+                this.roomMessages.delete(key);
+            }
+        });
+        this.logger.log(`Client disconnected: ${client.id}`);
     }
 }
