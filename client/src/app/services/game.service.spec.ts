@@ -1,11 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { Choice } from '@app/classes/choice';
 import { GameState } from '@app/enums/game-state';
-import { questions } from '@app/interfaces/question';
 import { GameService } from './game.service';
 import { TimeService } from './time.service';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 
 const timeConfirmMs = 3000;
 const timeQuestionMs = 60000;
@@ -41,13 +40,15 @@ describe('Game', () => {
         });
         service = TestBed.inject(GameService);
 
-        service.startGame(
-            questions.map((question) => ({ ...question, choices: question.choices.map((choice) => new Choice(choice.text, choice.isCorrect)) })),
-        );
+        service.startGame(structuredClone(GAME_PLACEHOLDER));
     });
 
     it('should be created', () => {
         expect(service).toBeTruthy();
+    });
+
+    it('should return false when the choice is not selected', () => {
+        expect(service.isChoiceSelected(0)).toBeFalsy();
     });
 
     it('should not return a question when GameState is not AskingQuestion or ShowResults', () => {
@@ -60,12 +61,12 @@ describe('Game', () => {
     });
 
     it('should return the current question', () => {
-        expect(service.currentQuestion).toEqual(questions[0]);
+        expect(service.currentQuestion).toEqual(structuredClone(GAME_PLACEHOLDER).questions[0]);
     });
 
     it('should return the current question when GameState is ShowResults', () => {
         service['state'] = GameState.ShowResults;
-        expect(service.currentQuestion).toEqual(questions[0]);
+        expect(service.currentQuestion).toEqual(structuredClone(GAME_PLACEHOLDER).questions[0]);
     });
 
     it('should return undefined when there is no bonus', () => {
@@ -73,16 +74,11 @@ describe('Game', () => {
     });
 
     it('should return a bonus message when in ShowResults', () => {
-        service['bonus'] = true;
+        service.toggleBonus();
+        service.selectChoice(0);
+        service.selectChoice(1);
         service['state'] = GameState.ShowResults;
-        service['questions'][0].choices[0].isSelected = true;
-        service['questions'][0].choices[1].isSelected = true;
         expect(service.message).toEqual('Vous avez un bonus!');
-    });
-
-    it('should return false when the state is not show results', () => {
-        service['state'] = GameState.ShowResults;
-        expect(service.isChoiceCorrect(0)).toBeFalsy();
     });
 
     it('should return false when the choice is not correct', () => {
@@ -111,22 +107,15 @@ describe('Game', () => {
         expect(service.isChoiceIncorrect(2)).toBeTruthy();
     });
 
-    it('should return true when the choice is incorrect', () => {
-        service['state'] = GameState.ShowResults;
-        service['questions'][0].choices[0].isSelected = false;
-        expect(service.isChoiceIncorrect(0)).toBeTruthy();
-    });
-
     it('should not allow to select choice when the state is not asking question', () => {
         service['state'] = GameState.ShowResults;
-        service['questions'][0].choices[0].isSelected = false;
         service.selectChoice(0);
-        expect(service['questions'][0].choices[0].isSelected).toBeFalsy();
+        expect(service['choicesSelected'][0]).toBeFalsy();
     });
 
     it('should allow to select choice when the state is asking question', () => {
         service.selectChoice(0);
-        expect(service['questions'][0].choices[0].isSelected).toBeTruthy();
+        expect(service['choicesSelected'][0]).toBeTruthy();
     });
 
     it('should not confirm a question when the state is not AskingQuestion', () => {
@@ -151,14 +140,14 @@ describe('Game', () => {
     }));
 
     it('should navigate when GameOver', fakeAsync(() => {
-        service['i'] = questions.length - 1;
+        service['i'] = GAME_PLACEHOLDER.questions.length - 1;
         service.confirmQuestion();
         tick(timeConfirmMs + 1);
         expect(mockRouter.navigate).toHaveBeenCalled();
     }));
 
     it('should stay in the same state when finishing the game', fakeAsync(() => {
-        service['i'] = questions.length - 1;
+        service['i'] = GAME_PLACEHOLDER.questions.length - 1;
         service.confirmQuestion();
         service['state'] = GameState.Gameover;
         tick(timeConfirmMs + 1);
@@ -198,5 +187,9 @@ describe('Game', () => {
 
     it('should return 0 at the start of the game', () => {
         expect(service.score).toEqual(0);
+    });
+
+    it('should return the max time of the game', () => {
+        expect(service.maxTime).toEqual(GAME_PLACEHOLDER.duration);
     });
 });

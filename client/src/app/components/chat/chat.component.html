@@ -1,11 +1,12 @@
 <mat-card class="chat">
+    <mat-card class="name">
+        <h2>{{ this.username }}</h2>
+    </mat-card>
     <div class="chat-text">
-        <p *ngFor="let text of chat.reverse();">
-            {{ text }}
-        </p>
+        <p *ngFor="let text of chat.reverse()">{{ text.name }} ({{ text.timestamp }}): {{ text.message }}</p>
     </div>
     <mat-form-field class="chat-input">
-        <input matInput [(ngModel)]="chatInput" (focus)="this.onFocus();" (focusout)="this.onFocusOut();">
+        <input matInput [(ngModel)]="chatInput" (focus)="this.onFocus()" (focusout)="this.onFocusOut()" maxlength="{{ this.maxLength }}" />
         <button matSuffix mat-icon-button (click)="chatSubmit()">
             <mat-icon>keyboard_arrow_right</mat-icon>
         </button>

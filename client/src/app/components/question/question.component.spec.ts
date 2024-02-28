@@ -25,7 +25,13 @@ describe('Question', () => {
     let gameServiceSpy: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
-        gameServiceSpy = jasmine.createSpyObj('GameService', ['confirmQuestion', 'selectChoice', 'isChoiceCorrect', 'isChoiceIncorrect']);
+        gameServiceSpy = jasmine.createSpyObj('GameService', [
+            'confirmQuestion',
+            'selectChoice',
+            'isChoiceCorrect',
+            'isChoiceIncorrect',
+            'isChoiceSelected',
+        ]);
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [{ provide: GameService, useValue: gameServiceSpy }],

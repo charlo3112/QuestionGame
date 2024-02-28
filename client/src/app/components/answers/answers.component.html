@@ -9,7 +9,7 @@
     <button
         mat-raised-button
         class="answer"
-        [ngClass]="{ selected: choice.isSelected, 'good': gameService.isChoiceCorrect(i), 'bad': gameService.isChoiceIncorrect(i) }"
+        [ngClass]="{ selected: gameService.isChoiceSelected(i), 'good': gameService.isChoiceCorrect(i), 'bad': gameService.isChoiceIncorrect(i) }"
         (click)="gameService.selectChoice(i)"
         *ngFor="let choice of choices; let i = index"
     >   
