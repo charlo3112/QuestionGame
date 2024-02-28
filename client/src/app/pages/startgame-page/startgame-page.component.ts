@@ -56,14 +56,31 @@ export class StartGamePageComponent {
             duration: 4000,
         });
     }
-    refreshGames() {
-        this.loadGames();
-    }
 
     startGame(game: Game) {
-        this.openSnackBar('Starting game : ' + game.title);
-        // TODO: Add server call to start game (NOT FOR SPRINT 1)
-        this.router.navigate(['/loading']);
+        const gameId = game.gameId;
+
+        this.communicationService
+            .getGameByID(gameId)
+            .pipe(
+                tap((result: Result<Game>) => {
+                    if (!result.ok || !result.value) {
+                        this.openSnackBar('Jeux supprimé, veuillez en choisir un autre');
+                        this.loadGames();
+                    }
+                }),
+            )
+            .subscribe((result: Result<Game>) => {
+                if (result.ok && result.value) {
+                    const newGame = result.value;
+                    if (newGame.visibility) {
+                        // TODO: Call pour vue de l'organisateur du jeu
+                    } else {
+                        this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
+                        this.loadGames();
+                    }
+                }
+            });
     }
 
     testGame(game: Game) {

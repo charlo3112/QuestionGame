@@ -87,22 +87,7 @@ describe('StartGamePageComponent', () => {
         expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close', { duration: 4000 });
     });
 
-    it('should refresh games', () => {
-        spyOn(component, 'loadGames');
-        component.refreshGames();
-        expect(component.loadGames).toHaveBeenCalled();
-    });
-    it('should navigate to loading page when starting a game', () => {
-        const game = structuredClone(GAME_PLACEHOLDER);
-        spyOn(window, 'alert');
-        spyOn(router, 'navigate');
-
-        component.startGame(game);
-
-        expect(router.navigate).toHaveBeenCalledWith(['/loading']);
-    });
-
-    it('should navigate to game page when game visibility is true', fakeAsync(() => {
+    it('should navigate to game page when testing and game visibility is true', fakeAsync(() => {
         const game = structuredClone(GAME_PLACEHOLDER);
         game.visibility = true;
         const mockResult = { ok: true, value: game };
@@ -117,7 +102,7 @@ describe('StartGamePageComponent', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/game'], { state: { game } });
     }));
 
-    it('should display snack bar message and reload games list when game visibility is false', fakeAsync(() => {
+    it('should display snack bar message and reload games list when testing and game visibility is false', fakeAsync(() => {
         const game = GAME_PLACEHOLDER;
         game.visibility = false;
         const mockResult = { ok: true, value: game };
@@ -134,7 +119,21 @@ describe('StartGamePageComponent', () => {
         expect(component.loadGames).toHaveBeenCalled();
     }));
 
-    it('should display snack bar message and reload games list when game fetch fails', fakeAsync(() => {
+    it('should display snack bar message and reload games list when starting and game visibility is false', fakeAsync(() => {
+        const game = GAME_PLACEHOLDER;
+        game.visibility = false;
+        const mockResult = { ok: true, value: game };
+        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockResult.value } as Result<Game>));
+
+        spyOn(component, 'openSnackBar');
+        spyOn(component, 'loadGames');
+        component.startGame(game);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux invisible, veuillez en choisir un autre');
+        expect(component.loadGames).toHaveBeenCalled();
+    }));
+
+    it('should display snack bar message and reload games list when testing and game fetch fails', fakeAsync(() => {
         const mockGameId = 'mock-game-id';
         const mockGame = { ...GAME_PLACEHOLDER, gameId: mockGameId };
 
@@ -143,6 +142,20 @@ describe('StartGamePageComponent', () => {
         spyOn(component, 'openSnackBar');
         spyOn(component, 'loadGames');
         component.testGame(mockGame);
+        tick();
+        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
+        expect(component.loadGames).toHaveBeenCalled();
+    }));
+
+    it('should display snack bar message and reload games list when starting and game fetch fails', fakeAsync(() => {
+        const mockGameId = 'mock-game-id';
+        const mockGame = { ...GAME_PLACEHOLDER, gameId: mockGameId };
+
+        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: false, error: 'Error fetching game' } as Result<Game>));
+
+        spyOn(component, 'openSnackBar');
+        spyOn(component, 'loadGames');
+        component.startGame(mockGame);
         tick();
         expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
         expect(component.loadGames).toHaveBeenCalled();
