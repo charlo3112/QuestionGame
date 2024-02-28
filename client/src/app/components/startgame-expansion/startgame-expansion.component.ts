@@ -16,7 +16,6 @@ export class StartGameExpansionComponent {
     @Input() gameDetails: Game;
     @Output() startGame = new EventEmitter<void>();
     @Output() testGame = new EventEmitter<void>();
-    @Output() refreshGames = new EventEmitter<void>();
 
     onStartGame() {
         this.startGame.emit();
@@ -24,9 +23,5 @@ export class StartGameExpansionComponent {
 
     onTestGame() {
         this.testGame.emit();
-    }
-
-    onRefreshGames() {
-        this.refreshGames.emit();
     }
 }
