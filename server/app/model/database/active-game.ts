@@ -1,5 +1,5 @@
 import { CreateActiveGameDto } from '@app/model/dto/active-game/create-active-game.dto';
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Game } from './game';
 import { Player } from './player';
@@ -18,9 +18,23 @@ export class ActiveGame {
 
     constructor(gameData: CreateActiveGameDto) {
         this.game = gameData.game;
-        this.playersHashMap = {};
+        this.playersHashMap = gameData.playersHashMap;
     }
     addPlayer(player: Player) {
         this.playersHashMap[player.getPlayerId()] = player;
     }
+
+    removePlayer(player: Player) {
+        delete this.playersHashMap[player.getPlayerId()];
+    }
+
+    getGame() {
+        return this.game;
+    }
+
+    getPlayersHashMap() {
+        return this.playersHashMap;
+    }
 }
+
+export const activeGameSchema = SchemaFactory.createForClass(ActiveGame);
