@@ -4,9 +4,8 @@ export interface Player {
     nbOfBonus: number;
 }
 
-export const PLAYER_PLACEHOLDER: Player[] = {
-    {name: 'bob',
-    score: 123,
-    nbOfBonus: 2,},
-    
-};
+export const PLAYERS: Player[] = [
+    { name: 'Alice', score: 100, nbOfBonus: 1 },
+    { name: 'Bob', score: 80, nbOfBonus: 0 },
+    { name: 'Charlie', score: 120, nbOfBonus: 2 },
+];

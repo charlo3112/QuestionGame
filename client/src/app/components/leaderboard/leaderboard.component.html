@@ -1,17 +1,18 @@
-<h2>Leaderboard</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Player Name</th>
-      <th>Points</th>
-    </tr>
-  </thead>
-  <!--
-  <tbody>
-    <tr *ngFor="let player of leaderboard">
-      <td>{{ player.name }}</td>
-      <td>{{ player.points }}</td>
-    </tr>
-  </tbody>
-  -->
-</table>
+<h2>Tableau des résultats</h2>
+<div class="table-wrapper">
+  <table class="leaderboard-table">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Pointage</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let player of leaderboard">
+        <td>{{ player.name }}</td>
+        <td>{{ player.score }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
