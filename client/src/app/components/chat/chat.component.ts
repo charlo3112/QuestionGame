@@ -43,7 +43,6 @@ export class ChatComponent implements OnDestroy {
     constructor(private webSocketService: WebSocketService) {
         this.subscribeToInitialMessages();
         this.subscribeToRealTimeMessages();
-        this.webSocketService.joinRoom(this.roomID);
         this.webSocketService.getMessages(this.roomID);
     }
 
@@ -63,7 +62,7 @@ export class ChatComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.webSocketService.leaveRoom('RoomId');
+        this.webSocketService.leaveRoom();
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
