@@ -1,32 +1,55 @@
 import { User } from '@app/model/classes/user';
 import { Game } from '@app/model/database/game';
-import { RoomState } from '@app/model/enums/room-state';
+import { GameState } from '@common/game-state';
 
 export class ActiveGame {
+    private locked: boolean;
     private game: Game;
-    private playersHashMap: Map<string, User>;
-    private closed: boolean;
-    private state: RoomState;
+    private users: Map<string, User>;
+    private state: GameState;
+    private bannedNames: string[];
 
     constructor(game: Game) {
         this.game = game;
-        this.playersHashMap = new Map<string, User>();
-        this.closed = false;
-        this.state = RoomState.WAITING;
-    }
-    addPlayer(user: User) {
-        this.playersHashMap[user.getPlayerId()] = user;
+        this.users = new Map<string, User>();
+        this.locked = false;
+        this.state = GameState.Wait;
+        this.bannedNames = [];
     }
 
-    removePlayer(user: User) {
-        delete this.playersHashMap[user.getPlayerId()];
-    }
-
-    getGame() {
+    get gameData() {
         return this.game;
     }
 
-    getPlayersHashMap() {
-        return this.playersHashMap;
+    get isLocked() {
+        return this.locked;
+    }
+
+    get currentState() {
+        return this.state;
+    }
+
+    set isLocked(locked: boolean) {
+        this.locked = locked;
+    }
+
+    addUser(user: User) {
+        this.users[user.getUserId()] = user;
+    }
+
+    getUser(userId: string): User {
+        return this.users.get(userId);
+    }
+
+    isEmpty(): boolean {
+        return this.users.size === 0;
+    }
+
+    removeUser(user: User) {
+        delete this.users[user.getUserId()];
+    }
+
+    isBanned(name: string) {
+        return this.bannedNames.includes(name);
     }
 }

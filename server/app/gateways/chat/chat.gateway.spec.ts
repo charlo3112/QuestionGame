@@ -1,5 +1,5 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { RoomManagementService } from '@app/services/room-management.service';
+import { RoomManagementService } from '@app/services/room-managment/room-management.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
