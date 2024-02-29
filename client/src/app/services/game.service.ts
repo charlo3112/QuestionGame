@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { GameState } from '@app/enums/game-state';
-import { Question } from '@app/interfaces/question';
-import { TimeService } from './time.service';
 import { Game } from '@app/interfaces/game';
+import { Question } from '@app/interfaces/question';
+import { GameState } from '@common/game-state';
+import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
 const bonusMultiplier = 1.2;
@@ -100,7 +100,7 @@ export class GameService {
         this.scoreValue += this.scoreQuestion();
         this.timeService.setTimeout(() => {
             this.advanceState();
-            if (this.state === GameState.Gameover) {
+            if (this.state === GameState.GameOver) {
                 this.router.navigate(['#/admin/game']);
                 return;
             }
@@ -143,10 +143,10 @@ export class GameService {
                 break;
             case GameState.ShowResults:
                 for (let i = 0; i < this.game.questions[this.i].choices.length; ++i) this.choicesSelected[i] = false;
-                this.state = ++this.i < this.game.questions.length ? GameState.AskingQuestion : GameState.Gameover;
+                this.state = ++this.i < this.game.questions.length ? GameState.AskingQuestion : GameState.GameOver;
                 break;
-            case GameState.Gameover:
-                this.state = GameState.Gameover;
+            case GameState.GameOver:
+                this.state = GameState.GameOver;
                 break;
         }
     }
