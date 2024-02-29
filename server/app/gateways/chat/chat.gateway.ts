@@ -1,4 +1,4 @@
-import { RoomManagementService } from '@app/services/room-management.service';
+import { RoomManagementService } from '@app/services/room-managment/room-management.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Injectable, Logger } from '@nestjs/common';
