@@ -3,21 +3,16 @@
     <h1 class="title">Résultats</h1>
     <span class="spacer"></span>
 </mat-toolbar>
-<div class="Result container">
-    <!--
-    <button (click)="showStats = false">Scoreboard</button>
-    <button (click)="showStats = true">Stats</button>
-    <ng-container *ngIf="!showStats; else statsSection">
-        <app-leaderboard></app-leaderboard>
-    </ng-container>
-    <ng-template #statsSection>
-        <div class="Graphs container">
-            <button (click)="navigatePrevious()">Previous</button>
-            <h2>{{ graphTypes[currentGraphIndex] }}</h2>
-            <button (click)="navigateNext()">Next</button>
-            
-            Display the appropriate graph based on the currentGraphIndex
-        </div>
-    </ng-template> -->
-    <app-chat> </app-chat>
+<div class="main-container">
+    <mat-tab-group class="result-container">
+        <mat-tab label="Résultats"> 
+            <app-leaderboard> </app-leaderboard>
+        </mat-tab>
+        <mat-tab label="Histogrammes"> 
+            <app-histogram></app-histogram>
+        </mat-tab>
+    </mat-tab-group>
+    <div>
+        <app-chat> </app-chat>
+    </div>
 </div>
