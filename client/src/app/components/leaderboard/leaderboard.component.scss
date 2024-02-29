@@ -1,25 +1,41 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+
+.title {
+    text-align: center;
+}
+
 .table-wrapper {
     overflow-x: auto;
-  }
-  
-  .leaderboard-table {
-    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.leaderboard-table {
+    width:auto; 
+    max-width: auto;
+    border: 1px solid black;
+}
+
+.leaderboard-table {
+    width: 60%;
     border-collapse: collapse;
-  }
-  
-  .leaderboard-table th,
-  .leaderboard-table td {
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    border: 1px solid black;
     padding: 10px;
+}
+.leaderboard-table td {
+    background-color:map.get(constant.$blue-palette, 200);
     text-align: left;
-  }
-  
-  .leaderboard-table th {
-    background-color: #f2f2f2;
+}
+
+.leaderboard-table th {
+    text-align: center;
+    background-color:map.get(constant.$orange-palette, 100);
     color: #333;
     font-weight: bold;
-  }
-  
-  .leaderboard-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
+}
