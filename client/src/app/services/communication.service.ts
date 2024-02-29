@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
+import { Player } from '@app/interfaces/player';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { Result } from '@app/interfaces/result';
 import { Observable, catchError, map, of } from 'rxjs';
@@ -112,8 +113,8 @@ export class CommunicationService {
             }),
         );
     }
-    /*
-    getLeaderboard(): Observable<Result<PLayer[]>> {
+
+    getPlayers(): Observable<Result<Player[]>> {
         return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' }).pipe(
             map((response: HttpResponse<Player[]>) => {
                 return { ok: true, value: response.body as Player[] } as Result<Player[]>;
@@ -123,7 +124,6 @@ export class CommunicationService {
             }),
         );
     }
-    */
 
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
