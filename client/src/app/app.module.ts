@@ -16,7 +16,7 @@ import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
-import { ScoreBoardComponent } from './components/score-board/score-board.component';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
 
 /**
@@ -45,7 +45,7 @@ import { QuestionBankPageComponent } from './pages/question-bank-page/question-b
         QuestionBankComponent,
         QuestionBankPageComponent,
         HistogramComponent,
-        ScoreBoardComponent,
+        LeaderboardComponent,
         ResultPageComponent,
     ],
     providers: [],
