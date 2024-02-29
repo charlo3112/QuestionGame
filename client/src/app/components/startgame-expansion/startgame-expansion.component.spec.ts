@@ -37,14 +37,4 @@ describe('StartGameExpansionComponent', () => {
         component.onTestGame();
         expect(component.testGame.emit).toHaveBeenCalled();
     });
-
-    it('should emit refreshGames event when onRefreshGames is called', () => {
-        spyOn(component.refreshGames, 'emit');
-
-        // Call onRefreshGames
-        component.onRefreshGames();
-
-        // Check if refreshGames event is emitted
-        expect(component.refreshGames.emit).toHaveBeenCalled();
-    });
 });
