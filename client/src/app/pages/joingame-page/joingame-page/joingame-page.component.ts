@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
+import { WebSocketService } from '@app/services/websocket.service';
+import { ROOM_CODE_LENGTH } from '@common/constants';
 
 @Component({
     selector: 'app-joingame-page',
@@ -21,6 +23,8 @@ export class JoinGamePageComponent {
         name: new FormControl('', [Validators.required]),
     });
 
+    constructor(private webSocketService: WebSocketService) {}
+
     async onSubmit() {
         // Validation préalable à l'envoi des données
         if (
@@ -30,8 +34,17 @@ export class JoinGamePageComponent {
             !this.connectForm.value.code
         ) {
             this.entryError = true;
-        } else if (this.connectForm.value.code.length !== 4 || !Number.isInteger(this.connectForm.value.code)) {
+        } else if (this.connectForm.value.code.length !== ROOM_CODE_LENGTH || !Number.isInteger(this.connectForm.value.code)) {
             this.entryError = true;
+        } else {
+            this.entryError = false;
+            this.joinGame();
+        }
+    }
+
+    joinGame() {
+        if (this.connectForm.value.code && this.connectForm.value.name) {
+            this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
         }
     }
 }
