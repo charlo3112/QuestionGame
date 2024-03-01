@@ -5,7 +5,5 @@ export enum GameState {
     WaitingResults,
     ShowResults,
     GameOver,
-    RefusedBanned,
-    RefusedWrongCode,
     NotStarted,
 }
