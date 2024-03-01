@@ -7,10 +7,10 @@
 <div class="loading-container">
     <div class="left-content">
         <mat-list class="list">
-            <mat-list-item *ngFor="let player of playersPlaceHolder" i as index>
+            <mat-list-item *ngFor="let player of players" i as index>
                 <mat-icon matListItemAvatar>person</mat-icon>
                 <div matListItemTitle class="player-name">{{ player }}</div>
-                <button mat-icon-button class="kick-button" (click)="onKickPlayer(player)">
+                <button *ngIf="isHost" mat-icon-button class="kick-button" (click)="onKickPlayer(player)">
                     <mat-icon>close</mat-icon>
                 </button>
             </mat-list-item>
@@ -31,7 +31,7 @@
             <button
                 class="start-game-button"
                 mat-raised-button
-                [disabled]="!roomLocked"
+                [disabled]="!roomLocked || players.length < 1"
                 matTooltip="La partie sera démarée avec les joueurs dans la salle d'attente"
                 (click)="onStartGame()"
             >
@@ -43,7 +43,7 @@
     <!-- Chat -->
     <div class="right-content">
         <div class="chat">
-            <app-chat></app-chat>
+            <app-chat [username]="username" [roomID]="roomCode"></app-chat>
         </div>
     </div>
 </div>
