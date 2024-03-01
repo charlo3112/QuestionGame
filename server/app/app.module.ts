@@ -10,7 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './controllers/admin/admin.controller';
 import { GameGateway } from './gateways/game/game.gateway';
-import { RoomManagementService } from './services/room-managment/room-management.service';
+import { RoomManagementService } from './services/room-management/room-management.service';
 
 @Module({
     imports: [

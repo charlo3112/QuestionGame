@@ -48,15 +48,23 @@ export class ActiveGame {
         return this.activeUsers.size === 0 || this.activeUsers.size === 1;
     }
 
-    removeUser(user: UserData) {
-        this.activeUsers.delete(user.getUserId());
+    removeUser(userId: string) {
+        this.activeUsers.delete(userId);
         if (this.state === GameState.Wait) {
-            this.users.delete(user.getUserId());
+            this.users.delete(userId);
         }
     }
 
     isBanned(name: string) {
         return this.bannedNames.includes(name);
+    }
+
+    isHost(userId: string): boolean {
+        const user = this.users.get(userId);
+        if (!user) {
+            return false;
+        }
+        return user.isHost();
     }
 
     update(userId: string, user: UserData) {
@@ -71,6 +79,9 @@ export class ActiveGame {
     }
 
     banUser(name: string): string {
+        if (this.currentState !== GameState.Wait) {
+            return undefined;
+        }
         this.bannedNames.push(name);
         const userId = Array.from(this.users.values())
             .find((user) => user.username === name)

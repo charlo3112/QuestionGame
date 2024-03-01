@@ -1,9 +1,10 @@
 // src/game/game.gateway.ts
 import { GameService } from '@app/services/game/game.service';
-import { RoomManagementService } from '@app/services/room-managment/room-management.service';
+import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/game-state';
 import { PayloadJoinGame } from '@common/payload-game.interface';
 import { Result } from '@common/result';
+import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -17,7 +18,11 @@ export class GameGateway {
         private roomService: RoomManagementService,
         private readonly gamesService: GameService,
         private readonly logger: Logger,
-    ) {}
+    ) {
+        this.roomService.setGatewayCallback(this.handleDeleteRoom.bind(this));
+        this.roomService.setDisconnectUser(this.handleUserRemoval.bind(this));
+        this.roomService.setUpdateUser(this.handleUpdateUser.bind(this));
+    }
 
     @SubscribeMessage('game:create')
     async handleCreateGame(client: Socket, id: string): Promise<User> {
@@ -35,8 +40,7 @@ export class GameGateway {
 
     @SubscribeMessage('game:leave')
     handleLeaveGame(client: Socket) {
-        const roomId = this.roomService.performUserRemoval(client.id);
-        client.leave(roomId);
+        this.roomService.performUserRemoval(client.id);
     }
 
     @SubscribeMessage('game:toggle')
@@ -73,11 +77,7 @@ export class GameGateway {
 
     @SubscribeMessage('game:ban')
     banUser(client: Socket, username: string) {
-        const userId = this.roomService.banUser(client.id, username);
-        if (userId) {
-            const roomId = this.roomService.getRoomId(client.id);
-            this.server.in(roomId).socketsLeave(userId);
-        }
+        this.roomService.banUser(client.id, username);
     }
 
     @SubscribeMessage('game:users')
@@ -87,5 +87,18 @@ export class GameGateway {
 
     handleDisconnect(client: Socket): void {
         this.roomService.leaveUser(client.id);
+    }
+
+    private handleDeleteRoom(roomId: string): void {
+        this.server.to(roomId).emit('game:closed', 'La partie a été fermée');
+        this.server.socketsLeave(roomId);
+    }
+
+    private handleUserRemoval(userId: string, message: string): void {
+        this.server.to(userId).emit('game:closed', message);
+    }
+
+    private handleUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
+        this.server.to(roomId).emit('game:user-update', userUpdate);
     }
 }
