@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -30,10 +30,10 @@ import { Subscription } from 'rxjs';
         MatToolbarModule,
     ],
 })
-export class ChatComponent implements OnDestroy {
+export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();
-    username: string = 'username';
-    roomID: string = 'RoomId';
+    @Input() username: string;
+    @Input() roomID: string;
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
@@ -41,9 +41,7 @@ export class ChatComponent implements OnDestroy {
     private initialMessagesSubscription: Subscription;
 
     constructor(private webSocketService: WebSocketService) {
-        this.subscribeToInitialMessages();
         this.subscribeToRealTimeMessages();
-        this.webSocketService.getMessages(this.roomID);
     }
 
     @HostListener('keydown', ['$event'])
@@ -54,9 +52,13 @@ export class ChatComponent implements OnDestroy {
         }
     }
 
+    async ngOnInit() {
+        this.chat = await this.webSocketService.getMessages();
+    }
+
     chatSubmit() {
         if (this.chatInput.trim()) {
-            this.webSocketService.sendMessage(this.chatInput, this.username, this.roomID);
+            this.webSocketService.sendMessage(this.chatInput);
             this.chatInput = '';
         }
     }
@@ -78,17 +80,6 @@ export class ChatComponent implements OnDestroy {
         this.isChatFocused.emit(false);
     }
 
-    private subscribeToInitialMessages() {
-        this.initialMessagesSubscription = this.webSocketService.getInitialMessages().subscribe({
-            next: (messages: Message[]) => {
-                this.chat = messages;
-            },
-            // error: (err) => console.error(err),
-            // complete: () => console.log('Initial message stream completed'),
-        });
-        this.sortMessagesByTimestamp();
-    }
-
     private subscribeToRealTimeMessages() {
         this.messagesSubscription = this.webSocketService.getMessage().subscribe({
             next: (message: Message) => {
@@ -96,13 +87,6 @@ export class ChatComponent implements OnDestroy {
             },
             // error: (err) => console.error(err),
             // complete: () => console.log('Real-time message stream completed'),
-        });
-        this.sortMessagesByTimestamp();
-    }
-
-    private sortMessagesByTimestamp() {
-        this.chat = this.chat.sort((a, b) => {
-            return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
         });
     }
 }

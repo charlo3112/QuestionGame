@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Choice } from '@app/classes/choice';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { Result } from '@app/interfaces/result';
 import {
     MAX_CHOICES_NUMBER,
     MAX_DURATION,
@@ -13,6 +12,7 @@ import {
     PONDERATION_INCREMENT,
     QuestionType,
 } from '@common/constants';
+import { Result } from '@common/result';
 
 @Injectable({
     providedIn: 'root',
