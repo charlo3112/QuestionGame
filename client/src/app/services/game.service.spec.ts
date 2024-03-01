@@ -1,10 +1,10 @@
 import { HttpClientModule } from '@angular/common/http';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { GameState } from '@app/enums/game-state';
+import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GameState } from '@common/game-state';
 import { GameService } from './game.service';
 import { TimeService } from './time.service';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 
 const timeConfirmMs = 3000;
 const timeQuestionMs = 60000;
@@ -52,7 +52,7 @@ describe('Game', () => {
     });
 
     it('should not return a question when GameState is not AskingQuestion or ShowResults', () => {
-        service['state'] = GameState.Gameover;
+        service['state'] = GameState.GameOver;
         expect(service.currentQuestion).toBeUndefined();
     });
 
@@ -119,7 +119,7 @@ describe('Game', () => {
     });
 
     it('should not confirm a question when the state is not AskingQuestion', () => {
-        service['state'] = GameState.Gameover;
+        service['state'] = GameState.GameOver;
         service.confirmQuestion();
         expect(service.currentState).not.toBe(GameState.ShowResults);
     });
@@ -149,10 +149,10 @@ describe('Game', () => {
     it('should stay in the same state when finishing the game', fakeAsync(() => {
         service['i'] = GAME_PLACEHOLDER.questions.length - 1;
         service.confirmQuestion();
-        service['state'] = GameState.Gameover;
+        service['state'] = GameState.GameOver;
         tick(timeConfirmMs + 1);
 
-        expect(service.currentState).toBe(GameState.Gameover);
+        expect(service.currentState).toBe(GameState.GameOver);
     }));
 
     it('should advance when question elapsed', fakeAsync(() => {

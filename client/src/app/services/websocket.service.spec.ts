@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Socket } from 'socket.io-client';
 
+import { PayloadJoinGame } from '@common/payload-game.interface';
 import { WebSocketService } from './websocket.service';
 
 describe('WebSocketService', () => {
@@ -22,29 +23,23 @@ describe('WebSocketService', () => {
 
     it('sendMessage should emit the correct payload', () => {
         const testMessage = 'Hello, world!';
-        const testName = 'John Doe';
-        const testRoomId = 'room123';
-        service.sendMessage(testMessage, testName, testRoomId);
+        service.sendMessage(testMessage);
 
-        expect(mockSocket.emit).toHaveBeenCalledWith('message:send', {
-            roomId: testRoomId,
-            message: testMessage,
-            name: testName,
-        });
+        expect(mockSocket.emit).toHaveBeenCalledWith('message:send', testMessage);
     });
 
     it('joinRoom should emit the correct payload', () => {
-        const testRoomId = 'room123';
-        service.joinRoom(testRoomId);
+        const payloadJoin: PayloadJoinGame = { gameCode: 'game123', username: 'John Doe' };
 
-        expect(mockSocket.emit).toHaveBeenCalledWith('join_room', testRoomId);
+        service.joinRoom(payloadJoin.gameCode, payloadJoin.username);
+
+        expect(mockSocket.emit).toHaveBeenCalledWith('join_room', payloadJoin);
     });
 
     it('leaveRoom should emit the correct payload', () => {
-        const testRoomId = 'room123';
-        service.leaveRoom(testRoomId);
+        service.leaveRoom();
 
-        expect(mockSocket.emit).toHaveBeenCalledWith('leave_room', testRoomId);
+        expect(mockSocket.emit).toHaveBeenCalledWith('leave_room');
     });
 
     it('getMessage should return an observable and subscribe message', () => {
@@ -62,25 +57,9 @@ describe('WebSocketService', () => {
         expect(messageReceived).toEqual(testMessage);
     });
 
-    it('getInitialMessages should return an observable and subscribe message', () => {
-        const testMessage = 'Hello, world!';
-        const testName = 'John Doe';
-        const testRoomId = 'room123';
-
-        let messagesReceived: string[] = [];
-        service.getInitialMessages().subscribe((messages) => {
-            messagesReceived = messages.map((message) => message.message);
-        });
-
-        mockSocket.on.calls.argsFor(1)[1]([{ message: testMessage, name: testName, roomId: testRoomId }]);
-
-        expect(messagesReceived).toEqual([testMessage]);
-    });
-
     it('getMessages should emit the correct payload', () => {
-        const testRoomId = 'room123';
-        service.getMessages(testRoomId);
+        service.getMessages();
 
-        expect(mockSocket.emit).toHaveBeenCalledWith('messages:get', testRoomId);
+        expect(mockSocket.emit).toHaveBeenCalledWith('messages:get');
     });
 });
