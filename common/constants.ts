@@ -32,6 +32,8 @@ export const MAX_MESSAGE_LENGTH = 200;
 export const MIN_ROOM_NUMBER = 1000;
 export const MAX_ROOM_NUMBER = 9999;
 
+export const TIMEOUT_DURATION = 1000;
+
 export const ROOM_CODE_LENGTH = 4;
 
 export enum QuestionType {

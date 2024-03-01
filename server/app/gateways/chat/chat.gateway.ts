@@ -2,12 +2,12 @@ import { RoomManagementService } from '@app/services/room-managment/room-managem
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Injectable, Logger } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
 @Injectable()
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway {
     @WebSocketServer() private server: Server;
     private roomMessages: Map<string, Message[]> = new Map();
 
@@ -15,12 +15,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         private readonly logger: Logger,
         private readonly roomManager: RoomManagementService,
     ) {
-        // this.roomManager.setGatewayCallback(this.handleJoinRoom.bind(this), this.handleLeaveRoom.bind(this));
+        this.roomManager.setGatewayCallback(this.handleDeleteRoom.bind(this));
     }
 
     @SubscribeMessage('message:send')
-    handleMessage(client: Socket, payload: { roomId: string; message: string; name: string }): void {
-        const { roomId, message, name } = payload;
+    handleMessage(client: Socket, message: string): void {
+        const roomId = this.roomManager.getRoomId(client.id);
+        const name = this.roomManager.getUsername(client.id);
+
         const trimmedMessage = message.substring(0, MAX_MESSAGE_LENGTH);
         const timestamp = new Date().toLocaleTimeString();
 
@@ -30,37 +32,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
             timestamp,
         };
 
-        if (client.rooms.has(roomId)) {
-            if (!this.roomMessages.has(roomId)) {
-                this.roomMessages.set(roomId, []);
-            }
-            this.roomMessages.get(roomId)?.push(messageToSend);
-
-            this.server.to(roomId).emit('message:receive', messageToSend);
-            this.logger.debug(`${trimmedMessage} sent in room ${roomId} by ${name}`);
+        if (!roomId || !name) {
+            return;
         }
+
+        if (!this.roomMessages.has(roomId)) {
+            this.roomMessages.set(roomId, []);
+        }
+        this.roomMessages.get(roomId)?.push(messageToSend);
+
+        this.server.to(roomId).emit('message:receive', messageToSend);
     }
 
     @SubscribeMessage('messages:get')
-    handleGetMessages(client: Socket, roomId: string): void {
-        if (!client.rooms.has(roomId)) {
-            return;
-        }
+    async handleGetMessages(client: Socket): Promise<Message[]> {
+        const roomId = this.roomManager.getRoomId(client.id);
         const messages = this.roomMessages.get(roomId) || [];
-        client.emit('messages:list', messages);
+        return messages;
     }
 
-    handleConnection(client: Socket): void {
-        this.logger.log(`Client connected: ${client.id}`);
-    }
-
-    handleDisconnect(client: Socket): void {
-        const rooms = this.server.sockets.adapter.rooms;
-        this.roomMessages.forEach((value, key) => {
-            if (!rooms.has(key)) {
-                this.roomMessages.delete(key);
-            }
-        });
-        this.logger.log(`Client disconnected: ${client.id}`);
+    private handleDeleteRoom(roomID: string): void {
+        this.roomMessages.delete(roomID);
     }
 }

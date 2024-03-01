@@ -3,6 +3,8 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-managment/room-management.service';
 import { GameState } from '@common/game-state';
 import { PayloadJoinGame } from '@common/payload-game.interface';
+import { Result } from '@common/result';
+import { User } from '@common/user.interface';
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
@@ -18,18 +20,22 @@ export class GameGateway {
     ) {}
 
     @SubscribeMessage('game:create')
-    async handleCreateGame(client: Socket, id: string) {
+    async handleCreateGame(client: Socket, id: string): Promise<User> {
         const game = await this.gamesService.getGameById(id);
+        this.logger.log(`User ${client.id} created room`);
         if (!game) {
-            return;
+            return null;
         }
-        const room = this.roomService.createGame(client.id, game);
-        client.join(room);
+        const user = this.roomService.createGame(client.id, game);
+        client.join(user.roomId);
+        this.logger.log(`User ${user.name} created room ${user.roomId}`);
+
+        return user;
     }
 
     @SubscribeMessage('game:leave')
     handleLeaveGame(client: Socket) {
-        const roomId = this.roomService.leaveUser(client.id);
+        const roomId = this.roomService.performUserRemoval(client.id);
         client.leave(roomId);
     }
 
@@ -39,13 +45,21 @@ export class GameGateway {
     }
 
     @SubscribeMessage('game:join')
-    handleJoinGame(client: Socket, payload: PayloadJoinGame) {
+    async handleJoinGame(client: Socket, payload: PayloadJoinGame): Promise<Result<GameState>> {
         const res = this.roomService.joinRoom(client.id, payload.gameCode, payload.username);
-        if (res === GameState.Wait) {
-            const roomId = this.roomService.getRoomId(client.id);
-            client.join(roomId);
+        if (res.ok) {
+            client.join(payload.gameCode);
         }
-        client.emit('game:state', res);
+        return res;
+    }
+
+    @SubscribeMessage('game:rejoin')
+    async handleRejoinGame(client: Socket, user: User): Promise<Result<GameState>> {
+        const res = this.roomService.rejoinRoom(user, client.id);
+        if (res.ok) {
+            client.join(user.roomId);
+        }
+        return res;
     }
 
     @SubscribeMessage('game:launch')
@@ -55,6 +69,20 @@ export class GameGateway {
             const roomId = this.roomService.getRoomId(client.id);
             this.server.to(roomId).emit('game:state', res);
         }
+    }
+
+    @SubscribeMessage('game:ban')
+    banUser(client: Socket, username: string) {
+        const userId = this.roomService.banUser(client.id, username);
+        if (userId) {
+            const roomId = this.roomService.getRoomId(client.id);
+            this.server.in(roomId).socketsLeave(userId);
+        }
+    }
+
+    @SubscribeMessage('game:users')
+    getUsers(client: Socket): string[] {
+        return this.roomService.getUsers(client.id);
     }
 
     handleDisconnect(client: Socket): void {

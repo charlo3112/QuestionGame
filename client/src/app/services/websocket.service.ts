@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '@common/game-state';
-import { Message, PayloadMessage } from '@common/message.interface';
+import { Message } from '@common/message.interface';
 import { PayloadJoinGame } from '@common/payload-game.interface';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Result } from '@common/result';
+import { User } from '@common/user.interface';
+import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
@@ -12,29 +14,47 @@ import { environment } from 'src/environments/environment';
 export class WebSocketService {
     private socket: Socket;
     private messageSubject: Subject<Message> = new Subject<Message>();
-    private initialMessagesSubject: BehaviorSubject<Message[]> = new BehaviorSubject<Message[]>([]);
     private stateSubject: Subject<GameState> = new Subject<GameState>();
 
     constructor() {
         this.connect();
     }
 
-    sendMessage(message: string, name: string, roomId: string): void {
-        const payload: PayloadMessage = { roomId, message, name };
-        this.socket.emit('message:send', payload);
+    get id(): string {
+        return this.socket.id;
     }
 
-    createRoom(gameId: string): void {
-        this.socket.emit('game:create', gameId);
+    sendMessage(message: string): void {
+        this.socket.emit('message:send', message);
+    }
+
+    async createRoom(gameId: string): Promise<User> {
+        return new Promise<User>((resolve) => {
+            this.socket.emit('game:create', gameId, (user: User) => {
+                resolve(user);
+            });
+        });
     }
 
     leaveRoom(): void {
         this.socket.emit('game:leave');
     }
 
-    joinRoom(gameCode: string, username: string): void {
+    async joinRoom(gameCode: string, username: string): Promise<Result<GameState>> {
         const payloadJoin: PayloadJoinGame = { gameCode, username };
-        this.socket.emit('game:join', payloadJoin);
+        return new Promise<Result<GameState>>((resolve) => {
+            this.socket.emit('game:join', payloadJoin, (res: Result<GameState>) => {
+                resolve(res);
+            });
+        });
+    }
+
+    async rejoinRoom(user: User): Promise<string> {
+        return new Promise<string>((resolve) => {
+            this.socket.emit('game:rejoin', user, (roomId: string) => {
+                resolve(roomId);
+            });
+        });
     }
 
     toggleClosed(closed: boolean): void {
@@ -57,38 +77,39 @@ export class WebSocketService {
         return this.messageSubject.asObservable();
     }
 
-    getInitialMessages(): Observable<Message[]> {
-        return this.initialMessagesSubject.asObservable();
-    }
-
     getState(): Observable<GameState> {
         return this.stateSubject.asObservable();
     }
 
-    getMessages(roomId: string): void {
-        this.socket.emit('messages:get', roomId);
+    async getUsers(): Promise<string[]> {
+        return new Promise<string[]>((resolve) => {
+            this.socket.emit('game:users', (users: string[]) => {
+                resolve(users);
+            });
+        });
+    }
+
+    async getMessages(): Promise<Message[]> {
+        return new Promise<Message[]>((resolve) => {
+            this.socket.emit('messages:get', (messages: Message[]) => {
+                resolve(messages);
+            });
+        });
     }
 
     private createSocket(): Socket {
-        return io(environment.serverUrl, { transports: ['websocket'] });
+        return io(environment.wsUrl, { transports: ['websocket'] });
     }
 
     private connect() {
         this.socket = this.createSocket();
         this.listenForMessage();
-        this.listenForInitialMessages();
         this.listenForState();
     }
 
     private listenForMessage() {
         this.socket.on('message:receive', (message: Message) => {
             this.messageSubject.next(message);
-        });
-    }
-
-    private listenForInitialMessages() {
-        this.socket.on('messages:list', (messages: Message[]) => {
-            this.initialMessagesSubject.next(messages);
         });
     }
 
