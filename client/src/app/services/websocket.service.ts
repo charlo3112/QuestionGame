@@ -3,6 +3,7 @@ import { GameState } from '@common/game-state';
 import { Message } from '@common/message.interface';
 import { PayloadJoinGame } from '@common/payload-game.interface';
 import { Result } from '@common/result';
+import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
@@ -15,6 +16,8 @@ export class WebSocketService {
     private socket: Socket;
     private messageSubject: Subject<Message> = new Subject<Message>();
     private stateSubject: Subject<GameState> = new Subject<GameState>();
+    private closedSubject: Subject<string> = new Subject<string>();
+    private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
 
     constructor() {
         this.connect();
@@ -49,10 +52,10 @@ export class WebSocketService {
         });
     }
 
-    async rejoinRoom(user: User): Promise<string> {
-        return new Promise<string>((resolve) => {
-            this.socket.emit('game:rejoin', user, (roomId: string) => {
-                resolve(roomId);
+    async rejoinRoom(user: User): Promise<Result<GameState>> {
+        return new Promise<Result<GameState>>((resolve) => {
+            this.socket.emit('game:rejoin', user, (data: Result<GameState>) => {
+                resolve(data);
             });
         });
     }
@@ -75,6 +78,14 @@ export class WebSocketService {
 
     getMessage(): Observable<Message> {
         return this.messageSubject.asObservable();
+    }
+
+    getClosedConnection(): Observable<string> {
+        return this.closedSubject.asObservable();
+    }
+
+    getUserUpdate(): Observable<UserConnectionUpdate> {
+        return this.userUpdateSubject.asObservable();
     }
 
     getState(): Observable<GameState> {
@@ -105,6 +116,14 @@ export class WebSocketService {
         this.socket = this.createSocket();
         this.listenForMessage();
         this.listenForState();
+        this.listenForClosedConnection();
+        this.listenForUserUpdate();
+    }
+
+    private listenForClosedConnection() {
+        this.socket.on('game:closed', (message: string) => {
+            this.closedSubject.next(message);
+        });
     }
 
     private listenForMessage() {
@@ -116,6 +135,12 @@ export class WebSocketService {
     private listenForState() {
         this.socket.on('game:state', (state: GameState) => {
             this.stateSubject.next(state);
+        });
+    }
+
+    private listenForUserUpdate() {
+        this.socket.on('game:user-update', (update: UserConnectionUpdate) => {
+            this.userUpdateSubject.next(update);
         });
     }
 }

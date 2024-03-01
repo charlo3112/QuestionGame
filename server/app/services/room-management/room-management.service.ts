@@ -4,6 +4,7 @@ import { Game } from '@app/model/database/game';
 import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/game-state';
 import { Result } from '@common/result';
+import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -13,10 +14,20 @@ export class RoomManagementService {
     private roomMembers: Map<string, string> = new Map();
     private deleteRoomGatewayCallback: ((roomID: string) => void)[] = [];
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
+    private disconnectUser: (userId: string, message: string) => void;
+    private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
 
     constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
+    }
+
+    setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
+        this.disconnectUser = disconnectUser;
+    }
+
+    setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
+        this.updateUser = updateUser;
     }
 
     createGame(userId: string, game: Game): User {
@@ -32,34 +43,31 @@ export class RoomManagementService {
     }
 
     toggleGameClosed(userId: string, closed: boolean) {
-        const roomId = this.roomMembers.get(userId);
-        const game = this.gameState.get(roomId);
+        const game = this.getActiveGame(userId);
         if (!game) {
             return;
         }
-        const user = game.getUser(userId);
-        if (!user.isHost()) {
+        if (!game.isHost(userId)) {
             return;
         }
-
         if (game.currentState !== GameState.Wait) {
             return;
         }
-        this.gameState.get(roomId).isLocked = closed;
+        game.isLocked = closed;
     }
 
     launchGame(userId: string): GameState | undefined {
-        const host = this.getUser(userId);
-        if (!host.isHost()) {
+        const game = this.getActiveGame(userId);
+        if (!game) {
             return undefined;
         }
-        const roomId = this.roomMembers.get(userId);
-        const state: GameState = this.gameState.get(roomId).currentState;
-        if (state !== GameState.Wait) {
+        if (!game.isHost(userId)) {
             return undefined;
         }
-        const isLocked = this.gameState.get(roomId).isLocked;
-        if (!isLocked) {
+        if (game.currentState !== GameState.Wait) {
+            return undefined;
+        }
+        if (!game.isLocked) {
             return undefined;
         }
         // TODO: Use service to start game
@@ -74,16 +82,17 @@ export class RoomManagementService {
         if (this.roomMembers.has(userId)) {
             this.performUserRemoval(userId);
         }
-        const isLocked = activeGame.isLocked;
-        if (isLocked) {
-            return { ok: false, error: 'Room verouiller' };
+        if (activeGame.isLocked) {
+            return { ok: false, error: 'La salle est verouillé' };
         }
         if (activeGame.isBanned(username) || activeGame.userExists(username)) {
-            return { ok: false, error: 'Le nom est deja pris ou bannie' };
+            return { ok: false, error: 'Le nom est déjà pris ou banni' };
         }
         const newUser: UserData = new UserData(userId, roomId, username);
         this.roomMembers.set(userId, roomId);
         activeGame.addUser(newUser);
+        const userUpdate: UserConnectionUpdate = { isConnected: true, username };
+        this.updateUser(roomId, userUpdate);
         return { ok: true, value: activeGame.currentState };
     }
 
@@ -108,12 +117,7 @@ export class RoomManagementService {
     }
 
     leaveUser(userId: string): void {
-        const roomId = this.roomMembers.get(userId);
-        const game = this.gameState.get(roomId);
-        if (!game) {
-            return;
-        }
-        const user = game.getUser(userId);
+        const user = this.getUser(userId);
         if (!user) {
             return;
         }
@@ -142,64 +146,55 @@ export class RoomManagementService {
     }
 
     getUsername(userId: string): string {
-        const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
+        const game = this.getActiveGame(userId);
+        if (!game) {
             return undefined;
         }
-        const user = this.gameState.get(roomId).getUser(userId);
+        const user = game.getUser(userId);
         if (!user) {
             return undefined;
         }
         return user.username;
     }
 
-    performUserRemoval(userId: string): string {
+    performUserRemoval(userId: string): void {
+        const game = this.getActiveGame(userId);
+        const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
-        const game = this.gameState.get(roomId);
         if (!game) {
-            return roomId;
+            return;
         }
-        const user = game.getUser(userId);
-        if (!user) {
-            return roomId;
-        }
-        if (user.username === 'Organisateur') {
+        this.disconnectUser(userId, 'Vous avez été déconnecté');
+        if (game.isHost(userId)) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
-            return roomId;
+            return;
         }
-        const activeGame = this.gameState.get(roomId);
-        if (!activeGame) {
-            return roomId;
-        }
-        activeGame.removeUser(user);
+        game.removeUser(userId);
         this.roomMembers.delete(userId);
-        if (activeGame.needToClosed()) {
+        if (game.needToClosed() && game.currentState !== GameState.Wait) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
         }
-        return roomId;
+        const userUpdate: UserConnectionUpdate = { isConnected: false, username };
+        this.updateUser(roomId, userUpdate);
     }
 
-    banUser(userId: string, bannedUsername: string): string {
-        const roomId = this.roomMembers.get(userId);
-        const game = this.gameState.get(roomId);
+    banUser(userId: string, bannedUsername: string): void {
+        const game = this.getActiveGame(userId);
         if (!game) {
             return;
         }
-        const user = game.getUser(userId);
-        if (!user || !user.isHost()) {
+        if (!game.isHost(userId)) {
             return;
         }
-        return game.banUser(bannedUsername);
-    }
-
-    private getUser(userId: string): UserData {
-        const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
-            return undefined;
+        const banId = game.banUser(bannedUsername);
+        if (banId) {
+            this.disconnectUser(banId, 'Vous avez été banni');
+            this.roomMembers.delete(banId);
+            const userUpdate: UserConnectionUpdate = { isConnected: false, username: bannedUsername };
+            this.updateUser(this.getRoomId(userId), userUpdate);
         }
-        return this.gameState.get(roomId).getUser(userId);
     }
 
     private generateRoomId(): string {
@@ -208,5 +203,21 @@ export class RoomManagementService {
             roomId = (Math.floor(Math.random() * (MAX_ROOM_NUMBER - MIN_ROOM_NUMBER + 1)) + MIN_ROOM_NUMBER).toString();
         }
         return roomId;
+    }
+
+    private getActiveGame(userId: string): ActiveGame {
+        const roomId = this.roomMembers.get(userId);
+        if (!roomId) {
+            return undefined;
+        }
+        return this.gameState.get(roomId);
+    }
+
+    private getUser(userId: string): UserData {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return undefined;
+        }
+        return game.getUser(userId);
     }
 }

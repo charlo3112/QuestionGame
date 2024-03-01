@@ -31,7 +31,7 @@
             <button
                 class="start-game-button"
                 mat-raised-button
-                [disabled]="!roomLocked || players.length < 1"
+                [disabled]="!roomLocked || players.size < 1"
                 matTooltip="La partie sera démarée avec les joueurs dans la salle d'attente"
                 (click)="onStartGame()"
             >
