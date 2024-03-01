@@ -68,10 +68,6 @@ export class WebSocketService {
         this.socket.emit('game:launch');
     }
 
-    leaveUser(userId: string): void {
-        this.socket.emit('game:leave', userId);
-    }
-
     banUser(userId: string): void {
         this.socket.emit('game:ban', userId);
     }
