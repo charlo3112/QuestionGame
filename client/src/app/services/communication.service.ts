@@ -2,7 +2,7 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
-import { Result } from '@app/interfaces/result';
+import { Result } from '@common/result';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
