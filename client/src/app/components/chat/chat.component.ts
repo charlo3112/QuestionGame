@@ -33,12 +33,10 @@ import { Subscription } from 'rxjs';
 export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();
     @Input() username: string;
-    @Input() roomID: string;
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
     private messagesSubscription: Subscription;
-    private initialMessagesSubscription: Subscription;
 
     constructor(private webSocketService: WebSocketService) {
         this.subscribeToRealTimeMessages();
@@ -67,9 +65,6 @@ export class ChatComponent implements OnDestroy, OnInit {
         this.webSocketService.leaveRoom();
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
-        }
-        if (this.initialMessagesSubscription) {
-            this.initialMessagesSubscription.unsubscribe();
         }
     }
     onFocus() {

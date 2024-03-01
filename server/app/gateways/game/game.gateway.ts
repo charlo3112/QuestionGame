@@ -27,7 +27,6 @@ export class GameGateway {
     @SubscribeMessage('game:create')
     async handleCreateGame(client: Socket, id: string): Promise<User> {
         const game = await this.gamesService.getGameById(id);
-        this.logger.log(`User ${client.id} created room`);
         if (!game) {
             return null;
         }

@@ -11,15 +11,7 @@ describe('ChatComponent', () => {
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
 
     beforeEach(async () => {
-        mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
-            'sendMessage',
-            'joinRoom',
-            'getMessages',
-            'leaveRoom',
-            'getMessage',
-            'getInitialMessages',
-        ]);
-        mockWebSocketService.getInitialMessages.and.returnValue(of([]));
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
 
         await TestBed.configureTestingModule({
@@ -31,15 +23,12 @@ describe('ChatComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
         component.username = 'username';
-        component.roomID = 'RoomId';
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
-        expect(mockWebSocketService.getInitialMessages).toHaveBeenCalled();
         expect(mockWebSocketService.getMessage).toHaveBeenCalled();
         expect(mockWebSocketService.getMessages).toHaveBeenCalled();
-        expect(mockWebSocketService.joinRoom).toHaveBeenCalledWith('RoomId');
     });
 
     it('should focus', () => {
@@ -63,7 +52,7 @@ describe('ChatComponent', () => {
     it('should chatSubmit', () => {
         component.chatInput = 'test';
         component.chatSubmit();
-        expect(mockWebSocketService.sendMessage).toHaveBeenCalledWith('test', 'username', 'RoomId');
+        expect(mockWebSocketService.sendMessage).toHaveBeenCalledWith('test');
         expect(component.chatInput).toEqual('');
     });
 
@@ -90,7 +79,9 @@ describe('ChatComponent', () => {
     });
 
     it('should ngOnDestroy', () => {
+        spyOn(component['messagesSubscription'], 'unsubscribe');
         component.ngOnDestroy();
-        expect(mockWebSocketService.leaveRoom).toHaveBeenCalledWith('RoomId');
+        expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
+        expect(component['messagesSubscription'].unsubscribe).toHaveBeenCalled();
     });
 });
