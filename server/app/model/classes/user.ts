@@ -18,7 +18,7 @@ export class UserData {
     }
 
     isHost(): boolean {
-        return this.name === 'organisateur';
+        return this.name.toLowerCase() === 'organisateur';
     }
 
     addScore(score: number) {
