@@ -4,10 +4,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { WebSocketService } from '@app/services/websocket.service';
-import { ROOM_CODE_LENGTH } from '@common/constants';
 
 @Component({
     selector: 'app-joingame-page',
@@ -19,14 +19,19 @@ import { ROOM_CODE_LENGTH } from '@common/constants';
 export class JoinGamePageComponent {
     entryError = false;
     connectForm = new FormGroup({
-        code: new FormControl('', [Validators.required, Validators.pattern('[0-9]{4}')]),
+        code: new FormControl('', [Validators.required, Validators.pattern('\\d{4}')]),
         name: new FormControl('', [Validators.required]),
     });
 
-    constructor(private webSocketService: WebSocketService) {}
+    constructor(
+        private webSocketService: WebSocketService,
+        private snackBar: MatSnackBar,
+        private router: Router,
+    ) {}
 
     async onSubmit() {
         // Validation préalable à l'envoi des données
+
         if (
             this.connectForm.value.name?.length === 0 ||
             this.connectForm.value.code?.length === 0 ||
@@ -34,17 +39,26 @@ export class JoinGamePageComponent {
             !this.connectForm.value.code
         ) {
             this.entryError = true;
-        } else if (this.connectForm.value.code.length !== ROOM_CODE_LENGTH || !Number.isInteger(this.connectForm.value.code)) {
+        } else if (this.connectForm.get('code')?.errors) {
             this.entryError = true;
         } else {
             this.entryError = false;
-            this.joinGame();
+            await this.joinGame();
         }
     }
 
-    joinGame() {
+    async joinGame() {
         if (this.connectForm.value.code && this.connectForm.value.name) {
-            this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
+            const res = await this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
+            if (res.ok) {
+                const user = { name: this.connectForm.value.name, roomId: this.connectForm.value.code, userId: this.webSocketService.id };
+                sessionStorage.setItem('user', JSON.stringify(user));
+                this.router.navigate(['/loading']);
+            } else {
+                this.snackBar.open(res.error, undefined, {
+                    duration: 4000,
+                });
+            }
         }
     }
 }
