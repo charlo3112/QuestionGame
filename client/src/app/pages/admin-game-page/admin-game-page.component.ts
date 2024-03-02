@@ -1,12 +1,24 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
+import { Question } from '@app/interfaces/question';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-admin-game-page',
     templateUrl: './admin-game-page.component.html',
     styleUrls: ['./admin-game-page.component.scss'],
-    imports: [ChatComponent, LeaderboardComponent],
+    imports: [ChatComponent, LeaderboardComponent, CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, RouterModule, MatToolbarModule],
     standalone: true,
 })
-export class AdminGamePageComponent {}
+export class AdminGamePageComponent {
+    @Input() question: Question;
+
+    constructor(readonly gameService: GameService) {}
+}
