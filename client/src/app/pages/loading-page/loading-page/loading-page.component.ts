@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { WebSocketService } from '@app/services/websocket.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Subscription } from 'rxjs';
@@ -47,12 +48,13 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
             const res = await this.websocketService.rejoinRoom(user);
             if (!res.ok) {
                 sessionStorage.removeItem('user');
-                this.snackBar.open(res.error, undefined, { duration: 2000 });
+                this.snackBar.open(res.error, undefined, { duration: SNACKBAR_DURATION });
                 this.router.navigate(['/']);
+                return;
             }
             sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
 
-            await (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
+            (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
             this.players.delete(user.name);
 
             this.username = user.name;
@@ -76,8 +78,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     }
 
     onStartGame() {
-        window.alert('Game started!');
-        // TODO: Add logic to actually start game with right players
+        this.websocketService.launchGame();
     }
 
     onKickPlayer(player: string) {
@@ -88,7 +89,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     private subscribeToClosedConnection() {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
-                this.snackBar.open(message, undefined, { duration: 2000 });
+                this.snackBar.open(message, undefined, { duration: SNACKBAR_DURATION });
                 this.router.navigate(['/']);
             },
         });

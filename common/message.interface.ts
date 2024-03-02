@@ -1,7 +1,7 @@
 export interface Message {
     name: string;
     message: string;
-    timestamp: string;
+    timestamp: number;
 }
 
 export interface PayloadMessage {

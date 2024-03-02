@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { WebSocketService } from '@app/services/websocket.service';
-import { MAX_MESSAGE_LENGTH } from '@common/constants';
+import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Subscription } from 'rxjs';
 
@@ -52,6 +52,7 @@ export class ChatComponent implements OnDestroy, OnInit {
 
     async ngOnInit() {
         this.chat = await this.webSocketService.getMessages();
+        this.sortMessages();
     }
 
     chatSubmit() {
@@ -75,13 +76,39 @@ export class ChatComponent implements OnDestroy, OnInit {
         this.isChatFocused.emit(false);
     }
 
+    calculateTime(lastModification: number): string {
+        const lastModificationDate = new Date(lastModification);
+        const now = new Date();
+        const timeDiff = now.getTime() - lastModificationDate.getTime();
+        const day = DAY_IN_MS;
+        if (timeDiff < day) {
+            const hours = lastModificationDate.getHours().toString().padStart(2, '0');
+            const minutes = lastModificationDate.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        } else {
+            const year = lastModificationDate.getFullYear();
+            const month = (lastModificationDate.getMonth() + 1).toString().padStart(2, '0');
+            const dayOfMonth = lastModificationDate.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${dayOfMonth}`;
+        }
+    }
+
     private subscribeToRealTimeMessages() {
         this.messagesSubscription = this.webSocketService.getMessage().subscribe({
             next: (message: Message) => {
                 this.chat.push(message);
+                this.sortMessages();
             },
             // error: (err) => console.error(err),
             // complete: () => console.log('Real-time message stream completed'),
         });
+    }
+
+    private sortMessages() {
+        this.chat = this.chat
+            .sort((a, b) => {
+                return a.timestamp - b.timestamp;
+            })
+            .reverse();
     }
 }
