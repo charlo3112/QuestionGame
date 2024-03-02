@@ -6,15 +6,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { WebSocketService } from '@app/services/websocket.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-joingame-page',
     templateUrl: './joingame-page.component.html',
     styleUrls: ['./joingame-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, RouterModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
+    imports: [MatToolbarModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
 })
 export class JoinGamePageComponent {
     entryError = false;
@@ -30,16 +31,7 @@ export class JoinGamePageComponent {
     ) {}
 
     async onSubmit() {
-        // Validation préalable à l'envoi des données
-
-        if (
-            this.connectForm.value.name?.length === 0 ||
-            this.connectForm.value.code?.length === 0 ||
-            !this.connectForm.value.name ||
-            !this.connectForm.value.code
-        ) {
-            this.entryError = true;
-        } else if (this.connectForm.get('code')?.errors) {
+        if (this.connectForm.get('code')?.errors || this.connectForm.get('name')?.errors) {
             this.entryError = true;
         } else {
             this.entryError = false;
@@ -47,7 +39,7 @@ export class JoinGamePageComponent {
         }
     }
 
-    async joinGame() {
+    private async joinGame() {
         if (this.connectForm.value.code && this.connectForm.value.name) {
             const res = await this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
             if (res.ok) {
@@ -56,7 +48,7 @@ export class JoinGamePageComponent {
                 this.router.navigate(['/loading']);
             } else {
                 this.snackBar.open(res.error, undefined, {
-                    duration: 4000,
+                    duration: SNACKBAR_DURATION,
                 });
             }
         }
