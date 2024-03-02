@@ -31,12 +31,11 @@ describe('MainPageComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    // TODO: Link not added for sprint 1
-    // it('should link to game', fakeAsync(() => {
-    //     fixture.debugElement.query(By.css('#game')).nativeElement.click();
-    //     tick();
-    //     expect(location.path()).toBe('/game');
-    // }));
+    it('should link to game', fakeAsync(() => {
+        fixture.debugElement.query(By.css('#game')).nativeElement.click();
+        tick();
+        expect(location.path()).toBe('/join');
+    }));
 
     it('should link to new', fakeAsync(() => {
         fixture.debugElement.query(By.css('#new')).nativeElement.click();

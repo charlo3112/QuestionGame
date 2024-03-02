@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { WebSocketService } from '@app/services/websocket.service';
@@ -13,6 +13,13 @@ describe('ChatComponent', () => {
     beforeEach(async () => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
+
+        const messages: Message[] = [
+            { name: 'test', message: 'test', timestamp: 1 },
+            { name: 'test', message: 'test', timestamp: 3 },
+            { name: 'test', message: 'test', timestamp: 2 },
+        ];
+        mockWebSocketService.getMessages.and.returnValue(new Promise<Message[]>((resolve) => resolve(messages)));
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule],
@@ -83,5 +90,32 @@ describe('ChatComponent', () => {
         component.ngOnDestroy();
         expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
         expect(component['messagesSubscription'].unsubscribe).toHaveBeenCalled();
+    });
+
+    it('should sort messages', fakeAsync(() => {
+        component.ngOnInit();
+        tick();
+        const sorted = [
+            { name: 'test', message: 'test', timestamp: 3 },
+            { name: 'test', message: 'test', timestamp: 2 },
+            { name: 'test', message: 'test', timestamp: 1 },
+        ];
+        expect(component.chat).toEqual(sorted);
+    }));
+
+    it('should calculate time', () => {
+        const t = new Date(0);
+        const time = component.calculateTime(t.getTime());
+        expect(time).toEqual('1969-12-31');
+    });
+
+    it('should calculate time', () => {
+        const minute = 10;
+        const hours = 10;
+        const t = new Date();
+        t.setHours(hours);
+        t.setMinutes(minute);
+        const time = component.calculateTime(t.getTime());
+        expect(time).toEqual('10:10');
     });
 });
