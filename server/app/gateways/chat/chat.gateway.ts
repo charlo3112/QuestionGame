@@ -24,8 +24,7 @@ export class ChatGateway {
         const name = this.roomManager.getUsername(client.id);
 
         const trimmedMessage = message.substring(0, MAX_MESSAGE_LENGTH);
-        const timestamp = new Date().toLocaleTimeString();
-
+        const timestamp = new Date().getTime();
         const messageToSend: Message = {
             name,
             message: trimmedMessage,

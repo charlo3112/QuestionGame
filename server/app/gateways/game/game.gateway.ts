@@ -7,11 +7,11 @@ import { Result } from '@common/result';
 import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Logger } from '@nestjs/common';
-import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
-export class GameGateway {
+export class GameGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     constructor(

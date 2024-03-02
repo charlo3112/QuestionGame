@@ -24,6 +24,8 @@ export class StartGamePageComponent {
 
     title: string = 'Liste de jeux';
     private subscription = new Subscription();
+
+    // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private readonly communicationService: CommunicationService,
