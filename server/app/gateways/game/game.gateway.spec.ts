@@ -7,7 +7,7 @@ import { Result } from '@common/result';
 import { User } from '@common/user.interface';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 
 describe('GameGateway', () => {
@@ -61,14 +61,22 @@ describe('GameGateway', () => {
 
         roomManagementService.createGame.returns(mockUser);
 
-        stub(socket, 'id').value('user1');
-
         const result = await gateway.handleCreateGame(socket, mockGameId);
 
         expect(result).toBeDefined();
         expect(result).toEqual(mockUser);
         expect(socket.join.calledWith(mockUser.roomId)).toBeTruthy();
         expect(logger.log.called).toBeTruthy();
+    });
+
+    it('handleCreateGame() should return null if game does not exist', async () => {
+        const mockGameId = 'game123';
+
+        gameService.getGameById.returns(Promise.resolve(null));
+
+        const result = await gateway.handleCreateGame(socket, mockGameId);
+
+        expect(result).toBeNull();
     });
 
     it('handleJoinGame() should let a user join a game', async () => {
@@ -102,10 +110,64 @@ describe('GameGateway', () => {
     });
 
     it('handleDisconnect() should remove a user on disconnect', () => {
-        stub(socket, 'id').value('user1');
-
         gateway.handleDisconnect(socket);
 
         expect(roomManagementService.leaveUser.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleLeaveGame() should remove a user from the game', () => {
+        gateway.handleLeaveGame(socket);
+
+        expect(roomManagementService.performUserRemoval.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleToggleGame() should toggle the game closed', () => {
+        const closed = true;
+
+        gateway.handleToggleGame(socket, closed);
+
+        expect(roomManagementService.toggleGameClosed.calledWith(socket.id, closed)).toBeTruthy();
+    });
+
+    it('handleRejoinGame() should let a user rejoin a game', async () => {
+        const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
+        const mockResult: Result<GameState> = { ok: true, value: GameState.Wait };
+
+        roomManagementService.rejoinRoom.returns(mockResult);
+
+        const result = await gateway.handleRejoinGame(socket, mockUser);
+
+        expect(result).toEqual(mockResult);
+        expect(socket.join.calledWith(mockUser.roomId)).toBeTruthy();
+    });
+
+    it('handleRejoinGame() should return an error if user cannot rejoin', async () => {
+        const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
+        const mockResult: Result<GameState> = { ok: false, error: 'Reconnection impossible' };
+
+        roomManagementService.rejoinRoom.returns(mockResult);
+
+        const result = await gateway.handleRejoinGame(socket, mockUser);
+
+        expect(result).toEqual(mockResult);
+        expect(socket.join.called).toBeFalsy();
+    });
+
+    it('banUser() should ban a user from the game', () => {
+        const username = 'JaneDoe';
+
+        gateway.banUser(socket, username);
+
+        expect(roomManagementService.banUser.calledWith(socket.id, username)).toBeTruthy();
+    });
+
+    it('getUsers() should return the users in the game', () => {
+        const mockUsers = ['JohnDoe', 'JaneDoe'];
+
+        roomManagementService.getUsers.returns(mockUsers);
+
+        const result = gateway.getUsers(socket);
+
+        expect(result).toEqual(mockUsers);
     });
 });

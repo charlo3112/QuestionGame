@@ -68,7 +68,7 @@ export class GameGateway implements OnGatewayDisconnect {
     @SubscribeMessage('game:launch')
     launchGame(client: Socket) {
         const res = this.roomService.launchGame(client.id);
-        if (res) {
+        if (res !== undefined) {
             const roomId = this.roomService.getRoomId(client.id);
             this.server.to(roomId).emit('game:state', res);
         }
