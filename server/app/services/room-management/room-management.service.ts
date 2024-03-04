@@ -44,13 +44,7 @@ export class RoomManagementService {
 
     toggleGameClosed(userId: string, closed: boolean) {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return;
-        }
-        if (!game.isHost(userId)) {
-            return;
-        }
-        if (game.currentState !== GameState.Wait) {
+        if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait) {
             return;
         }
         game.isLocked = closed;
@@ -58,16 +52,7 @@ export class RoomManagementService {
 
     launchGame(userId: string): GameState | undefined {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return undefined;
-        }
-        if (!game.isHost(userId)) {
-            return undefined;
-        }
-        if (game.currentState !== GameState.Wait) {
-            return undefined;
-        }
-        if (!game.isLocked) {
+        if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait || !game.isLocked) {
             return undefined;
         }
         // TODO: Use service to start game
@@ -146,11 +131,7 @@ export class RoomManagementService {
     }
 
     getUsername(userId: string): string {
-        const game = this.getActiveGame(userId);
-        if (!game) {
-            return undefined;
-        }
-        const user = game.getUser(userId);
+        const user = this.getUser(userId);
         if (!user) {
             return undefined;
         }
