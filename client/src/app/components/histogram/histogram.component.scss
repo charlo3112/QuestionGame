@@ -5,7 +5,7 @@
     align-items: center;
     width: 100%;
 }
-.question-title{
+.question-title {
     margin: 15px;
 }
 .content-container {
@@ -18,7 +18,7 @@
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-    .choice-text{
+    .choice-text {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -35,4 +35,15 @@
     align-items: right;
     justify-content: center;
     margin: 15px;
+}
+
+.histogram {
+    min-height: 280px;
+}
+.question-title {
+    margin: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
