@@ -142,6 +142,7 @@ export class RoomManagementService {
         const game = this.getActiveGame(userId);
         const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
+        this.roomMembers.delete(userId);
         if (!game) {
             return;
         }
@@ -152,7 +153,6 @@ export class RoomManagementService {
             return;
         }
         game.removeUser(userId);
-        this.roomMembers.delete(userId);
         if (game.needToClosed() && game.currentState !== GameState.Wait) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
