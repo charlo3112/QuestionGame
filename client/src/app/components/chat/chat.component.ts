@@ -12,6 +12,7 @@ import { WebSocketService } from '@app/services/websocket.service';
 import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Subscription } from 'rxjs';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
     selector: 'app-chat',
@@ -28,6 +29,7 @@ import { Subscription } from 'rxjs';
         AnswersComponent,
         MatButtonModule,
         MatToolbarModule,
+        MatDividerModule,
     ],
 })
 export class ChatComponent implements OnDestroy, OnInit {
