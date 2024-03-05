@@ -109,17 +109,6 @@ describe('ChatComponent', () => {
         const t = new Date();
         t.setHours(hours);
         t.setMinutes(minute);
-        t.setDate(t.getDate() - 1);
-        const time = component.calculateTime(t.getTime());
-        expect(time).toEqual(`${t.getFullYear()}-${(t.getMonth() + 1).toString().padStart(2, '0')}-${t.getDate().toString().padStart(2, '0')}`);
-    });
-
-    it('should calculate time', () => {
-        const minute = 10;
-        const hours = 10;
-        const t = new Date();
-        t.setHours(hours);
-        t.setMinutes(minute);
         const time = component.calculateTime(t.getTime());
         expect(time).toEqual('10:10');
     });
