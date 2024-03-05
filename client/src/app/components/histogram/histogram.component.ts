@@ -15,7 +15,8 @@ import { Question } from '@app/interfaces/question';
 })
 export class HistogramComponent {
     @Input() listQuestions: Question[];
-    questionDisplayed: number = 0;
+    @Input() questionDisplayed: number;
+    @Input() showArrows: boolean;
 
     isChoiceWithCounter(choice: Choice): choice is ChoiceWithCounter {
         return (choice as ChoiceWithCounter).counter !== undefined;

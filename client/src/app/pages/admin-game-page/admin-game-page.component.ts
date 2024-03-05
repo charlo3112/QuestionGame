@@ -59,6 +59,7 @@ export class AdminGamePageComponent implements OnInit {
         points: 42,
         choices: [this.choix1question3, this.choix2question3],
     };
+    currentQuestionIndex = 1;
     question: Question;
     gameQuestions: Question[] = [this.question1, this.question2, this.question3];
     leaderboard: Player[] = [];

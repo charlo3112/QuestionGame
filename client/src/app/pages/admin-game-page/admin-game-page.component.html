@@ -17,7 +17,12 @@
         <app-leaderboard [leaderboard]="leaderboard"></app-leaderboard>
     </div>
     <div class="histogram-container">
-        <app-histogram class="histogram" [listQuestions]="gameQuestions"></app-histogram>
+        <app-histogram
+            class="histogram"
+            [listQuestions]="gameQuestions"
+            [questionDisplayed]="currentQuestionIndex"
+            [showArrows]="false"
+        ></app-histogram>
     </div>
     <div class="chat-container">
         <app-chat></app-chat>
