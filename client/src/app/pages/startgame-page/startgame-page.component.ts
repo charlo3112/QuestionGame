@@ -6,8 +6,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { Game } from '@app/interfaces/game';
-import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
+import { WebSocketService } from '@app/services/websocket.service';
+import { Result } from '@common/result';
 import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -23,10 +24,13 @@ export class StartGamePageComponent {
 
     title: string = 'Liste de jeux';
     private subscription = new Subscription();
+
+    // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private readonly communicationService: CommunicationService,
         private snackBar: MatSnackBar,
+        private webSocketService: WebSocketService,
     ) {
         this.loadGames();
     }
@@ -70,11 +74,13 @@ export class StartGamePageComponent {
                     }
                 }),
             )
-            .subscribe((result: Result<Game>) => {
+            .subscribe(async (result: Result<Game>) => {
                 if (result.ok && result.value) {
                     const newGame = result.value;
                     if (newGame.visibility) {
-                        // TODO: Call pour vue de l'organisateur du jeu
+                        const user = await this.webSocketService.createRoom(newGame.gameId);
+                        sessionStorage.setItem('user', JSON.stringify(user));
+                        this.router.navigate(['/loading']);
                     } else {
                         this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
                         this.loadGames();

@@ -1,5 +1,5 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { RoomManagementService } from '@app/services/room-management.service';
+import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
@@ -10,11 +10,14 @@ describe('ChatGateway', () => {
     let logger: SinonStubbedInstance<Logger>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
+    let roomManagementService: SinonStubbedInstance<RoomManagementService>;
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
+        roomManagementService = createStubInstance(RoomManagementService);
+
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 ChatGateway,
@@ -24,7 +27,7 @@ describe('ChatGateway', () => {
                 },
                 {
                     provide: RoomManagementService,
-                    useValue: createStubInstance(RoomManagementService),
+                    useValue: roomManagementService,
                 },
             ],
         }).compile();
@@ -40,35 +43,29 @@ describe('ChatGateway', () => {
     });
 
     it('handleMessage() should send message to the room', () => {
-        const payload = { roomId: 'X', message: 'X', name: 'X' };
         stub(socket, 'rooms').value(new Set(['X']));
         server.to.returns({
             emit: (event: string) => {
                 expect(event).toEqual('message:receive');
             },
         } as BroadcastOperator<unknown, unknown>);
-        gateway.handleMessage(socket, payload);
+        roomManagementService.getRoomId.returns('X');
+        roomManagementService.getUsername.returns('test');
+        gateway.handleMessage(socket, 'X');
         expect(server.to.calledWith('X')).toBeTruthy();
-        expect(logger.debug.calledOnce).toBeTruthy();
         expect(gateway['roomMessages'].get('X')?.length).toBe(1);
     });
 
-    it('handleGetMessages() should send messages to the client', () => {
+    it('handleGetMessages() should send messages to the client', async () => {
         stub(socket, 'rooms').value(new Set(['X']));
-        gateway.handleGetMessages(socket, 'X');
+        const res = await gateway.handleGetMessages(socket);
         const roomMessages = gateway['roomMessages'].get('X') || [];
-        expect(socket.emit.calledWith('messages:list', roomMessages)).toBeTruthy();
+        expect(res).toEqual(roomMessages);
     });
 
-    it('handleConnection() should log the connection', () => {
-        gateway.handleConnection(socket);
-        expect(logger.log.calledOnce).toBeTruthy();
-    });
-
-    it('handleDisconnect() should log the disconnection', () => {
-        Object.defineProperty(server, 'sockets', { value: { adapter: { rooms: new Set() } } });
+    it('handleDeleteRoom() should delete the room', () => {
         gateway['roomMessages'].set('X', []);
-        gateway.handleDisconnect(socket);
-        expect(logger.log.calledOnce).toBeTruthy();
+        gateway['handleDeleteRoom']('X');
+        expect(gateway['roomMessages'].has('X')).toBeFalsy();
     });
 });

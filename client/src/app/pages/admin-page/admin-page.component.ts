@@ -13,9 +13,9 @@ import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/ad
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
 import { Game } from '@app/interfaces/game';
-import { Result } from '@app/interfaces/result';
 import { CommunicationService } from '@app/services/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
+import { Result } from '@common/result';
 import { Subscription } from 'rxjs';
 
 @Component({

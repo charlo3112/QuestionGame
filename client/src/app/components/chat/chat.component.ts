@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, OnDestroy, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { WebSocketService } from '@app/services/websocket.service';
-import { MAX_MESSAGE_LENGTH } from '@common/constants';
+import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/message.interface';
 import { Subscription } from 'rxjs';
 
@@ -30,21 +30,16 @@ import { Subscription } from 'rxjs';
         MatToolbarModule,
     ],
 })
-export class ChatComponent implements OnDestroy {
+export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();
-    username: string = 'username';
-    roomID: string = 'RoomId';
+    @Input() username: string;
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
     private messagesSubscription: Subscription;
-    private initialMessagesSubscription: Subscription;
 
     constructor(private webSocketService: WebSocketService) {
-        this.subscribeToInitialMessages();
         this.subscribeToRealTimeMessages();
-        this.webSocketService.joinRoom(this.roomID);
-        this.webSocketService.getMessages(this.roomID);
     }
 
     @HostListener('keydown', ['$event'])
@@ -55,20 +50,22 @@ export class ChatComponent implements OnDestroy {
         }
     }
 
+    async ngOnInit() {
+        this.chat = await this.webSocketService.getMessages();
+        this.sortMessages();
+    }
+
     chatSubmit() {
         if (this.chatInput.trim()) {
-            this.webSocketService.sendMessage(this.chatInput, this.username, this.roomID);
+            this.webSocketService.sendMessage(this.chatInput);
             this.chatInput = '';
         }
     }
 
     ngOnDestroy() {
-        this.webSocketService.leaveRoom('RoomId');
+        this.webSocketService.leaveRoom();
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
-        }
-        if (this.initialMessagesSubscription) {
-            this.initialMessagesSubscription.unsubscribe();
         }
     }
     onFocus() {
@@ -79,31 +76,39 @@ export class ChatComponent implements OnDestroy {
         this.isChatFocused.emit(false);
     }
 
-    private subscribeToInitialMessages() {
-        this.initialMessagesSubscription = this.webSocketService.getInitialMessages().subscribe({
-            next: (messages: Message[]) => {
-                this.chat = messages;
-            },
-            // error: (err) => console.error(err),
-            // complete: () => console.log('Initial message stream completed'),
-        });
-        this.sortMessagesByTimestamp();
+    calculateTime(lastModification: number): string {
+        const lastModificationDate = new Date(lastModification);
+        const now = new Date();
+        const timeDiff = now.getTime() - lastModificationDate.getTime();
+        const day = DAY_IN_MS;
+        if (timeDiff < day) {
+            const hours = lastModificationDate.getHours().toString().padStart(2, '0');
+            const minutes = lastModificationDate.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        } else {
+            const year = lastModificationDate.getFullYear();
+            const month = (lastModificationDate.getMonth() + 1).toString().padStart(2, '0');
+            const dayOfMonth = lastModificationDate.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${dayOfMonth}`;
+        }
     }
 
     private subscribeToRealTimeMessages() {
         this.messagesSubscription = this.webSocketService.getMessage().subscribe({
             next: (message: Message) => {
                 this.chat.push(message);
+                this.sortMessages();
             },
             // error: (err) => console.error(err),
             // complete: () => console.log('Real-time message stream completed'),
         });
-        this.sortMessagesByTimestamp();
     }
 
-    private sortMessagesByTimestamp() {
-        this.chat = this.chat.sort((a, b) => {
-            return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-        });
+    private sortMessages() {
+        this.chat = this.chat
+            .sort((a, b) => {
+                return a.timestamp - b.timestamp;
+            })
+            .reverse();
     }
 }
