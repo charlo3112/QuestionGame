@@ -5,6 +5,7 @@
       <tr>
         <th>Nom</th>
         <th>Pointage</th>
+        <th class="bonus-column">Bonus</th>
       </tr>
     </thead>
     
@@ -12,6 +13,7 @@
       <tr *ngFor="let player of leaderboard">
         <td>{{ player.name }}</td>
         <td>{{ player.score }}</td>
+        <td>{{ player.nbOfBonus }}</td>
       </tr>
     </tbody>
   </table>

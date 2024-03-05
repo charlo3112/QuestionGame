@@ -3,7 +3,7 @@
         <a routerLink="#"><img src="assets/logo.png" /></a>
         <h1 class="title">{{question.text}}</h1>
         <span class="spacer"></span>
-        <span id="points" class="big-text">40 points</span>
+        <span id="points" class="big-text">{{question.points}} points</span>
     </mat-toolbar-row>
     <mat-toolbar-row class="row-container">
         <!--*ngIf="gameService.time"-->
@@ -14,10 +14,10 @@
 
 <div class="main-container">
     <div class="result-container"> 
-        <app-leaderboard></app-leaderboard>
+        <app-leaderboard [leaderboard]="leaderboard"></app-leaderboard>
     </div>
     <div class="choice-container">
-        <app-answers [choices]="question.choices"></app-answers>
+        <!--app-histogram-->
     </div>
     <div class="chat-container">
         <app-chat></app-chat>

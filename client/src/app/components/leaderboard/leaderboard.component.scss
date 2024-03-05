@@ -6,6 +6,10 @@
     text-align: center;
 }
 
+.bonus-column{
+    width: 80px;
+}
+
 .table-wrapper {
     overflow-x: auto;
     display: flex;
@@ -16,9 +20,6 @@
     width:auto; 
     max-width: auto;
     border: 1px solid black;
-}
-
-.leaderboard-table {
     width: 60%;
     border-collapse: collapse;
 }
@@ -38,4 +39,5 @@
     background-color:map.get(constant.$orange-palette, 100);
     color: #333;
     font-weight: bold;
+
 }
