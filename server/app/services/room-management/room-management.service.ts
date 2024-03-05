@@ -130,7 +130,7 @@ export class RoomManagementService {
         return game.getUsers();
     }
 
-    getUsername(userId: string): string {
+    getUsername(userId: string): string | undefined {
         const user = this.getUser(userId);
         if (!user) {
             return undefined;

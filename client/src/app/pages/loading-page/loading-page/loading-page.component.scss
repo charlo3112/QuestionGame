@@ -1,7 +1,8 @@
 .loading-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    padding: 2em;
 }
 
 .left-content,
@@ -14,35 +15,35 @@
 }
 
 .left-content {
-    flex: 1;
-    background-color: aqua;
-    margin-left: 20px;
+    width: 20em;
 }
 
-.middle-content {
-    flex: 1;
-    color: white;
+.player {
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
 }
 
-.list {
-    align-items: left;
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
 }
 
-.right-content {
-    flex: 1;
-}
-
-.chat {
-    margin-top: 20px;
-}
-
-.room-controls {
-    margin-top: 20px;
+.room-lock-button {
+    width: 3.69em;
+    height: 3.69em;
 }
 
 .start-game-button {
-    margin-left: 10px;
+    height: 3.69em;
 }
-.player-name {
-    align-self: center;
+
+.kick-button {
+    margin: 0;
+}
+
+.row-player {
+    height: 2em;
 }

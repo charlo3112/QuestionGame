@@ -2,7 +2,6 @@ import { NgFor, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -13,13 +12,14 @@ import { SNACKBAR_DURATION } from '@common/constants';
 import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Subscription } from 'rxjs';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
     selector: 'app-loading-page',
     templateUrl: './loading-page.component.html',
     styleUrls: ['./loading-page.component.scss'],
     standalone: true,
-    imports: [NgFor, NgIf, MatIconModule, MatButtonModule, MatTooltipModule, ChatComponent, MatToolbarModule, RouterModule, MatListModule],
+    imports: [NgFor, NgIf, MatIconModule, MatButtonModule, MatCardModule, MatTooltipModule, ChatComponent, MatToolbarModule, RouterModule],
 })
 export class LoadingPageComponent implements OnInit, OnDestroy {
     players: Set<string> = new Set();
