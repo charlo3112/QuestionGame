@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -13,7 +14,7 @@ import { PLAYERS, Player } from '@app/interfaces/player';
     templateUrl: './result-page.component.html',
     styleUrls: ['./result-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, ChatComponent, MatCardModule, HistogramComponent, CommonModule, LeaderboardComponent, MatTabsModule],
+    imports: [MatToolbarModule, ChatComponent, MatCardModule, HistogramComponent, CommonModule, LeaderboardComponent, MatTabsModule, MatButtonModule],
 })
 export class ResultPageComponent implements OnInit {
     leaderboard: Player[] = [];
