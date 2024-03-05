@@ -4,13 +4,13 @@
 .main-container {
     display: flex;
     justify-content: space-between;
-  }
-  
+}
+
 .chat-container {
     margin-left: auto;
 }
 
-.result-container{
+.result-container {
     padding-left: 5px;
 }
 
@@ -22,7 +22,7 @@
     align-items: center;
 }
 
-#align-center{
+#align-center {
     margin-left: 40%;
 }
 
@@ -37,4 +37,15 @@
 .big-text {
     font-size: 1.42em;
     font-weight: bold;
+}
+.histogram-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+}
+.histogram {
+    width: 100%;
 }

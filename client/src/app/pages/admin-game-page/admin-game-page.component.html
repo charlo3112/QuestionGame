@@ -1,9 +1,9 @@
 <mat-toolbar color="primary" class="toolbar">
     <mat-toolbar-row color="primary" class="toolbar">
         <a routerLink="#"><img src="assets/logo.png" /></a>
-        <h1 class="title">{{question.text}}</h1>
+        <h1 class="title">{{ question.text }}</h1>
         <span class="spacer"></span>
-        <span id="points" class="big-text">{{question.points}} points</span>
+        <span id="points" class="big-text">{{ question.points }} points</span>
     </mat-toolbar-row>
     <mat-toolbar-row class="row-container">
         <!--*ngIf="gameService.time"-->
@@ -13,11 +13,11 @@
 </mat-toolbar>
 
 <div class="main-container">
-    <div class="result-container"> 
+    <div class="result-container">
         <app-leaderboard [leaderboard]="leaderboard"></app-leaderboard>
     </div>
-    <div class="choice-container">
-        <!--app-histogram-->
+    <div class="histogram-container">
+        <app-histogram class="histogram" [listQuestions]="gameQuestions"></app-histogram>
     </div>
     <div class="chat-container">
         <app-chat></app-chat>
