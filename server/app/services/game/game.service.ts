@@ -24,7 +24,8 @@ export class GameService implements OnModuleInit {
 
     async populateDB(): Promise<void> {
         try {
-            const jsonData = await fs.readFile('assets/quiz-example.json', 'utf8');
+            const JSON_FILE_PATH = 'assets/quiz-example.json';
+            const jsonData = await fs.readFile(JSON_FILE_PATH, 'utf8');
             const gameData = JSON.parse(jsonData);
             const gameDto: CreateGameDto = {
                 title: gameData.title,
