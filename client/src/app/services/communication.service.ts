@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Game } from '@app/interfaces/game';
 import { Player } from '@app/interfaces/player';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
-import { Result } from '@app/interfaces/result';
+import { Result } from '@common/result';
 import { Observable, catchError, map, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -21,6 +21,7 @@ export class CommunicationService {
             responseType: 'text',
         });
     }
+
     deleteGame(id: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/game/${id}`, { observe: 'response', responseType: 'text' });
     }

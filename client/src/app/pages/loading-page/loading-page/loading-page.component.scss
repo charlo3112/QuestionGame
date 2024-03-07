@@ -1,8 +1,48 @@
-.loading-bar {
+.loading-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    height: 100vh; // Adjust the height as needed
+}
+
+.left-content,
+.middle-content,
+.right-content {
+    display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.left-content {
+    flex: 1;
+    background-color: aqua;
+    margin-left: 20px;
+}
+
+.middle-content {
+    flex: 1;
     color: white;
+}
+
+.list {
+    align-items: left;
+}
+
+.right-content {
+    flex: 1;
+}
+
+.chat {
+    margin-top: 20px;
+}
+
+.room-controls {
+    margin-top: 20px;
+}
+
+.start-game-button {
+    margin-left: 10px;
+}
+.player-name {
+    align-self: center;
 }

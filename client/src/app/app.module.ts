@@ -18,6 +18,9 @@ import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
+import { CommunicationService } from './services/communication.service';
+import { ValidationService } from './services/validation.service';
+import { WebSocketService } from './services/websocket.service';
 
 /**
  * Main module that is used in main.ts.
@@ -48,7 +51,7 @@ import { QuestionBankPageComponent } from './pages/question-bank-page/question-b
         LeaderboardComponent,
         ResultPageComponent,
     ],
-    providers: [],
+    providers: [WebSocketService, CommunicationService, ValidationService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

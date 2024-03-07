@@ -7,10 +7,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { Question, QuestionWithModificationDate, QUESTION_PLACEHOLDER } from '@app/interfaces/question';
-import { Result } from '@app/interfaces/result';
+import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { Result } from '@common/result';
 
 @Component({
     selector: 'app-question-bank',
@@ -26,7 +26,7 @@ export class QuestionBankComponent {
     @Output() sendQuestionSelected: EventEmitter<Question> = new EventEmitter<Question>();
     questionsWithModificationDate: QuestionWithModificationDate[] = [];
     highlightedQuestion: QuestionWithModificationDate | null;
-    questionToAdd: Question = QUESTION_PLACEHOLDER;
+    questionToAdd: Question = QUESTIONS_PLACEHOLDER[0];
 
     constructor(
         private communicationService: CommunicationService,

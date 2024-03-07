@@ -1,23 +1,41 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ChatComponent } from '@app/components/chat/chat.component';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ChatComponent } from '@app/components/chat/chat.component';
+import { WebSocketService } from '@app/services/websocket.service';
+import { Message } from '@common/message.interface';
+import { of } from 'rxjs';
 
 describe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
+    let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
 
     beforeEach(async () => {
-        await TestBed.configureTestingModule({ imports: [BrowserAnimationsModule] }).compileComponents();
-    });
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
+        mockWebSocketService.getMessage.and.returnValue(of({} as Message));
 
-    beforeEach(() => {
+        const messages: Message[] = [
+            { name: 'test', message: 'test', timestamp: 1 },
+            { name: 'test', message: 'test', timestamp: 3 },
+            { name: 'test', message: 'test', timestamp: 2 },
+        ];
+        mockWebSocketService.getMessages.and.returnValue(new Promise<Message[]>((resolve) => resolve(messages)));
+
+        await TestBed.configureTestingModule({
+            imports: [BrowserAnimationsModule],
+            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }],
+        }).compileComponents();
+
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+        component.username = 'username';
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
+        expect(mockWebSocketService.getMessage).toHaveBeenCalled();
+        expect(mockWebSocketService.getMessages).toHaveBeenCalled();
     });
 
     it('should focus', () => {
@@ -41,14 +59,14 @@ describe('ChatComponent', () => {
     it('should chatSubmit', () => {
         component.chatInput = 'test';
         component.chatSubmit();
-        expect(component.chat).toEqual(['test']);
+        expect(mockWebSocketService.sendMessage).toHaveBeenCalledWith('test');
         expect(component.chatInput).toEqual('');
     });
 
     it('should not chatSubmit', () => {
         component.chatInput = '';
         component.chatSubmit();
-        expect(component.chat).toEqual([]);
+        expect(mockWebSocketService.sendMessage).not.toHaveBeenCalled();
     });
 
     it('should buttonDetect', () => {
@@ -65,5 +83,33 @@ describe('ChatComponent', () => {
         const event = new KeyboardEvent('keydown', { key: 'Space' });
         component.buttonDetect(event);
         expect(component.chatSubmit).not.toHaveBeenCalled();
+    });
+
+    it('should ngOnDestroy', () => {
+        spyOn(component['messagesSubscription'], 'unsubscribe');
+        component.ngOnDestroy();
+        expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
+        expect(component['messagesSubscription'].unsubscribe).toHaveBeenCalled();
+    });
+
+    it('should sort messages', fakeAsync(() => {
+        component.ngOnInit();
+        tick();
+        const sorted = [
+            { name: 'test', message: 'test', timestamp: 3 },
+            { name: 'test', message: 'test', timestamp: 2 },
+            { name: 'test', message: 'test', timestamp: 1 },
+        ];
+        expect(component.chat).toEqual(sorted);
+    }));
+
+    it('should calculate time', () => {
+        const minute = 10;
+        const hours = 10;
+        const t = new Date();
+        t.setHours(hours);
+        t.setMinutes(minute);
+        const time = component.calculateTime(t.getTime());
+        expect(time).toEqual('10:10');
     });
 });
