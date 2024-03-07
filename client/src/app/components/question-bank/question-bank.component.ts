@@ -8,7 +8,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
 import { Result } from '@common/result';
 

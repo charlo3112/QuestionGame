@@ -7,7 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/classes/choice';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 import { QuestionType } from '@common/constants';
 
 const mockQuestion = {

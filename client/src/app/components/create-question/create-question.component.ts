@@ -14,7 +14,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Choice } from '@app/classes/choice';
 import { Question } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import {
     MAX_CHOICES_NUMBER,
     MIN_CHOICES_NUMBER,

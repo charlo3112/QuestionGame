@@ -3,8 +3,8 @@ import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { GameState } from '@common/game-state';
+import { TimeService } from '../time/time.service';
 import { GameService } from './game.service';
-import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
 const timeQuestionMs = 60000;
