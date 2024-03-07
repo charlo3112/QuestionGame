@@ -4,11 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterModule } from '@angular/router';
 import { ChoiceWithCounter } from '@app/classes/choice';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { Player, PLAYERS } from '@app/interfaces/player';
+import { PLAYERS, Player } from '@app/interfaces/player';
 import { Question } from '@app/interfaces/question';
 import { QuestionType } from '@common/constants';
 
@@ -17,7 +18,17 @@ import { QuestionType } from '@common/constants';
     templateUrl: './result-page.component.html',
     styleUrls: ['./result-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, ChatComponent, MatCardModule, HistogramComponent, CommonModule, LeaderboardComponent, MatTabsModule, MatButtonModule],
+    imports: [
+        MatToolbarModule,
+        ChatComponent,
+        MatCardModule,
+        RouterModule,
+        HistogramComponent,
+        CommonModule,
+        LeaderboardComponent,
+        MatTabsModule,
+        MatButtonModule,
+    ],
 })
 export class ResultPageComponent implements OnInit {
     choix1question1 = new ChoiceWithCounter('Guillaume en boit', true, 5);

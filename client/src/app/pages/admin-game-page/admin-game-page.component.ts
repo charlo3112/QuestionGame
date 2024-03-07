@@ -9,8 +9,8 @@ import { ChoiceWithCounter } from '@app/classes/choice';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { Player, PLAYERS } from '@app/interfaces/player';
-import { Question, QUESTION_PLACEHOLDER } from '@app/interfaces/question';
+import { PLAYERS, Player } from '@app/interfaces/player';
+import { QUESTIONS_PLACEHOLDER, Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game.service';
 import { QuestionType } from '@common/constants';
 
@@ -93,6 +93,6 @@ export class AdminGamePageComponent implements OnInit {
     }
 
     fetchQuestion() {
-        this.question = QUESTION_PLACEHOLDER;
+        this.question = QUESTIONS_PLACEHOLDER[0];
     }
 }
