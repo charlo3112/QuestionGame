@@ -63,6 +63,8 @@ export class CreatePageComponent implements OnInit {
     visibility: boolean;
 
     // eslint-disable-next-line max-params
+
+    // We had to disable the max-params rule because we need every parameter for the component to work
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly validationService: ValidationService,
