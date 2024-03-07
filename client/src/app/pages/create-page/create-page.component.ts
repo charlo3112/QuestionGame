@@ -48,28 +48,27 @@ import { lastValueFrom } from 'rxjs';
     ],
 })
 export class CreatePageComponent implements OnInit {
-    pageTitle: string;
-    showChildren: boolean = false;
-    showPage: boolean = true;
-    isEditing: boolean = false;
-    questionTitleToEdit: string = '';
-
-    login: boolean;
-    id: string;
-    title: string;
     description: string;
     duration: number;
+    id: string;
+    isEditing: boolean = false;
+    login: boolean;
+    pageTitle: string;
     questions: Question[] = [];
-    visibility: boolean;
+    questionTitleToEdit: string = '';
     selectedQuestion: Question | null = null;
+    showChildren: boolean = false;
+    showPage: boolean = true;
+    title: string;
+    visibility: boolean;
 
     // eslint-disable-next-line max-params
     constructor(
-        private router: Router,
+        private readonly communicationService: CommunicationService,
+        private readonly validationService: ValidationService,
         private route: ActivatedRoute,
-        private communicationService: CommunicationService,
-        private validationService: ValidationService,
         private snackBar: MatSnackBar,
+        private router: Router,
     ) {}
     ngOnInit() {
         if (this.verifyLogin()) {
@@ -96,13 +95,13 @@ export class CreatePageComponent implements OnInit {
         }
     }
     insertQuestionFromBank(question: Question) {
-        if (this.verifPresenceQuestion(question)) {
+        if (this.verifyPresenceQuestion(question)) {
             this.insertQuestion(question);
         }
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        if (this.verifPresenceQuestion(question)) {
+        if (this.verifyPresenceQuestion(question)) {
             if (this.questionTitleToEdit === '') {
                 this.insertQuestion(question);
             } else {
@@ -113,7 +112,7 @@ export class CreatePageComponent implements OnInit {
         }
         this.closeCreateQuestion();
     }
-    verifPresenceQuestion(question: Question): boolean {
+    verifyPresenceQuestion(question: Question): boolean {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index !== NOT_FOUND) {
             this.snackBar.open("Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.", undefined, {
