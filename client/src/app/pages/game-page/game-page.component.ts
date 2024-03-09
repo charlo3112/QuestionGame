@@ -27,7 +27,7 @@ export class GamePageComponent implements OnInit {
         if (state && state.game) {
             this.gameService.startGame(state.game);
         } else {
-            this.gameService.startGame(this.placeholder); // Starts with placeholder questions
+            this.gameService.startGame(this.placeholder);
         }
     }
 }

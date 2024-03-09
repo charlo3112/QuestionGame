@@ -138,11 +138,11 @@ export class AdminPageComponent implements OnInit {
             next: (response) => {
                 if (response.body) {
                     const data = JSON.parse(response.body);
-                    game.visibility = data.visibility; // to make sure the visibility is in sync
+                    game.visibility = data.visibility;
                 }
             },
             error: (e) => {
-                game.visibility = !game.visibility; // Revert the change
+                game.visibility = !game.visibility;
                 this.openSnackBar('Error toggling game visibility');
                 if (e.status === HttpStatusCode.NotFound) {
                     this.games = this.games.filter((g) => g.gameId !== id);
