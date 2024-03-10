@@ -7,6 +7,7 @@ import { Result } from '@common/result';
 import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';
 import { Injectable, Logger } from '@nestjs/common';
+import { TimeService } from '@app/services/time/time.service';
 
 @Injectable()
 export class RoomManagementService {
@@ -17,7 +18,10 @@ export class RoomManagementService {
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
 
-    constructor(private readonly logger: Logger) {}
+    constructor(
+        private readonly logger: Logger,
+        private readonly timeService: TimeService,
+    ) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
     }
