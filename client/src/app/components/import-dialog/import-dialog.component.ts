@@ -68,13 +68,14 @@ export class ImportDialogComponent {
     }
 
     private async loadFile(reader: FileReader): Promise<void> {
+        const INVALID_GAME_FORMAT = 'Le format du jeu est invalide.';
         const text = reader.result as string;
         let game;
-        this.validationErrors = ['Le format du jeu est invalide.'];
+        this.validationErrors = [INVALID_GAME_FORMAT];
         try {
             game = JSON.parse(text);
         } catch (error) {
-            this.validationErrors = ['Le format du jeu est invalide.'];
+            this.validationErrors = [INVALID_GAME_FORMAT];
             return;
         }
         this.validationErrors = this.validationService.validateGame(game);

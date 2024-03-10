@@ -61,6 +61,7 @@ export class AdminPageComponent implements OnInit {
     }
 
     loadGames(): void {
+        const ERROR_FETCHING_GAMES = "Erreur lors de l'obtention des jeux";
         this.subscription.add(
             this.communicationService.getAdminGames().subscribe({
                 next: (result: Result<Game[]>) => {
@@ -70,11 +71,11 @@ export class AdminPageComponent implements OnInit {
                             game.image = 'assets/logo.png';
                         });
                     } else {
-                        this.openSnackBar('Error fetching games');
+                        this.openSnackBar(ERROR_FETCHING_GAMES);
                     }
                 },
                 error: () => {
-                    this.openSnackBar('Error fetching games');
+                    this.openSnackBar(ERROR_FETCHING_GAMES);
                 },
             }),
         );
@@ -87,17 +88,20 @@ export class AdminPageComponent implements OnInit {
     }
 
     deleteGame(id: string) {
+        const ERROR_DELETING_GAME = 'Erreur lors de la suppression du jeu';
         this.games = this.games.filter((game) => game.gameId !== id);
         this.communicationService.deleteGame(id).subscribe({
             error: (e) => {
                 if (e.status !== HttpStatusCode.NotFound) {
-                    this.openSnackBar('Error while deleting game');
+                    this.openSnackBar(ERROR_DELETING_GAME);
                 }
             },
         });
     }
 
     exportGame(id: string) {
+        const ERROR_EXPORTING_GAME = "Erreur lors de l'exportation du jeu";
+        const ERROR_NO_DATA = 'Aucune données reçues';
         this.communicationService.exportGame(id).subscribe({
             next: (response) => {
                 if (response.body) {
@@ -116,18 +120,19 @@ export class AdminPageComponent implements OnInit {
 
                     this.downloadFile(filteredOutput, `game-${id}.json`);
                 } else {
-                    this.openSnackBar('No data received');
+                    this.openSnackBar(ERROR_NO_DATA);
                     this.games = this.games.filter((g) => g.gameId !== id);
                 }
             },
             error: () => {
-                this.openSnackBar('Error exporting game');
+                this.openSnackBar(ERROR_EXPORTING_GAME);
                 this.games = this.games.filter((g) => g.gameId !== id);
             },
         });
     }
 
     toggleGameVisibility(id: string) {
+        const ERROR_GAME_VISIBILITY = 'Erreur lors du changement de visibilité';
         const game = this.games.find((g) => g.gameId === id);
         if (!game) {
             return;
@@ -143,7 +148,7 @@ export class AdminPageComponent implements OnInit {
             },
             error: (e) => {
                 game.visibility = !game.visibility;
-                this.openSnackBar('Error toggling game visibility');
+                this.openSnackBar(ERROR_GAME_VISIBILITY);
                 if (e.status === HttpStatusCode.NotFound) {
                     this.games = this.games.filter((g) => g.gameId !== id);
                 }
@@ -158,16 +163,18 @@ export class AdminPageComponent implements OnInit {
 
     openImportDialog(): void {
         const dialogRef = this.dialog.open(ImportDialogComponent);
+        const ERROR_ADDING_GAME = "Erreur lors de l'ajout du jeu";
+        const GAME_ADDED = 'Jeu ajouté avec succès !';
 
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
                 this.communicationService.addGame(result).subscribe({
                     next: () => {
                         this.loadGames();
-                        this.openSnackBar('Game added');
+                        this.openSnackBar(GAME_ADDED);
                     },
                     error: () => {
-                        this.openSnackBar('Error adding game');
+                        this.openSnackBar(ERROR_ADDING_GAME);
                     },
                 });
             }

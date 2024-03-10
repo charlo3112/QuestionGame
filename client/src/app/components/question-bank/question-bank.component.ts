@@ -36,10 +36,11 @@ export class QuestionBankComponent {
     }
 
     loadQuestions() {
+        const ERROR_FETCHING_QUESTIONS = 'Erreur lors de la récupération des questions';
         this.communicationService.getAllQuestionsWithModificationDates().subscribe({
             next: (response: Result<QuestionWithModificationDate[]>) => {
                 if (!response.ok) {
-                    throw new Error('Error fetching questions');
+                    throw new Error(ERROR_FETCHING_QUESTIONS);
                 }
                 this.questionsWithModificationDate = response.value;
                 this.questionsWithModificationDate.sort((a, b) => {
@@ -49,11 +50,12 @@ export class QuestionBankComponent {
                 });
             },
             error: () => {
-                throw new Error('Error fetching questions');
+                throw new Error(ERROR_FETCHING_QUESTIONS);
             },
         });
     }
     sendQuestion() {
+        const QUESTION_SELECTED_BEFORE_ADDING = "Vous devez selectionner une question avant de l'ajouter";
         if (this.highlightedQuestion) {
             this.questionToAdd = {
                 text: this.highlightedQuestion.text,
@@ -63,7 +65,7 @@ export class QuestionBankComponent {
             };
             this.sendQuestionSelected.emit(this.questionToAdd);
         } else {
-            this.snackBar.open("Vous devez selectionner une question avant de l'ajouter", undefined, {
+            this.snackBar.open(QUESTION_SELECTED_BEFORE_ADDING, undefined, {
                 duration: SNACKBAR_DURATION,
             });
         }

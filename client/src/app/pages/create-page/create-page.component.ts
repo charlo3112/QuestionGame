@@ -115,9 +115,10 @@ export class CreatePageComponent implements OnInit {
         this.closeCreateQuestion();
     }
     verifyPresenceQuestion(question: Question): boolean {
+        const SAME_TEXT_QUESTION = "Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.";
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index !== NOT_FOUND) {
-            this.snackBar.open("Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.", undefined, {
+            this.snackBar.open(SAME_TEXT_QUESTION, undefined, {
                 duration: SNACKBAR_DURATION,
             });
             return false;
@@ -151,6 +152,7 @@ export class CreatePageComponent implements OnInit {
         this.showChildren = false;
     }
     async save(): Promise<void> {
+        const ERROR_VALIDATION = 'Erreurs de validation: \n';
         const gameToValidate: Partial<Game> = {
             title: this.title,
             description: this.description,
@@ -159,7 +161,7 @@ export class CreatePageComponent implements OnInit {
         };
         const validationErrors = this.validationService.validateGame(gameToValidate);
         if (validationErrors.length > 0) {
-            this.snackBar.open('Erreurs de validation: \n' + validationErrors.join('\n'), undefined, {
+            this.snackBar.open(ERROR_VALIDATION + validationErrors.join('\n'), undefined, {
                 duration: SNACKBAR_DURATION,
             });
             return;
@@ -180,27 +182,31 @@ export class CreatePageComponent implements OnInit {
     }
 
     async createGame(game: Game): Promise<void> {
+        const GAME_CREATED = 'Le jeu a été créé avec succès !';
+        const ERROR_CREATING_GAME = 'Erreur lors de la création du jeu';
         try {
             await lastValueFrom(this.communicationService.addGame(game));
-            this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
+            this.snackBar.open(GAME_CREATED, undefined, {
                 duration: SNACKBAR_DURATION,
             });
             this.router.navigate(['/admin']);
         } catch (e) {
-            this.snackBar.open('Erreur lors de la création du jeu', undefined, {
+            this.snackBar.open(ERROR_CREATING_GAME, undefined, {
                 duration: SNACKBAR_DURATION,
             });
         }
     }
     async updateGame(game: Game): Promise<void> {
+        const GAME_MODIFIED = 'Le jeu a été modifié avec succès !';
+        const ERROR_UPDATING_GAME = 'Erreur lors de la modification du jeu';
         try {
             await lastValueFrom(this.communicationService.editGame(game));
-            this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
+            this.snackBar.open(GAME_MODIFIED, undefined, {
                 duration: SNACKBAR_DURATION,
             });
             this.router.navigate(['/admin']);
         } catch (e) {
-            this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
+            this.snackBar.open(ERROR_UPDATING_GAME, undefined, {
                 duration: SNACKBAR_DURATION,
             });
         }
@@ -217,12 +223,13 @@ export class CreatePageComponent implements OnInit {
     }
 
     loadGameData(gameId: string) {
+        const ERROR_LOADING_GAME = 'Erreur lors du chargement du jeu';
         this.communicationService.getGameById(gameId).subscribe({
             next: (game) => {
                 this.fillForm(game, gameId);
             },
             error: () => {
-                this.snackBar.open('Erreur lors du chargement du jeu', undefined, {
+                this.snackBar.open(ERROR_LOADING_GAME, undefined, {
                     duration: SNACKBAR_DURATION,
                 });
                 this.router.navigate(['/admin']);

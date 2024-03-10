@@ -181,20 +181,24 @@ export class CreateQuestionComponent implements OnChanges {
         return hasChecked && hasUnchecked;
     }
     choiceVerif(): boolean {
+        const QUESTION_EMPTY = 'Le champ Question ne peut pas être vide.';
+        const MIN_TWO_CHOICES = "Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.";
+        const MIN_ONE_ANSWER = "Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.";
         if (this.questionName === '') {
-            this.openSnackBar('Le champ Question ne peut pas être vide.');
+            this.openSnackBar(QUESTION_EMPTY);
             return false;
         } else if (this.choices.length < MIN_CHOICES_NUMBER) {
-            this.openSnackBar("Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.");
+            this.openSnackBar(MIN_TWO_CHOICES);
             return false;
         } else if (!this.hasAnswer()) {
-            this.openSnackBar("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
+            this.openSnackBar(MIN_ONE_ANSWER);
             return false;
         }
         return true;
     }
 
     editQuestion() {
+        const ERROR_MODIFYING_QUESTION = 'Erreur lors de la modification de la question';
         if (this.questionToDelete !== '') {
             this.communicationService
                 .modifyQuestion({
@@ -211,7 +215,7 @@ export class CreateQuestionComponent implements OnChanges {
                         this.resetForm();
                     },
                     error: () => {
-                        this.openSnackBar('Error deleting question');
+                        this.openSnackBar(ERROR_MODIFYING_QUESTION);
                     },
                 });
         } else {
