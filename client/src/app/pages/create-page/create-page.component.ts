@@ -104,7 +104,7 @@ export class CreatePageComponent implements OnInit {
     }
     insertQuestionFromCreate(question: Question) {
         if (this.verifyPresenceQuestion(question)) {
-            if (this.questionTitleToEdit === '') {
+            if (!this.questionTitleToEdit.length) {
                 this.insertQuestion(question);
             } else {
                 const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);

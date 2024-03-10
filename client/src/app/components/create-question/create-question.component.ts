@@ -75,17 +75,19 @@ export class CreateQuestionComponent implements OnChanges {
     }
 
     addChoice() {
-        if (!(this.choiceInput === '')) {
+        const MAX_FOUR_CHOICES = 'Vous ne pouvez pas ajouter plus de 4 choix.';
+        const CHOICE_EMPTY = 'Le champ Choix doit être rempli pour créer un choix.';
+        if (this.choiceInput.length) {
             if (this.choices.length < MAX_CHOICES_NUMBER) {
                 const newChoice: Choice = new Choice(this.choiceInput, false);
                 this.choices.push(newChoice);
                 this.choiceInput = '';
                 this.editArray.push(false);
             } else {
-                this.openSnackBar('Vous ne pouvez pas ajouter plus de 4 choix.');
+                this.openSnackBar(MAX_FOUR_CHOICES);
             }
         } else {
-            this.openSnackBar('Le champ Choix doit être rempli pour créer un choix.');
+            this.openSnackBar(CHOICE_EMPTY);
         }
     }
 
@@ -117,6 +119,7 @@ export class CreateQuestionComponent implements OnChanges {
     }
 
     addToQuestionBank() {
+        const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
         if (this.choiceVerif()) {
             const newQuestion: Question = {
                 type: QuestionType.QCM,
@@ -133,7 +136,7 @@ export class CreateQuestionComponent implements OnChanges {
                     }
                 },
                 error: () => {
-                    this.openSnackBar('La question est déjà dans la banque de questions.');
+                    this.openSnackBar(QUESTION_ALREADY_IN_BANK);
                 },
             });
         }
@@ -184,7 +187,7 @@ export class CreateQuestionComponent implements OnChanges {
         const QUESTION_EMPTY = 'Le champ Question ne peut pas être vide.';
         const MIN_TWO_CHOICES = "Veuillez ajouter au moins deux choix de réponse avant d'enregistrer la question.";
         const MIN_ONE_ANSWER = "Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.";
-        if (this.questionName === '') {
+        if (!this.questionName.length) {
             this.openSnackBar(QUESTION_EMPTY);
             return false;
         } else if (this.choices.length < MIN_CHOICES_NUMBER) {
@@ -199,7 +202,7 @@ export class CreateQuestionComponent implements OnChanges {
 
     editQuestion() {
         const ERROR_MODIFYING_QUESTION = 'Erreur lors de la modification de la question';
-        if (this.questionToDelete !== '') {
+        if (this.questionToDelete.length) {
             this.communicationService
                 .modifyQuestion({
                     type: QuestionType.QCM,
