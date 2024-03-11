@@ -35,7 +35,4 @@ export const TIMEOUT_DURATION = 1000;
 
 export const ROOM_CODE_LENGTH = 4;
 
-export enum QuestionType {
-    QCM = 'QCM',
-    QRL = 'QRL',
-}
+export const WAITING_TIME_S = 3;
