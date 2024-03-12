@@ -12,18 +12,11 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Choice } from '@app/classes/choice';
-import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import {
-    MAX_CHOICES_NUMBER,
-    MIN_CHOICES_NUMBER,
-    MIN_NB_OF_POINTS,
-    QuestionType,
-    RESPONSE_CREATED,
-    SNACKBAR_DURATION,
-    WEIGHTS_QUESTIONS,
-} from '@common/constants';
+import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, MIN_NB_OF_POINTS, RESPONSE_CREATED, SNACKBAR_DURATION, WEIGHTS_QUESTIONS } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-create-question',
@@ -77,7 +70,7 @@ export class CreateQuestionComponent implements OnChanges {
     addChoice() {
         if (!(this.choiceInput === '')) {
             if (this.choices.length < MAX_CHOICES_NUMBER) {
-                const newChoice: Choice = new Choice(this.choiceInput, false);
+                const newChoice: Choice = { text: this.choiceInput, isCorrect: false };
                 this.choices.push(newChoice);
                 this.choiceInput = '';
                 this.editArray.push(false);

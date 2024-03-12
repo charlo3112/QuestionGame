@@ -1,6 +1,6 @@
 import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Choice } from '@app/classes/choice';
+import { Choice } from '@common/interfaces/choice';
 import { AnswersComponent } from './answers.component';
 
 describe('AnswerComponent', () => {
@@ -22,7 +22,7 @@ describe('AnswerComponent', () => {
 
     describe('getAnswerClass', () => {
         it('should return a string with the length of answers', () => {
-            const choices: Choice[] = [new Choice('A', false), new Choice('B', true), new Choice('C', false)];
+            const choices: Choice[] = [{ text: 'A' }, { text: 'B' }, { text: 'C' }];
             component.choices = choices;
             expect(component.getAnswerClass()).toEqual('answers-3');
         });

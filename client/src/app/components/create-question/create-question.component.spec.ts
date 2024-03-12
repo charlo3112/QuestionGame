@@ -11,11 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Choice } from '@app/classes/choice';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
+import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { of, throwError } from 'rxjs';
 
 describe('CreateQuestionComponent', () => {
@@ -55,13 +56,19 @@ describe('CreateQuestionComponent', () => {
         mockValidQuestion = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
-            choices: [new Choice('Ottawa', true), new Choice('Montreal', false)],
+            choices: [
+                { text: 'Ottawa', isCorrect: true },
+                { text: 'Montreal', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
         mockInvalidQuestion = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
-            choices: [new Choice('Ottawa', false), new Choice('Montreal', false)],
+            choices: [
+                { text: 'Ottawa', isCorrect: false },
+                { text: 'Montreal', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
         fixture.detectChanges();
@@ -93,7 +100,7 @@ describe('CreateQuestionComponent', () => {
     it('should not add more than 4 choices', () => {
         spyOn(component, 'openSnackBar');
         for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-            component.choices.push(new Choice('Choix ' + i, false));
+            component.choices.push({ text: 'Choix ' + i, isCorrect: false });
         }
         component.choiceInput = 'Choix non ajouté';
         component.addChoice();
@@ -103,7 +110,11 @@ describe('CreateQuestionComponent', () => {
 
     // test de la fonction deleteChoice()
     it('should delete the right choice', () => {
-        component.choices = [new Choice('Choix 1', false), new Choice('Choix 2', true), new Choice('Choix 3', false)];
+        component.choices = [
+            { text: 'Choix 1', isCorrect: false },
+            { text: 'Choix 2', isCorrect: true },
+            { text: 'Choix 3', isCorrect: false },
+        ];
         expect(component.choices.length).toBe(3);
         component.deleteChoice(1);
         expect(component.choices.length).toBe(2);
@@ -171,11 +182,11 @@ describe('CreateQuestionComponent', () => {
         component.questionName = 'Test';
         component.choices = [];
         expect(component.choiceVerif()).toBeFalse();
-        component.choices = [new Choice('Réponse 1', false)];
+        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
         expect(component.choiceVerif()).toBeFalse();
-        component.choices.push(new Choice('Réponse 2', false));
+        component.choices.push({ text: 'Réponse 2', isCorrect: false });
         expect(component.choiceVerif()).toBeFalse();
-        component.choices.push(new Choice('Réponse 3', true));
+        component.choices.push({ text: 'Réponse 3', isCorrect: true });
         expect(component.choiceVerif()).toBeTrue();
     });
 
@@ -189,7 +200,7 @@ describe('CreateQuestionComponent', () => {
 
     // test de la fonction startEdit et saveEdit()
     it('should toggle edit mode on and off', () => {
-        component.choices = [new Choice('Réponse 1', false)];
+        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
         component.editArray = [false];
 
         component.startEdit(0);
@@ -254,7 +265,11 @@ describe('CreateQuestionComponent', () => {
 
     // The method should move the selected choice to the new index in the 'choices' array.
     it('should move the selected choice to the new index in the choices array', () => {
-        const choices: Choice[] = [new Choice('Choice 1', false), new Choice('Choice 2', false), new Choice('Choice 3', false)];
+        const choices: Choice[] = [
+            { text: 'Choice 1', isCorrect: false },
+            { text: 'Choice 2', isCorrect: false },
+            { text: 'Choice 3', isCorrect: false },
+        ];
         component.choices = choices;
         const event: CdkDragDrop<Choice[]> = {
             previousIndex: 0,
@@ -262,6 +277,10 @@ describe('CreateQuestionComponent', () => {
             item: null as unknown as CdkDrag<Choice[]>,
         } as CdkDragDrop<Choice[]>;
         component.drop(event);
-        expect(component.choices).toEqual([new Choice('Choice 2', false), new Choice('Choice 3', false), new Choice('Choice 1', false)]);
+        expect(component.choices).toEqual([
+            { text: 'Choice 2', isCorrect: false },
+            { text: 'Choice 3', isCorrect: false },
+            { text: 'Choice 1', isCorrect: false },
+        ]);
     });
 });

@@ -2,7 +2,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,11 +16,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Choice } from '@app/classes/choice';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
+import { MIN_DURATION, MIN_NB_OF_POINTS } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
 
@@ -82,13 +82,19 @@ describe('CreatePageComponent', () => {
         mockValidQuestion1 = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
-            choices: [new Choice('Ottawa', true), new Choice('Toronto', false)],
+            choices: [
+                { text: 'Ottawa', isCorrect: true },
+                { text: 'Toronto', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
         mockValidQuestion2 = {
             text: 'Quelle est la capitale de la France ?',
             points: MIN_NB_OF_POINTS,
-            choices: [new Choice('Paris', true), new Choice('Lyon', false)],
+            choices: [
+                { text: 'Paris', isCorrect: true },
+                { text: 'Lyon', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
         mockValidGame = {
