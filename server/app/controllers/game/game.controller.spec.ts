@@ -1,4 +1,4 @@
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
@@ -35,7 +35,7 @@ describe('GameController', () => {
     });
 
     it('getAllGames() should return all games', async () => {
-        const fakeGame: Game[] = [getFakeGame()];
+        const fakeGame: GameData[] = [getFakeGame()];
         gameService.getAllGames.resolves(fakeGame);
 
         const res = {} as unknown as Response;
@@ -228,8 +228,8 @@ describe('GameController', () => {
     });
 });
 
-const getFakeGame = (): Game => {
-    const game = new Game(getFakeCreateGameDto());
+const getFakeGame = (): GameData => {
+    const game = new GameData(getFakeCreateGameDto());
 
     return game;
 };
