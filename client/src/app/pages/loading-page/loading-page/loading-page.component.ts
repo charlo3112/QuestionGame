@@ -131,11 +131,13 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     }
 
     private subscribeToStateUpdate() {
-        this.stateSubscription = this.websocketService.getState().subscribe((state: GameStatePayload) => {
-            if (state.state === GameState.AskingQuestion) {
-                this.router.navigate(['/game']);
-                this.gameService.startGame(state.payload as Game);
-            }
+        this.stateSubscription = this.websocketService.getState().subscribe({
+            next: (state: GameStatePayload) => {
+                if (state.state === GameState.AskingQuestion) {
+                    this.gameService.startGame(state.payload as Game);
+                    this.router.navigate(['/game']);
+                }
+            },
         });
     }
 }

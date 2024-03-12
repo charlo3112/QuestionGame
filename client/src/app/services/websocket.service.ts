@@ -77,16 +77,16 @@ export class WebSocketService {
         return this.messageSubject.asObservable();
     }
 
+    getState(): Observable<GameStatePayload> {
+        return this.stateSubject.asObservable();
+    }
+
     getClosedConnection(): Observable<string> {
         return this.closedSubject.asObservable();
     }
 
     getUserUpdate(): Observable<UserConnectionUpdate> {
         return this.userUpdateSubject.asObservable();
-    }
-
-    getState(): Observable<GameStatePayload> {
-        return this.stateSubject.asObservable();
     }
 
     async getUsers(): Promise<string[]> {

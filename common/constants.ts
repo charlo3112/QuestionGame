@@ -36,3 +36,5 @@ export const TIMEOUT_DURATION = 1000;
 export const ROOM_CODE_LENGTH = 4;
 
 export const WAITING_TIME_MS = 5000;
+export const BONUS_MULTIPLIER = 1.2;
+export const TIME_CONFIRM_MS = 3000;

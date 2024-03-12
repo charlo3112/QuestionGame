@@ -30,10 +30,7 @@ export class GameGateway implements OnGatewayDisconnect {
         if (!game) {
             return null;
         }
-        const roomId = this.roomService.getRoomId(client.id);
-        const user = this.roomService.createGame(client.id, game, (state) => {
-            this.server.to(roomId).emit('game:state', state);
-        });
+        const user = this.roomService.createGame(client.id, game, this.handleStateUpdate.bind(this));
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
 
@@ -98,5 +95,9 @@ export class GameGateway implements OnGatewayDisconnect {
 
     private handleUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
         this.server.to(roomId).emit('game:user-update', userUpdate);
+    }
+
+    private handleStateUpdate(roomId: string, state: GameStatePayload): void {
+        this.server.to(roomId).emit('game:state', state);
     }
 }

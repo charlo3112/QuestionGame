@@ -35,10 +35,10 @@ export class RoomManagementService {
         this.updateUser = updateUser;
     }
 
-    createGame(userId: string, game: GameData, updateState: (gameStatePayload: GameStatePayload) => void): User {
+    createGame(userId: string, game: GameData, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, 'Organisateur');
-        const newActiveGame: ActiveGame = new ActiveGame(game, updateState);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState);
         newActiveGame.addUser(host);
 
         this.gameState.set(roomId, newActiveGame);

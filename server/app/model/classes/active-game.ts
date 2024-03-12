@@ -12,15 +12,17 @@ export class ActiveGame {
     private state: GameState = GameState.Wait;
     private bannedNames: string[];
     private activeUsers: Set<string>;
-    private updateState: (gameStatePayload: GameStatePayload) => void;
+    private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
+    private roomId: string;
 
-    constructor(game: GameData, updateState: (gameStatePayload: GameStatePayload) => void) {
+    constructor(game: GameData, roomId: string, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void) {
         this.game = game;
         this.users = new Map<string, UserData>();
         this.activeUsers = new Set<string>();
         this.locked = false;
         this.state = GameState.Wait;
         this.bannedNames = [];
+        this.roomId = roomId;
         this.updateState = updateState;
     }
 
@@ -110,6 +112,6 @@ export class ActiveGame {
 
     async launchGame() {
         await setTimeout(WAITING_TIME_MS);
-        this.updateState({ state: GameState.AskingQuestion, payload: this.game });
+        this.updateState(this.roomId, { state: GameState.AskingQuestion, payload: this.game });
     }
 }
