@@ -1,6 +1,6 @@
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
-import { Message } from '@common/message.interface';
+import { Message } from '@common/interfaces/message';
 import { Injectable, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';

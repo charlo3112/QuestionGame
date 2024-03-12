@@ -1,5 +1,5 @@
-import { Choice } from '@app/model/database/choice';
-import { Game, GameDocument, gameSchema } from '@app/model/database/game';
+import { ChoiceData } from '@app/model/database/choice';
+import { GameData, GameDocument, gameSchema } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
@@ -44,7 +44,7 @@ describe('GameService', () => {
                 GameService,
                 Logger,
                 {
-                    provide: getModelToken(Game.name),
+                    provide: getModelToken(GameData.name),
                     useValue: gameModel,
                 },
             ],
@@ -79,13 +79,13 @@ describe('GameServiceEndToEnd', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Game.name, schema: gameSchema }]),
+                MongooseModule.forFeature([{ name: GameData.name, schema: gameSchema }]),
             ],
             providers: [GameService, Logger],
         }).compile();
 
         service = module.get<GameService>(GameService);
-        gameModel = module.get<Model<GameDocument>>(getModelToken(Game.name));
+        gameModel = module.get<Model<GameDocument>>(getModelToken(GameData.name));
         connection = await module.get(getConnectionToken());
         gameModel.deleteMany({});
     });
@@ -216,7 +216,7 @@ describe('GameServiceEndToEnd', () => {
             text: 'old text',
             isCorrect: true,
         };
-        const choice = new Choice(choiceData);
+        const choice = new ChoiceData(choiceData);
         choice.setText = 'test text';
         expect(choice.getText()).toBe('test text');
     });
@@ -255,8 +255,8 @@ const getBadFakeUpdateGameDto = (): UpdateGameDto => {
     return gameData;
 };
 
-const getFakeGame = (): Game => {
-    const game = new Game(getFakeCreateGameDto());
+const getFakeGame = (): GameData => {
+    const game = new GameData(getFakeCreateGameDto());
     return game;
 };
 

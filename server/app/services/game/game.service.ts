@@ -1,4 +1,4 @@
-import { Game, GameDocument } from '@app/model/database/game';
+import { GameData, GameDocument } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -10,7 +10,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 export class GameService implements OnModuleInit {
-    constructor(@InjectModel(Game.name) private readonly gameModel: Model<GameDocument>) {}
+    constructor(@InjectModel(GameData.name) private readonly gameModel: Model<GameDocument>) {}
 
     async onModuleInit(): Promise<void> {
         await this.start();
@@ -39,18 +39,18 @@ export class GameService implements OnModuleInit {
         }
     }
 
-    async getAllGames(): Promise<Game[]> {
+    async getAllGames(): Promise<GameData[]> {
         const games = await this.gameModel.find({ visibility: true });
         return games || [];
     }
 
-    async getAllGamesAdmin(): Promise<Game[]> {
+    async getAllGamesAdmin(): Promise<GameData[]> {
         const games = await this.gameModel.find({});
         return games || [];
     }
 
-    async getGameById(id: string): Promise<Game | null> {
-        return await this.gameModel.findOne<Game>({ gameId: id });
+    async getGameById(id: string): Promise<GameData | null> {
+        return await this.gameModel.findOne<GameData>({ gameId: id });
     }
 
     async addGame(gameData: CreateGameDto): Promise<string> {
@@ -59,7 +59,7 @@ export class GameService implements OnModuleInit {
             if (!resVal) {
                 return '';
             }
-            const game = new Game(gameData);
+            const game = new GameData(gameData);
             await this.gameModel.create(game);
             return game.getGameId();
         } catch (error) {
