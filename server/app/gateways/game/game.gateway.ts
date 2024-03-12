@@ -1,14 +1,15 @@
 // src/game/game.gateway.ts
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
-import { GameState } from '@common/game-state';
-import { PayloadJoinGame } from '@common/payload-game.interface';
-import { Result } from '@common/result';
-import { UserConnectionUpdate } from '@common/user-update.interface';
-import { User } from '@common/user.interface';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { Result } from '@common/interfaces/result';
+import { User } from '@common/interfaces/user';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { setTimeout } from 'timers/promises';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayDisconnect {
@@ -48,7 +49,7 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:join')
-    async handleJoinGame(client: Socket, payload: PayloadJoinGame): Promise<Result<GameState>> {
+    async handleJoinGame(client: Socket, payload: PayloadJoinGame): Promise<Result<GameStatePayload>> {
         const res = this.roomService.joinRoom(client.id, payload.gameCode, payload.username);
         if (res.ok) {
             client.join(payload.gameCode);
@@ -57,7 +58,7 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:rejoin')
-    async handleRejoinGame(client: Socket, user: User): Promise<Result<GameState>> {
+    async handleRejoinGame(client: Socket, user: User): Promise<Result<GameStatePayload>> {
         const res = this.roomService.rejoinRoom(user, client.id);
         if (res.ok) {
             client.join(user.roomId);
@@ -66,11 +67,15 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:launch')
-    launchGame(client: Socket) {
+    async launchGame(client: Socket) {
         const res = this.roomService.launchGame(client.id);
         if (res !== undefined) {
             const roomId = this.roomService.getRoomId(client.id);
             this.server.to(roomId).emit('game:state', res);
+            const initialDelayMs = 3000;
+            await setTimeout(initialDelayMs);
+            const state = this.roomService.startGame(client.id);
+            this.server.to(roomId).emit('game:state', state);
         }
     }
 

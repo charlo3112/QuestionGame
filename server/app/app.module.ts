@@ -11,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './controllers/admin/admin.controller';
 import { GameGateway } from './gateways/game/game.gateway';
 import { RoomManagementService } from './services/room-management/room-management.service';
+import { TimeService } from './services/time/time.service';
 
 @Module({
     imports: [
@@ -28,6 +29,6 @@ import { RoomManagementService } from './services/room-management/room-managemen
         ]),
     ],
     controllers: [GameController, QuestionController, AdminController],
-    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway],
+    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway, TimeService],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
 import { UserData } from '@app/model/classes/user';
 import { Game } from '@app/model/database/game';
-import { GameState } from '@common/game-state';
+import { GameState } from '@common/enums/game-state';
 
 export class ActiveGame {
     private locked: boolean;
@@ -93,5 +93,13 @@ export class ActiveGame {
 
     getUsers(): string[] {
         return Array.from(this.users.values()).map((user) => user.username);
+    }
+
+    startGame() {
+        if (this.currentState !== GameState.Wait) {
+            return this.currentState;
+        }
+        this.state = GameState.AskingQuestion;
+        return this.currentState;
     }
 }

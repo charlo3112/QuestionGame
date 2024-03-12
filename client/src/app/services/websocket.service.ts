@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { GameState } from '@common/game-state';
-import { Message } from '@common/message.interface';
-import { PayloadJoinGame } from '@common/payload-game.interface';
-import { Result } from '@common/result';
-import { UserConnectionUpdate } from '@common/user-update.interface';
-import { User } from '@common/user.interface';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Message } from '@common/interfaces/message';
+import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { Result } from '@common/interfaces/result';
+import { User } from '@common/interfaces/user';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
@@ -15,7 +16,7 @@ import { environment } from 'src/environments/environment';
 export class WebSocketService {
     private socket: Socket;
     private messageSubject: Subject<Message> = new Subject<Message>();
-    private stateSubject: Subject<GameState> = new Subject<GameState>();
+    private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
 
@@ -84,7 +85,7 @@ export class WebSocketService {
         return this.userUpdateSubject.asObservable();
     }
 
-    getState(): Observable<GameState> {
+    getState(): Observable<GameStatePayload> {
         return this.stateSubject.asObservable();
     }
 
@@ -129,7 +130,7 @@ export class WebSocketService {
     }
 
     private listenForState() {
-        this.socket.on('game:state', (state: GameState) => {
+        this.socket.on('game:state', (state: GameStatePayload) => {
             this.stateSubject.next(state);
         });
     }

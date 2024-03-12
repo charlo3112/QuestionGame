@@ -1,13 +1,14 @@
 import { ActiveGame } from '@app/model/classes/active-game';
 import { UserData } from '@app/model/classes/user';
 import { Game } from '@app/model/database/game';
-import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
-import { GameState } from '@common/game-state';
-import { Result } from '@common/result';
-import { UserConnectionUpdate } from '@common/user-update.interface';
-import { User } from '@common/user.interface';
-import { Injectable, Logger } from '@nestjs/common';
 import { TimeService } from '@app/services/time/time.service';
+import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Result } from '@common/interfaces/result';
+import { User } from '@common/interfaces/user';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class RoomManagementService {
@@ -59,11 +60,15 @@ export class RoomManagementService {
         if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait || !game.isLocked) {
             return undefined;
         }
-        // TODO: Use service to start game
-        return GameState.Starting;
+        return GameState.Wait;
     }
 
-    joinRoom(userId: string, roomId: string, username: string): Result<GameState> {
+    startGame(roomId: string): GameState {
+        const game = this.gameState.get(roomId);
+        return game.startGame();
+    }
+
+    joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
         const activeGame = this.gameState.get(roomId);
         if (!activeGame) {
             return { ok: false, error: 'Code invalide' };
@@ -82,10 +87,10 @@ export class RoomManagementService {
         activeGame.addUser(newUser);
         const userUpdate: UserConnectionUpdate = { isConnected: true, username };
         this.updateUser(roomId, userUpdate);
-        return { ok: true, value: activeGame.currentState };
+        return { ok: true, value: { state: activeGame.currentState } };
     }
 
-    rejoinRoom(user: User, newUserId: string): Result<GameState> {
+    rejoinRoom(user: User, newUserId: string): Result<GameStatePayload> {
         const activeGame = this.gameState.get(user.roomId);
         if (!activeGame) {
             return { ok: false, error: 'Code invalide' };
@@ -102,7 +107,7 @@ export class RoomManagementService {
         this.roomMembers.set(newUserId, user.roomId);
         const newUser: UserData = new UserData(newUserId, user.roomId, user.name);
         activeGame.update(user.userId, newUser);
-        return { ok: true, value: activeGame.currentState };
+        return { ok: true, value: { state: activeGame.currentState } };
     }
 
     leaveUser(userId: string): void {
