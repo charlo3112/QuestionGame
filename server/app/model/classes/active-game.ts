@@ -1,22 +1,27 @@
 import { UserData } from '@app/model/classes/user';
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
+import { WAITING_TIME_MS } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { setTimeout } from 'timers/promises';
 
 export class ActiveGame {
     private locked: boolean;
-    private game: Game;
+    private game: GameData;
     private users: Map<string, UserData>;
-    private state: GameState;
+    private state: GameState = GameState.Wait;
     private bannedNames: string[];
     private activeUsers: Set<string>;
+    private updateState: (gameStatePayload: GameStatePayload) => void;
 
-    constructor(game: Game) {
+    constructor(game: GameData, updateState: (gameStatePayload: GameStatePayload) => void) {
         this.game = game;
         this.users = new Map<string, UserData>();
         this.activeUsers = new Set<string>();
         this.locked = false;
         this.state = GameState.Wait;
         this.bannedNames = [];
+        this.updateState = updateState;
     }
 
     get gameData() {
@@ -101,5 +106,10 @@ export class ActiveGame {
         }
         this.state = GameState.AskingQuestion;
         return this.currentState;
+    }
+
+    async launchGame() {
+        await setTimeout(WAITING_TIME_MS);
+        this.updateState({ state: GameState.AskingQuestion, payload: this.game });
     }
 }

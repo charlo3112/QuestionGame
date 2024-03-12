@@ -1,4 +1,4 @@
-import { Question, QuestionDocument } from '@app/model/database/question';
+import { QuestionData, QuestionDocument } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MAX_CHOICES_NUMBER, MAX_NB_OF_POINTS, MIN_NB_OF_POINTS, PONDERATION_INCREMENT } from '@common/constants';
 import { Injectable, Logger } from '@nestjs/common';
@@ -8,12 +8,12 @@ import { Model } from 'mongoose';
 @Injectable()
 export class QuestionService {
     constructor(
-        @InjectModel(Question.name) private readonly questionModel: Model<QuestionDocument>,
+        @InjectModel(QuestionData.name) private readonly questionModel: Model<QuestionDocument>,
         private readonly logger: Logger,
     ) {}
 
-    async getAllQuestions(): Promise<Question[]> {
-        const questions = await this.questionModel.find<Question>({});
+    async getAllQuestions(): Promise<QuestionData[]> {
+        const questions = await this.questionModel.find<QuestionData>({});
         for (const question of questions) {
             // eslint-disable-next-line no-underscore-dangle
             question.mongoId = question._id;
@@ -48,7 +48,7 @@ export class QuestionService {
             } else if (await this.questionModel.findOne({ text: questionData.text })) {
                 return Promise.reject('A similar question already exists');
             }
-            const question = new Question(questionData);
+            const question = new QuestionData(questionData);
             await this.questionModel.create(question);
         } catch (error) {
             this.logger.error(`Failed to insert question: ${error.message || error}`);
@@ -61,7 +61,7 @@ export class QuestionService {
             if (!(await this.validateQuestion(newQuestionData))) {
                 return Promise.reject('The question data is invalid');
             }
-            const question = new Question(newQuestionData);
+            const question = new QuestionData(newQuestionData);
             await this.questionModel.replaceOne(
                 { _id: newQuestionData.mongoId },
                 {

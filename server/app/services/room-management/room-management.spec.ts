@@ -1,4 +1,4 @@
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
@@ -20,7 +20,7 @@ describe('RoomManagementService', () => {
     });
 
     it('should create a game room and return user details', () => {
-        const game: Game = getFakeGame();
+        const game: GameData = getFakeGame();
         const user = service.createGame('user1', game);
 
         expect(user).toBeDefined();
@@ -136,8 +136,8 @@ describe('RoomManagementService', () => {
     });
 });
 
-const getFakeGame = (): Game => {
-    const game = new Game(getFakeCreateGameDto());
+const getFakeGame = (): GameData => {
+    const game = new GameData(getFakeCreateGameDto());
     return game;
 };
 

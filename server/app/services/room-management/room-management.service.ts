@@ -1,6 +1,6 @@
 import { ActiveGame } from '@app/model/classes/active-game';
 import { UserData } from '@app/model/classes/user';
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { TimeService } from '@app/services/time/time.service';
 import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
@@ -35,10 +35,10 @@ export class RoomManagementService {
         this.updateUser = updateUser;
     }
 
-    createGame(userId: string, game: Game): User {
+    createGame(userId: string, game: GameData, updateState: (gameStatePayload: GameStatePayload) => void): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, 'Organisateur');
-        const newActiveGame: ActiveGame = new ActiveGame(game);
+        const newActiveGame: ActiveGame = new ActiveGame(game, updateState);
         newActiveGame.addUser(host);
 
         this.gameState.set(roomId, newActiveGame);
@@ -60,7 +60,7 @@ export class RoomManagementService {
         if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait || !game.isLocked) {
             return undefined;
         }
-        return GameState.Wait;
+        game.launchGame();
     }
 
     startGame(roomId: string): GameState {

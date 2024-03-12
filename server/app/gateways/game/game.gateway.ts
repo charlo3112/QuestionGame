@@ -9,7 +9,6 @@ import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { setTimeout } from 'timers/promises';
 
 @WebSocketGateway()
 export class GameGateway implements OnGatewayDisconnect {
@@ -31,7 +30,10 @@ export class GameGateway implements OnGatewayDisconnect {
         if (!game) {
             return null;
         }
-        const user = this.roomService.createGame(client.id, game);
+        const roomId = this.roomService.getRoomId(client.id);
+        const user = this.roomService.createGame(client.id, game, (state) => {
+            this.server.to(roomId).emit('game:state', state);
+        });
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
 
@@ -68,15 +70,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage('game:launch')
     async launchGame(client: Socket) {
-        const res = this.roomService.launchGame(client.id);
-        if (res !== undefined) {
-            const roomId = this.roomService.getRoomId(client.id);
-            this.server.to(roomId).emit('game:state', res);
-            const initialDelayMs = 3000;
-            await setTimeout(initialDelayMs);
-            const state = this.roomService.startGame(client.id);
-            this.server.to(roomId).emit('game:state', state);
-        }
+        this.roomService.launchGame(client.id);
     }
 
     @SubscribeMessage('game:ban')

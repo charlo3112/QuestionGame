@@ -4,8 +4,8 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { QuestionService } from './question.service';
 
-import { Choice } from '@app/model/database/choice';
-import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
+import { ChoiceData } from '@app/model/database/choice';
+import { QuestionData, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
@@ -44,7 +44,7 @@ describe('QuestionService', () => {
                 QuestionService,
                 Logger,
                 {
-                    provide: getModelToken(Question.name),
+                    provide: getModelToken(QuestionData.name),
                     useValue: questionModel,
                 },
             ],
@@ -77,13 +77,13 @@ describe('QuestionServiceEndToEnd', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
+                MongooseModule.forFeature([{ name: QuestionData.name, schema: questionSchema }]),
             ],
             providers: [QuestionService, Logger],
         }).compile();
 
         service = module.get<QuestionService>(QuestionService);
-        questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
+        questionModel = module.get<Model<QuestionDocument>>(getModelToken(QuestionData.name));
         connection = await module.get(getConnectionToken());
     });
 
@@ -170,14 +170,14 @@ describe('QuestionServiceEndToEnd', () => {
 
     it('modifyQuestion() should modify the Question attribute', async () => {
         const questionData = getFakeCreateQuestionDto();
-        await questionModel.create(new Question(questionData));
+        await questionModel.create(new QuestionData(questionData));
         // eslint-disable-next-line no-underscore-dangle
         const mongoId = await (await questionModel.findOne({ text: questionData.text }))._id;
         questionData.mongoId = mongoId;
         const newText = 'new Text';
         questionData.text = newText;
         await service.modifyQuestion(questionData);
-        expect(await (await questionModel.findOne<Question>({ _id: mongoId })).text).toBe(newText);
+        expect(await (await questionModel.findOne<QuestionData>({ _id: mongoId })).text).toBe(newText);
     });
 
     it('setters should modify Question properties', async () => {
@@ -202,7 +202,7 @@ const getFakeCreateQuestionDto = (): CreateQuestionDto => {
     return questionData;
 };
 
-const getFakeQuestion = (): Question => {
+const getFakeQuestion = (): QuestionData => {
     const questionData: CreateQuestionDto = {
         type: QuestionType.QCM,
         text: getRandomString(),
@@ -210,19 +210,19 @@ const getFakeQuestion = (): Question => {
         choices: getFakeChoicesDto(),
     };
 
-    const question = new Question(questionData);
+    const question = new QuestionData(questionData);
 
     return question;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
-    const choices: Choice[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceData[] => {
+    const choices: ChoiceData[] = [];
     for (let i = 0; i < numChoices; i++) {
         const choiceData: CreateChoiceDto = {
             text: getRandomString(),
             isCorrect: i === 0,
         };
-        choices.push(new Choice(choiceData));
+        choices.push(new ChoiceData(choiceData));
     }
 
     return choices;
