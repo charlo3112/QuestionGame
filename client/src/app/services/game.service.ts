@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Game } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
-import { GameState } from '@common/game-state';
+import { GameState } from '@common/enums/game-state';
+import { Game } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
 import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
@@ -65,7 +65,7 @@ export class GameService {
             return false;
         }
         const choice = this.game.questions[this.i].choices[index];
-        return choice.isCorrect;
+        return choice.isCorrect as boolean;
     }
 
     isChoiceIncorrect(index: number): boolean {

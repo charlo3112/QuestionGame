@@ -3,6 +3,7 @@ import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -10,9 +11,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { WebSocketService } from '@app/services/websocket.service';
 import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
-import { Message } from '@common/message.interface';
+import { Message } from '@common/interfaces/message';
 import { Subscription } from 'rxjs';
-import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
     selector: 'app-chat',

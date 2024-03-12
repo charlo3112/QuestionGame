@@ -5,10 +5,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
-import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 import { WebSocketService } from '@app/services/websocket.service';
-import { Result } from '@common/result';
+import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 

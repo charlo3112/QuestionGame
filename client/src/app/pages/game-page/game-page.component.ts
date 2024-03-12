@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { QuestionComponent } from '@app/components/question/question.component';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game.service';
+import { GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-game-page',
