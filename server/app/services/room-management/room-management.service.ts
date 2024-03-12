@@ -195,7 +195,8 @@ export class RoomManagementService {
         return roomId;
     }
 
-    private getActiveGame(userId: string): ActiveGame {
+    // eslint-disable-next-line @typescript-eslint/member-ordering
+    getActiveGame(userId: string): ActiveGame {
         const roomId = this.roomMembers.get(userId);
         if (!roomId) {
             return undefined;

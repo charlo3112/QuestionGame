@@ -12,9 +12,6 @@ import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
 import { SNACKBAR_DURATION, WAITING_TIME_MS } from '@common/constants';
-import { GameState } from '@common/enums/game-state';
-import { Game } from '@common/interfaces/game';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Subscription } from 'rxjs';
@@ -34,7 +31,6 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     username: string;
     private messagesSubscription: Subscription;
     private userSubscription: Subscription;
-    private stateSubscription: Subscription;
 
     // This is needed because all the services are necessary
     // eslint-disable-next-line max-params
@@ -47,7 +43,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     ) {
         this.subscribeToClosedConnection();
         this.subscribeToUserUpdate();
-        this.subscribeToStateUpdate();
+        this.gameService.reset();
     }
 
     get time() {
@@ -89,9 +85,6 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
         if (this.userSubscription) {
             this.userSubscription.unsubscribe();
         }
-        if (this.stateSubscription) {
-            this.stateSubscription.unsubscribe();
-        }
     }
 
     onToggleLock() {
@@ -125,17 +118,6 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
                     this.players.add(userUpdate.username);
                 } else {
                     this.players.delete(userUpdate.username);
-                }
-            },
-        });
-    }
-
-    private subscribeToStateUpdate() {
-        this.stateSubscription = this.websocketService.getState().subscribe({
-            next: (state: GameStatePayload) => {
-                if (state.state === GameState.AskingQuestion) {
-                    this.gameService.startGame(state.payload as Game);
-                    this.router.navigate(['/game']);
                 }
             },
         });

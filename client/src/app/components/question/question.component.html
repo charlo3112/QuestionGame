@@ -25,6 +25,5 @@
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
-    <mat-slide-toggle (change)="gameService.toggleBonus()"> 20% bonus points </mat-slide-toggle>
     <div class="bottom" [ngStyle]="{ 'bottom.%': (-gameService.time / gameService.maxTime) * 100 - 20 }"></div>
 </div>

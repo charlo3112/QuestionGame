@@ -1,8 +1,8 @@
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { WAITING_TIME_MS } from '@common/constants';
+import { TIMEOUT_DURATION, TIME_CONFIRM_MS, WAITING_TIME_MS } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { GameStatePayload, Payload } from '@common/interfaces/game-state-payload';
 import { setTimeout } from 'timers/promises';
 
 export class ActiveGame {
@@ -14,6 +14,8 @@ export class ActiveGame {
     private activeUsers: Set<string>;
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private roomId: string;
+    private ac = new AbortController();
+    private questionIndex: number = 0;
 
     constructor(game: GameData, roomId: string, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void) {
         this.game = game;
@@ -112,6 +114,22 @@ export class ActiveGame {
 
     async launchGame() {
         await setTimeout(WAITING_TIME_MS);
-        this.updateState(this.roomId, { state: GameState.AskingQuestion, payload: this.game });
+        this.advanceState(GameState.Starting, this.game);
+
+        while (this.questionIndex < this.game.questions.length) {
+            this.advanceState(GameState.AskingQuestion, this.game);
+            console.log('asking question');
+            console.log(this.game.duration);
+            await setTimeout(10 * TIMEOUT_DURATION);
+            console.log('showing results');
+            this.advanceState(GameState.AskingQuestion, this.game);
+            await setTimeout(TIME_CONFIRM_MS);
+            ++this.questionIndex;
+        }
+    }
+
+    private advanceState(state: GameState, payload: Payload = undefined) {
+        this.state = state;
+        this.updateState(this.roomId, { state: this.state, payload });
     }
 }

@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { GameService } from '@app/services/game.service';
-import { GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -14,7 +13,6 @@ import { Question } from '@common/interfaces/question';
 })
 export class GamePageComponent implements OnInit {
     questions: Question[] = [];
-    placeholder = GAME_PLACEHOLDER;
 
     constructor(private readonly gameService: GameService) {}
 
@@ -26,8 +24,6 @@ export class GamePageComponent implements OnInit {
         const state = window.history.state;
         if (state && state.game) {
             this.gameService.startGame(state.game);
-        } else {
-            this.gameService.startGame(this.placeholder); // Starts with placeholder questions
         }
     }
 }

@@ -1,28 +1,31 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { TimeService } from '@app/services/time.service';
+import { WebSocketService } from '@app/services/websocket.service';
 import { GameState } from '@common/enums/game-state';
 import { Game } from '@common/interfaces/game';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
-import { TimeService } from './time.service';
-
-const timeConfirmMs = 3000;
-const bonusMultiplier = 1.2;
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
-export class GameService {
-    private game: Game;
+export class GameService implements OnDestroy {
+    game: Game;
     private i: number = 0;
     private state: GameState = GameState.NotStarted;
     private scoreValue: number = 0;
-    private bonus: boolean = false;
     private choicesSelected: boolean[] = [false, false, false, false];
+    private stateSubscription: Subscription;
 
     constructor(
         private readonly timeService: TimeService,
-        private readonly router: Router,
-    ) {}
+        private readonly websocketService: WebSocketService,
+        private readonly routerService: Router,
+    ) {
+        this.subscribeToStateUpdate();
+    }
 
     get score(): number {
         return this.scoreValue;
@@ -43,7 +46,7 @@ export class GameService {
     get currentQuestion(): Question | undefined {
         switch (this.state) {
             case GameState.AskingQuestion:
-                return this.game.questions[this.i];
+            case GameState.WaitingResults:
             case GameState.ShowResults:
                 return this.game.questions[this.i];
             default:
@@ -52,8 +55,20 @@ export class GameService {
     }
 
     get message(): string | undefined {
-        if (this.state !== GameState.ShowResults || !this.bonus || !this.isResponseGood()) return undefined;
+        if (this.state !== GameState.ShowResults || !this.isResponseGood()) return undefined;
         return 'Vous avez un bonus!';
+    }
+
+    ngOnDestroy(): void {
+        this.stateSubscription.unsubscribe();
+    }
+
+    reset(): void {
+        this.i = 0;
+        this.state = GameState.NotStarted;
+        this.scoreValue = 0;
+        this.choicesSelected = [false, false, false, false];
+        this.timeService.stopTimer();
     }
 
     isChoiceSelected(index: number): boolean {
@@ -88,34 +103,17 @@ export class GameService {
         this.scoreValue = 0;
         this.timeService.stopTimer();
         this.state = GameState.AskingQuestion;
-        this.askQuestion();
     }
 
     confirmQuestion() {
         if (this.state !== GameState.AskingQuestion) {
             return;
         }
-        this.advanceState();
-        this.timeService.stopTimer();
-        this.scoreValue += this.scoreQuestion();
-        this.timeService.setTimeout(() => {
-            this.advanceState();
-            if (this.state === GameState.GameOver) {
-                this.router.navigate(['#/admin/game']);
-                return;
-            }
-            this.askQuestion();
-        }, timeConfirmMs);
-    }
-
-    toggleBonus() {
-        this.bonus = !this.bonus;
+        this.state = GameState.WaitingResults;
     }
 
     private askQuestion() {
-        this.timeService.startTimer(this.game.duration, () => {
-            this.confirmQuestion();
-        });
+        this.timeService.startTimer(this.game.duration);
     }
 
     private isResponseGood(): boolean {
@@ -128,26 +126,26 @@ export class GameService {
         return true;
     }
 
-    private scoreQuestion(): number {
-        if (this.isResponseGood()) {
-            const questionValue = this.game.questions[this.i].points;
-            return this.bonus ? questionValue * bonusMultiplier : questionValue;
-        }
-        return 0;
-    }
+    private subscribeToStateUpdate() {
+        this.stateSubscription = this.websocketService.getState().subscribe({
+            next: (state: GameStatePayload) => {
+                const nextState = state.state;
+                console.log(state);
+                console.log(nextState);
+                if (this.state === GameState.Starting) {
+                    this.startGame(state.payload as Game);
+                    this.routerService.navigate(['/game']);
+                }
+                if (this.state === GameState.ShowResults && nextState === GameState.AskingQuestion) {
+                    ++this.i;
+                    this.choicesSelected = [false, false, false, false];
+                }
+                if (nextState === GameState.AskingQuestion) {
+                    this.askQuestion();
+                }
 
-    private advanceState() {
-        switch (this.state) {
-            case GameState.AskingQuestion:
-                this.state = GameState.ShowResults;
-                break;
-            case GameState.ShowResults:
-                for (let i = 0; i < this.game.questions[this.i].choices.length; ++i) this.choicesSelected[i] = false;
-                this.state = ++this.i < this.game.questions.length ? GameState.AskingQuestion : GameState.GameOver;
-                break;
-            case GameState.GameOver:
-                this.state = GameState.GameOver;
-                break;
-        }
+                this.state = nextState;
+            },
+        });
     }
 }
