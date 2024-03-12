@@ -11,7 +11,7 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
-import { SNACKBAR_DURATION, WAITING_TIME_S } from '@common/constants';
+import { SNACKBAR_DURATION, WAITING_TIME_MS } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -101,7 +101,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
 
     onStartGame() {
         this.websocketService.launchGame();
-        this.timeService.startTimer(WAITING_TIME_S);
+        this.timeService.startTimer(WAITING_TIME_MS);
     }
 
     onKickPlayer(player: string) {

@@ -7,7 +7,7 @@ export interface Game {
     duration: number;
     lastModification: string;
     questions: Question[];
-    image: string;
+    image?: string;
     visibility: boolean;
 }
 
