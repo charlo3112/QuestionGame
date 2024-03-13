@@ -65,7 +65,7 @@ export class ActiveGame {
     }
 
     isBanned(name: string) {
-        return this.bannedNames.includes(name);
+        return this.bannedNames.includes(name.toLowerCase());
     }
 
     isHost(userId: string): boolean {
@@ -91,7 +91,7 @@ export class ActiveGame {
         if (this.currentState !== GameState.Wait) {
             return undefined;
         }
-        this.bannedNames.push(name);
+        this.bannedNames.push(name.toLowerCase());
         const userId = Array.from(this.users.values())
             .find((user) => user.username === name)
             ?.getUserId();
