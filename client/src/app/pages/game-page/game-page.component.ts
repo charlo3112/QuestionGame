@@ -12,8 +12,6 @@ import { Question } from '@common/interfaces/question';
     imports: [QuestionComponent, CommonModule],
 })
 export class GamePageComponent implements OnInit {
-    questions: Question[] = [];
-
     constructor(private readonly gameService: GameService) {}
 
     get question(): Question | undefined {
