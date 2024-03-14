@@ -1,0 +1,17 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Résultats</h1> 
+</mat-toolbar>
+<div class="main-container">
+    <mat-tab-group class="result-container">
+        <mat-tab label="Résultats">
+            <app-leaderboard [leaderboard]="leaderboard"></app-leaderboard>
+        </mat-tab>
+        <mat-tab label="Histogrammes">
+            <app-histogram [listQuestions]="histogramData" [questionDisplayed]="0" [showArrows]="true"></app-histogram>
+        </mat-tab>
+    </mat-tab-group>
+    <div class="chat-container">
+        <app-chat> </app-chat>
+    </div>
+</div>

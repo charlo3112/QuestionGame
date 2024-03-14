@@ -15,10 +15,13 @@ import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
+import { ResultPageComponent } from '@app/pages/result-page/result-page.component';
 import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { ValidationService } from '@app/services/validation.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { HistogramComponent } from './components/histogram/histogram.component';
+import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
 /**
  * Main module that is used in main.ts.
@@ -45,6 +48,9 @@ import { WebSocketService } from '@app/services/websocket.service';
         MatGridListModule,
         QuestionBankComponent,
         QuestionBankPageComponent,
+        HistogramComponent,
+        LeaderboardComponent,
+        ResultPageComponent,
     ],
     providers: [WebSocketService, CommunicationService, ValidationService, GameService],
     bootstrap: [AppComponent],

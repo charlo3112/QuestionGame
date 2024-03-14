@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { WebSocketService } from '@app/services/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
@@ -15,7 +15,7 @@ import { SNACKBAR_DURATION } from '@common/constants';
     templateUrl: './joingame-page.component.html',
     styleUrls: ['./joingame-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
+    imports: [MatToolbarModule, RouterModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
 })
 export class JoinGamePageComponent {
     entryError = false;

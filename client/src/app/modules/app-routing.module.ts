@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AdminGamePageComponent } from '@app/pages/admin-game-page/admin-game-page.component';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
@@ -7,6 +8,7 @@ import { JoinGamePageComponent } from '@app/pages/joingame-page/joingame-page/jo
 import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
+import { ResultPageComponent } from '@app/pages/result-page/result-page.component';
 import { StartGamePageComponent } from '@app/pages/startgame-page/startgame-page.component';
 
 export const routes: Routes = [
@@ -20,6 +22,8 @@ export const routes: Routes = [
     { path: 'loading', component: LoadingPageComponent },
     { path: 'admin/question-bank', component: QuestionBankPageComponent },
     { path: 'join', component: JoinGamePageComponent },
+    { path: 'result', component: ResultPageComponent },
+    { path: 'admingame', component: AdminGamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 
