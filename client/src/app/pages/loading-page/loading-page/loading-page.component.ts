@@ -23,16 +23,12 @@ import { Subscription } from 'rxjs';
 export class LoadingPageComponent implements OnInit, OnDestroy {
     players: Set<string> = new Set();
     roomLocked = false;
-    isHost = false;
-    roomCode: string;
     private userSubscription: Subscription;
 
-    // This is needed because all the services are necessary
-    // eslint-disable-next-line max-params
     constructor(
         private websocketService: WebSocketService,
         private timeService: TimeService,
-        private gameService: GameService,
+        readonly gameService: GameService,
     ) {
         this.subscribeToUserUpdate();
         this.gameService.reset();
@@ -46,8 +42,6 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
         await this.gameService.init();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
         this.players.delete(this.gameService.usernameValue);
-        this.roomCode = this.gameService.roomCodeValue;
-        this.isHost = this.gameService.isHost;
     }
 
     ngOnDestroy() {
