@@ -4,7 +4,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Choice } from '@app/classes/choice';
 import { QuestionWithModificationDate } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { QuestionType } from '@common/constants';
 import { Result } from '@common/result';
 import { of, throwError } from 'rxjs';

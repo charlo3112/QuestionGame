@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { Result } from '@common/result';
 import { of, throwError } from 'rxjs';

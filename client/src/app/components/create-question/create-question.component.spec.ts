@@ -14,7 +14,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Choice } from '@app/classes/choice';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
 import { of, throwError } from 'rxjs';
 

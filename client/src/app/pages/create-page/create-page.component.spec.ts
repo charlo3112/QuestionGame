@@ -2,7 +2,7 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,9 +17,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Choice } from '@app/classes/choice';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
 import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
@@ -396,11 +396,11 @@ describe('CreatePageComponent', () => {
     // verifPresenceQuestion
     it('should return false if the question is already in the game', () => {
         component.questions = [mockValidQuestion1, mockValidQuestion2];
-        expect(component.verifPresenceQuestion(mockValidQuestion1)).toBeFalse();
+        expect(component.verifyPresenceQuestion(mockValidQuestion1)).toBeFalse();
     });
 
     it('should return true if the question is not in the game', () => {
         component.questions = [mockValidQuestion2];
-        expect(component.verifPresenceQuestion(mockValidQuestion1)).toBeTrue();
+        expect(component.verifyPresenceQuestion(mockValidQuestion1)).toBeTrue();
     });
 });

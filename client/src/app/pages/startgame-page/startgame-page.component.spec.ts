@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { Result } from '@common/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
