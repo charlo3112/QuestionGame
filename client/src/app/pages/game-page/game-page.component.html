@@ -2,7 +2,7 @@
     <mat-toolbar-row color="primary" class="toolbar">
         <a routerLink="#"><img src="assets/logo.png" /></a>
         <h1 *ngIf="question" class="title">{{ question.text }}</h1>
-        <h1 *ngIf="isStartingGame()" class="big-text">Je suis un titre de question de kalité</h1>
+        <h1 *ngIf="isStartingGame()" class="title">{{ gameService.gameTitle }}</h1>
         <span class="spacer"></span>
         <span *ngIf="question" id="points" class="big-text">{{ question.points }} points</span>
     </mat-toolbar-row>
@@ -14,4 +14,5 @@
     </mat-toolbar-row>
 </mat-toolbar>
 
+<app-countdown *ngIf="isStartingGame()"></app-countdown>
 <app-question *ngIf="question" [question]="question!" tabindex="0"></app-question>
