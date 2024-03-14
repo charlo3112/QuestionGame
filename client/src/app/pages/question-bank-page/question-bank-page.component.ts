@@ -1,15 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-
 @Component({
     selector: 'app-question-bank-page',
     templateUrl: './question-bank-page.component.html',
     styleUrls: ['./question-bank-page.component.scss'],
     standalone: true,
-    imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink],
+    imports: [QuestionBankComponent, MatToolbarModule, MatButtonModule, RouterLink, CommonModule],
 })
 export class QuestionBankPageComponent implements OnInit {
     @ViewChild(QuestionBankComponent) child!: QuestionBankComponent;
