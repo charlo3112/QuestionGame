@@ -2,7 +2,7 @@ import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
 import { TIMEOUT_DURATION, TIME_CONFIRM_MS, WAITING_TIME_MS } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
-import { GameStatePayload, Payload } from '@common/interfaces/game-state-payload';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 import { setTimeout } from 'timers/promises';
 
@@ -77,6 +77,14 @@ export class ActiveGame {
         this.locked = locked;
     }
 
+    handleChoices(userId: string, choice: boolean[]) {
+        const user = this.users.get(userId);
+        if (!user) {
+            return;
+        }
+        user.newChoice = choice;
+    }
+
     canRejoin(userId: string): boolean {
         return this.activeUsers.has(userId);
     }
@@ -142,21 +150,21 @@ export class ActiveGame {
     }
 
     async launchGame() {
-        await setTimeout(WAITING_TIME_MS);
         this.advanceState(GameState.Starting);
+        await setTimeout(WAITING_TIME_MS);
 
         while (this.questionIndex < this.game.questions.length) {
-            this.advanceState(GameState.AskingQuestion, this.currentQuestionWithoutAnswer);
+            this.advanceState(GameState.AskingQuestion);
             await setTimeout(this.game.duration * TIMEOUT_DURATION);
 
-            this.advanceState(GameState.ShowResults, this.currentQuestionWithAnswer);
+            this.advanceState(GameState.ShowResults);
             await setTimeout(TIME_CONFIRM_MS);
             ++this.questionIndex;
         }
     }
 
-    private advanceState(state: GameState, payload: Payload = undefined) {
+    private advanceState(state: GameState) {
         this.state = state;
-        this.updateState(this.roomId, { state: this.state, payload });
+        this.updateState(this.roomId, this.gameStatePayload);
     }
 }

@@ -35,6 +35,14 @@ export class RoomManagementService {
         this.updateUser = updateUser;
     }
 
+    handleChoices(userId: string, choices: boolean[]): void {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.handleChoices(userId, choices);
+    }
+
     createGame(userId: string, game: GameData, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, 'Organisateur');

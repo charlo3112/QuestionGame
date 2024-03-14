@@ -4,6 +4,7 @@ export class UserData {
     private score: number;
     private bonus: number;
     private roomId: string;
+    private choice: boolean[] | undefined;
 
     constructor(userId: string, roomId: string, username: string) {
         this.userId = userId;
@@ -11,10 +12,19 @@ export class UserData {
         this.roomId = roomId;
         this.score = 0;
         this.bonus = 0;
+        this.choice = undefined;
     }
 
     get username() {
         return this.name;
+    }
+
+    set newChoice(choice: boolean[]) {
+        this.choice = choice;
+    }
+
+    resetChoice() {
+        this.choice = undefined;
     }
 
     isHost(): boolean {

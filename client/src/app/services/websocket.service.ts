@@ -40,6 +40,10 @@ export class WebSocketService {
         });
     }
 
+    sendChoices(userId: string, choices: boolean[]): void {
+        this.socket.emit('game:choices', choices);
+    }
+
     leaveRoom(): void {
         this.socket.emit('game:leave');
     }

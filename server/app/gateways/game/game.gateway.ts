@@ -42,6 +42,11 @@ export class GameGateway implements OnGatewayDisconnect {
         this.roomService.performUserRemoval(client.id);
     }
 
+    @SubscribeMessage('game:choices')
+    handleChoices(client: Socket, choices: boolean[]) {
+        this.roomService.handleChoices(client.id, choices);
+    }
+
     @SubscribeMessage('game:toggle')
     handleToggleGame(client: Socket, closed: boolean) {
         this.roomService.toggleGameClosed(client.id, closed);
