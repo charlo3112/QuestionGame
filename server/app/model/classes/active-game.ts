@@ -37,6 +37,23 @@ export class ActiveGame {
     }
 
     get currentQuestionWithoutAnswer(): Question {
+        const data: Question = {
+            ...this.game.questions[this.questionIndex],
+        };
+        return {
+            type: data.type,
+            text: data.text,
+            points: data.points,
+            choices: data.choices.map((choice) => {
+                return {
+                    text: choice.text,
+                    isCorrect: false,
+                };
+            }),
+        };
+    }
+
+    get currentQuestionWithAnswer(): Question {
         return {
             ...this.game.questions[this.questionIndex],
         };
@@ -44,6 +61,16 @@ export class ActiveGame {
 
     get currentState() {
         return this.state;
+    }
+
+    get gameStatePayload(): GameStatePayload {
+        if (this.state === GameState.AskingQuestion) {
+            return { state: this.state, payload: this.currentQuestionWithoutAnswer };
+        }
+        if (this.state === GameState.ShowResults) {
+            return { state: this.state, payload: this.currentQuestionWithAnswer };
+        }
+        return { state: this.state };
     }
 
     set isLocked(locked: boolean) {
@@ -122,7 +149,7 @@ export class ActiveGame {
             this.advanceState(GameState.AskingQuestion, this.currentQuestionWithoutAnswer);
             await setTimeout(this.game.duration * TIMEOUT_DURATION);
 
-            this.advanceState(GameState.ShowResults);
+            this.advanceState(GameState.ShowResults, this.currentQuestionWithAnswer);
             await setTimeout(TIME_CONFIRM_MS);
             ++this.questionIndex;
         }

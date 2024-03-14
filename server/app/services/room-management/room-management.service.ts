@@ -41,6 +41,10 @@ export class RoomManagementService {
         const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState);
         newActiveGame.addUser(host);
 
+        if (this.roomMembers.has(userId)) {
+            this.performUserRemoval(userId);
+        }
+
         this.gameState.set(roomId, newActiveGame);
         this.roomMembers.set(host.getUserId(), roomId);
 
@@ -82,7 +86,7 @@ export class RoomManagementService {
         activeGame.addUser(newUser);
         const userUpdate: UserConnectionUpdate = { isConnected: true, username };
         this.updateUser(roomId, userUpdate);
-        return { ok: true, value: { state: activeGame.currentState } };
+        return { ok: true, value: activeGame.gameStatePayload };
     }
 
     rejoinRoom(user: User, newUserId: string): Result<GameStatePayload> {
@@ -94,7 +98,12 @@ export class RoomManagementService {
             clearTimeout(this.disconnectionTimers.get(user.userId));
             this.disconnectionTimers.delete(user.userId);
         }
-        if (!this.roomMembers.has(user.userId) || activeGame.isBanned(user.name) || activeGame.getUser(user.userId).username !== user.name) {
+        if (
+            !this.roomMembers.has(user.userId) ||
+            activeGame.isBanned(user.name) ||
+            activeGame.getUser(user.userId).username !== user.name ||
+            !activeGame.canRejoin(user.userId)
+        ) {
             return { ok: false, error: 'Reconnection impossible' };
         }
 
@@ -102,7 +111,7 @@ export class RoomManagementService {
         this.roomMembers.set(newUserId, user.roomId);
         const newUser: UserData = new UserData(newUserId, user.roomId, user.name);
         activeGame.update(user.userId, newUser);
-        return { ok: true, value: { state: activeGame.currentState } };
+        return { ok: true, value: activeGame.gameStatePayload };
     }
 
     leaveUser(userId: string): void {

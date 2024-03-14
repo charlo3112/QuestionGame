@@ -92,6 +92,7 @@ export class GameService implements OnDestroy {
 
             this.username = user.name;
             this.roomCode = user.roomId;
+            this.setState(res.value);
         }
     }
 
@@ -108,6 +109,7 @@ export class GameService implements OnDestroy {
         if (this.state !== GameState.Starting) {
             this.websocketService.leaveRoom();
             sessionStorage.removeItem('user');
+            this.reset();
         }
     }
 
@@ -215,13 +217,20 @@ export class GameService implements OnDestroy {
 
         if (this.state === GameState.Starting) {
             this.startGame();
-            this.routerService.navigate(['/game']);
         }
 
         if (this.state === GameState.AskingQuestion) {
             this.question = state.payload as Question;
             this.choicesSelected = [false, false, false, false];
             this.askQuestion();
+        }
+
+        if (this.state === GameState.ShowResults) {
+            this.question = state.payload as Question;
+        }
+
+        if (this.routerService.url !== '/game') {
+            this.routerService.navigate(['/game']);
         }
     }
 }

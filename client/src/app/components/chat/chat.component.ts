@@ -60,6 +60,7 @@ export class ChatComponent implements OnDestroy, OnInit {
     async ngOnInit() {
         this.chat = await this.webSocketService.getMessages();
         this.sortMessages();
+        this.username = this.gameService.usernameValue;
     }
 
     chatSubmit() {

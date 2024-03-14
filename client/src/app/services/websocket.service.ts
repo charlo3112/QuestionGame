@@ -53,9 +53,9 @@ export class WebSocketService {
         });
     }
 
-    async rejoinRoom(user: User): Promise<Result<GameState>> {
-        return new Promise<Result<GameState>>((resolve) => {
-            this.socket.emit('game:rejoin', user, (data: Result<GameState>) => {
+    async rejoinRoom(user: User): Promise<Result<GameStatePayload>> {
+        return new Promise<Result<GameStatePayload>>((resolve) => {
+            this.socket.emit('game:rejoin', user, (data: Result<GameStatePayload>) => {
                 resolve(data);
             });
         });
