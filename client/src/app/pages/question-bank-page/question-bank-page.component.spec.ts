@@ -51,4 +51,10 @@ describe('QuestionBankPageComponent', () => {
         component.handleCloseAdd();
         expect(component.showAddQuestion).toBeFalse();
     });
+
+    it('when handleCreateQuestion() is called, should put showAddQuestion to true and call child.toggleHighlight(null)', () => {
+        component.showAddQuestion = false;
+        component.handleCreateQuestion();
+        expect(component.showAddQuestion).toBeTrue();
+    });
 });

@@ -52,6 +52,7 @@ export class CreatePageComponent implements OnInit {
     showChildren: boolean = false;
     showPage: boolean = true;
     isEditing: boolean = false;
+    isEditingQuestion: boolean = false;
     questionTitleToEdit: string = '';
 
     login: boolean;
@@ -111,6 +112,7 @@ export class CreatePageComponent implements OnInit {
                 const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
                 this.questions[index] = question;
                 this.questionTitleToEdit = '';
+                this.isEditingQuestion = false;
             }
         }
         this.closeCreateQuestion();
@@ -118,6 +120,9 @@ export class CreatePageComponent implements OnInit {
     verifPresenceQuestion(question: Question): boolean {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index !== NOT_FOUND) {
+            if (this.isEditingQuestion) {
+                return true;
+            }
             this.snackBar.open("Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.", undefined, {
                 duration: SNACKBAR_DURATION,
             });
@@ -133,6 +138,7 @@ export class CreatePageComponent implements OnInit {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
     editQuestion(question: Question) {
+        this.isEditingQuestion = true;
         this.questionTitleToEdit = question.text;
         this.selectedQuestion = question;
         this.showChildren = true;
@@ -150,6 +156,7 @@ export class CreatePageComponent implements OnInit {
     }
     closeCreateQuestion() {
         this.showChildren = false;
+        this.isEditingQuestion = false;
     }
     async save(): Promise<void> {
         const gameToValidate: Partial<Game> = {

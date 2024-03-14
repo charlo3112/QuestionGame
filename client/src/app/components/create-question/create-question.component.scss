@@ -43,6 +43,11 @@
 .choice-value {
     flex: 1;
     cursor: pointer;
+    display: block;
+    max-width: 80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .edit-input {
