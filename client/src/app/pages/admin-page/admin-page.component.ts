@@ -110,7 +110,7 @@ export class AdminPageComponent implements OnInit {
                             type: question.type,
                             text: question.text,
                             points: question.points,
-                            choices: question.choices?.map((choice) => ({ choice: choice.text, isCorrect: choice.isCorrect }) as unknown as Choice),
+                            choices: question.choices?.map((choice) => ({ text: choice.text, isCorrect: choice.isCorrect }) as Choice),
                         })),
                     };
 

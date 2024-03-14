@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
@@ -20,19 +19,28 @@ export class GameService implements OnDestroy {
     private roomCode: string = '';
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
+    private timeSubscription: Subscription;
+    private scoreSubscription: Subscription;
+    private serverTime: number;
+    private title: string;
 
-    // eslint-disable-next-line max-params
     constructor(
-        private readonly timeService: TimeService,
         private readonly websocketService: WebSocketService,
         private readonly snackBarService: MatSnackBar,
         private readonly routerService: Router,
     ) {
         this.subscribeToStateUpdate();
         this.subscribeToClosedConnection();
+        this.subscribeToTimeUpdate();
+        this.subscribeToScoreUpdate();
+
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
             this.websocketService.leaveRoom();
         }
+    }
+
+    get gameTitle(): string {
+        return this.title;
     }
 
     get score(): number {
@@ -40,11 +48,12 @@ export class GameService implements OnDestroy {
     }
 
     get time(): number {
-        return this.timeService.time;
+        return this.serverTime;
     }
 
     get maxTime(): number {
-        return 1;
+        const twenty = 20;
+        return twenty;
     }
 
     get currentState(): GameState {
@@ -82,6 +91,7 @@ export class GameService implements OnDestroy {
         } else {
             const user: User = JSON.parse(data);
             const res = await this.websocketService.rejoinRoom(user);
+
             if (!res.ok) {
                 sessionStorage.removeItem('user');
                 this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
@@ -93,6 +103,14 @@ export class GameService implements OnDestroy {
             this.username = user.name;
             this.roomCode = user.roomId;
             this.setState(res.value);
+            // this.scoreValue = await this.websocketService.getScore();
+
+            if (this.state === GameState.AskingQuestion) {
+                this.choicesSelected = await this.websocketService.getChoice();
+                if (await this.websocketService.isValidate()) {
+                    this.state = GameState.WaitingResults;
+                }
+            }
         }
     }
 
@@ -102,6 +120,12 @@ export class GameService implements OnDestroy {
         }
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
+        }
+        if (this.timeSubscription) {
+            this.timeSubscription.unsubscribe();
+        }
+        if (this.scoreSubscription) {
+            this.scoreSubscription.unsubscribe();
         }
     }
 
@@ -118,7 +142,6 @@ export class GameService implements OnDestroy {
         this.state = GameState.NotStarted;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
-        this.timeService.stopTimer();
     }
 
     isChoiceSelected(index: number): boolean {
@@ -150,16 +173,13 @@ export class GameService implements OnDestroy {
     selectChoice(index: number) {
         if (this.state === GameState.AskingQuestion) {
             this.choicesSelected[index] = !this.choicesSelected[index];
+            this.websocketService.sendChoice(this.choicesSelected);
         }
-    }
-
-    startGame() {
-        this.scoreValue = 0;
-        this.timeService.stopTimer();
     }
 
     confirmQuestion() {
         if (this.state !== GameState.AskingQuestion) {
+            this.websocketService.validateChoice();
             return;
         }
         this.state = GameState.WaitingResults;
@@ -200,6 +220,22 @@ export class GameService implements OnDestroy {
         });
     }
 
+    private subscribeToTimeUpdate() {
+        this.timeSubscription = this.websocketService.getTime().subscribe({
+            next: (time: number) => {
+                this.serverTime = time;
+            },
+        });
+    }
+
+    private subscribeToScoreUpdate() {
+        this.scoreSubscription = this.websocketService.getScoreUpdate().subscribe({
+            next: (score: number) => {
+                this.scoreValue = score;
+            },
+        });
+    }
+
     private setState(state: GameStatePayload) {
         this.state = state.state;
         if (this.state === GameState.NotStarted) {
@@ -208,15 +244,12 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.GameOver) {
             return;
         }
+
         if (this.state === GameState.Wait) {
             if (this.routerService.url !== '/loading') {
                 this.routerService.navigate(['/loading']);
             }
             return;
-        }
-
-        if (this.state === GameState.Starting) {
-            this.startGame();
         }
 
         if (this.state === GameState.AskingQuestion) {
@@ -227,6 +260,10 @@ export class GameService implements OnDestroy {
 
         if (this.state === GameState.ShowResults) {
             this.question = state.payload as Question;
+        }
+
+        if (this.state === GameState.Starting) {
+            this.title = state.payload as string;
         }
 
         if (this.routerService.url !== '/game') {

@@ -19,6 +19,8 @@ export class WebSocketService {
     private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
+    private timeSubject: Subject<number> = new Subject<number>();
+    private scoreSubject: Subject<number> = new Subject<number>();
 
     constructor() {
         this.connect();
@@ -40,12 +42,32 @@ export class WebSocketService {
         });
     }
 
-    sendChoices(userId: string, choices: boolean[]): void {
-        this.socket.emit('game:choices', choices);
+    sendChoice(choice: boolean[]): void {
+        this.socket.emit('game:choice', choice);
+    }
+
+    validateChoice(): void {
+        this.socket.emit('game:validate');
     }
 
     leaveRoom(): void {
         this.socket.emit('game:leave');
+    }
+
+    async isValidate(): Promise<boolean> {
+        return new Promise<boolean>((resolve) => {
+            this.socket.emit('game:isValidate', (isValidate: boolean) => {
+                resolve(isValidate);
+            });
+        });
+    }
+
+    async getChoice(): Promise<boolean[]> {
+        return new Promise<boolean[]>((resolve) => {
+            this.socket.emit('game:getChoice', (choice: boolean[]) => {
+                resolve(choice);
+            });
+        });
     }
 
     async joinRoom(gameCode: string, username: string): Promise<Result<GameState>> {
@@ -89,8 +111,16 @@ export class WebSocketService {
         return this.closedSubject.asObservable();
     }
 
+    getScoreUpdate(): Observable<number> {
+        return this.scoreSubject.asObservable();
+    }
+
     getUserUpdate(): Observable<UserConnectionUpdate> {
         return this.userUpdateSubject.asObservable();
+    }
+
+    getTime(): Observable<number> {
+        return this.timeSubject.asObservable();
     }
 
     async getUsers(): Promise<string[]> {
@@ -109,6 +139,14 @@ export class WebSocketService {
         });
     }
 
+    async getScore(): Promise<number> {
+        return new Promise<number>((resolve) => {
+            this.socket.emit('game:score', (score: number) => {
+                resolve(score);
+            });
+        });
+    }
+
     private createSocket(): Socket {
         return io(environment.wsUrl, { transports: ['websocket'] });
     }
@@ -119,11 +157,19 @@ export class WebSocketService {
         this.listenForState();
         this.listenForClosedConnection();
         this.listenForUserUpdate();
+        this.listenForTimeUpdate();
+        this.listenForScoreUpdate();
     }
 
     private listenForClosedConnection() {
         this.socket.on('game:closed', (message: string) => {
             this.closedSubject.next(message);
+        });
+    }
+
+    private listenForScoreUpdate() {
+        this.socket.on('game:score', (score: number) => {
+            this.scoreSubject.next(score);
         });
     }
 
@@ -142,6 +188,12 @@ export class WebSocketService {
     private listenForUserUpdate() {
         this.socket.on('game:user-update', (update: UserConnectionUpdate) => {
             this.userUpdateSubject.next(update);
+        });
+    }
+
+    private listenForTimeUpdate() {
+        this.socket.on('game:time', (time: number) => {
+            this.timeSubject.next(time);
         });
     }
 }

@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
+import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { GameService } from '@app/services/game.service';
 import { GameState } from '@common/enums/game-state';
@@ -29,6 +30,7 @@ import { Question } from '@common/interfaces/question';
         MatToolbarModule,
         MatDividerModule,
         RouterLink,
+        CountdownComponent,
     ],
 })
 export class GamePageComponent implements OnInit, OnDestroy {
