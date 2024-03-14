@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { Choice } from '@app/classes/choice';
 import { GameService } from '@app/services/game.service';
+import { Choice } from '@common/interfaces/choice';
 
 @Component({
     selector: 'app-answers',

@@ -15,11 +15,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
 import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 import { lastValueFrom } from 'rxjs';
 
 @Component({

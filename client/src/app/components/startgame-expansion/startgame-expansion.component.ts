@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { Game } from '@app/interfaces/game';
+import { Game } from '@common/interfaces/game';
 
 @Component({
     selector: 'app-startgame-expansion',

@@ -1,1 +1,18 @@
+<mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row color="primary" class="toolbar">
+        <a routerLink="#"><img src="assets/logo.png" /></a>
+        <h1 *ngIf="question" class="title">{{ question.text }}</h1>
+        <h1 *ngIf="isStartingGame()" class="title">{{ gameService.gameTitle }}</h1>
+        <span class="spacer"></span>
+        <span *ngIf="question" id="points" class="big-text">{{ question.points }} points</span>
+    </mat-toolbar-row>
+    <mat-toolbar-row *ngIf="!isStartingGame()" class="row-container">
+        <p class="big-text">Score total : {{ gameService.score }}</p>
+        <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
+        <p *ngIf="gameService.time" class="big-text">Temps restant : {{ gameService.time }}</p>
+        <button mat-raised-button id="abandon-button" routerLink="/new">Abandonner</button>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+<app-countdown *ngIf="isStartingGame()"></app-countdown>
 <app-question *ngIf="question" [question]="question!" tabindex="0"></app-question>

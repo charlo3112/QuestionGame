@@ -4,17 +4,20 @@ import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Choice } from '@app/classes/choice';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game.service';
-import { QuestionType } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 
 const mockQuestion = {
     type: QuestionType.QCM,
     text: 'Question test',
     points: 8,
-    choices: [new Choice('A', true), new Choice('B', false), new Choice('C', false)],
+    choices: [
+        { text: 'A', isCorrect: true },
+        { text: 'B', isCorrect: false },
+        { text: 'C', isCorrect: false },
+    ],
 };
 
 describe('Question', () => {

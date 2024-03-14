@@ -2,11 +2,10 @@ import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Choice } from '@app/classes/choice';
-import { QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication.service';
-import { QuestionType } from '@common/constants';
-import { Result } from '@common/result';
+import { QuestionType } from '@common/enums/question-type';
+import { QuestionWithModificationDate } from '@common/interfaces/question';
+import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { QuestionBankComponent } from './question-bank.component';
 
@@ -20,7 +19,12 @@ const mockQuestion: QuestionWithModificationDate = {
     type: QuestionType.QCM,
     text: 'What is this test number 1?',
     points: 5,
-    choices: [new Choice('test', true), new Choice('test2', false), new Choice('test3', true), new Choice('test4', false)],
+    choices: [
+        { text: 'test', isCorrect: true },
+        { text: 'test2', isCorrect: false },
+        { text: 'test3', isCorrect: true },
+        { text: 'test4', isCorrect: false },
+    ],
     lastModification: new Date('2023-09-01T08:10:00.000Z'),
     mongoId: '123',
 };
@@ -30,7 +34,12 @@ const mockQuestions: QuestionWithModificationDate[] = [
         type: QuestionType.QCM,
         text: 'What is this test number 1?',
         points: 5,
-        choices: [new Choice('test', true), new Choice('test2', false), new Choice('test3', true), new Choice('test4', false)],
+        choices: [
+            { text: 'test', isCorrect: true },
+            { text: 'test2', isCorrect: false },
+            { text: 'test3', isCorrect: true },
+            { text: 'test4', isCorrect: false },
+        ],
         lastModification: new Date('2023-09-01T08:10:00.000Z'),
         mongoId: '123',
     },
@@ -38,7 +47,12 @@ const mockQuestions: QuestionWithModificationDate[] = [
         type: QuestionType.QCM,
         text: 'What is this test number 2?',
         points: 3,
-        choices: [new Choice('test', false), new Choice('test2', true), new Choice('test3', true), new Choice('test4', false)],
+        choices: [
+            { text: 'test', isCorrect: false },
+            { text: 'test2', isCorrect: true },
+            { text: 'test3', isCorrect: true },
+            { text: 'test4', isCorrect: false },
+        ],
         lastModification: new Date('2022-03-10T12:30:00.000Z'),
         mongoId: '456',
     },

@@ -1,5 +1,5 @@
-import { Choice } from '@app/classes/choice';
-import { QuestionType } from '@common/constants';
+import { QuestionType } from '../enums/question-type';
+import { Choice } from './choice';
 
 export interface Question {
     type: QuestionType;
@@ -19,10 +19,10 @@ export const QUESTIONS_PLACEHOLDER: Question[] = [
         text: "Pourquoi le jus de lichi n'est pas bon?",
         points: 69,
         choices: [
-            new Choice('Guillaume en boit', true),
-            new Choice('Guillaume en a apporté 2 boites', true),
-            new Choice("C'est du lichi", false),
-            new Choice('Guillaume en a bu à 9h du matin', false),
+            { text: 'Guillaume en boit' },
+            { text: 'Guillaume en a apporté 2 boites' },
+            { text: "C'est du lichi" },
+            { text: 'Guillaume en a bu à 9h du matin' },
         ],
     },
     {
@@ -30,33 +30,33 @@ export const QUESTIONS_PLACEHOLDER: Question[] = [
         text: 'Pourquoi le Rust est un langage supérieur pour le frontend?',
         points: 42,
         choices: [
-            new Choice('Les temps de compilation sont abominables', false),
-            new Choice("C'est quoi cette question?", true),
-            new Choice('Le javascript est une erreur.', true),
+            { text: 'Les temps de compilation sont abominables' },
+            { text: "C'est quoi cette question?." },
+            { text: 'Le javascript est une erreur.' },
         ],
     },
     {
         type: QuestionType.QCM,
         text: 'Quel est mieux angular ou React?',
         points: 69,
-        choices: [new Choice('Les deux sont horribles', false), new Choice('Angular?', true), new Choice('React', false)],
+        choices: [{ text: 'Les deux sont horribles' }, { text: 'Angular?' }, { text: 'React' }],
     },
     {
         type: QuestionType.QCM,
         text: "Comment utiliser Git d'une manière optimale?",
         points: 42,
         choices: [
-            new Choice('Force push sur master', true),
-            new Choice('Force push sur master', true),
-            new Choice('Force push sur master', true),
-            new Choice('Merge request sur une branche dev', false),
+            { text: 'Force push sur master' },
+            { text: 'Force push sur master' },
+            { text: 'Force push sur master' },
+            { text: 'Merge request sur une branche dev' },
         ],
     },
     {
         type: QuestionType.QCM,
         text: 'Est-ce que nous avons fait tous ce que nous avons promis?',
         points: 69,
-        choices: [new Choice('Oui', false), new Choice('Non', true)],
+        choices: [{ text: 'Oui' }, { text: 'Non' }],
     },
 ];
 

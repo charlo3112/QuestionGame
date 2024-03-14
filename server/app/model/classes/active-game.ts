@@ -1,22 +1,42 @@
+import { CountDownTimer } from '@app/model/classes/time';
 import { UserData } from '@app/model/classes/user';
-import { Game } from '@app/model/database/game';
-import { GameState } from '@common/game-state';
+import { GameData } from '@app/model/database/game';
+import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Question } from '@common/interfaces/question';
 
 export class ActiveGame {
     private locked: boolean;
-    private game: Game;
+    private game: GameData;
     private users: Map<string, UserData>;
-    private state: GameState;
+    private state: GameState = GameState.Wait;
     private bannedNames: string[];
     private activeUsers: Set<string>;
+    private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
+    private updateScore: (userId: string, score: number) => void;
+    private roomId: string;
+    private questionIndex: number = 0;
+    private timer;
 
-    constructor(game: Game) {
+    // eslint-disable-next-line max-params
+    constructor(
+        game: GameData,
+        roomId: string,
+        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
+        updateTime: (roomId: string, time: number) => void,
+        updateScore: (userId: string, score: number) => void,
+    ) {
         this.game = game;
         this.users = new Map<string, UserData>();
         this.activeUsers = new Set<string>();
         this.locked = false;
         this.state = GameState.Wait;
         this.bannedNames = [];
+        this.roomId = roomId;
+        this.updateState = updateState;
+        this.timer = new CountDownTimer(roomId, updateTime);
+        this.updateScore = updateScore;
     }
 
     get gameData() {
@@ -27,17 +47,76 @@ export class ActiveGame {
         return this.locked;
     }
 
+    get currentQuestionWithoutAnswer(): Question {
+        const data: Question = {
+            ...this.game.questions[this.questionIndex],
+        };
+        return {
+            type: data.type,
+            text: data.text,
+            points: data.points,
+            choices: data.choices.map((choice) => {
+                return {
+                    text: choice.text,
+                    isCorrect: false,
+                };
+            }),
+        };
+    }
+
+    get currentQuestionWithAnswer(): Question {
+        return {
+            ...this.game.questions[this.questionIndex],
+        };
+    }
+
     get currentState() {
         return this.state;
+    }
+
+    get gameStatePayload(): GameStatePayload {
+        if (this.state === GameState.Starting) {
+            return { state: this.state, payload: this.game.title };
+        }
+        if (this.state === GameState.AskingQuestion) {
+            return { state: this.state, payload: this.currentQuestionWithoutAnswer };
+        }
+        if (this.state === GameState.ShowResults) {
+            return { state: this.state, payload: this.currentQuestionWithAnswer };
+        }
+        return { state: this.state };
     }
 
     set isLocked(locked: boolean) {
         this.locked = locked;
     }
 
+    handleChoice(userId: string, choice: boolean[]) {
+        const user = this.users.get(userId);
+        if (!user) {
+            return;
+        }
+        if (user.validate !== undefined) {
+            return;
+        }
+        user.newChoice = choice;
+    }
+
+    validateChoice(userId: string) {
+        const user = this.users.get(userId);
+        if (!user) {
+            return;
+        }
+        user.validate = new Date().getTime();
+    }
+
+    canRejoin(userId: string): boolean {
+        return this.activeUsers.has(userId);
+    }
+
     addUser(user: UserData) {
-        this.users.set(user.getUserId(), user);
-        this.activeUsers.add(user.getUserId());
+        this.users.set(user.uid, user);
+        this.activeUsers.add(user.uid);
     }
 
     getUser(userId: string): UserData {
@@ -70,8 +149,8 @@ export class ActiveGame {
     update(userId: string, user: UserData) {
         this.users.delete(userId);
         this.activeUsers.delete(userId);
-        this.users.set(user.getUserId(), user);
-        this.activeUsers.add(user.getUserId());
+        this.users.set(user.uid, user);
+        this.activeUsers.add(user.uid);
     }
 
     userExists(name: string) {
@@ -83,9 +162,7 @@ export class ActiveGame {
             return undefined;
         }
         this.bannedNames.push(name.toLowerCase());
-        const userId = Array.from(this.users.values())
-            .find((user) => user.username === name)
-            ?.getUserId();
+        const userId = Array.from(this.users.values()).find((user) => user.username === name)?.uid;
         this.users.delete(userId);
         this.activeUsers.delete(userId);
         return userId;
@@ -93,5 +170,85 @@ export class ActiveGame {
 
     getUsers(): string[] {
         return Array.from(this.users.values()).map((user) => user.username);
+    }
+
+    getScore(userId: string): number {
+        const user = this.users.get(userId);
+        if (!user) {
+            return 0;
+        }
+        return user.userScore;
+    }
+
+    isValidate(userId: string): boolean {
+        const user = this.users.get(userId);
+        if (!user) {
+            return false;
+        }
+        return user.validate === undefined ? false : true;
+    }
+
+    getChoice(userId: string): boolean[] {
+        const user = this.users.get(userId);
+        if (!user) {
+            return [false, false, false, false];
+        }
+        return user.userChoice === undefined ? [false, false, false, false] : user.userChoice;
+    }
+
+    async launchGame() {
+        this.advanceState(GameState.Starting);
+        await this.timer.start(WAITING_TIME_S);
+
+        while (this.questionIndex < this.game.questions.length) {
+            await this.askQuestion();
+        }
+    }
+
+    async askQuestion() {
+        this.resetAnswers();
+        this.advanceState(GameState.AskingQuestion);
+        await this.timer.start(this.game.duration);
+
+        this.calculateScores();
+        this.advanceState(GameState.ShowResults);
+        await this.timer.start(TIME_CONFIRM_S);
+        ++this.questionIndex;
+    }
+
+    private advanceState(state: GameState) {
+        this.state = state;
+        this.updateState(this.roomId, this.gameStatePayload);
+    }
+
+    private resetAnswers() {
+        this.users.forEach((user) => {
+            user.resetChoice();
+        });
+    }
+
+    private calculateScores() {
+        const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
+        let users = Array.from(this.users.values());
+
+        const time = new Date().getTime();
+
+        users.forEach((user) => {
+            if (user.validate === undefined) {
+                user.validate = time;
+            }
+        });
+
+        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => b.validate - a.validate);
+        const score = this.game.questions[this.questionIndex].points;
+
+        users.forEach((user) => {
+            if (users[0] === user) {
+                user.addBonus(score);
+            } else {
+                user.addScore(score);
+            }
+            this.updateScore(user.uid, user.userScore);
+        });
     }
 }

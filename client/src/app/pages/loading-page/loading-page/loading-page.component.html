@@ -5,17 +5,18 @@
 </mat-toolbar>
 
 <div class="loading-container">
-    <div class="left-content">
-        <mat-list class="list">
-            <mat-list-item *ngFor="let player of players" i as index>
+    <mat-card>
+        <mat-card-content class="left-content">
+            <span class="player">Joueurs</span>
+            <div class="row row-player" *ngFor="let player of players" i as index>
                 <mat-icon matListItemAvatar>person</mat-icon>
                 <div matListItemTitle class="player-name">{{ player }}</div>
                 <button *ngIf="isHost" mat-icon-button class="kick-button" (click)="onKickPlayer(player)">
                     <mat-icon>close</mat-icon>
                 </button>
-            </mat-list-item>
-        </mat-list>
-    </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
 
     <!-- Loading image and text -->
     <div class="middle-content">
@@ -23,7 +24,7 @@
         <img src="assets/loading.svg" alt="loading" class="loading-bar__image" />
         <h1 class="loading-text">En attente des joueurs</h1>
 
-        <div class="room-controls" *ngIf="isHost">
+        <div class="row" *ngIf="isHost">
             <button mat-fab class="room-lock-button" (click)="onToggleLock()">
                 <mat-icon class="room-lock-icon">{{ roomLocked ? 'lock' : 'lock_open' }} </mat-icon>
             </button>
@@ -32,7 +33,7 @@
                 class="start-game-button"
                 mat-raised-button
                 [disabled]="!roomLocked || players.size < 1"
-                matTooltip="La partie sera démarée avec les joueurs dans la salle d'attente"
+                matTooltip="La partie sera démarrée avec les joueurs dans la salle d'attente"
                 (click)="onStartGame()"
             >
                 Démarrer la partie
@@ -40,10 +41,9 @@
         </div>
     </div>
 
-    <!-- Chat -->
     <div class="right-content">
         <div class="chat">
-            <app-chat [username]="username"></app-chat>
+            <app-chat></app-chat>
         </div>
     </div>
 </div>

@@ -1,21 +1,22 @@
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { QuestionType } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Question } from '@common/interfaces/question';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
-import { Choice } from './choice';
+import { ChoiceData } from './choice';
 
-export type QuestionDocument = Question & Document;
+export type QuestionDocument = QuestionData & Document;
 
 @Schema()
-export class Question {
+export class QuestionData implements Question {
     @ApiProperty()
     @Prop({ required: false })
     mongoId?: string;
 
     @ApiProperty()
     @Prop({ required: false })
-    choices?: Choice[];
+    choices: ChoiceData[];
 
     @ApiProperty()
     @Prop({ required: true })
@@ -23,11 +24,11 @@ export class Question {
 
     @ApiProperty()
     @Prop({ required: true })
-    private type: QuestionType;
+    type: QuestionType;
 
     @ApiProperty()
     @Prop({ required: true })
-    private points: number;
+    points: number;
 
     @ApiProperty()
     @Prop({ required: true })
@@ -41,7 +42,7 @@ export class Question {
         this.points = questionData.points;
         this.lastModification = new Date();
         this.choices = questionData.choices?.map((choiceData) => {
-            return new Choice(choiceData);
+            return new ChoiceData(choiceData);
         });
     }
 
@@ -57,7 +58,7 @@ export class Question {
         }
     }
 
-    setChoices(newChoices: Choice[]) {
+    setChoices(newChoices: ChoiceData[]) {
         if (newChoices.length > 0) {
             this.choices = newChoices;
         }
@@ -75,7 +76,7 @@ export class Question {
         return this.points;
     }
 
-    getChoices(): Choice[] | undefined {
+    getChoices(): ChoiceData[] | undefined {
         return this.choices;
     }
 
@@ -84,4 +85,4 @@ export class Question {
     }
 }
 
-export const questionSchema = SchemaFactory.createForClass(Question);
+export const questionSchema = SchemaFactory.createForClass(QuestionData);

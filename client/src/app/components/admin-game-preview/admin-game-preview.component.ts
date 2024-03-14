@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Game } from '@app/interfaces/game';
+import { Game } from '@common/interfaces/game';
 
 @Component({
     selector: 'app-admin-game-preview',

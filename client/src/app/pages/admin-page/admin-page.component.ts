@@ -8,14 +8,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
-import { Choice } from '@app/classes/choice';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
-import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Result } from '@common/result';
+import { Choice } from '@common/interfaces/choice';
+import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -110,7 +110,7 @@ export class AdminPageComponent implements OnInit {
                             type: question.type,
                             text: question.text,
                             points: question.points,
-                            choices: question.choices?.map((choice) => ({ choice: choice.text, isCorrect: choice.isCorrect }) as unknown as Choice),
+                            choices: question.choices?.map((choice) => ({ text: choice.text, isCorrect: choice.isCorrect }) as Choice),
                         })),
                     };
 

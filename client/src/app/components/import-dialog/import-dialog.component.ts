@@ -3,10 +3,10 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
-import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 import { ValidationService } from '@app/services/validation.service';
-import { Result } from '@common/result';
+import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { lastValueFrom } from 'rxjs';
 
 @Component({

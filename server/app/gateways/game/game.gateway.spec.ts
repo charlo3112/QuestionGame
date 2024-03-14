@@ -1,5 +1,5 @@
 import { GameGateway } from '@app/gateways/game/game.gateway';
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/game-state';
@@ -57,7 +57,7 @@ describe('GameGateway', () => {
         const mockGameId = 'game123';
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
 
-        gameService.getGameById.returns(Promise.resolve({} as Game));
+        gameService.getGameById.returns(Promise.resolve({} as GameData));
 
         roomManagementService.createGame.returns(mockUser);
 

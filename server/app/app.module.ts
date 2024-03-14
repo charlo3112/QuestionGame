@@ -1,8 +1,8 @@
 import { GameController } from '@app/controllers/game/game.controller';
 import { QuestionController } from '@app/controllers/question/question.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
-import { Game, gameSchema } from '@app/model/database/game';
-import { Question, questionSchema } from '@app/model/database/question';
+import { GameData, gameSchema } from '@app/model/database/game';
+import { QuestionData, questionSchema } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { Logger, Module } from '@nestjs/common';
@@ -11,6 +11,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './controllers/admin/admin.controller';
 import { GameGateway } from './gateways/game/game.gateway';
 import { RoomManagementService } from './services/room-management/room-management.service';
+import { TimeService } from './services/time/time.service';
 
 @Module({
     imports: [
@@ -23,11 +24,11 @@ import { RoomManagementService } from './services/room-management/room-managemen
             }),
         }),
         MongooseModule.forFeature([
-            { name: Game.name, schema: gameSchema },
-            { name: Question.name, schema: questionSchema },
+            { name: GameData.name, schema: gameSchema },
+            { name: QuestionData.name, schema: questionSchema },
         ]),
     ],
     controllers: [GameController, QuestionController, AdminController],
-    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway],
+    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway, TimeService],
 })
 export class AppModule {}

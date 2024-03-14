@@ -1,4 +1,4 @@
-import { Question } from '@app/model/database/question';
+import { QuestionData } from '@app/model/database/question';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
@@ -12,7 +12,7 @@ export class QuestionController {
 
     @ApiOkResponse({
         description: 'Returns all questions',
-        type: Question,
+        type: QuestionData,
         isArray: true,
     })
     @ApiResponse({

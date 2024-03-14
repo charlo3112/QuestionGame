@@ -7,8 +7,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game.service';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-question',

@@ -1,4 +1,4 @@
-import { QUESTIONS_PLACEHOLDER, Question } from '@app/interfaces/question';
+import { QUESTIONS_PLACEHOLDER, Question } from './question';
 
 export interface Game {
     gameId: string;
@@ -7,7 +7,7 @@ export interface Game {
     duration: number;
     lastModification: string;
     questions: Question[];
-    image: string;
+    image?: string;
     visibility: boolean;
 }
 
