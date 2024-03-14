@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
+import { GameService } from '@app/services/game.service';
 import { WebSocketService } from '@app/services/websocket.service';
 import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/interfaces/message';
@@ -34,14 +35,18 @@ import { Subscription } from 'rxjs';
 })
 export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();
-    @Input() username: string;
+    username: string;
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
     private messagesSubscription: Subscription;
 
-    constructor(private webSocketService: WebSocketService) {
+    constructor(
+        private webSocketService: WebSocketService,
+        private gameService: GameService,
+    ) {
         this.subscribeToRealTimeMessages();
+        this.username = this.gameService.usernameValue;
     }
 
     @HostListener('keydown', ['$event'])
@@ -65,11 +70,11 @@ export class ChatComponent implements OnDestroy, OnInit {
     }
 
     ngOnDestroy() {
-        this.webSocketService.leaveRoom();
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
     }
+
     onFocus() {
         this.isChatFocused.emit(true);
     }
@@ -101,8 +106,6 @@ export class ChatComponent implements OnDestroy, OnInit {
                 this.chat.push(message);
                 this.sortMessages();
             },
-            // error: (err) => console.error(err),
-            // complete: () => console.log('Real-time message stream completed'),
         });
     }
 
