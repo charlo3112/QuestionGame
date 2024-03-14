@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
+import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
@@ -20,6 +21,7 @@ import { Question } from '@common/interfaces/question';
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
     imports: [
+        AdminGameViewComponent,
         CommonModule,
         QuestionComponent,
         MatIconModule,

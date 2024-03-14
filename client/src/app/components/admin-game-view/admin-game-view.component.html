@@ -5,12 +5,9 @@
     <div class="histogram-container">
         <app-histogram
             class="histogram"
-            [listQuestions]="gameQuestions"
-            [questionDisplayed]="currentQuestionIndex"
             [showArrows]="false"
         ></app-histogram>
     </div>
-    <div class="chat-container">
-        <app-chat></app-chat>
-    </div>
+    <button mat-raised-button (click)="nextQuestion()" color="primary">Prochaine question</button>
+    <button mat-raised-button (click)="pauseGame()" color="primary">Pause</button>
 </div>
