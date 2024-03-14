@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -40,9 +40,10 @@ import { Question } from '@common/interfaces/question';
     ],
     standalone: true,
 })
-export class CreateQuestionComponent implements OnChanges {
+export class CreateQuestionComponent implements OnChanges, OnInit {
     @Input() questionData: Question | null = null;
     @Input() isInQuestionBank: boolean = false;
+    @Input() isEditingFromCreate: boolean = false;
     @Input() questionMongoId: string = '';
     @Output() questionCreated = new EventEmitter<Question>();
     @Output() closeForm: EventEmitter<void> = new EventEmitter<void>();
@@ -52,6 +53,7 @@ export class CreateQuestionComponent implements OnChanges {
     choiceInput: string = '';
     choices: Choice[] = [];
     editArray: boolean[] = [];
+    choiceValue: boolean[] = [];
     questionToDelete: string = '';
 
     weights = WEIGHTS_QUESTIONS;
@@ -61,10 +63,25 @@ export class CreateQuestionComponent implements OnChanges {
         private snackBar: MatSnackBar,
     ) {}
 
+    ngOnInit() {
+        if (this.questionData && this.questionData.choices) {
+            for (const choice of this.questionData.choices) {
+                this.choiceValue.push(choice.isCorrect);
+            }
+        }
+    }
+
     openSnackBar(message: string) {
         this.snackBar.open(message, undefined, {
             duration: SNACKBAR_DURATION,
         });
+    }
+
+    cancel() {
+        for (let i = 0; i < this.choiceValue.length; i++) {
+            this.choices[i].isCorrect = this.choiceValue[i];
+        }
+        this.closeForm.emit();
     }
 
     addChoice() {
