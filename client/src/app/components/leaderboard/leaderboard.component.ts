@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Player } from '@app/interfaces/player';
-import { SNACKBAR_DURATION } from '@common/constants';
+import { Component } from '@angular/core';
+import { GameService } from '@app/services/game.service';
 
 @Component({
     selector: 'app-leaderboard',
@@ -12,13 +10,5 @@ import { SNACKBAR_DURATION } from '@common/constants';
     standalone: true,
 })
 export class LeaderboardComponent {
-    @Input() leaderboard: Player[] = [];
-
-    constructor(private snackBar: MatSnackBar) {}
-
-    openSnackBar(message: string) {
-        this.snackBar.open(message, undefined, {
-            duration: SNACKBAR_DURATION,
-        });
-    }
+    constructor(readonly gameService: GameService) {}
 }

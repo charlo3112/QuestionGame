@@ -10,9 +10,6 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
-import { HOST_NAME } from '@common/constants';
-import { UserConnectionUpdate } from '@common/interfaces/user-update';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-loading-page',
@@ -22,16 +19,13 @@ import { Subscription } from 'rxjs';
     imports: [NgFor, NgIf, MatIconModule, MatButtonModule, MatCardModule, MatTooltipModule, ChatComponent, MatToolbarModule, RouterModule],
 })
 export class LoadingPageComponent implements OnInit, OnDestroy {
-    players: Set<string> = new Set();
     roomLocked = false;
-    private userSubscription: Subscription;
 
     constructor(
         private websocketService: WebSocketService,
         private timeService: TimeService,
         readonly gameService: GameService,
     ) {
-        this.subscribeToUserUpdate();
         this.gameService.reset();
     }
 
@@ -41,14 +35,9 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
 
     async ngOnInit() {
         await this.gameService.init();
-        (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
-        this.players.delete(HOST_NAME);
     }
 
     ngOnDestroy() {
-        if (this.userSubscription) {
-            this.userSubscription.unsubscribe();
-        }
         this.gameService.leaveRoom();
     }
 
@@ -59,22 +48,5 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
 
     onStartGame() {
         this.websocketService.launchGame();
-    }
-
-    onKickPlayer(player: string) {
-        this.players.delete(player);
-        this.websocketService.banUser(player);
-    }
-
-    private subscribeToUserUpdate() {
-        this.userSubscription = this.websocketService.getUserUpdate().subscribe({
-            next: (userUpdate: UserConnectionUpdate) => {
-                if (userUpdate.isConnected) {
-                    this.players.add(userUpdate.username);
-                } else {
-                    this.players.delete(userUpdate.username);
-                }
-            },
-        });
     }
 }

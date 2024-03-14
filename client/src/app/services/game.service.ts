@@ -8,6 +8,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Subscription } from 'rxjs';
 
 @Injectable()
@@ -25,6 +26,8 @@ export class GameService implements OnDestroy {
     private serverTime: number;
     private title: string;
     private showBonus: boolean;
+    private players: Set<string> = new Set();
+    private userSubscription: Subscription;
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -35,6 +38,7 @@ export class GameService implements OnDestroy {
         this.subscribeToClosedConnection();
         this.subscribeToTimeUpdate();
         this.subscribeToScoreUpdate();
+        this.subscribeToUserUpdate();
 
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
             this.websocketService.leaveRoom();
@@ -86,6 +90,10 @@ export class GameService implements OnDestroy {
         return false;
     }
 
+    get playersList(): Set<string> {
+        return this.players;
+    }
+
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
@@ -115,6 +123,9 @@ export class GameService implements OnDestroy {
                     this.state = GameState.WaitingResults;
                 }
             }
+
+            (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
+            this.players.delete(HOST_NAME);
         }
     }
 
@@ -131,6 +142,15 @@ export class GameService implements OnDestroy {
         if (this.scoreSubscription) {
             this.scoreSubscription.unsubscribe();
         }
+
+        if (this.userSubscription) {
+            this.userSubscription.unsubscribe();
+        }
+    }
+
+    onKickPlayer(player: string) {
+        this.players.delete(player);
+        this.websocketService.banUser(player);
     }
 
     leaveRoom() {
@@ -237,6 +257,18 @@ export class GameService implements OnDestroy {
             next: (score: Score) => {
                 this.scoreValue = score.score;
                 this.showBonus = score.bonus;
+            },
+        });
+    }
+
+    private subscribeToUserUpdate() {
+        this.userSubscription = this.websocketService.getUserUpdate().subscribe({
+            next: (userUpdate: UserConnectionUpdate) => {
+                if (userUpdate.isConnected) {
+                    this.players.add(userUpdate.username);
+                } else {
+                    this.players.delete(userUpdate.username);
+                }
             },
         });
     }

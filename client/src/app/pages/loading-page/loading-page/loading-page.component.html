@@ -8,10 +8,10 @@
     <mat-card>
         <mat-card-content class="left-content">
             <span class="player">Joueurs</span>
-            <div class="row row-player" *ngFor="let player of players" i as index>
+            <div class="row row-player" *ngFor="let player of gameService.playersList" i as index>
                 <mat-icon matListItemAvatar>person</mat-icon>
                 <div matListItemTitle class="player-name">{{ player }}</div>
-                <button *ngIf="gameService.isHost" mat-icon-button class="kick-button" (click)="onKickPlayer(player)">
+                <button *ngIf="gameService.isHost" mat-icon-button class="kick-button" (click)="gameService.onKickPlayer(player)">
                     <mat-icon>close</mat-icon>
                 </button>
             </div>
@@ -32,7 +32,7 @@
             <button
                 class="start-game-button"
                 mat-raised-button
-                [disabled]="!roomLocked || players.size < 1"
+                [disabled]="!roomLocked || gameService.playersList.size < 1"
                 matTooltip="La partie sera démarrée avec les joueurs dans la salle d'attente"
                 (click)="onStartGame()"
             >
