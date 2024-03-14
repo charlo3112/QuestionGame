@@ -1,7 +1,6 @@
 import { ActiveGame } from '@app/model/classes/active-game';
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { TimeService } from '@app/services/time/time.service';
 import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -20,10 +19,7 @@ export class RoomManagementService {
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
 
-    constructor(
-        private readonly logger: Logger,
-        private readonly timeService: TimeService,
-    ) {}
+    constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
     }

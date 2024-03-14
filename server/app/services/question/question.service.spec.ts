@@ -8,7 +8,8 @@ import { ChoiceData } from '@app/model/database/choice';
 import { QuestionData, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
+import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
