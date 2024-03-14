@@ -35,12 +35,12 @@ export class RoomManagementService {
         this.updateUser = updateUser;
     }
 
-    handleChoices(userId: string, choices: boolean[]): void {
+    handleChoice(userId: string, choice: boolean[]): void {
         const game = this.getActiveGame(userId);
         if (!game) {
             return;
         }
-        game.handleChoices(userId, choices);
+        game.handleChoice(userId, choice);
     }
 
     createGame(userId: string, game: GameData, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void): User {

@@ -77,7 +77,7 @@ export class ActiveGame {
         this.locked = locked;
     }
 
-    handleChoices(userId: string, choice: boolean[]) {
+    handleChoice(userId: string, choice: boolean[]) {
         const user = this.users.get(userId);
         if (!user) {
             return;

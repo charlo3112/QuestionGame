@@ -43,8 +43,8 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:choices')
-    handleChoices(client: Socket, choices: boolean[]) {
-        this.roomService.handleChoices(client.id, choices);
+    handleChoice(client: Socket, choice: boolean[]) {
+        this.roomService.handleChoice(client.id, choice);
     }
 
     @SubscribeMessage('game:toggle')
