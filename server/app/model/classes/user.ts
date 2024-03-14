@@ -1,3 +1,4 @@
+import { HOST_NAME } from '@common/constants';
 import { Score } from '@common/interfaces/score';
 
 export class UserData {
@@ -64,7 +65,7 @@ export class UserData {
     }
 
     isHost(): boolean {
-        return this.name.toLowerCase() === 'organisateur';
+        return this.name.toLowerCase() === HOST_NAME.toLowerCase();
     }
 
     goodAnswer(answer: boolean[]): boolean {

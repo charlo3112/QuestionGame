@@ -38,3 +38,5 @@ export const ROOM_CODE_LENGTH = 4;
 export const WAITING_TIME_S = 5;
 export const BONUS_MULTIPLIER = 1.2;
 export const TIME_CONFIRM_S = 3;
+
+export const HOST_NAME = 'Organisateur';

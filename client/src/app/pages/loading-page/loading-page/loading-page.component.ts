@@ -10,6 +10,7 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
 import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { HOST_NAME } from '@common/constants';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Subscription } from 'rxjs';
 
@@ -41,7 +42,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     async ngOnInit() {
         await this.gameService.init();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
-        this.players.delete(this.gameService.usernameValue);
+        this.players.delete(HOST_NAME);
     }
 
     ngOnDestroy() {

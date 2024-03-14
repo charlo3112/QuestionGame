@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { WebSocketService } from '@app/services/websocket.service';
-import { SNACKBAR_DURATION } from '@common/constants';
+import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
@@ -80,7 +80,7 @@ export class GameService implements OnDestroy {
     }
 
     get isHost(): boolean {
-        if (this.username.toLowerCase() === 'organisateur') {
+        if (this.username === HOST_NAME) {
             return true;
         }
         return false;
