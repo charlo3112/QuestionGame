@@ -1,30 +1,38 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TimeService } from '@app/services/time.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
-import { Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
+import { User } from '@common/interfaces/user';
 import { Subscription } from 'rxjs';
 
-@Injectable({
-    providedIn: 'root',
-})
+@Injectable()
 export class GameService implements OnDestroy {
-    game: Game;
-    private i: number = 0;
     private state: GameState = GameState.NotStarted;
+    private question: Question | undefined = undefined;
     private scoreValue: number = 0;
     private choicesSelected: boolean[] = [false, false, false, false];
+    private username: string = '';
+    private roomCode: string = '';
     private stateSubscription: Subscription;
+    private messagesSubscription: Subscription;
 
+    // eslint-disable-next-line max-params
     constructor(
         private readonly timeService: TimeService,
         private readonly websocketService: WebSocketService,
+        private readonly snackBarService: MatSnackBar,
         private readonly routerService: Router,
     ) {
         this.subscribeToStateUpdate();
+        this.subscribeToClosedConnection();
+        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
+            this.websocketService.leaveRoom();
+        }
     }
 
     get score(): number {
@@ -36,7 +44,7 @@ export class GameService implements OnDestroy {
     }
 
     get maxTime(): number {
-        return this.game.duration;
+        return 1;
     }
 
     get currentState(): GameState {
@@ -44,14 +52,7 @@ export class GameService implements OnDestroy {
     }
 
     get currentQuestion(): Question | undefined {
-        switch (this.state) {
-            case GameState.AskingQuestion:
-            case GameState.WaitingResults:
-            case GameState.ShowResults:
-                return this.game.questions[this.i];
-            default:
-                return undefined;
-        }
+        return this.question;
     }
 
     get message(): string | undefined {
@@ -59,12 +60,59 @@ export class GameService implements OnDestroy {
         return 'Vous avez un bonus!';
     }
 
-    ngOnDestroy(): void {
-        this.stateSubscription.unsubscribe();
+    get usernameValue(): string {
+        return this.username;
     }
 
-    reset(): void {
-        this.i = 0;
+    get roomCodeValue(): string {
+        return this.roomCode;
+    }
+
+    get isHost(): boolean {
+        if (this.username.toLowerCase() === 'organisateur') {
+            return true;
+        }
+        return false;
+    }
+
+    async init() {
+        const data = sessionStorage.getItem('user');
+        if (!data) {
+            this.routerService.navigate(['/']);
+        } else {
+            const user: User = JSON.parse(data);
+            const res = await this.websocketService.rejoinRoom(user);
+            if (!res.ok) {
+                sessionStorage.removeItem('user');
+                this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
+                this.routerService.navigate(['/']);
+                return;
+            }
+            sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
+
+            this.username = user.name;
+            this.roomCode = user.roomId;
+        }
+    }
+
+    ngOnDestroy() {
+        if (this.stateSubscription) {
+            this.stateSubscription.unsubscribe();
+        }
+        if (this.messagesSubscription) {
+            this.messagesSubscription.unsubscribe();
+        }
+    }
+
+    leaveRoom() {
+        if (this.state !== GameState.Starting) {
+            this.websocketService.leaveRoom();
+            sessionStorage.removeItem('user');
+        }
+    }
+
+    reset() {
+        this.question = undefined;
         this.state = GameState.NotStarted;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
@@ -79,7 +127,10 @@ export class GameService implements OnDestroy {
         if (this.state !== GameState.ShowResults) {
             return false;
         }
-        const choice = this.game.questions[this.i].choices[index];
+        if (this.question === undefined) {
+            return false;
+        }
+        const choice = this.question.choices[index];
         return choice.isCorrect as boolean;
     }
 
@@ -87,7 +138,10 @@ export class GameService implements OnDestroy {
         if (this.state !== GameState.ShowResults) {
             return false;
         }
-        const choice = this.game.questions[this.i].choices[index];
+        if (this.question === undefined) {
+            return false;
+        }
+        const choice = this.question.choices[index];
         return !choice.isCorrect;
     }
 
@@ -97,12 +151,9 @@ export class GameService implements OnDestroy {
         }
     }
 
-    startGame(newGame: Game) {
-        this.game = newGame;
-        this.i = 0;
+    startGame() {
         this.scoreValue = 0;
         this.timeService.stopTimer();
-        this.state = GameState.AskingQuestion;
     }
 
     confirmQuestion() {
@@ -113,39 +164,64 @@ export class GameService implements OnDestroy {
     }
 
     private askQuestion() {
-        this.timeService.startTimer(this.game.duration);
+        // this.timeService.startTimer(this.game.duration);
     }
 
     private isResponseGood(): boolean {
-        const length = this.game.questions[this.i].choices.length;
+        if (this.question === undefined) {
+            return false;
+        }
+
+        const length = this.question.choices.length;
         for (let i = 0; i < length; ++i) {
-            if (this.choicesSelected[i] !== this.game.questions[this.i].choices[i].isCorrect) {
+            if (this.choicesSelected[i] !== this.question.choices[i].isCorrect) {
                 return false;
             }
         }
         return true;
     }
 
+    private subscribeToClosedConnection() {
+        this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
+            next: (message: string) => {
+                this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
+                this.routerService.navigate(['/']);
+            },
+        });
+    }
+
     private subscribeToStateUpdate() {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
-                const nextState = state.state;
-                console.log(state);
-                console.log(nextState);
-                if (this.state === GameState.Starting) {
-                    this.startGame(state.payload as Game);
-                    this.routerService.navigate(['/game']);
-                }
-                if (this.state === GameState.ShowResults && nextState === GameState.AskingQuestion) {
-                    ++this.i;
-                    this.choicesSelected = [false, false, false, false];
-                }
-                if (nextState === GameState.AskingQuestion) {
-                    this.askQuestion();
-                }
-
-                this.state = nextState;
+                this.setState(state);
             },
         });
+    }
+
+    private setState(state: GameStatePayload) {
+        this.state = state.state;
+        if (this.state === GameState.NotStarted) {
+            return;
+        }
+        if (this.state === GameState.GameOver) {
+            return;
+        }
+        if (this.state === GameState.Wait) {
+            if (this.routerService.url !== '/loading') {
+                this.routerService.navigate(['/loading']);
+            }
+            return;
+        }
+
+        if (this.state === GameState.Starting) {
+            this.startGame();
+            this.routerService.navigate(['/game']);
+        }
+
+        if (this.state === GameState.AskingQuestion) {
+            this.question = state.payload as Question;
+            this.choicesSelected = [false, false, false, false];
+            this.askQuestion();
+        }
     }
 }

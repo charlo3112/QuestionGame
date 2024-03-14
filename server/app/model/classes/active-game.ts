@@ -3,6 +3,7 @@ import { GameData } from '@app/model/database/game';
 import { TIMEOUT_DURATION, TIME_CONFIRM_MS, WAITING_TIME_MS } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload, Payload } from '@common/interfaces/game-state-payload';
+import { Question } from '@common/interfaces/question';
 import { setTimeout } from 'timers/promises';
 
 export class ActiveGame {
@@ -14,7 +15,6 @@ export class ActiveGame {
     private activeUsers: Set<string>;
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private roomId: string;
-    private ac = new AbortController();
     private questionIndex: number = 0;
 
     constructor(game: GameData, roomId: string, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void) {
@@ -36,12 +36,22 @@ export class ActiveGame {
         return this.locked;
     }
 
+    get currentQuestionWithoutAnswer(): Question {
+        return {
+            ...this.game.questions[this.questionIndex],
+        };
+    }
+
     get currentState() {
         return this.state;
     }
 
     set isLocked(locked: boolean) {
         this.locked = locked;
+    }
+
+    canRejoin(userId: string): boolean {
+        return this.activeUsers.has(userId);
     }
 
     addUser(user: UserData) {
@@ -104,25 +114,15 @@ export class ActiveGame {
         return Array.from(this.users.values()).map((user) => user.username);
     }
 
-    startGame() {
-        if (this.currentState !== GameState.Wait) {
-            return this.currentState;
-        }
-        this.state = GameState.AskingQuestion;
-        return this.currentState;
-    }
-
     async launchGame() {
         await setTimeout(WAITING_TIME_MS);
-        this.advanceState(GameState.Starting, this.game);
+        this.advanceState(GameState.Starting);
 
         while (this.questionIndex < this.game.questions.length) {
-            this.advanceState(GameState.AskingQuestion, this.game);
-            console.log('asking question');
-            console.log(this.game.duration);
-            await setTimeout(10 * TIMEOUT_DURATION);
-            console.log('showing results');
-            this.advanceState(GameState.AskingQuestion, this.game);
+            this.advanceState(GameState.AskingQuestion, this.currentQuestionWithoutAnswer);
+            await setTimeout(this.game.duration * TIMEOUT_DURATION);
+
+            this.advanceState(GameState.ShowResults);
             await setTimeout(TIME_CONFIRM_MS);
             ++this.questionIndex;
         }

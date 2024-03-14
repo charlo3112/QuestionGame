@@ -55,17 +55,12 @@ export class RoomManagementService {
         game.isLocked = closed;
     }
 
-    launchGame(userId: string): GameState | undefined {
+    async launchGame(userId: string) {
         const game = this.getActiveGame(userId);
         if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait || !game.isLocked) {
-            return undefined;
+            return null;
         }
-        game.launchGame();
-    }
-
-    startGame(roomId: string): GameState {
-        const game = this.gameState.get(roomId);
-        return game.startGame();
+        await game.launchGame();
     }
 
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
@@ -187,21 +182,20 @@ export class RoomManagementService {
         }
     }
 
-    private generateRoomId(): string {
-        let roomId = (Math.floor(Math.random() * (MAX_ROOM_NUMBER - MIN_ROOM_NUMBER + 1)) + MIN_ROOM_NUMBER).toString();
-        while (this.gameState.has(roomId)) {
-            roomId = (Math.floor(Math.random() * (MAX_ROOM_NUMBER - MIN_ROOM_NUMBER + 1)) + MIN_ROOM_NUMBER).toString();
-        }
-        return roomId;
-    }
-
-    // eslint-disable-next-line @typescript-eslint/member-ordering
     getActiveGame(userId: string): ActiveGame {
         const roomId = this.roomMembers.get(userId);
         if (!roomId) {
             return undefined;
         }
         return this.gameState.get(roomId);
+    }
+
+    private generateRoomId(): string {
+        let roomId = (Math.floor(Math.random() * (MAX_ROOM_NUMBER - MIN_ROOM_NUMBER + 1)) + MIN_ROOM_NUMBER).toString();
+        while (this.gameState.has(roomId)) {
+            roomId = (Math.floor(Math.random() * (MAX_ROOM_NUMBER - MIN_ROOM_NUMBER + 1)) + MIN_ROOM_NUMBER).toString();
+        }
+        return roomId;
     }
 
     private getUser(userId: string): UserData {
