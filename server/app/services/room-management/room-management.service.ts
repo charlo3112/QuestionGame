@@ -43,10 +43,25 @@ export class RoomManagementService {
         game.handleChoice(userId, choice);
     }
 
-    createGame(userId: string, game: GameData, updateState: (roomId: string, gameStatePayload: GameStatePayload) => void): User {
+    validateChoice(userId: string): void {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.validateChoice(userId);
+    }
+
+    // eslint-disable-next-line max-params
+    createGame(
+        userId: string,
+        game: GameData,
+        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
+        updateTime: (roomId: string, time: number) => void,
+        updateScore: (userId: string, score: number) => void,
+    ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, 'Organisateur');
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -54,7 +69,7 @@ export class RoomManagementService {
         }
 
         this.gameState.set(roomId, newActiveGame);
-        this.roomMembers.set(host.getUserId(), roomId);
+        this.roomMembers.set(host.uid, roomId);
 
         return { name: 'Organisateur', roomId, userId };
     }
@@ -65,6 +80,30 @@ export class RoomManagementService {
             return;
         }
         game.isLocked = closed;
+    }
+
+    isValidate(userId: string): boolean {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return false;
+        }
+        return game.isValidate(userId);
+    }
+
+    getChoice(userId: string): boolean[] {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return [false, false, false, false];
+        }
+        return game.getChoice(userId);
+    }
+
+    getScore(userId: string): number {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return 0;
+        }
+        return game.getScore(userId);
     }
 
     async launchGame(userId: string) {

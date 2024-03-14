@@ -30,7 +30,13 @@ export class GameGateway implements OnGatewayDisconnect {
         if (!game) {
             return null;
         }
-        const user = this.roomService.createGame(client.id, game, this.handleStateUpdate.bind(this));
+        const user = this.roomService.createGame(
+            client.id,
+            game,
+            this.handleStateUpdate.bind(this),
+            this.handleTimeUpdate.bind(this),
+            this.handleScoreUpdate.bind(this),
+        );
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
 
@@ -42,14 +48,24 @@ export class GameGateway implements OnGatewayDisconnect {
         this.roomService.performUserRemoval(client.id);
     }
 
-    @SubscribeMessage('game:choices')
+    @SubscribeMessage('game:choice')
     handleChoice(client: Socket, choice: boolean[]) {
         this.roomService.handleChoice(client.id, choice);
+    }
+
+    @SubscribeMessage('game:validate')
+    handleValidate(client: Socket) {
+        this.roomService.validateChoice(client.id);
     }
 
     @SubscribeMessage('game:toggle')
     handleToggleGame(client: Socket, closed: boolean) {
         this.roomService.toggleGameClosed(client.id, closed);
+    }
+
+    @SubscribeMessage('game:score')
+    handleScore(client: Socket): number {
+        return this.roomService.getScore(client.id);
     }
 
     @SubscribeMessage('game:join')
@@ -59,6 +75,16 @@ export class GameGateway implements OnGatewayDisconnect {
             client.join(payload.gameCode);
         }
         return res;
+    }
+
+    @SubscribeMessage('game:isValidate')
+    isValidate(client: Socket): boolean {
+        return this.roomService.isValidate(client.id);
+    }
+
+    @SubscribeMessage('game:getChoice')
+    getChoice(client: Socket): boolean[] {
+        return this.roomService.getChoice(client.id);
     }
 
     @SubscribeMessage('game:rejoin')
@@ -104,5 +130,13 @@ export class GameGateway implements OnGatewayDisconnect {
 
     private handleStateUpdate(roomId: string, state: GameStatePayload): void {
         this.server.to(roomId).emit('game:state', state);
+    }
+
+    private handleTimeUpdate(roomId: string, time: number): void {
+        this.server.to(roomId).emit('game:time', time);
+    }
+
+    private handleScoreUpdate(userId: string, score: number): void {
+        this.server.to(userId).emit('game:score', score);
     }
 }
