@@ -74,7 +74,11 @@ export class AdminGamePageComponent implements OnInit {
     fetchLeaderboard() {
         this.leaderboard = PLAYERS;
         this.leaderboard.sort((a, b) => {
-            return b.score - a.score;
+            const scoreComparison = b.score - a.score;
+            if (scoreComparison === 0) {
+                return a.name.localeCompare(b.name);
+            }
+            return scoreComparison;
         });
         // this.communicationService.getPlayers().subscribe({
         //     next: (response: Result<Player[]>) => {

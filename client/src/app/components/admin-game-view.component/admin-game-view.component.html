@@ -1,0 +1,16 @@
+<div class="main-container">
+    <div class="result-container">
+        <app-leaderboard [leaderboard]="leaderboard"></app-leaderboard>
+    </div>
+    <div class="histogram-container">
+        <app-histogram
+            class="histogram"
+            [listQuestions]="gameQuestions"
+            [questionDisplayed]="currentQuestionIndex"
+            [showArrows]="false"
+        ></app-histogram>
+    </div>
+    <div class="chat-container">
+        <app-chat></app-chat>
+    </div>
+</div>
