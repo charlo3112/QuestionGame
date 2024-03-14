@@ -74,7 +74,7 @@ describe('StartGamePageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.loadGames();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux");
     }));
 
     it('should have a list of games', () => {

@@ -283,7 +283,7 @@ describe('AdminPageComponent', () => {
         component.openImportDialog();
         tick();
         expect(communicationServiceSpy.addGame).toHaveBeenCalledWith(GAME_PLACEHOLDER);
-        expect(component.openSnackBar).toHaveBeenCalledWith('Game added');
+        expect(component.openSnackBar).toHaveBeenCalledWith('Jeu ajouté avec succès !');
     }));
 
     it('should show snackbar when openImportDialog is called and error occurs', fakeAsync(() => {
@@ -293,6 +293,6 @@ describe('AdminPageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.openImportDialog();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error adding game');
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'ajout du jeu");
     }));
 });

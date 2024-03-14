@@ -79,7 +79,7 @@ describe('QuestionBankComponent', () => {
         expect(() => {
             component.loadQuestions();
             tick();
-        }).toThrowError('Error fetching questions');
+        }).toThrowError('Erreur lors de la récupération des questions');
     }));
 
     it('should throw error when getAllQuestionsWithModificationDates fails', fakeAsync(() => {
@@ -87,7 +87,7 @@ describe('QuestionBankComponent', () => {
         expect(() => {
             component.loadQuestions();
             tick();
-        }).toThrowError('Error fetching questions');
+        }).toThrowError('Erreur lors de la récupération des questions');
     }));
 
     it('should load questions when lastModification is string from JSON', fakeAsync(() => {
