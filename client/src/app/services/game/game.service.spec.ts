@@ -2,8 +2,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { TimeService } from '@app/services/time/time.service';
 import { GameState } from '@common/game-state';
-import { TimeService } from '../time/time.service';
 import { GameService } from './game.service';
 
 const timeConfirmMs = 3000;
