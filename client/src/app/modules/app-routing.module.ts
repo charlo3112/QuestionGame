@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminGamePageComponent } from '@app/pages/admin-game-page/admin-game-page.component';
 import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
@@ -23,7 +22,6 @@ export const routes: Routes = [
     { path: 'admin/question-bank', component: QuestionBankPageComponent },
     { path: 'join', component: JoinGamePageComponent },
     { path: 'result', component: ResultPageComponent },
-    { path: 'admingame', component: AdminGamePageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

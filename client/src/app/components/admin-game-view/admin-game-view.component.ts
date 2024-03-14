@@ -1,41 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterModule } from '@angular/router';
-import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PLAYERS, Player } from '@app/interfaces/player';
+import { GameService } from '@app/services/game.service';
 import { Question } from '@common/interfaces/question';
 
 @Component({
-    selector: 'app-result-page',
-    templateUrl: './result-page.component.html',
-    styleUrls: ['./result-page.component.scss'],
+    selector: 'app-admin-game-view',
+    templateUrl: './admin-game-view.component.html',
+    styleUrls: ['./admin-game-view.component.scss'],
     standalone: true,
-    imports: [
-        MatToolbarModule,
-        ChatComponent,
-        MatCardModule,
-        RouterModule,
-        HistogramComponent,
-        CommonModule,
-        LeaderboardComponent,
-        MatTabsModule,
-        MatButtonModule,
-    ],
+    imports: [LeaderboardComponent, CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatToolbarModule, HistogramComponent],
 })
-export class ResultPageComponent implements OnInit {
-    histogramData: Question[] = [];
-    leaderboard: Player[] = [];
-    showStats: boolean;
-
-    ngOnInit(): void {
-        this.fetchLeaderboard();
-    }
+export class AdminGameViewComponent {
+    @Input() question: Question;
+    leaderboard: Player[];
+    constructor(readonly gameService: GameService) {}
 
     fetchLeaderboard() {
         // TODO get array of players instead of PLAYERS
@@ -47,5 +32,13 @@ export class ResultPageComponent implements OnInit {
             }
             return scoreComparison;
         });
+    }
+
+    nextQuestion() {
+        // TODO send confirmation to server to switch to the question
+    }
+
+    pauseGame() {
+        // TODO send message to server to pause the timer
     }
 }
