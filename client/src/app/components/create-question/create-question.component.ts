@@ -65,18 +65,18 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
 
     weights = WEIGHTS_QUESTIONS;
 
-    ngOnInit() {
-        if (this.questionData && Array.isArray(this.questionData.choices)) {
-            for (let i = 0; i < this.questionData.choices.length; i++) {
-                this.choiceValue.push(this.questionData.choices[i].isCorrect);
-            }
-        }
-    }
-
     constructor(
         private communicationService: CommunicationService,
         private snackBar: MatSnackBar,
     ) {}
+
+    ngOnInit() {
+        if (this.questionData && this.questionData.choices) {
+            for (const choice of this.questionData.choices) {
+                this.choiceValue.push(choice.isCorrect);
+            }
+        }
+    }
 
     openSnackBar(message: string) {
         this.snackBar.open(message, undefined, {
