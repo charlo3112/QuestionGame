@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PLAYERS, Player } from '@app/interfaces/player';
@@ -15,7 +16,16 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './admin-game-view.component.html',
     styleUrls: ['./admin-game-view.component.scss'],
     standalone: true,
-    imports: [LeaderboardComponent, CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatToolbarModule, HistogramComponent],
+    imports: [
+        LeaderboardComponent,
+        CommonModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatToolbarModule,
+        HistogramComponent,
+        ChatComponent,
+    ],
 })
 export class AdminGameViewComponent implements OnChanges {
     @Input() question: Question;
