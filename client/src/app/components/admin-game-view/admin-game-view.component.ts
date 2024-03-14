@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -17,10 +17,17 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
     imports: [LeaderboardComponent, CommonModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatToolbarModule, HistogramComponent],
 })
-export class AdminGameViewComponent {
+export class AdminGameViewComponent implements OnChanges {
     @Input() question: Question;
+    questionForHistogram: Question[] = [];
     leaderboard: Player[];
     constructor(readonly gameService: GameService) {}
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.question) {
+            this.questionForHistogram[0] = this.question;
+        }
+    }
 
     fetchLeaderboard() {
         // TODO get array of players instead of PLAYERS
@@ -33,7 +40,6 @@ export class AdminGameViewComponent {
             return scoreComparison;
         });
     }
-
     nextQuestion() {
         // TODO send confirmation to server to switch to the question
     }
