@@ -1,3 +1,5 @@
+import { Score } from '@common/interfaces/score';
+
 export class UserData {
     private userId: string;
     private name: string;
@@ -6,6 +8,7 @@ export class UserData {
     private roomId: string;
     private choice: boolean[] | undefined;
     private timeValidate: number | undefined;
+    private isBonus: boolean;
 
     constructor(userId: string, roomId: string, username: string) {
         this.userId = userId;
@@ -15,6 +18,7 @@ export class UserData {
         this.bonus = 0;
         this.choice = undefined;
         this.timeValidate = undefined;
+        this.isBonus = false;
     }
 
     get username() {
@@ -34,7 +38,7 @@ export class UserData {
     }
 
     get userScore() {
-        return this.score;
+        return { score: this.score, bonus: this.isBonus } as Score;
     }
 
     get userBonus() {
@@ -56,6 +60,7 @@ export class UserData {
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
+        this.isBonus = false;
     }
 
     isHost(): boolean {
@@ -86,6 +91,7 @@ export class UserData {
     addBonus(score: number) {
         const bonusMultiplier = 1.2;
         ++this.bonus;
+        this.isBonus = true;
         this.addScore(score * bonusMultiplier);
     }
 }

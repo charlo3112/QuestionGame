@@ -5,6 +5,7 @@ import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
+import { Score } from '@common/interfaces/score';
 
 export class ActiveGame {
     private locked: boolean;
@@ -14,7 +15,7 @@ export class ActiveGame {
     private bannedNames: string[];
     private activeUsers: Set<string>;
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
-    private updateScore: (userId: string, score: number) => void;
+    private updateScore: (userId: string, score: Score) => void;
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
@@ -25,7 +26,7 @@ export class ActiveGame {
         roomId: string,
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: number) => void,
+        updateScore: (userId: string, score: Score) => void,
     ) {
         this.game = game;
         this.users = new Map<string, UserData>();
@@ -172,10 +173,10 @@ export class ActiveGame {
         return Array.from(this.users.values()).map((user) => user.username);
     }
 
-    getScore(userId: string): number {
+    getScore(userId: string): Score {
         const user = this.users.get(userId);
         if (!user) {
-            return 0;
+            return { score: 0, bonus: false };
         }
         return user.userScore;
     }
@@ -248,6 +249,9 @@ export class ActiveGame {
             } else {
                 user.addScore(score);
             }
+        });
+
+        this.users.forEach((user) => {
             this.updateScore(user.uid, user.userScore);
         });
     }

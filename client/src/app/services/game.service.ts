@@ -6,6 +6,7 @@ import { SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { Subscription } from 'rxjs';
 
@@ -23,6 +24,7 @@ export class GameService implements OnDestroy {
     private scoreSubscription: Subscription;
     private serverTime: number;
     private title: string;
+    private showBonus: boolean;
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -65,7 +67,7 @@ export class GameService implements OnDestroy {
     }
 
     get message(): string | undefined {
-        if (this.state !== GameState.ShowResults || !this.isResponseGood()) return undefined;
+        if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
         return 'Vous avez un bonus!';
     }
 
@@ -103,7 +105,9 @@ export class GameService implements OnDestroy {
             this.username = user.name;
             this.roomCode = user.roomId;
             this.setState(res.value);
-            // this.scoreValue = await this.websocketService.getScore();
+            const score = await this.websocketService.getScore();
+            this.scoreValue = score.score;
+            this.showBonus = score.bonus;
 
             if (this.state === GameState.AskingQuestion) {
                 this.choicesSelected = await this.websocketService.getChoice();
@@ -230,8 +234,9 @@ export class GameService implements OnDestroy {
 
     private subscribeToScoreUpdate() {
         this.scoreSubscription = this.websocketService.getScoreUpdate().subscribe({
-            next: (score: number) => {
-                this.scoreValue = score;
+            next: (score: Score) => {
+                this.scoreValue = score.score;
+                this.showBonus = score.bonus;
             },
         });
     }

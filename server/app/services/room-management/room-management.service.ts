@@ -6,6 +6,7 @@ import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/cons
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Result } from '@common/interfaces/result';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Injectable, Logger } from '@nestjs/common';
@@ -57,7 +58,7 @@ export class RoomManagementService {
         game: GameData,
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: number) => void,
+        updateScore: (userId: string, score: Score) => void,
     ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, 'Organisateur');
@@ -98,10 +99,10 @@ export class RoomManagementService {
         return game.getChoice(userId);
     }
 
-    getScore(userId: string): number {
+    getScore(userId: string): Score {
         const game = this.getActiveGame(userId);
         if (!game) {
-            return 0;
+            return { score: 0, bonus: false };
         }
         return game.getScore(userId);
     }
