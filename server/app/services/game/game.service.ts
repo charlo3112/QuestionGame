@@ -41,13 +41,11 @@ export class GameService implements OnModuleInit {
     }
 
     async getAllGames(): Promise<Game[]> {
-        const games = await this.gameModel.find({ visibility: true });
-        return games || [];
+        return await this.gameModel.find({ visibility: true });
     }
 
     async getAllGamesAdmin(): Promise<Game[]> {
-        const games = await this.gameModel.find({});
-        return games || [];
+        return await this.gameModel.find({});
     }
 
     async getGameById(id: string): Promise<Game | null> {
@@ -118,6 +116,6 @@ export class GameService implements OnModuleInit {
     }
 
     async verifyTitle(title: string): Promise<boolean> {
-        return (await this.gameModel.findOne({ title })) ? true : false;
+        return !!(await this.gameModel.findOne({ title }));
     }
 }
