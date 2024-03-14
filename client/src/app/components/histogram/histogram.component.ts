@@ -3,8 +3,7 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { Choice, ChoiceWithCounter } from '@app/classes/choice';
-import { Question } from '@app/interfaces/question';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-histogram',
@@ -18,9 +17,9 @@ export class HistogramComponent {
     @Input() questionDisplayed: number;
     @Input() showArrows: boolean;
 
-    isChoiceWithCounter(choice: Choice): choice is ChoiceWithCounter {
-        return (choice as ChoiceWithCounter).counter !== undefined;
-    }
+    // isChoiceWithCounter(choice: Choice): choice is ChoiceWithCounter {
+    //     return (choice as ChoiceWithCounter).counter !== undefined;
+    // }
     previousQuestion() {
         if (this.questionDisplayed !== 0) {
             this.questionDisplayed--;
@@ -36,13 +35,13 @@ export class HistogramComponent {
         }
     }
     getMaxCounter(): number {
-        const question = this.listQuestions[this.questionDisplayed];
-        let counters: number[] = [];
-        for (let choice of question.choices) {
-            if (this.isChoiceWithCounter(choice)) {
-                counters.push(choice.counter);
-            }
-        }
+        // const question = this.listQuestions[this.questionDisplayed];
+        const counters: number[] = [];
+        // for (const choice of question.choices) {
+        //     if (this.isChoiceWithCounter(choice)) {
+        //         counters.push(choice.counter);
+        //     }
+        // }
         if (counters.length > 0) {
             return Math.max(...counters);
         } else {

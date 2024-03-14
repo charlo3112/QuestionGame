@@ -114,16 +114,16 @@ export class CommunicationService {
         );
     }
 
-    getPlayers(): Observable<Result<Player[]>> {
-        return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' }).pipe(
-            map((response: HttpResponse<Player[]>) => {
-                return { ok: true, value: response.body as Player[] } as Result<Player[]>;
-            }),
-            catchError(() => {
-                return of({ ok: false, error: 'Error fetching games' } as Result<Player[]>);
-            }),
-        );
-    }
+    // getPlayers(): Observable<Result<Player[]>> {
+    //     return this.http.get<Player[]>(`${this.baseUrl}/result`, { observe: 'response' }).pipe(
+    //         map((response: HttpResponse<Player[]>) => {
+    //             return { ok: true, value: response.body as Player[] } as Result<Player[]>;
+    //         }),
+    //         catchError(() => {
+    //             return of({ ok: false, error: 'Error fetching games' } as Result<Player[]>);
+    //         }),
+    //     );
+    // }
 
     deleteQuestion(text: string): Observable<HttpResponse<string>> {
         return this.http.delete(`${this.baseUrl}/question/${text}`, { observe: 'response', responseType: 'text' });
