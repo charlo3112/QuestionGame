@@ -2,9 +2,10 @@ import { GameGateway } from '@app/gateways/game/game.gateway';
 import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
-import { GameState } from '@common/game-state';
-import { Result } from '@common/result';
-import { User } from '@common/user.interface';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Result } from '@common/interfaces/result';
+import { User } from '@common/interfaces/user';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -81,7 +82,7 @@ describe('GameGateway', () => {
 
     it('handleJoinGame() should let a user join a game', async () => {
         const mockPayload = { gameCode: 'game123', username: 'JaneDoe' };
-        const mockResult: Result<GameState> = { ok: true, value: GameState.Wait };
+        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.Wait, payload: undefined } };
 
         roomManagementService.joinRoom.returns(mockResult);
 
@@ -93,10 +94,8 @@ describe('GameGateway', () => {
 
     it('launchGame() should launch the game', () => {
         const roomId = 'room123';
-        const gameResult = GameState.Wait;
 
         roomManagementService.getRoomId.returns(roomId);
-        roomManagementService.launchGame.returns(gameResult);
 
         server.to.returns({
             emit: (event: string) => {
@@ -131,7 +130,7 @@ describe('GameGateway', () => {
 
     it('handleRejoinGame() should let a user rejoin a game', async () => {
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
-        const mockResult: Result<GameState> = { ok: true, value: GameState.Wait };
+        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.Wait, payload: undefined } };
 
         roomManagementService.rejoinRoom.returns(mockResult);
 

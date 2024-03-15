@@ -4,7 +4,9 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
@@ -20,7 +22,8 @@ export class WebSocketService {
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
     private timeSubject: Subject<number> = new Subject<number>();
-    private scoreSubject: Subject<number> = new Subject<number>();
+    private scoreSubject: Subject<Score> = new Subject<Score>();
+    private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
 
     constructor() {
         this.connect();
@@ -111,7 +114,7 @@ export class WebSocketService {
         return this.closedSubject.asObservable();
     }
 
-    getScoreUpdate(): Observable<number> {
+    getScoreUpdate(): Observable<Score> {
         return this.scoreSubject.asObservable();
     }
 
@@ -121,6 +124,10 @@ export class WebSocketService {
 
     getTime(): Observable<number> {
         return this.timeSubject.asObservable();
+    }
+
+    getUsersStat(): Observable<UserStat[]> {
+        return this.usersStatSubject.asObservable();
     }
 
     async getUsers(): Promise<string[]> {
@@ -139,9 +146,9 @@ export class WebSocketService {
         });
     }
 
-    async getScore(): Promise<number> {
-        return new Promise<number>((resolve) => {
-            this.socket.emit('game:score', (score: number) => {
+    async getScore(): Promise<Score> {
+        return new Promise<Score>((resolve) => {
+            this.socket.emit('game:score', (score: Score) => {
                 resolve(score);
             });
         });
@@ -159,6 +166,7 @@ export class WebSocketService {
         this.listenForUserUpdate();
         this.listenForTimeUpdate();
         this.listenForScoreUpdate();
+        this.listenForUsersStat();
     }
 
     private listenForClosedConnection() {
@@ -168,7 +176,7 @@ export class WebSocketService {
     }
 
     private listenForScoreUpdate() {
-        this.socket.on('game:score', (score: number) => {
+        this.socket.on('game:score', (score: Score) => {
             this.scoreSubject.next(score);
         });
     }
@@ -194,6 +202,12 @@ export class WebSocketService {
     private listenForTimeUpdate() {
         this.socket.on('game:time', (time: number) => {
             this.timeSubject.next(time);
+        });
+    }
+
+    private listenForUsersStat() {
+        this.socket.on('game:users-stat', (usersStat: UserStat[]) => {
+            this.usersStatSubject.next(usersStat);
         });
     }
 }

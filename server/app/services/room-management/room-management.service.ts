@@ -1,12 +1,13 @@
 import { ActiveGame } from '@app/model/classes/active-game';
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { TimeService } from '@app/services/time/time.service';
-import { MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
+import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Result } from '@common/interfaces/result';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -18,17 +19,19 @@ export class RoomManagementService {
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
+    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
 
-    constructor(
-        private readonly logger: Logger,
-        private readonly timeService: TimeService,
-    ) {}
+    constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
     }
 
     setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
         this.disconnectUser = disconnectUser;
+    }
+
+    setUsersStatUpdate(updateUsersStat: (userId: string, usersStat: UserStat[]) => void) {
+        this.updateUsersStat = updateUsersStat;
     }
 
     setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
@@ -57,11 +60,11 @@ export class RoomManagementService {
         game: GameData,
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: number) => void,
+        updateScore: (userId: string, score: Score) => void,
     ): User {
         const roomId = this.generateRoomId();
-        const host: UserData = new UserData(userId, roomId, 'Organisateur');
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore);
+        const host: UserData = new UserData(userId, roomId, HOST_NAME);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -71,7 +74,7 @@ export class RoomManagementService {
         this.gameState.set(roomId, newActiveGame);
         this.roomMembers.set(host.uid, roomId);
 
-        return { name: 'Organisateur', roomId, userId };
+        return { name: HOST_NAME, roomId, userId };
     }
 
     toggleGameClosed(userId: string, closed: boolean) {
@@ -98,10 +101,10 @@ export class RoomManagementService {
         return game.getChoice(userId);
     }
 
-    getScore(userId: string): number {
+    getScore(userId: string): Score {
         const game = this.getActiveGame(userId);
         if (!game) {
-            return 0;
+            return { score: 0, bonus: false };
         }
         return game.getScore(userId);
     }
@@ -152,6 +155,10 @@ export class RoomManagementService {
             !activeGame.canRejoin(user.userId)
         ) {
             return { ok: false, error: 'Reconnection impossible' };
+        }
+
+        if (user.name === HOST_NAME) {
+            this.updateUsersStat(newUserId, activeGame.usersStat);
         }
 
         this.roomMembers.delete(user.userId);

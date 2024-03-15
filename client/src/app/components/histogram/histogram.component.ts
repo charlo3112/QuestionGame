@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { Question } from '@common/interfaces/question';
+import { QuestionComponent } from '@app/components/question/question.component';
 
 @Component({
     selector: 'app-histogram',
@@ -13,9 +13,8 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
 })
 export class HistogramComponent {
-    @Input() listQuestions: Question[];
+    @Input() listQuestions: QuestionComponent[];
     @Input() questionDisplayed: number;
-    @Input() showArrows: boolean;
 
     // isChoiceWithCounter(choice: Choice): choice is ChoiceWithCounter {
     //     return (choice as ChoiceWithCounter).counter !== undefined;
@@ -27,6 +26,7 @@ export class HistogramComponent {
             this.questionDisplayed = this.listQuestions.length - 1;
         }
     }
+
     nextQuestion() {
         if (this.questionDisplayed !== this.listQuestions.length - 1) {
             this.questionDisplayed++;
@@ -34,6 +34,7 @@ export class HistogramComponent {
             this.questionDisplayed = 0;
         }
     }
+
     getMaxCounter(): number {
         // const question = this.listQuestions[this.questionDisplayed];
         const counters: number[] = [];
@@ -42,6 +43,7 @@ export class HistogramComponent {
         //         counters.push(choice.counter);
         //     }
         // }
+
         if (counters.length > 0) {
             return Math.max(...counters);
         } else {

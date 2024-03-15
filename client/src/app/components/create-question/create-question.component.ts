@@ -65,9 +65,10 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
 
     ngOnInit() {
         if (this.questionData && this.questionData.choices) {
-            for (const choice of this.questionData.choices) {
-                this.choiceValue.push(choice.isCorrect);
-            }
+            // TODO: Fix this
+            // for (const choice of this.questionData.choices) {
+            //     this.choiceValue.push(choice.isCorrect);
+            // }
         }
     }
 

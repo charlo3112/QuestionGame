@@ -1,20 +1,20 @@
 <h2 class="title">Tableau des résultats</h2>
 <div class="table-wrapper">
-  <table class="leaderboard-table">
-    <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Pointage</th>
-        <th class="bonus-column">Bonus</th>
-      </tr>
-    </thead>
-    
-    <tbody>
-      <tr *ngFor="let player of leaderboard">
-        <td>{{ player.name }}</td>
-        <td>{{ player.score }}</td>
-        <td>{{ player.nbOfBonus }}</td>
-      </tr>
-    </tbody>
-  </table>
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Pointage</th>
+                <th class="bonus-column">Bonus</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let player of gameService.usersStatValue">
+                <td>{{ player.username }}</td>
+                <td>{{ player.score }}</td>
+                <td>{{ player.bonus }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>

@@ -4,7 +4,9 @@ import { RoomManagementService } from '@app/services/room-management/room-manage
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -22,6 +24,7 @@ export class GameGateway implements OnGatewayDisconnect {
         this.roomService.setGatewayCallback(this.handleDeleteRoom.bind(this));
         this.roomService.setDisconnectUser(this.handleUserRemoval.bind(this));
         this.roomService.setUpdateUser(this.handleUpdateUser.bind(this));
+        this.roomService.setUsersStatUpdate(this.handleUsersStatUpdate.bind(this));
     }
 
     @SubscribeMessage('game:create')
@@ -64,7 +67,7 @@ export class GameGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:score')
-    handleScore(client: Socket): number {
+    handleScore(client: Socket): Score {
         return this.roomService.getScore(client.id);
     }
 
@@ -136,7 +139,11 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(roomId).emit('game:time', time);
     }
 
-    private handleScoreUpdate(userId: string, score: number): void {
+    private handleScoreUpdate(userId: string, score: Score): void {
         this.server.to(userId).emit('game:score', score);
+    }
+
+    private handleUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
+        this.server.to(userId).emit('game:users-stat', usersStat);
     }
 }
