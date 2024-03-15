@@ -6,6 +6,7 @@ import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
+import { UserStat } from '@common/interfaces/user-stat';
 
 export class ActiveGame {
     private locked: boolean;
@@ -16,6 +17,7 @@ export class ActiveGame {
     private activeUsers: Set<string>;
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private updateScore: (userId: string, score: Score) => void;
+    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
@@ -27,6 +29,7 @@ export class ActiveGame {
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
+        updateUsersStat: (userId: string, usersStat: UserStat[]) => void,
     ) {
         this.game = game;
         this.users = new Map<string, UserData>();
@@ -38,6 +41,7 @@ export class ActiveGame {
         this.updateState = updateState;
         this.timer = new CountDownTimer(roomId, updateTime);
         this.updateScore = updateScore;
+        this.updateUsersStat = updateUsersStat;
     }
 
     get gameData() {
@@ -86,6 +90,19 @@ export class ActiveGame {
             return { state: this.state, payload: this.currentQuestionWithAnswer };
         }
         return { state: this.state };
+    }
+
+    get usersStat(): UserStat[] {
+        return Array.from(this.users.values())
+            .filter((user) => !user.isHost())
+            .map((user) => {
+                return {
+                    username: user.username,
+                    score: user.userScore.score,
+                    bonus: user.userBonus,
+                    isConnected: this.activeUsers.has(user.uid),
+                };
+            });
     }
 
     set isLocked(locked: boolean) {
@@ -253,6 +270,9 @@ export class ActiveGame {
 
         this.users.forEach((user) => {
             this.updateScore(user.uid, user.userScore);
+            if (user.isHost()) {
+                this.updateUsersStat(user.uid, this.usersStat);
+            }
         });
     }
 }

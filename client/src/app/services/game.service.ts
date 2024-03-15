@@ -8,6 +8,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Subscription } from 'rxjs';
 
@@ -28,6 +29,8 @@ export class GameService implements OnDestroy {
     private showBonus: boolean;
     private players: Set<string> = new Set();
     private userSubscription: Subscription;
+    private usersStatSubscription: Subscription;
+    private usersStat: UserStat[] = [];
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -39,6 +42,7 @@ export class GameService implements OnDestroy {
         this.subscribeToTimeUpdate();
         this.subscribeToScoreUpdate();
         this.subscribeToUserUpdate();
+        this.subscribeToUsersStatUpdate();
 
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
             this.websocketService.leaveRoom();
@@ -60,6 +64,10 @@ export class GameService implements OnDestroy {
     get maxTime(): number {
         const twenty = 20;
         return twenty;
+    }
+
+    get usersStatValue(): UserStat[] {
+        return this.usersStat;
     }
 
     get currentState(): GameState {
@@ -145,6 +153,10 @@ export class GameService implements OnDestroy {
 
         if (this.userSubscription) {
             this.userSubscription.unsubscribe();
+        }
+
+        if (this.usersStatSubscription) {
+            this.usersStatSubscription.unsubscribe();
         }
     }
 
@@ -269,6 +281,14 @@ export class GameService implements OnDestroy {
                 } else {
                     this.players.delete(userUpdate.username);
                 }
+            },
+        });
+    }
+
+    private subscribeToUsersStatUpdate() {
+        this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
+            next: (usersStat: UserStat[]) => {
+                this.usersStat = usersStat;
             },
         });
     }

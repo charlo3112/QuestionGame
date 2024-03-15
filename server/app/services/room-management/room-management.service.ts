@@ -7,6 +7,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -18,6 +19,7 @@ export class RoomManagementService {
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
+    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
 
     constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
@@ -26,6 +28,10 @@ export class RoomManagementService {
 
     setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
         this.disconnectUser = disconnectUser;
+    }
+
+    setUsersStatUpdate(updateUsersStat: (userId: string, usersStat: UserStat[]) => void) {
+        this.updateUsersStat = updateUsersStat;
     }
 
     setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
@@ -58,7 +64,7 @@ export class RoomManagementService {
     ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -149,6 +155,10 @@ export class RoomManagementService {
             !activeGame.canRejoin(user.userId)
         ) {
             return { ok: false, error: 'Reconnection impossible' };
+        }
+
+        if (user.name === HOST_NAME) {
+            this.updateUsersStat(newUserId, activeGame.usersStat);
         }
 
         this.roomMembers.delete(user.userId);

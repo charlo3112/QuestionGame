@@ -6,6 +6,7 @@ import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
@@ -22,6 +23,7 @@ export class WebSocketService {
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
     private timeSubject: Subject<number> = new Subject<number>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
+    private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
 
     constructor() {
         this.connect();
@@ -124,6 +126,10 @@ export class WebSocketService {
         return this.timeSubject.asObservable();
     }
 
+    getUsersStat(): Observable<UserStat[]> {
+        return this.usersStatSubject.asObservable();
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {
@@ -160,6 +166,7 @@ export class WebSocketService {
         this.listenForUserUpdate();
         this.listenForTimeUpdate();
         this.listenForScoreUpdate();
+        this.listenForUsersStat();
     }
 
     private listenForClosedConnection() {
@@ -195,6 +202,12 @@ export class WebSocketService {
     private listenForTimeUpdate() {
         this.socket.on('game:time', (time: number) => {
             this.timeSubject.next(time);
+        });
+    }
+
+    private listenForUsersStat() {
+        this.socket.on('game:users-stat', (usersStat: UserStat[]) => {
+            this.usersStatSubject.next(usersStat);
         });
     }
 }
