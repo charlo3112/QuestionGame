@@ -156,7 +156,7 @@ export class AdminPageComponent implements OnInit {
             .catch((error) => {
                 game.visibility = !game.visibility;
                 this.openSnackBar(ERROR_GAME_VISIBILITY);
-                if (error.status === HttpStatusCode.NotFound) {
+                if (error && error.status === HttpStatusCode.NotFound) {
                     this.games = this.games.filter((g) => g.gameId !== id);
                 }
             });
