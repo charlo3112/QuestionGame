@@ -75,6 +75,11 @@ describe('CreateQuestionComponent', () => {
         expect(component.questionPoints).toBe(MIN_NB_OF_POINTS);
         expect(component.choices.length).toBe(0);
     });
+    it('ngOnInit() should fill the choiceValue array', () => {
+        component.questionData = mockValidQuestion;
+        component.ngOnInit();
+        expect(component.choiceValue.length).toBe(2);
+    });
 
     // Test de la fonction addChoice()
     it('should add a new choice when addChoice() is called', () => {
@@ -263,5 +268,20 @@ describe('CreateQuestionComponent', () => {
         } as CdkDragDrop<Choice[]>;
         component.drop(event);
         expect(component.choices).toEqual([new Choice('Choice 2', false), new Choice('Choice 3', false), new Choice('Choice 1', false)]);
+    });
+
+    it('should revert changes and emit close form event on cancel', () => {
+        component.choices = [
+            { text: 'Choice 1', isCorrect: false },
+            { text: 'Choice 2', isCorrect: true },
+        ];
+        component.choiceValue = component.choices.map((choice) => choice.isCorrect);
+        component.choiceValue[0] = true;
+        component.choiceValue[1] = false;
+        spyOn(component.closeForm, 'emit');
+        component.cancel();
+        expect(component.choices[0].isCorrect).toBe(true);
+        expect(component.choices[1].isCorrect).toBe(false);
+        expect(component.closeForm.emit).toHaveBeenCalled();
     });
 });

@@ -71,6 +71,7 @@
         *ngIf="showChildren"
         class="right"
         [questionData]="selectedQuestion"
+        [isEditingFromCreate]="isEditingQuestion"
         (questionCreated)="insertQuestionFromCreate($event)"
         (closeForm)="closeCreateQuestion()"
     ></app-create-question>
