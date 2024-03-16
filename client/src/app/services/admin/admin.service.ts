@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Choice } from '@app/classes/choice';
 import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
 
@@ -35,13 +34,10 @@ export class AdminService {
                                 type: question.type,
                                 text: question.text,
                                 points: question.points,
-                                choices: question.choices?.map(
-                                    (choice) =>
-                                        ({
-                                            choice: choice.text,
-                                            isCorrect: choice.isCorrect,
-                                        }) as unknown as Choice,
-                                ),
+                                choices: question.choices?.map((choice) => ({
+                                    text: choice.text,
+                                    isCorrect: choice.isCorrect,
+                                })),
                             })),
                         };
                         resolve(filteredOutput);

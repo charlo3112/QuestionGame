@@ -1,6 +1,6 @@
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { Game } from '@app/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { of, throwError } from 'rxjs';
@@ -32,31 +32,30 @@ describe('AdminService', () => {
         await expectAsync(adminService.deleteGame('id')).toBeRejected();
     });
 
-    // it('should resolve promise when exportGame succeeds when response exists', async () => {
-    //     const filteredOutput: Partial<Game> = {
-    //         title: GAME_PLACEHOLDER.title,
-    //         description: GAME_PLACEHOLDER.description,
-    //         duration: GAME_PLACEHOLDER.duration,
-    //         questions: GAME_PLACEHOLDER.questions.map((question) => ({
-    //             type: question.type,
-    //             text: question.text,
-    //             points: question.points,
-    //             choices: question.choices?.map(
-    //                 (choice) =>
-    //                     ({
-    //                         choice: choice.text,
-    //                         isCorrect: choice.isCorrect,
-    //                     }) as unknown as Choice,
-    //             ),
-    //         })),
-    //     };
-    //     // eslint disabled because we need to use the placeholder for the test
-    //     // eslint-disable-next-line @typescript-eslint/naming-convention
-    //     const mockResponse = { status: HttpStatusCode.Ok, body: JSON.stringify({ GAME_PLACEHOLDER }) };
-    //     communicationServiceSpy.exportGame.and.returnValue(of(new HttpResponse<string>(mockResponse)));
-    //     const result = await adminService.exportGame(GAME_PLACEHOLDER.gameId);
-    //     expect(result).toEqual(filteredOutput);
-    // });
+    it('should resolve promise when exportGame succeeds when response exists', async () => {
+        const filteredOutput: Partial<Game> = {
+            title: GAME_PLACEHOLDER.title,
+            description: GAME_PLACEHOLDER.description,
+            duration: GAME_PLACEHOLDER.duration,
+            questions: GAME_PLACEHOLDER.questions.map((question) => ({
+                type: question.type,
+                text: question.text,
+                points: question.points,
+                choices: question.choices?.map((choice) => ({
+                    text: choice.text,
+                    isCorrect: choice.isCorrect,
+                })),
+            })),
+        };
+
+        const mockResponse: HttpResponse<string> = new HttpResponse({
+            status: HttpStatusCode.Ok,
+            body: JSON.stringify(GAME_PLACEHOLDER),
+        });
+        communicationServiceSpy.exportGame.and.returnValue(of(mockResponse));
+        const result = await adminService.exportGame(GAME_PLACEHOLDER.gameId);
+        expect(result).toEqual(filteredOutput);
+    });
 
     it('should resolve promise when exportGame succeeds when response does not exist', async () => {
         const mockResponse = { status: HttpStatusCode.Ok, body: null };
