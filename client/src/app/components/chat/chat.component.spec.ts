@@ -1,6 +1,8 @@
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { GameService } from '@app/services/game.service';
 import { WebSocketService } from '@app/services/websocket.service';
 import { Message } from '@common/interfaces/message';
 import { of } from 'rxjs';
@@ -9,6 +11,9 @@ describe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
+    const snackBarMock = {
+        open: jasmine.createSpy('open'),
+    };
 
     beforeEach(async () => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
@@ -23,7 +28,7 @@ describe('ChatComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule],
-            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }],
+            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }, GameService, { provide: MatSnackBar, useValue: snackBarMock }],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ChatComponent);
