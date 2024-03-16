@@ -10,6 +10,5 @@ import { GameService } from '@app/services/game.service';
     standalone: true,
 })
 export class LeaderboardComponent {
-    // @Input() leaderboard: UserStat[];
     constructor(readonly gameService: GameService) {}
 }
