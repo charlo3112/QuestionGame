@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +19,7 @@ import { Result } from '@common/result';
     imports: [CommonModule, RouterLink, MatIconModule, MatCardModule, CreateQuestionComponent, MatTooltipModule, MatButtonModule],
     standalone: true,
 })
-export class QuestionBankComponent {
+export class QuestionBankComponent implements OnInit {
     @Input() adminMode = false;
     @Input() showChildren = false;
     @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
@@ -35,6 +35,9 @@ export class QuestionBankComponent {
         this.loadQuestions();
     }
 
+    ngOnInit(): void {
+        this.loadQuestions();
+    }
     loadQuestions() {
         const ERROR_FETCHING_QUESTIONS = 'Erreur lors de la récupération des questions';
         this.communicationService.getAllQuestionsWithModificationDates().subscribe({
