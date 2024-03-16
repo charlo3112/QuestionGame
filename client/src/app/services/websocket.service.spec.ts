@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { Socket } from 'socket.io-client';
 
-import { GameState } from '@common/game-state';
-import { PayloadJoinGame } from '@common/payload-game.interface';
-import { UserConnectionUpdate } from '@common/user-update.interface';
-import { User } from '@common/user.interface';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { User } from '@common/interfaces/user';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { WebSocketService } from './websocket.service';
 
 describe('WebSocketService', () => {
@@ -115,8 +116,8 @@ describe('WebSocketService', () => {
     it('getState should return an observable and subscribe message', () => {
         const testState = GameState.Wait;
 
-        service.getState().subscribe((state: GameState) => {
-            expect(state).toEqual(testState);
+        service.getState().subscribe((state: GameStatePayload) => {
+            expect(state.state).toEqual(testState);
         });
 
         mockSocket.on.calls.argsFor(1)[1](testState);

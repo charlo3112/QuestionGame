@@ -1,11 +1,11 @@
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { By } from '@angular/platform-browser';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { routes } from '@app/modules/app-routing.module';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { AdminGamePreviewComponent } from './admin-game-preview.component';
 
 describe('AdminGamePreviewComponent', () => {

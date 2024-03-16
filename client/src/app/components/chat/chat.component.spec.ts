@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { WebSocketService } from '@app/services/websocket.service';
-import { Message } from '@common/message.interface';
+import { Message } from '@common/interfaces/message';
 import { of } from 'rxjs';
 
 describe('ChatComponent', () => {
