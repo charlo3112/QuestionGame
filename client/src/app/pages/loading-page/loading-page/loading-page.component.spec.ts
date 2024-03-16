@@ -9,6 +9,7 @@ import { WebSocketService } from '@app/services/websocket.service';
 //import { GameState } from '@common/enums/game-state';
 import { Message } from '@common/interfaces/message';
 //import { Result } from '@common/interfaces/result';
+import { GameService } from '@app/services/game.service';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { of } from 'rxjs';
 import { LoadingPageComponent } from './loading-page.component';
@@ -43,10 +44,7 @@ describe('LoadingPageComponent', () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         TestBed.configureTestingModule({
             imports: [LoadingPageComponent, RouterModule.forRoot(routes), BrowserAnimationsModule, NoopAnimationsModule, RouterTestingModule],
-            providers: [
-                { provide: WebSocketService, useValue: mockWebSocketService },
-                { provide: MatSnackBar, useValue: snackBarSpy },
-            ],
+            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }, { provide: MatSnackBar, useValue: snackBarSpy }, GameService],
         });
         fixture = TestBed.createComponent(LoadingPageComponent);
         component = fixture.componentInstance;
