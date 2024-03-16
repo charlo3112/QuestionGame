@@ -406,6 +406,6 @@ describe('CreatePageComponent', () => {
     it('should return true if the question is in the game, but you are editing', () => {
         component.questions = [mockValidQuestion1, mockValidQuestion2];
         component.isEditingQuestion = true;
-        expect(component.verifPresenceQuestion(mockValidQuestion1)).toBeTrue();
+        expect(component.verifyPresenceQuestion(mockValidQuestion1)).toBeTrue();
     });
 });
