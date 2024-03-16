@@ -18,9 +18,9 @@ import { QuestionBankComponent } from '@app/components/question-bank/question-ba
 import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-create-page',
@@ -68,6 +68,7 @@ export class CreatePageComponent implements OnInit {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly validationService: ValidationService,
+        private readonly gameCreationService: GameCreationService,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
         private router: Router,
@@ -89,12 +90,7 @@ export class CreatePageComponent implements OnInit {
         }
     }
     insertQuestion(question: Question): void {
-        const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index > NOT_FOUND) {
-            this.questions[index] = question;
-        } else {
-            this.questions.push(question);
-        }
+        this.gameCreationService.insertQuestion(question, this.questions);
     }
     insertQuestionFromBank(question: Question) {
         if (this.verifyPresenceQuestion(question)) {
@@ -188,34 +184,10 @@ export class CreatePageComponent implements OnInit {
     }
 
     async createGame(game: Game): Promise<void> {
-        const GAME_CREATED = 'Le jeu a été créé avec succès !';
-        const ERROR_CREATING_GAME = 'Erreur lors de la création du jeu';
-        try {
-            await lastValueFrom(this.communicationService.addGame(game));
-            this.snackBar.open(GAME_CREATED, undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            this.router.navigate(['/admin']);
-        } catch (e) {
-            this.snackBar.open(ERROR_CREATING_GAME, undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-        }
+        this.gameCreationService.createGame(game);
     }
     async updateGame(game: Game): Promise<void> {
-        const GAME_MODIFIED = 'Le jeu a été modifié avec succès !';
-        const ERROR_UPDATING_GAME = 'Erreur lors de la modification du jeu';
-        try {
-            await lastValueFrom(this.communicationService.editGame(game));
-            this.snackBar.open(GAME_MODIFIED, undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            this.router.navigate(['/admin']);
-        } catch (e) {
-            this.snackBar.open(ERROR_UPDATING_GAME, undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-        }
+        this.gameCreationService.updateGame(game);
     }
     verifyLogin(): boolean {
         const storedLogin = sessionStorage.getItem('login');
