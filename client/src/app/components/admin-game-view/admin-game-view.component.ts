@@ -7,9 +7,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { PLAYERS, Player } from '@app/interfaces/player';
 import { GameService } from '@app/services/game.service';
 import { Question } from '@common/interfaces/question';
+import { USERS, UserStat } from '@common/interfaces/user-stat';
 
 @Component({
     selector: 'app-admin-game-view',
@@ -30,7 +30,7 @@ import { Question } from '@common/interfaces/question';
 export class AdminGameViewComponent implements OnChanges {
     @Input() question: Question;
     questionForHistogram: Question[] = [];
-    leaderboard: Player[];
+    leaderboard: UserStat[];
     constructor(readonly gameService: GameService) {}
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -41,11 +41,11 @@ export class AdminGameViewComponent implements OnChanges {
 
     fetchLeaderboard() {
         // TODO get array of players instead of PLAYERS
-        this.leaderboard = PLAYERS;
+        this.leaderboard = USERS;
         this.leaderboard.sort((a, b) => {
             const scoreComparison = b.score - a.score;
             if (scoreComparison === 0) {
-                return a.name.localeCompare(b.name);
+                return a.username.localeCompare(b.username);
             }
             return scoreComparison;
         });

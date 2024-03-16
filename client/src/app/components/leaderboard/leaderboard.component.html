@@ -11,7 +11,7 @@
 
         <tbody>
             <tr *ngFor="let player of gameService.usersStatValue">
-                <td>{{ player.username }}</td>
+                <td [ngClass]="{ 'disconnected': !player.isConnected }">{{ player.username }}</td>
                 <td>{{ player.score }}</td>
                 <td>{{ player.bonus }}</td>
             </tr>
