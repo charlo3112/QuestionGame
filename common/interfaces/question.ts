@@ -66,3 +66,15 @@ export const EMPTY_QUESTION: Question = {
     points: 0,
     choices: [],
 };
+
+export const QUESTION_PLACEHOLDER: Question = {
+    type: QuestionType.QCM,
+    text: 'Pourquoi le jus de lichi pas bon?',
+    points: 69,
+    choices: [
+        { text: 'Guillaume en boit' },
+        { text: 'Guillaume en a apporté 2 boites' },
+        { text: "C'est du lichi" },
+        { text: 'Guillaume en a bu à 9h du matin' },
+    ],
+};
