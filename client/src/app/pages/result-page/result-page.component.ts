@@ -38,7 +38,6 @@ export class ResultPageComponent implements OnInit {
     }
 
     fetchLeaderboard() {
-        // TODO get array of players instead of PLAYERS
         this.leaderboard = USERS;
         this.leaderboard.sort((a, b) => {
             const scoreComparison = b.score - a.score;

@@ -14,6 +14,7 @@ describe('LoadingPageComponent', () => {
     let fixture: ComponentFixture<LoadingPageComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
     let mockGameService: jasmine.SpyObj<GameService>;
+    let mockTimeService: jasmine.SpyObj<TimeService>;
     let router: Router;
 
     beforeEach(async () => {
@@ -35,13 +36,13 @@ describe('LoadingPageComponent', () => {
             ]),
         );
         mockGameService = jasmine.createSpyObj('GameService', ['reset', 'init', 'leaveRoom']);
-
+        mockTimeService = jasmine.createSpyObj('TimeService', ['start', 'stop', 'reset', 'time']);
         TestBed.configureTestingModule({
             imports: [LoadingPageComponent, RouterModule.forRoot(routes), BrowserAnimationsModule, NoopAnimationsModule, RouterTestingModule],
             providers: [
                 { provide: WebSocketService, useValue: mockWebSocketService },
                 { provide: GameService, useValue: mockGameService },
-                TimeService,
+                { provide: TimeService, useValue: mockTimeService },
             ],
         });
 
@@ -77,5 +78,12 @@ describe('LoadingPageComponent', () => {
     it('should start game on button click', () => {
         component.onStartGame();
         expect(mockWebSocketService.launchGame.calls.any()).toBeTrue();
+    });
+
+    it('should call getTime from timeService', () => {
+        const timeSpy = jasmine.createSpy('timeGetter').and.returnValue('00:00:00');
+        Object.defineProperty(mockTimeService, 'time', { get: timeSpy });
+        component.time;
+        expect(timeSpy).toHaveBeenCalled();
     });
 });

@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
@@ -84,5 +84,11 @@ describe('Question', () => {
         const event = new KeyboardEvent('keydown', { key: '1' });
         component.buttonDetect(event);
         expect(gameServiceSpy.selectChoice).not.toHaveBeenCalled();
+    });
+
+    it('should call confirmQuestion and disable the button when confirmAndDisable is called and buttonDisabled is false', () => {
+        component.buttonDisabled = false;
+        component.confirmAndDisable();
+        expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
     });
 });
