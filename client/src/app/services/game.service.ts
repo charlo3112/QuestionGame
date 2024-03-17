@@ -221,6 +221,10 @@ export class GameService implements OnDestroy {
         this.state = GameState.WaitingResults;
     }
 
+    nextQuestion() {
+        this.websocketService.nextQuestion();
+    }
+
     private askQuestion() {
         // this.timeService.startTimer(this.game.duration);
     }

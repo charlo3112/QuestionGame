@@ -39,8 +39,8 @@ export class AdminGameViewComponent implements OnChanges {
         }
     }
 
-    nextQuestion() {
-        // TODO send confirmation to server to switch to the question
+    nextQuestion(): void {
+        this.gameService.nextQuestion();
     }
 
     pauseGame() {

@@ -1,7 +1,7 @@
 import { CountDownTimer } from '@app/model/classes/time';
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { TIME_CONFIRM_S, WAITING_TIME_S, WAIT_FOR_NEXT_QUESTION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
@@ -21,6 +21,7 @@ export class ActiveGame {
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
+    private readyForNextQuestion: boolean = false;
 
     // eslint-disable-next-line max-params
     constructor(
@@ -132,6 +133,10 @@ export class ActiveGame {
         return this.activeUsers.has(userId);
     }
 
+    nextQuestion() {
+        this.readyForNextQuestion = true;
+    }
+
     addUser(user: UserData) {
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
@@ -231,6 +236,8 @@ export class ActiveGame {
         this.calculateScores();
         this.advanceState(GameState.ShowResults);
         await this.timer.start(TIME_CONFIRM_S);
+        while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
+        this.readyForNextQuestion = false;
         ++this.questionIndex;
     }
 

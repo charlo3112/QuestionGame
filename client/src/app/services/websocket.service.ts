@@ -57,6 +57,10 @@ export class WebSocketService {
         this.socket.emit('game:leave');
     }
 
+    nextQuestion() {
+        this.socket.emit('game:next');
+    }
+
     async isValidate(): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
             this.socket.emit('game:isValidate', (isValidate: boolean) => {

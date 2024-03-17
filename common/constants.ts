@@ -40,3 +40,5 @@ export const BONUS_MULTIPLIER = 1.2;
 export const TIME_CONFIRM_S = 3;
 
 export const HOST_NAME = 'Organisateur';
+
+export const WAIT_FOR_NEXT_QUESTION = 100;
