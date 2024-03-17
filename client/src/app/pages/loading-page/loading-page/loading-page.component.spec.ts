@@ -20,8 +20,8 @@ describe('LoadingPageComponent', () => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['toggleClosed', 'launchGame', 'getMessage', 'getMessages']);
         mockWebSocketService.getMessage.and.returnValue(
             of({
-                name: 'Server',
-                message: 'The game has started.',
+                name: 'Test',
+                message: 'This is a test message',
                 timestamp: Date.now(),
             }),
         );
