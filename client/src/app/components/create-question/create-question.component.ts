@@ -72,24 +72,6 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         }
     }
 
-    openSnackBar(message: string) {
-        this.snackBar.open(message, undefined, {
-            duration: SNACKBAR_DURATION,
-        });
-    }
-
-    cancel() {
-        for (let i = 0; i < this.choiceValue.length; i++) {
-            this.choices[i].isCorrect = this.choiceValue[i];
-        }
-        this.closeForm.emit();
-    }
-
-    addChoice() {
-        this.createQuestionService.addChoice(this.choiceInput, this.choices, this.editArray);
-        this.choiceInput = '';
-    }
-
     ngOnChanges(changes: SimpleChanges) {
         if (changes.questionData) {
             if (this.questionData) {
@@ -100,21 +82,9 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         }
     }
 
-    resetForm() {
-        this.questionName = '';
-        this.questionPoints = MIN_NB_OF_POINTS;
-        this.choices = [];
-    }
-
-    fillForm(question: Question) {
-        this.questionName = question.text;
-        this.questionPoints = question.points;
-        this.choices = [...question.choices];
-        this.questionToDelete = question.text;
-    }
-
-    deleteChoice(index: number): void {
-        this.choices.splice(index, 1);
+    addChoice() {
+        this.createQuestionService.addChoice(this.choiceInput, this.choices, this.editArray);
+        this.choiceInput = '';
     }
 
     addToQuestionBank() {
@@ -133,25 +103,14 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
             });
     }
 
-    save() {
-        if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
-            const newQuestion: Question = {
-                type: QuestionType.QCM,
-                text: this.questionName,
-                points: this.questionPoints,
-                choices: this.choices,
-            };
-            this.questionCreated.emit(newQuestion);
-            this.resetForm();
+    cancel() {
+        for (let i = 0; i < this.choiceValue.length; i++) {
+            this.choices[i].isCorrect = this.choiceValue[i];
         }
+        this.closeForm.emit();
     }
-
-    startEdit(index: number) {
-        this.editArray[index] = !this.editArray[index];
-    }
-
-    saveEdit(index: number) {
-        this.editArray[index] = false;
+    deleteChoice(index: number): void {
+        this.choices.splice(index, 1);
     }
 
     drop(event: CdkDragDrop<Choice[]>): void {
@@ -182,5 +141,45 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         } else {
             this.addToQuestionBank();
         }
+    }
+
+    fillForm(question: Question) {
+        this.questionName = question.text;
+        this.questionPoints = question.points;
+        this.choices = [...question.choices];
+        this.questionToDelete = question.text;
+    }
+
+    openSnackBar(message: string) {
+        this.snackBar.open(message, undefined, {
+            duration: SNACKBAR_DURATION,
+        });
+    }
+
+    resetForm() {
+        this.questionName = '';
+        this.questionPoints = MIN_NB_OF_POINTS;
+        this.choices = [];
+    }
+
+    save() {
+        if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+            const newQuestion: Question = {
+                type: QuestionType.QCM,
+                text: this.questionName,
+                points: this.questionPoints,
+                choices: this.choices,
+            };
+            this.questionCreated.emit(newQuestion);
+            this.resetForm();
+        }
+    }
+
+    saveEdit(index: number) {
+        this.editArray[index] = false;
+    }
+
+    startEdit(index: number) {
+        this.editArray[index] = !this.editArray[index];
     }
 }
