@@ -4,7 +4,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Message } from '@common/interfaces/message';
+import { Score } from '@common/interfaces/score';
+import { UserStat } from '@common/interfaces/user-stat';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { of } from 'rxjs';
 
 describe('ChatComponent', () => {
@@ -16,8 +20,26 @@ describe('ChatComponent', () => {
     };
 
     beforeEach(async () => {
-        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
+            'sendMessage',
+            'joinRoom',
+            'getMessages',
+            'leaveRoom',
+            'getMessage',
+            'getState',
+            'getClosedConnection',
+            'getTime',
+            'getScoreUpdate',
+            'getUserUpdate',
+            'getUsersStat',
+        ]);
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
+        mockWebSocketService.getState.and.returnValue(of({} as GameStatePayload));
+        mockWebSocketService.getClosedConnection.and.returnValue(of({} as string));
+        mockWebSocketService.getTime.and.returnValue(of({} as number));
+        mockWebSocketService.getScoreUpdate.and.returnValue(of({} as Score));
+        mockWebSocketService.getUserUpdate.and.returnValue(of({} as UserConnectionUpdate));
+        mockWebSocketService.getUsersStat.and.returnValue(of({} as UserStat[]));
 
         const messages: Message[] = [
             { name: 'test', message: 'test', timestamp: 1 },
@@ -98,7 +120,7 @@ describe('ChatComponent', () => {
     });
 
     it('should sort messages', fakeAsync(() => {
-        component.ngOnInit();
+        fixture.detectChanges();
         tick();
         const sorted = [
             { name: 'test', message: 'test', timestamp: 3 },
