@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -17,9 +17,10 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
     imports: [CommonModule, RouterLink, ChatComponent, MatSlideToggleModule, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
-export class QuestionComponent {
+export class QuestionComponent implements OnChanges {
     @Input() question: Question;
     isChatFocused: boolean = false;
+    buttonDisabled: boolean = false;
 
     constructor(readonly gameService: GameService) {}
 
@@ -31,6 +32,7 @@ export class QuestionComponent {
         const key = event.key;
         if (key === 'Enter') {
             this.gameService.confirmQuestion();
+            this.disableButton();
         }
         const value = parseInt(key, 10) - 1;
         if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
@@ -38,7 +40,33 @@ export class QuestionComponent {
         }
     }
 
+    confirmAndDisable(): void {
+        if (!this.buttonDisabled) {
+            this.gameService.confirmQuestion();
+            this.disableButton();
+        }
+    }
+
+    disableButton(): void {
+        const button = document.getElementById('confirm-button') as HTMLButtonElement;
+        if (button) {
+            button.disabled = true;
+        }
+    }
+
     chatFocused(focus: boolean) {
         this.isChatFocused = focus;
+    }
+
+    resetButton(): void {
+        const button = document.getElementById('confirm-button') as HTMLButtonElement;
+        button.disabled = false; // Réactiver le bouton
+        this.buttonDisabled = false; // Mettre à jour la variable
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes.question) {
+            this.resetButton();
+        }
     }
 }

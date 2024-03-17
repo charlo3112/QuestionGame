@@ -9,7 +9,7 @@ import { HistogramComponent } from '@app/components/histogram/histogram.componen
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { GameService } from '@app/services/game.service';
 import { Question } from '@common/interfaces/question';
-import { USERS, UserStat } from '@common/interfaces/user-stat';
+import { UserStat } from '@common/interfaces/user-stat';
 
 @Component({
     selector: 'app-admin-game-view',
@@ -39,17 +39,6 @@ export class AdminGameViewComponent implements OnChanges {
         }
     }
 
-    fetchLeaderboard() {
-        // TODO get array of players instead of PLAYERS
-        this.leaderboard = USERS;
-        this.leaderboard.sort((a, b) => {
-            const scoreComparison = b.score - a.score;
-            if (scoreComparison === 0) {
-                return a.username.localeCompare(b.username);
-            }
-            return scoreComparison;
-        });
-    }
     nextQuestion() {
         // TODO send confirmation to server to switch to the question
     }
