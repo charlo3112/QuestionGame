@@ -36,8 +36,9 @@ import { Question } from '@common/interfaces/question';
     ],
 })
 export class GamePageComponent implements OnInit, OnDestroy {
+    countdownReachedZeroCount: number = 0;
+    showButton: boolean = false;
     constructor(readonly gameService: GameService) {}
-
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
     }
@@ -46,11 +47,29 @@ export class GamePageComponent implements OnInit, OnDestroy {
         return this.gameService.currentState === GameState.Starting;
     }
 
+    nextQuestion(): void {
+        this.gameService.nextQuestion();
+    }
+
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
+        this.gameService.timerSubscribe().subscribe((time: number) => {
+            if (time === 0) {
+                this.countdownReachedZero();
+            }
+        });
     }
 
     ngOnDestroy() {
         this.gameService.leaveRoom();
+    }
+
+    countdownReachedZero(): void {
+        this.countdownReachedZeroCount++;
+        if (this.countdownReachedZeroCount % 2 === 1 && this.countdownReachedZeroCount !== 1) {
+            this.showButton = true;
+        } else {
+            this.showButton = false;
+        }
     }
 }

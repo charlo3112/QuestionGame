@@ -9,7 +9,7 @@
     <mat-toolbar-row *ngIf="!isStartingGame()" class="row-container">
         <p *ngIf="!gameService.isHost" class="big-text">Score total : {{ gameService.score }}</p>
         <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
-        <p *ngIf="gameService.time" class="big-text">Temps restant : {{ gameService.time }}</p>
+        <p class="big-text">Temps restant : {{ gameService.time }}</p>
         <button mat-raised-button id="abandon-button" routerLink="/new">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
@@ -17,3 +17,8 @@
 <app-countdown *ngIf="isStartingGame()"></app-countdown>
 <app-question *ngIf="question && !gameService.isHost" [question]="question!" tabindex="0"></app-question>
 <app-admin-game-view *ngIf="question && gameService.isHost" [question]="question!"></app-admin-game-view>
+
+<div *ngIf="showButton && gameService.isHost">
+    <button mat-raised-button id="next-question-button" (click)="nextQuestion(); showButton=false" color="primary">Prochaine question</button>
+</div>
+

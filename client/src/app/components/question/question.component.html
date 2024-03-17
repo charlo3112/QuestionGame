@@ -4,7 +4,7 @@
             <section id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" class="big-text" color="primary">Confirmer</button>
+            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary">Confirmer</button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>

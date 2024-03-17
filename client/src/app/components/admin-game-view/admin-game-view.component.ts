@@ -39,10 +39,6 @@ export class AdminGameViewComponent implements OnChanges {
         }
     }
 
-    nextQuestion(): void {
-        this.gameService.nextQuestion();
-    }
-
     pauseGame() {
         // TODO send message to server to pause the timer
     }
