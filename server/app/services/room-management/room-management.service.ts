@@ -85,6 +85,10 @@ export class RoomManagementService {
         game.isLocked = closed;
     }
 
+    nextQuestion(userId: string) {
+        this.getActiveGame(userId).nextQuestion();
+    }
+
     isValidate(userId: string): boolean {
         const game = this.getActiveGame(userId);
         if (!game) {

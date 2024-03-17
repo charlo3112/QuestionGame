@@ -8,7 +8,7 @@ import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { Question } from '@common/interfaces/question';
+import { Question, QUESTIONS_PLACEHOLDER_COUNTER } from '@common/interfaces/question';
 import { USERS, UserStat } from '@common/interfaces/user-stat';
 
 @Component({
@@ -29,7 +29,7 @@ import { USERS, UserStat } from '@common/interfaces/user-stat';
     ],
 })
 export class ResultPageComponent implements OnInit {
-    histogramData: Question[] = [];
+    histogramData: Question[] = QUESTIONS_PLACEHOLDER_COUNTER;
     leaderboard: UserStat[] = [];
     showStats: boolean;
 

@@ -10,7 +10,7 @@ import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 @Injectable()
 export class GameService implements OnDestroy {
@@ -221,6 +221,22 @@ export class GameService implements OnDestroy {
         this.state = GameState.WaitingResults;
     }
 
+    nextQuestion() {
+        this.websocketService.nextQuestion();
+    }
+
+    timerSubscribe(): Observable<number> {
+        return this.websocketService.getTime();
+    }
+
+    private subscribeToTimeUpdate() {
+        this.timeSubscription = this.websocketService.getTime().subscribe({
+            next: (time: number) => {
+                this.serverTime = time;
+            },
+        });
+    }
+
     private askQuestion() {
         // this.timeService.startTimer(this.game.duration);
     }
@@ -252,14 +268,6 @@ export class GameService implements OnDestroy {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
                 this.setState(state);
-            },
-        });
-    }
-
-    private subscribeToTimeUpdate() {
-        this.timeSubscription = this.websocketService.getTime().subscribe({
-            next: (time: number) => {
-                this.serverTime = time;
             },
         });
     }
