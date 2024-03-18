@@ -43,7 +43,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     constructor(
         readonly gameService: GameService,
         public dialog: MatDialog,
-        private router: Router,
+        public router: Router,
     ) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
