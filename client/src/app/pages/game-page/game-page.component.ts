@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
@@ -38,7 +40,11 @@ import { Question } from '@common/interfaces/question';
 export class GamePageComponent implements OnInit, OnDestroy {
     countdownReachedZeroCount: number = 0;
     showButton: boolean = false;
-    constructor(readonly gameService: GameService) {}
+    constructor(
+        readonly gameService: GameService,
+        public dialog: MatDialog,
+        private router: Router,
+    ) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
     }
@@ -75,5 +81,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.showButton = false;
         }
+    }
+
+    openAbandonDialog(): void {
+        const dialogRef = this.dialog.open(AbandonDialogComponent);
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === true) {
+                this.router.navigate(['/new']);
+            }
+        });
     }
 }
