@@ -137,6 +137,7 @@ export class CreatePageComponent implements OnInit {
     async createGame(game: Game): Promise<void> {
         this.gameCreationService.createGame(game);
     }
+
     async updateGame(game: Game): Promise<void> {
         this.gameCreationService.updateGame(game);
     }
