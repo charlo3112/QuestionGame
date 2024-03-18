@@ -17,7 +17,7 @@ describe('GamePageComponent', () => {
     beforeEach(async () => {
         mockGameService = jasmine.createSpyObj(
             'GameService',
-            ['init', 'leaveRoom', 'isChoiceSelected', 'isChoiceCorrect', 'isChoiceIncorrect', 'timerSubscribe', 'nextQuestion'],
+            ['init', 'leaveRoom', 'isChoiceSelected', 'isChoiceCorrect', 'isChoiceIncorrect', 'timerSubscribe', 'nextQuestion', 'showResults'],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
                 currentState: GameState.Starting,
@@ -67,5 +67,10 @@ describe('GamePageComponent', () => {
         component.countdownReachedZero();
 
         expect(component.showButton).toBeTrue();
+    });
+
+    it('should call gameService.showResults when showResults is called', () => {
+        component.showResults();
+        expect(mockGameService.showResults).toHaveBeenCalled();
     });
 });
