@@ -44,7 +44,7 @@ export class GameService implements OnDestroy {
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
 
-        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
+        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
             this.websocketService.leaveRoom();
         }
     }
@@ -267,7 +267,7 @@ export class GameService implements OnDestroy {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']);
+                this.routerService.navigate(['/']); // permet de rester en vue résultat si commentée
             },
         });
     }
@@ -314,35 +314,29 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.NotStarted) {
             return;
         }
-
         if (this.state === GameState.Wait) {
             if (this.routerService.url !== '/loading') {
                 this.routerService.navigate(['/loading']);
             }
             return;
         }
-
         if (this.state === GameState.AskingQuestion) {
             this.question = state.payload as Question;
             this.choicesSelected = [false, false, false, false];
             this.askQuestion();
         }
-
         if (this.state === GameState.ShowResults) {
             this.question = state.payload as Question;
         }
-
         if (this.state === GameState.ShowFinalResults) {
             if (this.routerService.url !== '/results') {
                 this.routerService.navigate(['/results']);
             }
             return;
         }
-
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;
         }
-
         if (this.routerService.url !== '/game') {
             this.routerService.navigate(['/game']);
         }

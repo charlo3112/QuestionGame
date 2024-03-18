@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
@@ -32,11 +32,11 @@ import { Question } from '@common/interfaces/question';
         MatButtonModule,
         MatToolbarModule,
         MatDividerModule,
-        RouterLink,
         CountdownComponent,
+        RouterModule,
     ],
 })
-export class GamePageComponent implements OnInit, OnDestroy {
+export class GamePageComponent implements OnInit {
     countdownReachedZeroCount: number = 0;
     showButton: boolean = false;
     buttonText: string = 'Prochaine Question';
@@ -67,10 +67,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.buttonText = 'Résultats';
             }
         });
-    }
-
-    ngOnDestroy() {
-        this.gameService.leaveRoom();
     }
 
     countdownReachedZero(): void {
