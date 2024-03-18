@@ -38,8 +38,4 @@ export class AdminGameViewComponent implements OnChanges {
             this.questionForHistogram[0] = this.question;
         }
     }
-
-    pauseGame() {
-        // TODO send message to server to pause the timer
-    }
 }
