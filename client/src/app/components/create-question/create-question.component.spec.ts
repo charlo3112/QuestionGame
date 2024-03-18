@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { SimpleChange, SimpleChanges } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -18,15 +18,14 @@ import { CommunicationService } from '@app/services/communication/communication.
 import { CreateQuestionService } from '@app/services/create-question/create-question.service';
 import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
 import { of, throwError } from 'rxjs';
-import SpyObj = jasmine.SpyObj;
 
 describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let mockValidQuestion: Question;
     let communicationService: CommunicationService;
-    let createQuestionServiceSpy: SpyObj<CreateQuestionService>;
-    let snackBarSpy: SpyObj<MatSnackBar>;
+    let createQuestionServiceSpy: jasmine.SpyObj<CreateQuestionService>;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
@@ -36,6 +35,7 @@ describe('CreateQuestionComponent', () => {
             'addToQuestionBank',
             'addChoice',
             'choiceVerif',
+            'addToQuestionBank',
         ]);
 
         await TestBed.configureTestingModule({
@@ -152,15 +152,12 @@ describe('CreateQuestionComponent', () => {
         expect(component.closeForm.emit).toHaveBeenCalled();
     });
 
-    it('should call openSnackBar if addToQuestionBank fails', async () => {
-        createQuestionServiceSpy.addToQuestionBank.and.rejectWith();
-
+    it('should call openSnackBar if addToQuestionBank fails', fakeAsync(() => {
+        createQuestionServiceSpy.addToQuestionBank.and.returnValue(Promise.reject());
         component.addToQuestionBank();
-
-        expect(snackBarSpy.open).toHaveBeenCalledWith('La question est déjà dans la banque de questions.', undefined, {
-            duration: jasmine.any(Number),
-        });
-    });
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalledWith('La question est déjà dans la banque de questions.', undefined, jasmine.any(Object));
+    }));
 
     // test de la fonction cancel()
     it('should revert changes and emit close form event on cancel', () => {
