@@ -292,4 +292,20 @@ describe('WebSocketService', () => {
         });
         tick();
     }));
+
+    it('should listen for score updates and update scoreSubject', () => {
+        const mockScore: Score = { score: 100, bonus: true };
+        service.getScoreUpdate().subscribe((score) => {
+            expect(score).toEqual(mockScore);
+        });
+        mockSocket.on.calls.mostRecent().args[1](mockScore);
+    });
+
+    it('should listen for time updates and update timeSubject', () => {
+        const mockTime: number = 120;
+        service.getTime().subscribe((time) => {
+            expect(time).toEqual(mockTime);
+        });
+        mockSocket.on.calls.mostRecent().args[1](mockTime);
+    });
 });
