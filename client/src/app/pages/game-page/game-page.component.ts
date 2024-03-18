@@ -13,6 +13,7 @@ import { CountdownComponent } from '@app/components/countdown/countdown.componen
 import { QuestionComponent } from '@app/components/question/question.component';
 import { GameService } from '@app/services/game.service';
 import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -38,6 +39,7 @@ import { Question } from '@common/interfaces/question';
 export class GamePageComponent implements OnInit, OnDestroy {
     countdownReachedZeroCount: number = 0;
     showButton: boolean = false;
+    buttonText: string = 'Prochaine Question';
     constructor(readonly gameService: GameService) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
@@ -47,19 +49,25 @@ export class GamePageComponent implements OnInit, OnDestroy {
         return this.gameService.currentState === GameState.Starting;
     }
 
-    nextQuestion(): void {
-        this.gameService.nextQuestion();
-    }
-
-    showResults(): void {
-        this.gameService.showResults();
+    nextStep(): void {
+        if (this.buttonText === 'Résultats') {
+            this.gameService.showResults();
+        } else this.gameService.nextQuestion();
     }
 
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
         this.gameService.timerSubscribe().subscribe((time: number) => {
             if (time === 0) {
+                console.log(this.countdownReachedZeroCount);
                 this.countdownReachedZero();
+            }
+        });
+        this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
+            console.log(statePayload.state);
+            if (statePayload.state === GameState.LastQuestion) {
+                console.log(statePayload.state);
+                this.buttonText = 'Résultats';
             }
         });
     }

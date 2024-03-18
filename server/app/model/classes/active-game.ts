@@ -169,10 +169,6 @@ export class ActiveGame {
         return user.isHost();
     }
 
-    showResults() {
-        // TODO
-    }
-
     update(userId: string, user: UserData) {
         this.users.delete(userId);
         this.activeUsers.delete(userId);
@@ -215,6 +211,10 @@ export class ActiveGame {
         return user.validate === undefined ? false : true;
     }
 
+    showResults() {
+        this.advanceState(GameState.GameOver);
+    }
+
     getChoice(userId: string): boolean[] {
         const user = this.users.get(userId);
         if (!user) {
@@ -240,9 +240,11 @@ export class ActiveGame {
         this.calculateScores();
         this.advanceState(GameState.ShowResults);
         await this.timer.start(TIME_CONFIRM_S);
-        while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
-        this.readyForNextQuestion = false;
-        ++this.questionIndex;
+        if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
+        else {
+            while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
+            this.readyForNextQuestion = false;
+        }
     }
 
     private advanceState(state: GameState) {

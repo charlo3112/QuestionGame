@@ -233,6 +233,10 @@ export class GameService implements OnDestroy {
         return this.websocketService.getTime();
     }
 
+    stateSubscribe(): Observable<GameStatePayload> {
+        return this.websocketService.getState();
+    }
+
     private subscribeToTimeUpdate() {
         this.timeSubscription = this.websocketService.getTime().subscribe({
             next: (time: number) => {

@@ -19,6 +19,6 @@
 <app-admin-game-view *ngIf="question && gameService.isHost" [question]="question!"></app-admin-game-view>
 
 <div *ngIf="showButton && gameService.isHost">
-    <button mat-raised-button id="next-question-button" (click)="nextQuestion(); showButton=false" color="primary">Prochaine question</button>
+    <button mat-raised-button id="next-question-button" (click)="nextStep(); showButton=false" color="primary">{{buttonText}}</button>
 </div>
 
