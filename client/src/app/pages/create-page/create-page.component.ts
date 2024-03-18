@@ -15,12 +15,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
+import { Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
-import { ValidationService } from '@app/services/validation/validation.service';
-import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { QuestionInsertionService } from '@app/services/question-creation/question-insertion.service';
+import { MIN_DURATION, SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-create-page',
@@ -67,8 +67,8 @@ export class CreatePageComponent implements OnInit {
     // eslint-disable-next-line max-params
     constructor(
         private readonly communicationService: CommunicationService,
-        private readonly validationService: ValidationService,
         private readonly gameCreationService: GameCreationService,
+        private readonly questionInsertionService: QuestionInsertionService,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
         private router: Router,
@@ -90,44 +90,21 @@ export class CreatePageComponent implements OnInit {
         }
     }
     insertQuestion(question: Question): void {
-        this.gameCreationService.insertQuestion(question, this.questions);
+        this.questionInsertionService.insertQuestion(question, this.questions);
     }
     insertQuestionFromBank(question: Question) {
-        if (this.verifyPresenceQuestion(question)) {
-            this.insertQuestion(question);
-        }
+        this.questionInsertionService.insertQuestionFromBank(question, this.isEditingQuestion, this.questions);
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        if (this.verifyPresenceQuestion(question)) {
-            if (!this.questionTitleToEdit.length) {
-                this.insertQuestion(question);
-            } else {
-                const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
-                this.questions[index] = question;
-                this.questionTitleToEdit = '';
-                this.isEditingQuestion = false;
-            }
-        }
+        this.questionInsertionService.insertQuestionFromCreate(question, this.isEditingQuestion, this.questionTitleToEdit, this.questions);
         this.closeCreateQuestion();
     }
     verifyPresenceQuestion(question: Question): boolean {
-        const SAME_TEXT_QUESTION = "Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.";
-        const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index !== NOT_FOUND) {
-            if (this.isEditingQuestion) {
-                return true;
-            }
-            this.snackBar.open(SAME_TEXT_QUESTION, undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            return false;
-        } else {
-            return true;
-        }
+        return this.questionInsertionService.verifyQuestion(question, this.questions, this.isEditingQuestion);
     }
     deleteQuestion(index: number): void {
-        this.questions.splice(index, 1);
+        this.questionInsertionService.deleteQuestion(index, this.questions);
     }
     drop(event: CdkDragDrop<Question[]>): void {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
@@ -154,33 +131,7 @@ export class CreatePageComponent implements OnInit {
         this.isEditingQuestion = false;
     }
     async save(): Promise<void> {
-        const ERROR_VALIDATION = 'Erreurs de validation: \n';
-        const gameToValidate: Partial<Game> = {
-            title: this.title,
-            description: this.description,
-            duration: this.duration,
-            questions: this.questions,
-        };
-        const validationErrors = this.validationService.validateGame(gameToValidate);
-        if (validationErrors.length > 0) {
-            this.snackBar.open(ERROR_VALIDATION + validationErrors.join('\n'), undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            return;
-        }
-        const newGame: Game = {
-            ...GAME_PLACEHOLDER,
-            ...gameToValidate,
-            lastModification: new Date().toISOString(),
-            visibility: this.visibility,
-        };
-
-        if (this.isEditing) {
-            newGame.gameId = this.id;
-            await this.updateGame(newGame);
-        } else {
-            await this.createGame(newGame);
-        }
+        this.gameCreationService.save(this.title, this.description, this.duration, this.questions, this.visibility, this.id, this.isEditing);
     }
 
     async createGame(game: Game): Promise<void> {
@@ -190,14 +141,7 @@ export class CreatePageComponent implements OnInit {
         this.gameCreationService.updateGame(game);
     }
     verifyLogin(): boolean {
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            this.login = JSON.parse(storedLogin);
-        } else {
-            this.login = false;
-            sessionStorage.setItem('login', JSON.stringify(this.login));
-        }
-        return this.login;
+        return this.communicationService.verifyLogin(this.login);
     }
 
     loadGameData(gameId: string) {

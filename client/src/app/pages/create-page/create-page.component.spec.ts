@@ -113,14 +113,6 @@ describe('CreatePageComponent', () => {
     });
 
     // ngOnInit
-    it('should set login to false and save it to sessionStorage when no login info is found', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(null);
-        const setItemSpy = spyOn(sessionStorage, 'setItem');
-        const result = component.verifyLogin();
-        expect(component.login).toBeFalse();
-        expect(setItemSpy).toHaveBeenCalledWith('login', JSON.stringify(false));
-        expect(result).toBeFalse();
-    });
 
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
         spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(true));
