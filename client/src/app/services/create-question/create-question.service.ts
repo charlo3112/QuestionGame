@@ -35,7 +35,7 @@ export class CreateQuestionService {
         }
     }
 
-    async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[]): Promise<Question | null> {
+    async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[]): Promise<Question> {
         if (this.choiceVerif(questionName, choices)) {
             const newQuestion: Question = {
                 type: QuestionType.QCM,
@@ -56,7 +56,7 @@ export class CreateQuestionService {
                 });
             });
         }
-        return null;
+        return null as unknown as Promise<Question>;
     }
 
     choiceVerif(questionName: string, choices: Choice[]): boolean {
@@ -93,8 +93,8 @@ export class CreateQuestionService {
                     next: () => {
                         resolve();
                     },
-                    error: () => {
-                        reject();
+                    error: (error) => {
+                        reject(error);
                     },
                 });
         });
