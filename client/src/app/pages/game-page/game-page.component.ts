@@ -59,14 +59,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         await this.gameService.init();
         this.gameService.timerSubscribe().subscribe((time: number) => {
             if (time === 0) {
-                console.log(this.countdownReachedZeroCount);
                 this.countdownReachedZero();
             }
         });
         this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
-            console.log(statePayload.state);
             if (statePayload.state === GameState.LastQuestion) {
-                console.log(statePayload.state);
                 this.buttonText = 'Résultats';
             }
         });

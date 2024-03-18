@@ -87,7 +87,7 @@ export class ActiveGame {
         if (this.state === GameState.AskingQuestion) {
             return { state: this.state, payload: this.currentQuestionWithoutAnswer };
         }
-        if (this.state === GameState.ShowResults) {
+        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
             return { state: this.state, payload: this.currentQuestionWithAnswer };
         }
         return { state: this.state };
@@ -212,7 +212,7 @@ export class ActiveGame {
     }
 
     showResults() {
-        this.advanceState(GameState.GameOver);
+        this.advanceState(GameState.ShowFinalResults);
     }
 
     getChoice(userId: string): boolean[] {

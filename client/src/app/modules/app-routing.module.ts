@@ -21,7 +21,7 @@ export const routes: Routes = [
     { path: 'loading', component: LoadingPageComponent },
     { path: 'admin/question-bank', component: QuestionBankPageComponent },
     { path: 'join', component: JoinGamePageComponent },
-    { path: 'result', component: ResultPageComponent },
+    { path: 'results', component: ResultPageComponent },
     { path: '**', redirectTo: '/home' },
 ];
 

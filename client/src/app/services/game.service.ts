@@ -185,7 +185,7 @@ export class GameService implements OnDestroy {
     }
 
     isChoiceCorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults) {
+        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
         }
         if (this.question === undefined) {
@@ -196,7 +196,7 @@ export class GameService implements OnDestroy {
     }
 
     isChoiceIncorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults) {
+        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
         }
         if (this.question === undefined) {
@@ -314,7 +314,7 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.NotStarted) {
             return;
         }
-        if (this.state === GameState.GameOver) {
+        if (this.state === GameState.ShowFinalResults) {
             if (this.routerService.url !== '/results') {
                 this.routerService.navigate(['/results']);
             }
@@ -334,7 +334,7 @@ export class GameService implements OnDestroy {
             this.askQuestion();
         }
 
-        if (this.state === GameState.ShowResults) {
+        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
             this.question = state.payload as Question;
         }
 

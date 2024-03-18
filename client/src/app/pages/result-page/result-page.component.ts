@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -8,8 +8,8 @@ import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { Question, QUESTIONS_PLACEHOLDER_COUNTER } from '@common/interfaces/question';
-import { USERS, UserStat } from '@common/interfaces/user-stat';
+import { QUESTIONS_PLACEHOLDER_COUNTER, Question } from '@common/interfaces/question';
+import { UserStat } from '@common/interfaces/user-stat';
 
 @Component({
     selector: 'app-result-page',
@@ -28,23 +28,8 @@ import { USERS, UserStat } from '@common/interfaces/user-stat';
         MatButtonModule,
     ],
 })
-export class ResultPageComponent implements OnInit {
+export class ResultPageComponent {
     histogramData: Question[] = QUESTIONS_PLACEHOLDER_COUNTER;
     leaderboard: UserStat[] = [];
     showStats: boolean;
-
-    ngOnInit(): void {
-        this.fetchLeaderboard();
-    }
-
-    fetchLeaderboard() {
-        this.leaderboard = USERS;
-        this.leaderboard.sort((a, b) => {
-            const scoreComparison = b.score - a.score;
-            if (scoreComparison === 0) {
-                return a.username.localeCompare(b.username);
-            }
-            return scoreComparison;
-        });
-    }
 }
