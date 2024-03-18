@@ -6,6 +6,7 @@ import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
+import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
 
 describe('GamePageComponent', () => {
@@ -14,11 +15,15 @@ describe('GamePageComponent', () => {
     let mockGameService: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
-        mockGameService = jasmine.createSpyObj('GameService', ['init', 'leaveRoom', 'isChoiceSelected', 'isChoiceCorrect', 'isChoiceIncorrect'], {
-            currentQuestion: QUESTION_PLACEHOLDER,
-            currentState: GameState.Starting,
-        });
-
+        mockGameService = jasmine.createSpyObj(
+            'GameService',
+            ['init', 'leaveRoom', 'isChoiceSelected', 'isChoiceCorrect', 'isChoiceIncorrect', 'timerSubscribe', 'nextQuestion'],
+            {
+                currentQuestion: QUESTION_PLACEHOLDER,
+                currentState: GameState.Starting,
+            },
+        );
+        mockGameService.timerSubscribe.and.returnValue(of(0));
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes), BrowserAnimationsModule, GamePageComponent],
             providers: [{ provide: GameService, useValue: mockGameService }],
@@ -49,5 +54,18 @@ describe('GamePageComponent', () => {
 
     it('should return true if game state is Starting', () => {
         expect(component.isStartingGame()).toBeTrue();
+    });
+
+    it('should change question when nextQuestion is called', () => {
+        component.nextQuestion();
+        expect(mockGameService.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should set showButton to true after countdownReachedZero is called three times', () => {
+        component.countdownReachedZero();
+        component.countdownReachedZero();
+        component.countdownReachedZero();
+
+        expect(component.showButton).toBeTrue();
     });
 });

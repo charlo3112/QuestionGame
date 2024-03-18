@@ -1,11 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import { Socket } from 'socket.io-client';
-
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
+import { Socket } from 'socket.io-client';
 import { WebSocketService } from './websocket.service';
 
 describe('WebSocketService', () => {
@@ -131,5 +130,60 @@ describe('WebSocketService', () => {
         });
 
         mockSocket.on.calls.argsFor(3)[1](testUser);
+    });
+
+    it('should emit game:create event and resolve with the user', async () => {
+        const testGameId = 'game123';
+        const expectedUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        mockSocket.emit.and.callFake((eventName: string, gameId: string, callback: (user: User) => void) => {
+            if (eventName === 'game:create' && gameId === testGameId) {
+                callback(expectedUser);
+            }
+            return mockSocket;
+        });
+        const user = await service.createRoom(testGameId);
+        expect(user).toEqual(expectedUser);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:create', testGameId, jasmine.any(Function));
+    });
+
+    it('should emit game:choice event with the correct choice array', () => {
+        const testChoices = [true, false, true];
+        service.sendChoice(testChoices);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:choice', testChoices);
+    });
+
+    it('should emit game:validate event', () => {
+        service.validateChoice();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:validate');
+    });
+
+    it('should emit game:isValidate event and resolve with a boolean value', fakeAsync(() => {
+        const expectedValidation = true;
+        mockSocket.emit.and.callFake((eventName: string, ...args: any[]) => {
+            const callback = args.find((arg) => typeof arg === 'function');
+            if (callback) {
+                callback(expectedValidation);
+            }
+            return mockSocket;
+        });
+
+        service.isValidate().then((isValidate) => {
+            expect(isValidate).toBe(expectedValidation);
+        });
+
+        tick();
+    }));
+
+    it('should emit game:getChoice event and resolve with a boolean array', async () => {
+        const expectedChoices = [true, false, true];
+        mockSocket.emit.and.callFake((eventName: string, callback: (choice: boolean[]) => void) => {
+            if (eventName === 'game:getChoice') {
+                callback(expectedChoices);
+            }
+            return mockSocket;
+        });
+
+        const result = await service.getChoice();
+        expect(result).toEqual(expectedChoices);
     });
 });

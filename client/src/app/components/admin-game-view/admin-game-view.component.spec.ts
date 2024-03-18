@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { GameService } from '@app/services/game.service';
-import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
+import { QUESTIONS_PLACEHOLDER_COUNTER, QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { AdminGameViewComponent } from './admin-game-view.component';
 
 describe('AdminGameViewComponent', () => {
@@ -20,6 +20,7 @@ describe('AdminGameViewComponent', () => {
         });
         fixture = TestBed.createComponent(AdminGameViewComponent);
         component = fixture.componentInstance;
+        component.questionForHistogram = QUESTIONS_PLACEHOLDER_COUNTER;
         fixture.detectChanges();
     });
 
