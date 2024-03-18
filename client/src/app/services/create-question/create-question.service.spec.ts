@@ -180,19 +180,19 @@ describe('CreateQuestionService', () => {
         await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId)).toBeResolved();
     });
 
-    // it('should reject if communicationService.modifyQuestion fails', async () => {
-    //     const questionName = 'Test question';
-    //     const questionPoints = 10;
-    //     const choices: Choice[] = [
-    //         { text: 'Choice 1', isCorrect: true },
-    //         { text: 'Choice 2', isCorrect: false },
-    //     ];
-    //     const questionMongoId = 'mongoId123';
+    it('should reject if communicationService.modifyQuestion fails', async () => {
+        const questionName = 'Test question';
+        const questionPoints = 10;
+        const choices: Choice[] = [
+            { text: 'Choice 1', isCorrect: true },
+            { text: 'Choice 2', isCorrect: false },
+        ];
+        const questionMongoId = 'mongoId123';
 
-    //     const errorResponse = new HttpResponse({ status: HttpStatusCode.Unauthorized });
-    //     communicationServiceSpy.modifyQuestion.and.returnValue(throwError(() => errorResponse));
-    //     await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId)).toBeRejected();
-    // });
+        const errorResponse = new HttpResponse({ status: HttpStatusCode.BadRequest });
+        communicationServiceSpy.modifyQuestion.and.returnValue(throwError(() => errorResponse));
+        await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId)).toBeRejected();
+    });
 
     it('should return true if there are both correct and incorrect choices', () => {
         const choices = [

@@ -79,7 +79,7 @@ export class CreateQuestionService {
     // Every parameter is important for this method
     // eslint-disable-next-line max-params
     async editQuestion(questionName: string, questionPoints: number, choices: Choice[], questionMongoId: string): Promise<void> {
-        new Promise<void>((resolve, reject) => {
+        return new Promise<void>((resolve, reject) => {
             this.communicationService
                 .modifyQuestion({
                     type: QuestionType.QCM,
