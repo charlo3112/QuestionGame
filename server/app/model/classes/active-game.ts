@@ -22,6 +22,7 @@ export class ActiveGame {
     private questionIndex: number = 0;
     private timer;
     private readyForNextQuestion: boolean = false;
+    private questionsCounters: number[][];
 
     // eslint-disable-next-line max-params
     constructor(
@@ -123,14 +124,14 @@ export class ActiveGame {
     }
 
     sendUserSelectedChoice() {
-        let questionCounter: number[] = [0, 0, 0, 0];
         this.users.forEach((user) => {
             for (let i = 0; i < 4; i++) {
                 if (user.userChoice[i]) {
-                    questionCounter[i]++;
+                    this.questionsCounters[this.questionIndex][i]++;
                 }
             }
         });
+        // il faut envoyer question counter
     }
 
     validateChoice(userId: string) {

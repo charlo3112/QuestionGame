@@ -9,7 +9,6 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { GameService } from '@app/services/game.service';
-import { QUESTIONS_PLACEHOLDER_COUNTER, Question } from '@common/interfaces/question';
 import { UserStat } from '@common/interfaces/user-stat';
 
 @Component({
@@ -30,7 +29,6 @@ import { UserStat } from '@common/interfaces/user-stat';
     ],
 })
 export class ResultPageComponent implements OnDestroy {
-    histogramData: Question[] = QUESTIONS_PLACEHOLDER_COUNTER;
     leaderboard: UserStat[] = [];
     showStats: boolean;
     constructor(readonly gameService: GameService) {}
