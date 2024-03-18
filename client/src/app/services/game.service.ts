@@ -307,6 +307,9 @@ export class GameService implements OnDestroy {
             return;
         }
         if (this.state === GameState.GameOver) {
+            if (this.routerService.url !== '/results') {
+                this.routerService.navigate(['/results']);
+            }
             return;
         }
 
