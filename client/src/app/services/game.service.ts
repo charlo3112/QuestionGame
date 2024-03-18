@@ -225,8 +225,8 @@ export class GameService implements OnDestroy {
         this.websocketService.nextQuestion();
     }
 
-    showResults() {
-        this.websocketService.showResults();
+    showFinalResults() {
+        this.websocketService.showFinalResults();
     }
 
     timerSubscribe(): Observable<number> {
@@ -314,12 +314,6 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.NotStarted) {
             return;
         }
-        if (this.state === GameState.ShowFinalResults) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
-            return;
-        }
 
         if (this.state === GameState.Wait) {
             if (this.routerService.url !== '/loading') {
@@ -336,6 +330,13 @@ export class GameService implements OnDestroy {
 
         if (this.state === GameState.ShowResults) {
             this.question = state.payload as Question;
+        }
+
+        if (this.state === GameState.ShowFinalResults) {
+            if (this.routerService.url !== '/results') {
+                this.routerService.navigate(['/results']);
+            }
+            return;
         }
 
         if (this.state === GameState.Starting) {

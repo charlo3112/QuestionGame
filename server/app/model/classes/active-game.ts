@@ -211,7 +211,7 @@ export class ActiveGame {
         return user.validate === undefined ? false : true;
     }
 
-    showResults() {
+    showFinalResults() {
         this.advanceState(GameState.ShowFinalResults);
     }
 

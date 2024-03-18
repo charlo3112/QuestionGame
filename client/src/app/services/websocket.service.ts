@@ -61,7 +61,7 @@ export class WebSocketService {
         this.socket.emit('game:next');
     }
 
-    showResults() {
+    showFinalResults() {
         this.socket.emit('game:results');
     }
 

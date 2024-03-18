@@ -97,8 +97,8 @@ export class RoomManagementService {
         return game.isValidate(userId);
     }
 
-    showResults(userId: string) {
-        this.getActiveGame(userId).showResults();
+    showFinalResults(userId: string) {
+        this.getActiveGame(userId).showFinalResults();
     }
 
     getChoice(userId: string): boolean[] {

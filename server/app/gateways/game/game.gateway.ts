@@ -121,7 +121,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage('game:results')
     showResults(client: Socket) {
-        this.roomService.showResults(client.id);
+        this.roomService.showFinalResults(client.id);
     }
 
     handleDisconnect(client: Socket): void {

@@ -51,8 +51,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     nextStep(): void {
         if (this.buttonText === 'Résultats') {
-            this.gameService.showResults();
-        } else this.gameService.nextQuestion();
+            this.gameService.showFinalResults();
+        } else if (this.buttonText === 'Prochaine Question') this.gameService.nextQuestion();
     }
 
     async ngOnInit(): Promise<void> {
