@@ -1,7 +1,10 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { Result } from '@common/interfaces/result';
+import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Socket } from 'socket.io-client';
@@ -13,7 +16,9 @@ describe('WebSocketService', () => {
 
     beforeEach(() => {
         mockSocket = jasmine.createSpyObj('Socket', ['emit', 'on']);
-        TestBed.configureTestingModule({});
+        TestBed.configureTestingModule({
+            providers: [],
+        });
         service = TestBed.inject(WebSocketService);
 
         service['createSocket'] = () => mockSocket;
@@ -186,4 +191,105 @@ describe('WebSocketService', () => {
         const result = await service.getChoice();
         expect(result).toEqual(expectedChoices);
     });
+
+    it('should emit game:next event when nextQuestion is called', () => {
+        service.nextQuestion();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:next');
+    });
+
+    it('should emit game:results event when showResults is called', () => {
+        service.showResults();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:results');
+    });
+
+    it('getMessages should resolve with an array of messages', fakeAsync(() => {
+        const mockMessages: Message[] = [
+            { name: 'test1', message: 'Hello', timestamp: 1 },
+            { name: 'test2', message: 'Hi there', timestamp: 1 },
+        ];
+        mockSocket.emit.and.callFake((event: string, callback: Function) => {
+            if (event === 'messages:get') {
+                callback(mockMessages);
+            }
+            return mockSocket;
+        });
+
+        service.getMessages().then((messages) => {
+            expect(messages).toEqual(mockMessages);
+        });
+
+        tick();
+    }));
+
+    it('getScore should resolve with a score object', fakeAsync(() => {
+        const mockScore: Score = {
+            score: 100,
+            bonus: false,
+        };
+        mockSocket.emit.and.callFake((event: string, callback: Function) => {
+            if (event === 'game:score') {
+                callback(mockScore);
+            }
+            return mockSocket;
+        });
+        service.getScore().then((score) => {
+            expect(score).toEqual(mockScore);
+        });
+        tick();
+    }));
+
+    it('joinRoom should resolve with the expected result', fakeAsync(() => {
+        const gameCode = 'game123';
+        const username = 'John Doe';
+        const mockResult: Result<GameState> = {
+            ok: true,
+            value: GameState.Wait,
+        };
+        mockSocket.emit.and.callFake((event: string, payload: PayloadJoinGame, callback: Function) => {
+            if (event === 'game:join' && payload.gameCode === gameCode && payload.username === username) {
+                callback(mockResult);
+            }
+            return mockSocket;
+        });
+        service.joinRoom(gameCode, username).then((result) => {
+            expect(result).toEqual(mockResult);
+        });
+        tick();
+    }));
+
+    it('rejoinRoom should resolve with the expected result', fakeAsync(() => {
+        const mockUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        const mockGameStatePayload: GameStatePayload = {
+            state: GameState.Wait,
+            payload: 'room123',
+        };
+        const mockResult: Result<GameStatePayload> = {
+            ok: true,
+            value: mockGameStatePayload,
+        };
+        mockSocket.emit.and.callFake((event: string, user: User, callback: Function) => {
+            if (event === 'game:rejoin' && user.userId === mockUser.userId) {
+                callback(mockResult);
+            }
+            return mockSocket;
+        });
+        service.rejoinRoom(mockUser).then((result) => {
+            expect(result).toEqual(mockResult);
+        });
+        tick();
+    }));
+
+    it('getUsers should resolve with an array of user IDs', fakeAsync(() => {
+        const mockUsers: string[] = ['user1', 'user2', 'user3'];
+        mockSocket.emit.and.callFake((event: string, callback: Function) => {
+            if (event === 'game:users') {
+                callback(mockUsers);
+            }
+            return mockSocket;
+        });
+        service.getUsers().then((users) => {
+            expect(users).toEqual(mockUsers);
+        });
+        tick();
+    }));
 });
