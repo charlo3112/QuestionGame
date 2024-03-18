@@ -3,8 +3,10 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { Choice, ChoiceWithCounter } from '@common/interfaces/choice';
+import { GameService } from '@app/services/game.service';
+import { Choice } from '@common/interfaces/choice';
 import { Question } from '@common/interfaces/question';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-histogram',
@@ -14,43 +16,73 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
 })
 export class HistogramComponent {
-    @Input() listQuestions: Question[];
     @Input() showArrows: boolean = true;
-    questionDisplayed: number = 0;
+    listQuestions: Question[];
+    indexQuestionDisplayed: number = 0;
+    questionsCounters: number[][];
+    private stateSubscription: Subscription;
 
-    isChoiceWithCounter(choice: Choice): choice is ChoiceWithCounter {
-        return (choice as ChoiceWithCounter).counter !== undefined;
+    constructor(public gameService: GameService) {
+        this.subscribeToQuestionUpdates();
+    }
+
+    subscribeToQuestionUpdates() {
+        this.stateSubscription = this.gameService.stateSubscribe().subscribe({
+            next: () => {
+                const currentQuestion = this.gameService.currentQuestion;
+                if (currentQuestion && !this.questionExists(currentQuestion)) {
+                    this.listQuestions.push(currentQuestion);
+                    this.indexQuestionDisplayed = this.listQuestions.length - 1;
+                }
+            },
+        });
+    }
+
+    questionExists(question: Question): boolean {
+        return this.listQuestions.some((q) => q.text === question.text);
+    }
+
+    ngOnDestroy() {
+        if (this.stateSubscription) {
+            this.stateSubscription.unsubscribe();
+        }
     }
 
     previousQuestion() {
-        if (this.questionDisplayed !== 0) {
-            this.questionDisplayed--;
+        if (this.indexQuestionDisplayed !== 0) {
+            this.indexQuestionDisplayed--;
         } else {
-            this.questionDisplayed = this.listQuestions.length - 1;
+            this.indexQuestionDisplayed = this.listQuestions.length - 1;
         }
     }
 
     nextQuestion() {
-        if (this.questionDisplayed !== this.listQuestions.length - 1) {
-            this.questionDisplayed++;
+        if (this.indexQuestionDisplayed !== this.listQuestions.length - 1) {
+            this.indexQuestionDisplayed++;
         } else {
-            this.questionDisplayed = 0;
+            this.indexQuestionDisplayed = 0;
         }
     }
 
     getMaxCounter(): number {
-        const question = this.listQuestions[this.questionDisplayed];
-        const counters: number[] = [];
-        for (const choice of question.choices) {
-            if (this.isChoiceWithCounter(choice)) {
-                counters.push(choice.counter);
+        let max = 0;
+        for (let i = 0; i < this.listQuestions[this.indexQuestionDisplayed].choices.length; i++) {
+            if (this.questionsCounters[this.indexQuestionDisplayed][i] > max) {
+                max = this.questionsCounters[this.indexQuestionDisplayed][i];
             }
         }
+        return max;
+    }
 
-        if (counters.length > 0) {
-            return Math.max(...counters);
-        } else {
-            return 0;
-        }
+    getChoiceIndex(choice: Choice): number {
+        return this.listQuestions[this.indexQuestionDisplayed].choices.indexOf(choice);
+    }
+
+    setDisplayedQuestionCounters(tab: number[]) {
+        this.questionsCounters[this.indexQuestionDisplayed] = tab;
+    }
+
+    getCounter(choice: Choice): number {
+        return this.questionsCounters[this.indexQuestionDisplayed][this.getChoiceIndex(choice)];
     }
 }

@@ -119,6 +119,18 @@ export class ActiveGame {
             return;
         }
         user.newChoice = choice;
+        this.sendUserSelectedChoice();
+    }
+
+    sendUserSelectedChoice() {
+        let questionCounter: number[] = [0, 0, 0, 0];
+        this.users.forEach((user) => {
+            for (let i = 0; i < 4; i++) {
+                if (user.userChoice[i]) {
+                    questionCounter[i]++;
+                }
+            }
+        });
     }
 
     validateChoice(userId: string) {
