@@ -169,6 +169,10 @@ export class ActiveGame {
         return user.isHost();
     }
 
+    showResults() {
+        // TODO
+    }
+
     update(userId: string, user: UserData) {
         this.users.delete(userId);
         this.activeUsers.delete(userId);

@@ -51,6 +51,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
         this.gameService.nextQuestion();
     }
 
+    showResults(): void {
+        this.gameService.showResults();
+    }
+
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
         this.gameService.timerSubscribe().subscribe((time: number) => {

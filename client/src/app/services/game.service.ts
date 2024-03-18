@@ -225,6 +225,10 @@ export class GameService implements OnDestroy {
         this.websocketService.nextQuestion();
     }
 
+    showResults() {
+        this.websocketService.showResults();
+    }
+
     timerSubscribe(): Observable<number> {
         return this.websocketService.getTime();
     }
