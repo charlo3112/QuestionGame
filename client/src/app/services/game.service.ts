@@ -334,7 +334,7 @@ export class GameService implements OnDestroy {
             this.askQuestion();
         }
 
-        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
+        if (this.state === GameState.ShowResults) {
             this.question = state.payload as Question;
         }
 
