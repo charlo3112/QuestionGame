@@ -85,6 +85,48 @@ describe('RoomManagementService', () => {
         expect(joinResult.ok).toBeFalsy();
     });
 
+    it('getScore() should return 0 if the user is not in a game', () => {
+        const scoreResult = service.getScore('user3');
+        expect(scoreResult.score).toBe(0);
+    });
+
+    it('getScore() should return the users score', () => {
+        const game = getFakeGame();
+        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        service.joinRoom('user2', hostUser.roomId, 'Guest');
+        const scoreResult = service.getScore('user2');
+        expect(scoreResult.score).toBe(0);
+    });
+
+    it('getChoice() should return the users selected choices', () => {
+        const game = getFakeGame();
+        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        service.joinRoom('user2', hostUser.roomId, 'Guest');
+        const choiceResult = service.getChoice('user2');
+        expect(choiceResult[0]).toBeFalsy();
+    });
+
+    it('getChoice() should always return false if the users is not in a game', () => {
+        const choiceResult = service.getChoice('user2');
+        expect(choiceResult[2]).toBeFalsy();
+    });
+
+    it('validateChoice() should return undefined if the game does not exists', () => {
+        expect(service.validateChoice('user1')).toBeUndefined();
+    });
+
+    it('isValidate() should return false if the game does not exists', () => {
+        expect(service.isValidate('user1')).toBeFalsy();
+    });
+
+    it('isValidate() should return true if the player validates his choice', () => {
+        const game = getFakeGame();
+        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        service.joinRoom('user2', hostUser.roomId, 'Guest');
+        service.validateChoice('user2');
+        expect(service.isValidate('user2')).toBeTruthy();
+    });
+
     it('should not allow a user to join a locked room', () => {
         const game = getFakeGame();
         const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
