@@ -165,9 +165,7 @@ export class RoomManagementService {
             return { ok: false, error: 'Reconnection impossible' };
         }
 
-        if (user.name === HOST_NAME) {
-            this.updateUsersStat(newUserId, activeGame.usersStat);
-        }
+        this.updateUsersStat(newUserId, activeGame.usersStat);
 
         this.roomMembers.delete(user.userId);
         this.roomMembers.set(newUserId, user.roomId);
