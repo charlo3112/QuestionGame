@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -36,7 +36,7 @@ import { Question } from '@common/interfaces/question';
         RouterModule,
     ],
 })
-export class GamePageComponent implements OnInit {
+export class GamePageComponent implements OnInit, OnDestroy {
     countdownReachedZeroCount: number = 0;
     showButton: boolean = false;
     buttonText: string = 'Prochaine Question';
@@ -45,18 +45,42 @@ export class GamePageComponent implements OnInit {
         return this.gameService.currentQuestion;
     }
 
+    saveGameState(countdownReachedZeroCount: number, showButton: boolean, buttonText: string): void {
+        localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ countdownReachedZeroCount, showButton, buttonText }));
+    }
+
+    getGameState(): { countdownReachedZeroCount: number; showButton: boolean; buttonText: string } | null {
+        const gameStateData = localStorage.getItem(this.gameService.roomCodeValue);
+        return gameStateData ? JSON.parse(gameStateData) : null;
+    }
+
+    ngOnDestroy(): void {
+        this.saveGameState(this.countdownReachedZeroCount, this.showButton, this.buttonText);
+    }
+
     isStartingGame(): boolean {
         return this.gameService.currentState === GameState.Starting;
     }
 
     nextStep(): void {
         if (this.buttonText === 'Résultats') {
+            localStorage.clear();
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') this.gameService.nextQuestion();
     }
 
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
+        const gameData = this.getGameState();
+        if (gameData === null) {
+            this.countdownReachedZeroCount = 0;
+            this.showButton = false;
+            this.buttonText = 'Prochaine Question';
+        } else {
+            this.countdownReachedZeroCount = gameData.countdownReachedZeroCount;
+            this.showButton = gameData.showButton;
+            this.buttonText = gameData.buttonText;
+        }
         this.gameService.timerSubscribe().subscribe((time: number) => {
             if (time === 0) {
                 this.countdownReachedZero();
