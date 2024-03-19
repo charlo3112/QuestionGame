@@ -84,10 +84,12 @@ export class RoomManagementService {
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
+        updateUsersStat: (roomId: string, userStat: UserStat[]) => void,
+        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
     ): User {
         const roomId = 'test' + this.generateRoomId();
         const noHost: UserData = new UserData(userId, roomId, '');
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, updateUsersStat, updateHistogramData);
         newActiveGame.addUser(noHost);
 
         this.gameState.set(roomId, newActiveGame);

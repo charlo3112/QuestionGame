@@ -77,7 +77,7 @@ describe('LoadingPageComponent', () => {
 
     it('should start game on button click', () => {
         component.onStartGame();
-        expect(mockWebSocketService.launchGame.calls.any()).toBeTrue();
+        expect(mockWebSocketService.hostConfirm.calls.any()).toBeTrue();
     });
 
     it('should call getTime from timeService', () => {

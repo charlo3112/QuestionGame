@@ -60,6 +60,8 @@ export class GameGateway implements OnGatewayDisconnect {
             this.handleStateUpdate.bind(this),
             this.handleTimeUpdate.bind(this),
             this.handleScoreUpdate.bind(this),
+            this.handleUsersStatUpdate.bind(this),
+            this.handleHistogramDataUpdate.bind(this),
         );
         client.join(user.roomId);
         const activeGame = this.roomService.getActiveGame(client.id);
