@@ -118,13 +118,17 @@ describe('WebSocketService', () => {
     });
 
     it('getState should return an observable and subscribe message', () => {
-        const testState = GameState.Wait;
-
-        service.getState().subscribe((state: GameStatePayload) => {
-            expect(state.state).toEqual(testState);
+        mockSocket.on.and.callFake((eventName, callback) => {
+            if (eventName === 'game:state') {
+                const statePayload = { state: GameState.Wait };
+                callback(statePayload);
+            }
+            return mockSocket;
         });
 
-        mockSocket.on.calls.argsFor(1)[1](testState);
+        service.getState().subscribe((state: GameStatePayload) => {
+            expect(state.state).toEqual(GameState.Wait);
+        });
     });
 
     it('getUserUpdate should return an observable and subscribe message', () => {

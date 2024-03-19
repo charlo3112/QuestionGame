@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { GAME_PLACEHOLDER } from '@common/interfaces/game';
@@ -12,9 +13,6 @@ import { GameService } from './game.service';
 import { TimeService } from './time.service';
 import { WebSocketService } from './websocket.service';
 import SpyObj = jasmine.SpyObj;
-
-const timeConfirmMs = 3000;
-const timeQuestionMs = 60000;
 
 class TimeServiceStub {
     get time(): number {
@@ -38,6 +36,7 @@ describe('Game', () => {
     };
     let snackBarSpy: SpyObj<MatSnackBar>;
     let webSocketSpy: SpyObj<WebSocketService>;
+    let mockQuestion: Question;
 
     beforeEach(() => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
@@ -56,6 +55,10 @@ describe('Game', () => {
             'getState',
             'getClosedConnection',
             'getScoreUpdate',
+            'isValidate',
+            'getChoice',
+            'banUser',
+            'leaveRoom',
         ]);
 
         webSocketSpy.getState.and.returnValue(of({ state: GameState.Wait }));
@@ -63,8 +66,12 @@ describe('Game', () => {
         webSocketSpy.getUserUpdate.and.returnValue(of({ username: 'test', isConnected: true }));
         webSocketSpy.getUsersStat.and.returnValue(of([]));
         webSocketSpy.getClosedConnection.and.returnValue(of('Connection closed'));
+        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.Wait, payload: undefined } }));
+        webSocketSpy.getScore.and.returnValue(Promise.resolve({ score: 0, bonus: false }));
         const mockScoreUpdate: Score = { score: 0, bonus: false };
         webSocketSpy.getScoreUpdate.and.returnValue(of(mockScoreUpdate));
+        webSocketSpy.getUsers.and.returnValue(Promise.resolve(['user1', 'user2', 'user3']));
+
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
             providers: [
@@ -76,6 +83,22 @@ describe('Game', () => {
             ],
         });
         service = TestBed.inject(GameService);
+        const mockUser = { name: 'John Doe', roomId: '2222', userId: 'user123' };
+        sessionStorage.setItem('user', JSON.stringify(mockUser));
+        mockQuestion = {
+            text: 'Quelle est la capitale de la France ?',
+            choices: [
+                { text: 'Paris', isCorrect: true },
+                { text: 'Lyon', isCorrect: false },
+                { text: 'Marseille', isCorrect: false },
+            ],
+            type: QuestionType.QCM,
+            points: 1,
+        };
+    });
+
+    afterEach(() => {
+        sessionStorage.clear();
     });
 
     it('should be created', () => {
@@ -177,42 +200,10 @@ describe('Game', () => {
     });
 
     it('should confirm a question', () => {
-        spyOn(timeService, 'setTimeout');
+        service['state'] = GameState.WaitingResults;
         service.confirmQuestion();
-        expect(timeService.setTimeout).toHaveBeenCalled();
+        expect(webSocketSpy.validateChoice).toHaveBeenCalled();
     });
-
-    // Fonctionne pas
-    it('should advance state after confirming question', fakeAsync(() => {
-        // Necessary to avoid going through the game.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        spyOn<any>(service, 'askQuestion');
-        service.confirmQuestion();
-        tick(timeConfirmMs + 1);
-        expect(service['askQuestion']).toHaveBeenCalled();
-    }));
-
-    // Fonctionne pas
-    it('should advance when question elapsed', fakeAsync(() => {
-        spyOn(service, 'confirmQuestion');
-        service['askQuestion']();
-        service.selectChoice(0);
-        service.selectChoice(1);
-        tick(timeQuestionMs + 1);
-        expect(service.confirmQuestion).toHaveBeenCalled();
-    }));
-
-    // Fonctionne pas
-    it('should advance when question confirmed', fakeAsync(() => {
-        service.selectChoice(0);
-        service.selectChoice(1);
-        service.confirmQuestion();
-        // Necessary to avoid going through the game.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        spyOn<any>(service, 'askQuestion');
-        tick(timeConfirmMs + 1);
-        expect(service['askQuestion']).toHaveBeenCalled();
-    }));
 
     it('should return the same time as timeService', () => {
         expect(service.time).toEqual(30);
@@ -224,5 +215,149 @@ describe('Game', () => {
 
     it('should return the max time (20) of the game', () => {
         expect(service.maxTime).toEqual(20);
+    });
+
+    it('should return the current game title', () => {
+        const expectedTitle = 'Titre du Jeu Test';
+        service['title'] = expectedTitle;
+        expect(service.gameTitle).toEqual(expectedTitle);
+    });
+
+    it('should return the current room code value', () => {
+        const expectedRoomCode = '2323';
+        service['roomCode'] = expectedRoomCode;
+        expect(service.roomCodeValue).toEqual(expectedRoomCode);
+    });
+
+    it('should return true if the username is HOST_NAME', () => {
+        service['username'] = HOST_NAME;
+        expect(service.isHost).toBeTruthy();
+    });
+
+    it('should return false if the username is not HOST_NAME', () => {
+        service['username'] = 'guest';
+        expect(service.isHost).toBeFalsy();
+    });
+
+    it('should return the list of players', () => {
+        const players = new Set<string>(['player1', 'player2', 'player3']);
+        service['players'] = players;
+        expect(service.playersList).toEqual(players);
+    });
+
+    it('should navigate to root if no user data is found in sessionStorage', fakeAsync(() => {
+        spyOn(sessionStorage, 'getItem').and.returnValue(null);
+        service.init();
+        tick();
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+    }));
+
+    it('should navigate to root and show snackBar if rejoinRoom fails', fakeAsync(() => {
+        const mockUser = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(mockUser));
+        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: false, error: 'Error joining room' }));
+        service.init();
+        tick();
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+        expect(snackBarSpy.open).toHaveBeenCalledWith('Error joining room', undefined, { duration: SNACKBAR_DURATION });
+    }));
+
+    it('should set username based on user data from sessionStorage', async () => {
+        await service.init();
+        expect(service.usernameValue).toEqual('John Doe');
+    });
+
+    it('should change state to waiting result in init', async () => {
+        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.AskingQuestion, payload: undefined } }));
+        webSocketSpy.isValidate.and.returnValue(Promise.resolve(true));
+        await service.init();
+        expect(service.currentState).toEqual(GameState.WaitingResults);
+    });
+
+    it('should remove player from players list and call banUser on websocketService', () => {
+        const player = 'playerName';
+        service['players'] = new Set(['player1', player, 'player3']);
+        service.onKickPlayer(player);
+        expect(service['players'].has(player)).toBeFalse();
+        expect(webSocketSpy.banUser).toHaveBeenCalled();
+    });
+
+    it('should call leaveRoom, remove user from sessionStorage, and call reset when state is not Starting', () => {
+        service['state'] = GameState.AskingQuestion;
+        spyOn(sessionStorage, 'removeItem');
+        spyOn(service, 'reset');
+        service.leaveRoom();
+        expect(webSocketSpy.leaveRoom).toHaveBeenCalled();
+        expect(sessionStorage.removeItem).toHaveBeenCalledWith('user');
+        expect(service.reset).toHaveBeenCalled();
+    });
+
+    it('should return false when question is undefined', () => {
+        service['state'] = GameState.ShowResults;
+        service['question'] = undefined;
+        const result = service.isChoiceCorrect(0);
+        expect(result).toBeFalse();
+    });
+
+    it('should set the state to WaintingResults', () => {
+        service['state'] = GameState.AskingQuestion;
+        service.confirmQuestion();
+        expect(service.currentState).toEqual(GameState.WaitingResults);
+    });
+
+    it('should call the nextQuestion function in webSocketService', () => {
+        service.nextQuestion();
+        expect(webSocketSpy.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should call the showResult function in webSocketService', () => {
+        service.showResults();
+        expect(webSocketSpy.showResults).toHaveBeenCalled();
+    });
+
+    it('timerSubscribe should return the time Observable', (done: DoneFn) => {
+        service.timerSubscribe().subscribe((time) => {
+            expect(time).toEqual(30);
+            done();
+        });
+    });
+
+    it('should return false when no question is set', () => {
+        expect(service['isResponseGood']()).toBeFalsy();
+    });
+
+    it('should return true when the selected choices are correct', () => {
+        service['question'] = mockQuestion;
+        service['choicesSelected'] = [true, false, false];
+        expect(service['isResponseGood']()).toBeTruthy();
+    });
+
+    it('should return false when the selected choices are incorrect', () => {
+        service['question'] = mockQuestion;
+        service['choicesSelected'] = [false, true, false];
+        expect(service['isResponseGood']()).toBeFalsy();
+    });
+
+    it('should navigate to /results if state is GameOver', () => {
+        service['setState']({ state: GameState.GameOver });
+        expect(mockRouter.navigate).toHaveBeenCalledWith(['/results']);
+    });
+
+    it('should assign question when state is AskingQuestion with payload', () => {
+        const mockQuestion: Question = {
+            text: 'Sample question?',
+            choices: [{ text: 'Answer 1', isCorrect: false }],
+            type: QuestionType.QCM,
+            points: 5,
+        };
+        service['setState']({ state: GameState.AskingQuestion, payload: mockQuestion });
+        expect(service['question']).toEqual(mockQuestion);
+        expect(service['choicesSelected']).toEqual([false, false, false, false]);
+    });
+
+    it('should update title when state is Starting', () => {
+        const title = 'New Game Title';
+        service['setState']({ state: GameState.Starting, payload: title });
+        expect(service['title']).toEqual(title);
     });
 });
