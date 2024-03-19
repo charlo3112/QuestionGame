@@ -185,6 +185,7 @@ export class ActiveGame {
         if (this.state === GameState.Wait) {
             this.users.delete(userId);
         }
+        this.updateUsersStat(this.hostId, this.usersStat);
     }
 
     isBanned(name: string) {
