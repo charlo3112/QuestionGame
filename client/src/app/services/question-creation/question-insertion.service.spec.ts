@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Choice } from '@app/classes/choice';
-import { Question } from '@app/interfaces/question';
-import { MIN_NB_OF_POINTS, QuestionType } from '@common/constants';
+import { MIN_NB_OF_POINTS } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Question } from '@common/interfaces/question';
 import { QuestionInsertionService } from './question-insertion.service';
 
 describe('QuestionInsertionService', () => {
@@ -20,7 +20,10 @@ describe('QuestionInsertionService', () => {
         mockValidQuestion = {
             text: 'Quelle est la capitale du Canada ?',
             points: MIN_NB_OF_POINTS,
-            choices: [new Choice('Ottawa', true), new Choice('Montreal', false)],
+            choices: [
+                { text: 'Ottawa', isCorrect: true },
+                { text: 'Montreal', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
     });
@@ -64,7 +67,10 @@ describe('QuestionInsertionService', () => {
         const question: Question = {
             text: 'Quelle est la capitale du Canada ?',
             points: 0,
-            choices: [new Choice('Ottawa', true), new Choice('Montreal', false)],
+            choices: [
+                { text: 'Ottawa', isCorrect: true },
+                { text: 'Montreal', isCorrect: false },
+            ],
             type: QuestionType.QCM,
         };
         const questions: Question[] = [];

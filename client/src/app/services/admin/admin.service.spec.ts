@@ -1,8 +1,10 @@
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { Choice } from '@common/interfaces/choice';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
 import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;
 
@@ -37,11 +39,11 @@ describe('AdminService', () => {
             title: GAME_PLACEHOLDER.title,
             description: GAME_PLACEHOLDER.description,
             duration: GAME_PLACEHOLDER.duration,
-            questions: GAME_PLACEHOLDER.questions.map((question) => ({
+            questions: GAME_PLACEHOLDER.questions.map((question: Question) => ({
                 type: question.type,
                 text: question.text,
                 points: question.points,
-                choices: question.choices?.map((choice) => ({
+                choices: question.choices?.map((choice: Choice) => ({
                     text: choice.text,
                     isCorrect: choice.isCorrect,
                 })),

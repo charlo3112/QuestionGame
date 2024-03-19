@@ -6,6 +6,7 @@ import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { USERS } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Socket } from 'socket.io-client';
 import { WebSocketService } from './websocket.service';
@@ -23,6 +24,7 @@ describe('WebSocketService', () => {
 
         service['createSocket'] = () => mockSocket;
         service['connect']();
+        service['socket'] = mockSocket;
     });
 
     it('should be created', () => {
@@ -86,7 +88,7 @@ describe('WebSocketService', () => {
 
     it('launchGame should emit the correct payload', () => {
         service.hostConfirm();
-        expect(mockSocket.emit).toHaveBeenCalledWith('game:launch');
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:confirm');
     });
 
     it('leaveRoom should emit the correct payload', () => {
@@ -165,23 +167,6 @@ describe('WebSocketService', () => {
         service.validateChoice();
         expect(mockSocket.emit).toHaveBeenCalledWith('game:validate');
     });
-    /*
-    it('should emit game:isValidate event and resolve with a boolean value', fakeAsync(() => {
-        const expectedValidation = true;
-        mockSocket.emit.and.callFake((eventName: string, ...args: unknown[]) => {
-            const callback = args.find((arg) => typeof arg === 'function');
-            if (callback) {
-                callback(expectedValidation);
-            }
-            return mockSocket;
-        });
-
-        service.isValidate().then((isValidate) => {
-            expect(isValidate).toBe(expectedValidation);
-        });
-
-        tick();
-    }));*/
 
     it('should emit game:getChoice event and resolve with a boolean array', async () => {
         const expectedChoices = [true, false, true];
@@ -196,9 +181,9 @@ describe('WebSocketService', () => {
         expect(result).toEqual(expectedChoices);
     });
 
-    it('should emit game:hostConfirm event when nextQuestion is called', () => {
+    it('should emit game:confirm event when nextQuestion is called', () => {
         service.hostConfirm();
-        expect(mockSocket.emit).toHaveBeenCalledWith('game:hostConfirm');
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:confirm');
     });
 
     it('should emit game:results event when showResults is called', () => {
@@ -311,5 +296,91 @@ describe('WebSocketService', () => {
             expect(time).toEqual(mockTime);
         });
         mockSocket.on.calls.mostRecent().args[1](mockTime);
+    });
+
+    it('should resolve isValidate with true', fakeAsync(() => {
+        const expectedResult = true;
+        mockSocket.emit.and.callFake((eventName: string, ...args: any[]) => {
+            const callback = args.find((arg) => typeof arg === 'function');
+            if (eventName === 'game:isValidate' && callback) {
+                callback(expectedResult);
+            }
+            return mockSocket;
+        });
+        let result: boolean | undefined;
+        service.isValidate().then((res) => (result = res));
+        tick();
+        expect(result).toBe(expectedResult);
+    }));
+
+    it('should call testGame and resolve with a User object', async () => {
+        const gameId = 'someGameId';
+        const expectedUser: User = { name: 'Test User', roomId: 'someRoomId', userId: 'someUserId' };
+        mockSocket.emit.and.callFake((event, id, callback) => {
+            if (event === 'game:test' && id === gameId) {
+                callback(expectedUser);
+            }
+            return mockSocket;
+        });
+        const result = await service.testGame(gameId);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:test', gameId, jasmine.any(Function));
+        expect(result).toEqual(expectedUser);
+    });
+
+    it('should update usersStatSubject when game:users-stat event is received', () => {
+        const expectedUsersStat = USERS;
+        mockSocket.on.and.callFake((event, callback) => {
+            if (event === 'game:users-stat') {
+                callback(USERS);
+            }
+            return mockSocket;
+        });
+        service['listenForUsersStat']();
+        service.getUsersStat().subscribe((data) => {
+            expect(data).toEqual(expectedUsersStat);
+        });
+    });
+    it('should update scoreSubject when game:score event is received', () => {
+        const expectedScore = { score: 120, bonus: true };
+        mockSocket.on.and.callFake((event, callback) => {
+            if (event === 'game:score') {
+                callback(expectedScore);
+            }
+            return mockSocket;
+        });
+        service['listenForScoreUpdate']();
+        service.getScoreUpdate().subscribe((data) => {
+            expect(data).toEqual(expectedScore);
+        });
+    });
+    it('should update stateSubject when game:state event is received', () => {
+        const expectedState: GameStatePayload = { state: GameState.AskingQuestion, payload: undefined }; // Assurez-vous que cela correspond à la définition de GameStatePayload
+        mockSocket.on.and.callFake((event, callback) => {
+            if (event === 'game:state') {
+                callback(expectedState);
+            }
+            return mockSocket;
+        });
+
+        service['listenForState']();
+
+        service.getState().subscribe((data) => {
+            expect(data).toEqual(expectedState);
+        });
+    });
+    it('should update timeSubject when game:time event is received', () => {
+        const expectedTime = 30;
+        mockSocket.on.and.callFake((event, callback) => {
+            if (event === 'game:time') {
+                callback(expectedTime);
+            }
+            return mockSocket;
+        });
+
+        service['listenForTimeUpdate']();
+
+        service.getTime().subscribe((data) => {
+            expect(data).toEqual(expectedTime);
+        });
     });
 });

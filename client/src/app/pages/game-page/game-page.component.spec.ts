@@ -31,12 +31,18 @@ describe('GamePageComponent', () => {
                 'nextQuestion',
                 'showResults',
                 'stateSubscribe',
+                'roomCodeValue',
+                'showFinalResults',
+                'nextQuestion',
             ],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
                 currentState: GameState.Starting,
+                roomCodeValue: 'someRoomCode',
             },
         );
+        mockGameService.init.and.returnValue(Promise.resolve());
+
         mockGameService.timerSubscribe.and.returnValue(of(0));
         mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.Starting, payload: undefined }));
         mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -83,26 +89,6 @@ describe('GamePageComponent', () => {
         expect(component.isStartingGame()).toBeTrue();
     });
 
-    /*
-    it('should change question when nextQuestion is called', () => {
-        component.nextQuestion();
-        expect(mockGameService.nextQuestion).toHaveBeenCalled();
-    });
-
-    it('should set showButton to true after countdownReachedZero is called three times', () => {
-        component.countdownReachedZero();
-        component.countdownReachedZero();
-        component.countdownReachedZero();
-
-        expect(component.showButton).toBeTrue();
-    });
-
-    it('should call gameService.showResults when showResults is called', () => {
-        component.showResults();
-        expect(mockGameService.showResults).toHaveBeenCalled();
-    });
-    */
-
     it('should navigate to /new when openAbandonDialog is called with true result', () => {
         spyOn(router, 'navigate');
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
@@ -110,5 +96,34 @@ describe('GamePageComponent', () => {
         mockMatDialog.open.and.returnValue(dialogRefSpy);
         component.openAbandonDialog();
         expect(router.navigate).toHaveBeenCalledWith(['/new']);
+    });
+
+    it('should save game data to localStorage', () => {
+        const testButtonText = 'Test Button Text';
+        spyOn(localStorage, 'setItem');
+        component.saveGameData(testButtonText);
+        expect(localStorage.setItem).toHaveBeenCalledWith('someRoomCode', JSON.stringify({ buttonText: testButtonText }));
+    });
+
+    it('should call showFinalResults and clear localStorage when buttonText is "Résultats"', () => {
+        spyOn(localStorage, 'clear');
+        component.buttonText = 'Résultats';
+        component.nextStep();
+        expect(mockGameService.showFinalResults).toHaveBeenCalled();
+        expect(localStorage.clear).toHaveBeenCalled();
+    });
+
+    it('should call nextQuestion when buttonText is "Prochaine Question"', () => {
+        component.buttonText = 'Prochaine Question';
+        component.nextStep();
+        expect(mockGameService.nextQuestion).toHaveBeenCalled();
+    });
+
+    it('should set buttonText to value from localStorage', async () => {
+        mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
+        const buttonText = 'Résultats';
+        spyOn(component, 'getGameData').and.returnValue({ buttonText });
+        await component.ngOnInit();
+        expect(component.buttonText).toEqual(buttonText);
     });
 });

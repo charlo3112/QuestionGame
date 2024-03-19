@@ -1,10 +1,11 @@
 import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Choice } from '@app/classes/choice';
-import { Question, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
-import { QuestionType, RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
+import { RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { of, throwError } from 'rxjs';
 import { CreateQuestionService } from './create-question.service';
 import SpyObj = jasmine.SpyObj;

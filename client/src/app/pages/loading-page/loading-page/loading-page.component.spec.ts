@@ -18,7 +18,7 @@ describe('LoadingPageComponent', () => {
     let router: Router;
 
     beforeEach(async () => {
-        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['toggleClosed', 'launchGame', 'getMessage', 'getMessages']);
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['toggleClosed', 'launchGame', 'getMessage', 'getMessages', 'hostConfirm']);
         mockWebSocketService.getMessage.and.returnValue(
             of({
                 name: 'Test',
