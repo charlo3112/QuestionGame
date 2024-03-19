@@ -4,6 +4,7 @@ import { GameData } from '@app/model/database/game';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
@@ -19,7 +20,6 @@ export class RoomManagementService {
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
-    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
 
     constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
@@ -28,10 +28,6 @@ export class RoomManagementService {
 
     setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
         this.disconnectUser = disconnectUser;
-    }
-
-    setUsersStatUpdate(updateUsersStat: (userId: string, usersStat: UserStat[]) => void) {
-        this.updateUsersStat = updateUsersStat;
     }
 
     setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
@@ -61,10 +57,12 @@ export class RoomManagementService {
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
+        updateUsersStat: (roomId: string, userStat: UserStat[]) => void,
+        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
     ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, updateUsersStat, updateHistogramData);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -97,8 +95,8 @@ export class RoomManagementService {
         return game.isValidate(userId);
     }
 
-    showResults(userId: string) {
-        this.getActiveGame(userId).showResults();
+    showFinalResults(userId: string) {
+        this.getActiveGame(userId).showFinalResults();
     }
 
     getChoice(userId: string): boolean[] {
@@ -163,10 +161,6 @@ export class RoomManagementService {
             !activeGame.canRejoin(user.userId)
         ) {
             return { ok: false, error: 'Reconnection impossible' };
-        }
-
-        if (user.name === HOST_NAME) {
-            this.updateUsersStat(newUserId, activeGame.usersStat);
         }
 
         this.roomMembers.delete(user.userId);

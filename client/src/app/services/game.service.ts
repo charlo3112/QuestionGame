@@ -5,6 +5,7 @@ import { WebSocketService } from '@app/services/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
@@ -30,6 +31,8 @@ export class GameService implements OnDestroy {
     private players: Set<string> = new Set();
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
+    private histogramDataSubscription: Subscription;
+    private histogramData: HistogramData;
     private usersStat: UserStat[] = [];
 
     constructor(
@@ -43,8 +46,9 @@ export class GameService implements OnDestroy {
         this.subscribeToScoreUpdate();
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
+        this.subscribeToHistogramData();
 
-        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading') {
+        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
             this.websocketService.leaveRoom();
         }
     }
@@ -81,6 +85,10 @@ export class GameService implements OnDestroy {
     get message(): string | undefined {
         if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
         return 'Vous avez un bonus!';
+    }
+
+    get histogram(): HistogramData {
+        return this.histogramData;
     }
 
     get usernameValue(): string {
@@ -158,6 +166,10 @@ export class GameService implements OnDestroy {
         if (this.usersStatSubscription) {
             this.usersStatSubscription.unsubscribe();
         }
+
+        if (this.histogramDataSubscription) {
+            this.histogramDataSubscription.unsubscribe();
+        }
     }
 
     onKickPlayer(player: string) {
@@ -185,7 +197,7 @@ export class GameService implements OnDestroy {
     }
 
     isChoiceCorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults) {
+        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
         }
         if (this.question === undefined) {
@@ -196,7 +208,7 @@ export class GameService implements OnDestroy {
     }
 
     isChoiceIncorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults) {
+        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
         }
         if (this.question === undefined) {
@@ -225,12 +237,16 @@ export class GameService implements OnDestroy {
         this.websocketService.nextQuestion();
     }
 
-    showResults() {
-        this.websocketService.showResults();
+    showFinalResults() {
+        this.websocketService.showFinalResults();
     }
 
     timerSubscribe(): Observable<number> {
         return this.websocketService.getTime();
+    }
+
+    stateSubscribe(): Observable<GameStatePayload> {
+        return this.websocketService.getState();
     }
 
     private subscribeToTimeUpdate() {
@@ -239,10 +255,6 @@ export class GameService implements OnDestroy {
                 this.serverTime = time;
             },
         });
-    }
-
-    private askQuestion() {
-        // this.timeService.startTimer(this.game.duration);
     }
 
     private isResponseGood(): boolean {
@@ -263,7 +275,7 @@ export class GameService implements OnDestroy {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']);
+                this.routerService.navigate(['/']); // permet de rester en vue résultat si commentée
             },
         });
     }
@@ -305,39 +317,41 @@ export class GameService implements OnDestroy {
         });
     }
 
+    private subscribeToHistogramData() {
+        this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
+            next: (histogramData: HistogramData) => {
+                this.histogramData = histogramData;
+            },
+        });
+    }
+
     private setState(state: GameStatePayload) {
         this.state = state.state;
         if (this.state === GameState.NotStarted) {
             return;
         }
-        if (this.state === GameState.GameOver) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
-            return;
-        }
-
         if (this.state === GameState.Wait) {
             if (this.routerService.url !== '/loading') {
                 this.routerService.navigate(['/loading']);
             }
             return;
         }
-
+        if (this.state === GameState.ShowFinalResults) {
+            if (this.routerService.url !== '/results') {
+                this.routerService.navigate(['/results']);
+            }
+            return;
+        }
         if (this.state === GameState.AskingQuestion) {
             this.question = state.payload as Question;
             this.choicesSelected = [false, false, false, false];
-            this.askQuestion();
         }
-
         if (this.state === GameState.ShowResults) {
             this.question = state.payload as Question;
         }
-
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;
         }
-
         if (this.routerService.url !== '/game') {
             this.routerService.navigate(['/game']);
         }

@@ -4,6 +4,8 @@ export enum GameState {
     AskingQuestion,
     WaitingResults,
     ShowResults,
+    LastQuestion,
+    ShowFinalResults,
     GameOver,
     NotStarted,
 }

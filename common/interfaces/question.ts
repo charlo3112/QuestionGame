@@ -1,15 +1,11 @@
 import { QuestionType } from '../enums/question-type';
-import { Choice, ChoiceWithCounter } from './choice';
+import { Choice } from './choice';
 
 export interface Question {
     type: QuestionType;
     text: string;
     points: number;
     choices: Choice[];
-}
-
-export interface QuestionWithCounter extends Question {
-    choices: ChoiceWithCounter[];
 }
 
 export interface QuestionWithModificationDate extends Question {
@@ -63,29 +59,7 @@ export const QUESTIONS_PLACEHOLDER: Question[] = [
         choices: [{ text: 'Oui' }, { text: 'Non' }],
     },
 ];
-export const QUESTIONS_PLACEHOLDER_COUNTER: QuestionWithCounter[] = [
-    {
-        type: QuestionType.QCM,
-        text: "Pourquoi le jus de lichi n'est pas bon?",
-        points: 69,
-        choices: [
-            { text: 'Guillaume en boit', counter: 2, isCorrect: true },
-            { text: 'Guillaume en a apporté 2 boites', counter: 1, isCorrect: false },
-            { text: "C'est du lichi", counter: 0, isCorrect: false },
-            { text: 'Guillaume en a bu à 9h du matin', counter: 6, isCorrect: true },
-        ],
-    },
-    {
-        type: QuestionType.QCM,
-        text: 'Pourquoi le Rust est un langage supérieur pour le frontend?',
-        points: 42,
-        choices: [
-            { text: 'Les temps de compilation sont abominables', counter: 2, isCorrect: false },
-            { text: 'C.', counter: 4, isCorrect: false },
-            { text: 'Le javascript est une erreur.', counter: 5, isCorrect: true },
-        ],
-    },
-];
+
 export const EMPTY_QUESTION: Question = {
     type: QuestionType.QCM,
     text: '',
