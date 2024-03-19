@@ -9,6 +9,7 @@ import { HistogramComponent } from '@app/components/histogram/histogram.componen
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { PLAYERS, Player } from '@app/interfaces/player';
 import { GameService } from '@app/services/game.service';
+import { WebSocketService } from '@app/services/websocket.service';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -31,7 +32,10 @@ export class AdminGameViewComponent implements OnChanges {
     @Input() question: Question;
     questionForHistogram: Question[] = [];
     leaderboard: Player[];
-    constructor(readonly gameService: GameService) {}
+    constructor(
+        readonly gameService: GameService,
+        readonly websocketService: WebSocketService,
+    ) {}
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.question) {
@@ -52,6 +56,7 @@ export class AdminGameViewComponent implements OnChanges {
     }
     nextQuestion() {
         // TODO send confirmation to server to switch to the question
+        this.websocketService.hostConfirm();
     }
 
     pauseGame() {

@@ -94,8 +94,8 @@ export class WebSocketService {
         this.socket.emit('game:toggle', closed);
     }
 
-    launchGame(): void {
-        this.socket.emit('game:launch');
+    hostConfirm(): void {
+        this.socket.emit('game:confirm');
     }
 
     banUser(userId: string): void {

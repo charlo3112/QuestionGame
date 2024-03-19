@@ -80,7 +80,7 @@ describe('WebSocketService', () => {
     });
 
     it('launchGame should emit the correct payload', () => {
-        service.launchGame();
+        service.hostConfirm();
         expect(mockSocket.emit).toHaveBeenCalledWith('game:launch');
     });
 

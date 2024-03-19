@@ -141,7 +141,7 @@ describe('LoadingPageComponent', () => {
 
     it('should launch game', () => {
         component.onStartGame();
-        expect(mockWebSocketService.launchGame).toHaveBeenCalled();
+        expect(mockWebSocketService.hostConfirm).toHaveBeenCalled();
     });
 
     it('should kick player', () => {

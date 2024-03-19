@@ -223,7 +223,7 @@ export class ActiveGame {
     async advance() {
         switch (this.state) {
             case GameState.Wait:
-                if (this.isLocked) {
+                if (!this.isLocked) {
                     return null;
                 }
                 await this.launchGame();

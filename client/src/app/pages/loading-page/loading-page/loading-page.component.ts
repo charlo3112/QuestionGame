@@ -47,6 +47,6 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     }
 
     onStartGame() {
-        this.websocketService.launchGame();
+        this.websocketService.hostConfirm();
     }
 }
