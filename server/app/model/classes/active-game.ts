@@ -19,13 +19,12 @@ export class ActiveGame {
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private updateScore: (userId: string, score: Score) => void;
     private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
-    private updateChoicesCounters: (roomId: string, histogramData: HistogramData) => void;
+    private updateHistogramData: (roomId: string, histogramData: HistogramData) => void;
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
     private readyForNextQuestion: boolean = false;
     private histogramData: HistogramData;
-    private questionsCounters: number[][];
 
     // eslint-disable-next-line max-params
     constructor(
@@ -35,7 +34,7 @@ export class ActiveGame {
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
         updateUsersStat: (userId: string, usersStat: UserStat[]) => void,
-        updateChoicesCounters: (roomId: string, histogramData: HistogramData) => void,
+        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
     ) {
         this.game = game;
         this.users = new Map<string, UserData>();
@@ -48,8 +47,12 @@ export class ActiveGame {
         this.timer = new CountDownTimer(roomId, updateTime);
         this.updateScore = updateScore;
         this.updateUsersStat = updateUsersStat;
-        this.updateChoicesCounters = updateChoicesCounters;
-        this.questionsCounters = new Array(game.questions.length).fill(0).map(() => new Array(4).fill(0));
+        this.updateHistogramData = updateHistogramData;
+        this.histogramData = {
+            choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
+            question: this.game.questions,
+            indexCurrentQuestion: 0,
+        };
     }
 
     get gameData() {
@@ -58,6 +61,10 @@ export class ActiveGame {
 
     get isLocked() {
         return this.locked;
+    }
+
+    get hostId() {
+        return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
     }
 
     get currentQuestionWithoutAnswer(): Question {
@@ -122,7 +129,7 @@ export class ActiveGame {
         if (!user) {
             return;
         }
-        if (user.validate !== undefined) {
+        if (user.validate !== undefined && this.state === GameState.AskingQuestion) {
             return;
         }
         user.newChoice = choice;
@@ -130,24 +137,18 @@ export class ActiveGame {
     }
 
     sendUserSelectedChoice() {
-        this.questionsCounters[this.questionIndex] = [0, 0, 0, 0];
-        let hostID = '';
+        this.histogramData.choicesCounters[this.questionIndex] = [0, 0, 0, 0];
         this.users.forEach((user) => {
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < this.game.questions[this.questionIndex].choices.length; i++) {
+                if (!user.userChoice) {
+                    break;
+                }
                 if (user.userChoice[i]) {
-                    this.questionsCounters[this.questionIndex][i]++;
+                    this.histogramData.choicesCounters[this.questionIndex][i]++;
                 }
             }
-            if (user.isHost()) {
-                hostID = user.uid;
-            }
         });
-        this.histogramData = {
-            choicesCounters: this.questionsCounters,
-            question: this.game.questions,
-            indexCurrentQuestion: this.questionIndex,
-        };
-        this.updateChoicesCounters(hostID, this.histogramData);
+        this.updateHistogramData(this.hostId, this.histogramData);
     }
 
     validateChoice(userId: string) {
@@ -203,6 +204,11 @@ export class ActiveGame {
         this.activeUsers.delete(userId);
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
+
+        if (user.isHost() || this.currentState === GameState.ShowFinalResults) {
+            this.updateUsersStat(user.uid, this.usersStat);
+            this.updateHistogramData(user.uid, this.histogramData);
+        }
     }
 
     userExists(name: string) {
@@ -242,6 +248,8 @@ export class ActiveGame {
 
     showFinalResults() {
         this.advanceState(GameState.ShowFinalResults);
+        this.updateUsersStat(this.roomId, this.usersStat);
+        this.updateHistogramData(this.roomId, this.histogramData);
     }
 
     getChoice(userId: string): boolean[] {
@@ -272,6 +280,9 @@ export class ActiveGame {
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
         else {
             while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
+            this.histogramData.indexCurrentQuestion = this.questionIndex;
+            this.updateHistogramData(this.hostId, this.histogramData);
+
             this.readyForNextQuestion = false;
         }
     }
@@ -310,11 +321,6 @@ export class ActiveGame {
             }
         });
 
-        this.users.forEach((user) => {
-            this.updateScore(user.uid, user.userScore);
-            if (user.isHost()) {
-                this.updateUsersStat(user.uid, this.usersStat);
-            }
-        });
+        this.updateUsersStat(this.hostId, this.usersStat);
     }
 }

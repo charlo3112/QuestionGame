@@ -20,7 +20,6 @@ export class RoomManagementService {
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
     private disconnectUser: (userId: string, message: string) => void;
     private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
-    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
 
     constructor(private readonly logger: Logger) {}
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
@@ -29,10 +28,6 @@ export class RoomManagementService {
 
     setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
         this.disconnectUser = disconnectUser;
-    }
-
-    setUsersStatUpdate(updateUsersStat: (userId: string, usersStat: UserStat[]) => void) {
-        this.updateUsersStat = updateUsersStat;
     }
 
     setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
@@ -62,19 +57,12 @@ export class RoomManagementService {
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
-        updateChoicesCounter: (roomId: string, histogramData: HistogramData) => void,
+        updateUsersStat: (roomId: string, userStat: UserStat[]) => void,
+        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
     ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(
-            game,
-            roomId,
-            updateState,
-            updateTime,
-            updateScore,
-            this.updateUsersStat,
-            updateChoicesCounter,
-        );
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, updateUsersStat, updateHistogramData);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -174,8 +162,6 @@ export class RoomManagementService {
         ) {
             return { ok: false, error: 'Reconnection impossible' };
         }
-
-        this.updateUsersStat(newUserId, activeGame.usersStat);
 
         this.roomMembers.delete(user.userId);
         this.roomMembers.set(newUserId, user.roomId);

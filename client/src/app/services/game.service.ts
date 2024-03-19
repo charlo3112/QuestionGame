@@ -31,7 +31,7 @@ export class GameService implements OnDestroy {
     private players: Set<string> = new Set();
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
-    private choicesCounterSubscription: Subscription;
+    private histogramDataSubscription: Subscription;
     private histogramData: HistogramData;
     private usersStat: UserStat[] = [];
 
@@ -46,7 +46,7 @@ export class GameService implements OnDestroy {
         this.subscribeToScoreUpdate();
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
-        this.subscribeToChoicesCounter();
+        this.subscribeToHistogramData();
 
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
             this.websocketService.leaveRoom();
@@ -166,6 +166,10 @@ export class GameService implements OnDestroy {
         if (this.usersStatSubscription) {
             this.usersStatSubscription.unsubscribe();
         }
+
+        if (this.histogramDataSubscription) {
+            this.histogramDataSubscription.unsubscribe();
+        }
     }
 
     onKickPlayer(player: string) {
@@ -253,10 +257,6 @@ export class GameService implements OnDestroy {
         });
     }
 
-    private askQuestion() {
-        // this.timeService.startTimer(this.game.duration);
-    }
-
     private isResponseGood(): boolean {
         if (this.question === undefined) {
             return false;
@@ -317,8 +317,8 @@ export class GameService implements OnDestroy {
         });
     }
 
-    private subscribeToChoicesCounter() {
-        this.choicesCounterSubscription = this.websocketService.getChoicesCounter().subscribe({
+    private subscribeToHistogramData() {
+        this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
             next: (histogramData: HistogramData) => {
                 this.histogramData = histogramData;
             },
@@ -336,19 +336,18 @@ export class GameService implements OnDestroy {
             }
             return;
         }
-        if (this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-            this.choicesSelected = [false, false, false, false];
-            this.askQuestion();
-        }
-        if (this.state === GameState.ShowResults) {
-            this.question = state.payload as Question;
-        }
         if (this.state === GameState.ShowFinalResults) {
             if (this.routerService.url !== '/results') {
                 this.routerService.navigate(['/results']);
             }
             return;
+        }
+        if (this.state === GameState.AskingQuestion) {
+            this.question = state.payload as Question;
+            this.choicesSelected = [false, false, false, false];
+        }
+        if (this.state === GameState.ShowResults) {
+            this.question = state.payload as Question;
         }
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;

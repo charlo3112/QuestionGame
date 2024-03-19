@@ -10,7 +10,7 @@ import { User } from '@common/interfaces/user';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -140,7 +140,7 @@ export class WebSocketService {
         return this.usersStatSubject.asObservable();
     }
 
-    getChoicesCounter(): Observable<HistogramData> {
+    getHistogramData(): Observable<HistogramData> {
         return this.histogramDataSubject.asObservable();
     }
 
@@ -181,7 +181,7 @@ export class WebSocketService {
         this.listenForTimeUpdate();
         this.listenForScoreUpdate();
         this.listenForUsersStat();
-        this.listenForChoicesCounter();
+        this.listenForHistogramData();
     }
 
     private listenForClosedConnection() {
@@ -226,8 +226,8 @@ export class WebSocketService {
         });
     }
 
-    private listenForChoicesCounter() {
-        this.socket.on('game:choices-counter', (histogramData: HistogramData) => {
+    private listenForHistogramData() {
+        this.socket.on('game:histogramData', (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
         });
     }

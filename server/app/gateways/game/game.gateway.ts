@@ -25,7 +25,6 @@ export class GameGateway implements OnGatewayDisconnect {
         this.roomService.setGatewayCallback(this.handleDeleteRoom.bind(this));
         this.roomService.setDisconnectUser(this.handleUserRemoval.bind(this));
         this.roomService.setUpdateUser(this.handleUpdateUser.bind(this));
-        this.roomService.setUsersStatUpdate(this.handleUsersStatUpdate.bind(this));
     }
 
     @SubscribeMessage('game:create')
@@ -40,7 +39,8 @@ export class GameGateway implements OnGatewayDisconnect {
             this.handleStateUpdate.bind(this),
             this.handleTimeUpdate.bind(this),
             this.handleScoreUpdate.bind(this),
-            this.handleChoiceCounterUpdate.bind(this),
+            this.handleUsersStatUpdate.bind(this),
+            this.handleHistogramDataUpdate.bind(this),
         );
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
@@ -163,7 +163,7 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(userId).emit('game:users-stat', usersStat);
     }
 
-    private handleChoiceCounterUpdate(roomId: string, histogramData: HistogramData): void {
-        this.server.to(roomId).emit('game:choice-counter', histogramData);
+    private handleHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
+        this.server.to(roomId).emit('game:histogramData', histogramData);
     }
 }
