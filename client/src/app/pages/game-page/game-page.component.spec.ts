@@ -38,6 +38,7 @@ describe('GamePageComponent', () => {
             },
         );
         mockGameService.timerSubscribe.and.returnValue(of(0));
+        mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.Starting, payload: undefined }));
         mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
         await TestBed.configureTestingModule({
             imports: [

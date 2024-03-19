@@ -292,7 +292,7 @@ describe('Game', () => {
         webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.AskingQuestion, payload: undefined } }));
         webSocketSpy.isValidate.and.returnValue(Promise.resolve(true));
         await service.init();
-        expect(service.currentState).toEqual(GameState.WaitingResults);
+        expect(service.currentState).toEqual(GameState.AskingQuestion);
     });
 
     it('should remove player from players list and call banUser on websocketService', () => {
