@@ -95,7 +95,7 @@ describe('ImportDialogComponent', () => {
         }, timeout);
     });
 
-    //Warn
+    // Warn
     it('should load data if the json file is valid', () => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
