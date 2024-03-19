@@ -2,8 +2,8 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { GameService } from '@app/services/game.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { GameService } from '@app/services/game/game.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Message } from '@common/interfaces/message';

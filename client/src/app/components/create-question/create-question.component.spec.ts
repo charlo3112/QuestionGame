@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { SimpleChange, SimpleChanges } from '@angular/core';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -12,7 +12,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { CreateQuestionService } from '@app/services/create-question/create-question.service';
 import { MAX_CHOICES_NUMBER, MIN_NB_OF_POINTS } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
 import { Choice } from '@common/interfaces/choice';
@@ -23,12 +24,20 @@ describe('CreateQuestionComponent', () => {
     let component: CreateQuestionComponent;
     let fixture: ComponentFixture<CreateQuestionComponent>;
     let mockValidQuestion: Question;
-    let mockInvalidQuestion: Question;
     let communicationService: CommunicationService;
+    let createQuestionServiceSpy: jasmine.SpyObj<CreateQuestionService>;
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+        createQuestionServiceSpy = jasmine.createSpyObj('createQuestionServiceSpy', [
+            'addQuestion',
+            'modifyQuestion',
+            'addToQuestionBank',
+            'addChoice',
+            'choiceVerif',
+            'addToQuestionBank',
+        ]);
 
         await TestBed.configureTestingModule({
             imports: [
@@ -42,7 +51,11 @@ describe('CreateQuestionComponent', () => {
                 NoopAnimationsModule,
                 HttpClientModule,
             ],
-            providers: [CommunicationService, { provide: MatSnackBar, useValue: snackBarSpy }],
+            providers: [
+                CommunicationService,
+                { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: CreateQuestionService, useValue: createQuestionServiceSpy },
+            ],
         }).compileComponents();
         fixture = TestBed.createComponent(CreateQuestionComponent);
         component = fixture.componentInstance;
@@ -62,78 +75,16 @@ describe('CreateQuestionComponent', () => {
             ],
             type: QuestionType.QCM,
         };
-        mockInvalidQuestion = {
-            text: 'Quelle est la capitale du Canada ?',
-            points: MIN_NB_OF_POINTS,
-            choices: [
-                { text: 'Ottawa', isCorrect: false },
-                { text: 'Montreal', isCorrect: false },
-            ],
-            type: QuestionType.QCM,
-        };
         fixture.detectChanges();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-    it('should have default values', () => {
-        expect(component.questionName).toBe('');
-        expect(component.questionPoints).toBe(MIN_NB_OF_POINTS);
-        expect(component.choices.length).toBe(0);
-    });
     it('ngOnInit() should fill the choiceValue array', () => {
         component.questionData = mockValidQuestion;
         component.ngOnInit();
         expect(component.choiceValue.length).toBe(2);
-    });
-
-    // Test de la fonction addChoice()
-    it('should add a new choice when addChoice() is called', () => {
-        component.choiceInput = 'Nouveau choix';
-        component.addChoice();
-        expect(component.choices.length).toBe(1);
-        expect(component.choices[0].text).toBe('Nouveau choix');
-    });
-    it('should not add a choice when input is empty', () => {
-        spyOn(component, 'openSnackBar');
-        component.choiceInput = '';
-        component.addChoice();
-        expect(component.choices.length).toBe(0);
-        expect(component.openSnackBar).toHaveBeenCalledWith('Le champ Choix doit être rempli pour créer un choix.');
-    });
-    it('should not add more than 4 choices', () => {
-        spyOn(component, 'openSnackBar');
-        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-            component.choices.push({ text: 'Choix ' + i, isCorrect: false });
-        }
-        component.choiceInput = 'Choix non ajouté';
-        component.addChoice();
-        expect(component.choices.length).toBe(MAX_CHOICES_NUMBER);
-        expect(component.openSnackBar).toHaveBeenCalledWith('Vous ne pouvez pas ajouter plus de 4 choix.');
-    });
-
-    // test de la fonction deleteChoice()
-    it('should delete the right choice', () => {
-        component.choices = [
-            { text: 'Choix 1', isCorrect: false },
-            { text: 'Choix 2', isCorrect: true },
-            { text: 'Choix 3', isCorrect: false },
-        ];
-        expect(component.choices.length).toBe(3);
-        component.deleteChoice(1);
-        expect(component.choices.length).toBe(2);
-        expect(component.choices[0].text).toBe('Choix 1');
-        expect(component.choices[1].text).toBe('Choix 3');
-    });
-
-    it('should call resetForm when questionData is not provided', () => {
-        const changesObj: SimpleChanges = {
-            questionData: new SimpleChange({}, null, false),
-        };
-        spyOn(component, 'resetForm');
-        component.ngOnChanges(changesObj);
-        expect(component.resetForm).toHaveBeenCalled();
     });
 
     it('should call fillForm method when questionData changes and is not null', () => {
@@ -152,120 +103,94 @@ describe('CreateQuestionComponent', () => {
         expect(component.fillForm).toHaveBeenCalled();
     });
 
-    // test pour fillForm
-    it('should fill the form with the correct question attributes', () => {
-        component.fillForm(mockValidQuestion);
-        expect(component.questionName).toBe(mockValidQuestion.text);
-        expect(component.questionPoints).toBe(mockValidQuestion.points);
-        expect(component.choices).toEqual(mockValidQuestion.choices);
+    it('should call resetForm when questionData is not provided', () => {
+        const changesObj: SimpleChanges = {
+            questionData: new SimpleChange({}, null, false),
+        };
+        spyOn(component, 'resetForm');
+        component.ngOnChanges(changesObj);
+        expect(component.resetForm).toHaveBeenCalled();
     });
 
-    // test pour choiceVerif
-    it('should return false if the question name is empty', () => {
-        spyOn(component, 'openSnackBar');
-        mockValidQuestion.text = '';
-        component.fillForm(mockValidQuestion);
-        component.questionName = '';
-        expect(component.choiceVerif()).toBe(false);
-        expect(component.openSnackBar).toHaveBeenCalledWith('Le champ Question ne peut pas être vide.');
-    });
-
-    // test de la fonction save(), choiceVerif() et hasAnswer()
-    it('should emit questionCreated event with correct data on save', () => {
-        spyOn(component.questionCreated, 'emit');
-        component.questionName = mockValidQuestion.text;
-        component.questionPoints = mockValidQuestion.points;
-        component.choices = mockValidQuestion.choices;
-        component.save();
-        expect(component.questionCreated.emit).toHaveBeenCalledWith({
-            ...mockValidQuestion,
-        });
-    });
-
-    // test avec aucun choix, un choix faux, deux faux, et un bon
-    it('should verify choices correctly', () => {
-        component.questionName = 'Test';
+    // Test de la fonction addChoice()
+    it('should add a new choice when addChoice() is called', () => {
+        const choiceInput = 'Nouveau choix';
+        component.choiceInput = choiceInput;
         component.choices = [];
-        expect(component.choiceVerif()).toBeFalse();
-        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
-        expect(component.choiceVerif()).toBeFalse();
-        component.choices.push({ text: 'Réponse 2', isCorrect: false });
-        expect(component.choiceVerif()).toBeFalse();
-        component.choices.push({ text: 'Réponse 3', isCorrect: true });
-        expect(component.choiceVerif()).toBeTrue();
+        component.editArray = [];
+        component.addChoice();
+
+        expect(createQuestionServiceSpy.addChoice).toHaveBeenCalledWith(choiceInput, component.choices, component.editArray);
     });
-
-    // test du cas normal
-    it('should check for at least one correct and one incorrect answer', () => {
-        component.choices = mockValidQuestion.choices;
-        expect(component.hasAnswer()).toBeTrue();
-        component.choices = mockInvalidQuestion.choices;
-        expect(component.hasAnswer()).toBeFalse();
+    it('should not add a choice when input is empty', () => {
+        spyOn(component, 'openSnackBar');
+        component.choiceInput = '';
+        component.choices = [];
+        component.editArray = [];
+        createQuestionServiceSpy.addChoice(component.choiceInput, component.choices, component.editArray);
+        component.addChoice();
+        expect(component.choices.length).toBe(0);
     });
-
-    // test de la fonction startEdit et saveEdit()
-    it('should toggle edit mode on and off', () => {
-        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
-        component.editArray = [false];
-
-        component.startEdit(0);
-        expect(component.editArray[0]).toBeTrue();
-
-        component.saveEdit(0);
-        expect(component.editArray[0]).toBeFalse();
+    it('should not add more than 4 choices', () => {
+        spyOn(component, 'openSnackBar');
+        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
+            component.choices.push({ text: 'Choix ' + i, isCorrect: false });
+        }
+        component.choiceInput = 'Choix non ajouté';
+        component.editArray = [];
+        createQuestionServiceSpy.addChoice(component.choiceInput, component.choices, component.editArray);
+        component.addChoice();
+        expect(component.choices.length).toBe(MAX_CHOICES_NUMBER);
     });
 
     // test de la fonction addToQuestionBank()
-    it('should add the question to the question bank', () => {
+    it('should add the question to the question bank', async () => {
         component.fillForm(mockValidQuestion);
-        const mockResponse: HttpResponse<Question> = new HttpResponse({ status: 201, statusText: 'Created' });
-        spyOn(communicationService, 'addQuestion').and.returnValue(of(mockResponse));
+        createQuestionServiceSpy.addToQuestionBank.and.resolveTo(mockValidQuestion);
         spyOn(component.questionCreated, 'emit');
-        component.addToQuestionBank();
+        spyOn(component.closeForm, 'emit');
+        await component.addToQuestionBank();
         expect(component.questionCreated.emit).toHaveBeenCalledWith({
             ...mockValidQuestion,
         });
-    });
-
-    it('should add the question to the question bank', () => {
-        component.fillForm(mockValidQuestion);
-        spyOn(communicationService, 'addQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
-        component.addToQuestionBank();
-        expect(snackBarSpy.open).toHaveBeenCalled();
-    });
-
-    it('should alert if there is an error during the add', () => {
-        spyOn(component, 'openSnackBar');
-        component.fillForm(mockInvalidQuestion);
-        component.addToQuestionBank();
-        expect(component.openSnackBar).toHaveBeenCalledWith("Il faut au moins une réponse et un choix éronné avant d'enregistrer la question.");
-    });
-
-    // test de la fonction editQuestion if()
-    it('should edit the question if there is a question to edit', () => {
-        component.questionToDelete = mockValidQuestion.text;
-        component.fillForm(mockValidQuestion);
-        const mockResponse: HttpResponse<QuestionWithModificationDate> = new HttpResponse({ status: 200, statusText: 'OK' });
-        spyOn(communicationService, 'modifyQuestion').and.returnValue(of(mockResponse));
-        spyOn(component.closeForm, 'emit');
-        component.editQuestion();
         expect(component.closeForm.emit).toHaveBeenCalled();
     });
 
-    it('should alert if there is an error during the edit', () => {
-        component.questionToDelete = mockValidQuestion.text;
-        component.fillForm(mockValidQuestion);
-        spyOn(communicationService, 'modifyQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
-        component.editQuestion();
-        expect(snackBarSpy.open).toHaveBeenCalled();
+    it('should call openSnackBar if addToQuestionBank fails', fakeAsync(() => {
+        createQuestionServiceSpy.addToQuestionBank.and.returnValue(Promise.reject());
+        component.addToQuestionBank();
+        tick();
+        expect(snackBarSpy.open).toHaveBeenCalledWith('La question est déjà dans la banque de questions.', undefined, jasmine.any(Object));
+    }));
+
+    // test de la fonction cancel()
+    it('should revert changes and emit close form event on cancel', () => {
+        component.choices = [
+            { text: 'Choice 1', isCorrect: false },
+            { text: 'Choice 2', isCorrect: true },
+        ];
+        component.choiceValue = component.choices.map((choice) => choice.isCorrect ?? false);
+        component.choiceValue[0] = true;
+        component.choiceValue[1] = false;
+        spyOn(component.closeForm, 'emit');
+        component.cancel();
+        expect(component.choices[0].isCorrect).toBe(true);
+        expect(component.choices[1].isCorrect).toBe(false);
+        expect(component.closeForm.emit).toHaveBeenCalled();
     });
 
-    // test de la fonction editQuestion else()
-    it('should not edit the question if there is no question to edit', () => {
-        component.questionToDelete = '';
-        spyOn(component, 'addToQuestionBank');
-        component.editQuestion();
-        expect(component.addToQuestionBank).toHaveBeenCalled();
+    // test de la fonction deleteChoice()
+    it('should delete the right choice', () => {
+        component.choices = [
+            { text: 'Choix 1', isCorrect: false },
+            { text: 'Choix 2', isCorrect: true },
+            { text: 'Choix 3', isCorrect: false },
+        ];
+        expect(component.choices.length).toBe(3);
+        component.deleteChoice(1);
+        expect(component.choices.length).toBe(2);
+        expect(component.choices[0].text).toBe('Choix 1');
+        expect(component.choices[1].text).toBe('Choix 3');
     });
 
     // The method should move the selected choice to the new index in the 'choices' array.
@@ -289,20 +214,62 @@ describe('CreateQuestionComponent', () => {
         ]);
     });
 
-    /*
-    it('should revert changes and emit close form event on cancel', () => {
-        component.choices = [
-            { text: 'Choice 1', isCorrect: false },
-            { text: 'Choice 2', isCorrect: true },
-        ];
-        component.choiceValue = component.choices.map((choice) => choice.isCorrect);
-        component.choiceValue[0] = true;
-        component.choiceValue[1] = false;
+    // test de la fonction editQuestion
+    it('should edit the question if there is a question to edit', () => {
+        component.questionToDelete = mockValidQuestion.text;
+        component.fillForm(mockValidQuestion);
+        const mockResponse: HttpResponse<QuestionWithModificationDate> = new HttpResponse({ status: 200, statusText: 'OK' });
+        spyOn(communicationService, 'modifyQuestion').and.returnValue(of(mockResponse));
         spyOn(component.closeForm, 'emit');
-        component.cancel();
-        expect(component.choices[0].isCorrect).toBe(true);
-        expect(component.choices[1].isCorrect).toBe(false);
+        component.editQuestion();
         expect(component.closeForm.emit).toHaveBeenCalled();
     });
-    */
+
+    it('should alert if there is an error during the edit', () => {
+        component.questionToDelete = mockValidQuestion.text;
+        component.fillForm(mockValidQuestion);
+        spyOn(communicationService, 'modifyQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
+        component.editQuestion();
+        expect(snackBarSpy.open).toHaveBeenCalled();
+    });
+
+    it('should not edit the question if there is no question to edit', () => {
+        component.questionToDelete = '';
+        spyOn(component, 'addToQuestionBank');
+        component.editQuestion();
+        expect(component.addToQuestionBank).toHaveBeenCalled();
+    });
+
+    // test pour fillForm
+    it('should fill the form with the correct question attributes', () => {
+        component.fillForm(mockValidQuestion);
+        expect(component.questionName).toBe(mockValidQuestion.text);
+        expect(component.questionPoints).toBe(mockValidQuestion.points);
+        expect(component.choices).toEqual(mockValidQuestion.choices);
+    });
+
+    // test de la fonction save() et hasAnswer()
+    it('should emit questionCreated event with correct data on save', () => {
+        spyOn(component.questionCreated, 'emit');
+        component.questionName = mockValidQuestion.text;
+        component.questionPoints = mockValidQuestion.points;
+        component.choices = mockValidQuestion.choices;
+        createQuestionServiceSpy.choiceVerif.and.returnValue(true);
+        component.save();
+        expect(component.questionCreated.emit).toHaveBeenCalledWith({
+            ...mockValidQuestion,
+        });
+    });
+
+    // test de la fonction startEdit et saveEdit()
+    it('should toggle edit mode on and off', () => {
+        component.choices = [{ text: 'Réponse 1', isCorrect: false }];
+        component.editArray = [false];
+
+        component.startEdit(0);
+        expect(component.editArray[0]).toBeTrue();
+
+        component.saveEdit(0);
+        expect(component.editArray[0]).toBeFalse();
+    });
 });

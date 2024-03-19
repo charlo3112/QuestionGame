@@ -1,7 +1,10 @@
+/* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { TimeService } from '@app/services/time/time.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
@@ -10,8 +13,6 @@ import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
-import { TimeService } from './time.service';
-import { WebSocketService } from './websocket.service';
 import SpyObj = jasmine.SpyObj;
 
 class TimeServiceStub {

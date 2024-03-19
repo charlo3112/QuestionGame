@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
 import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
@@ -19,7 +19,7 @@ import { Result } from '@common/interfaces/result';
     imports: [CommonModule, RouterLink, MatIconModule, MatCardModule, CreateQuestionComponent, MatTooltipModule, MatButtonModule],
     standalone: true,
 })
-export class QuestionBankComponent {
+export class QuestionBankComponent implements OnInit {
     @Input() adminMode = false;
     @Input() showChildren = false;
     @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
@@ -35,11 +35,15 @@ export class QuestionBankComponent {
         this.loadQuestions();
     }
 
+    ngOnInit(): void {
+        this.loadQuestions();
+    }
     loadQuestions() {
+        const ERROR_FETCHING_QUESTIONS = 'Erreur lors de la récupération des questions';
         this.communicationService.getAllQuestionsWithModificationDates().subscribe({
             next: (response: Result<QuestionWithModificationDate[]>) => {
                 if (!response.ok) {
-                    throw new Error('Error fetching questions');
+                    throw new Error(ERROR_FETCHING_QUESTIONS);
                 }
                 this.questionsWithModificationDate = response.value;
                 this.questionsWithModificationDate.sort((a, b) => {
@@ -49,11 +53,12 @@ export class QuestionBankComponent {
                 });
             },
             error: () => {
-                throw new Error('Error fetching questions');
+                throw new Error(ERROR_FETCHING_QUESTIONS);
             },
         });
     }
     sendQuestion() {
+        const QUESTION_SELECTED_BEFORE_ADDING = "Vous devez selectionner une question avant de l'ajouter";
         if (this.highlightedQuestion) {
             this.questionToAdd = {
                 text: this.highlightedQuestion.text,
@@ -63,7 +68,7 @@ export class QuestionBankComponent {
             };
             this.sendQuestionSelected.emit(this.questionToAdd);
         } else {
-            this.snackBar.open("Vous devez selectionner une question avant de l'ajouter", undefined, {
+            this.snackBar.open(QUESTION_SELECTED_BEFORE_ADDING, undefined, {
                 duration: SNACKBAR_DURATION,
             });
         }

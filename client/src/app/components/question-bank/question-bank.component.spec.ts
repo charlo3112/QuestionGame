@@ -2,7 +2,7 @@ import { HttpClientModule, HttpResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { QuestionType } from '@common/enums/question-type';
 import { QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
@@ -93,7 +93,7 @@ describe('QuestionBankComponent', () => {
         expect(() => {
             component.loadQuestions();
             tick();
-        }).toThrowError('Error fetching questions');
+        }).toThrowError('Erreur lors de la récupération des questions');
     }));
 
     it('should throw error when getAllQuestionsWithModificationDates fails', fakeAsync(() => {
@@ -101,7 +101,7 @@ describe('QuestionBankComponent', () => {
         expect(() => {
             component.loadQuestions();
             tick();
-        }).toThrowError('Error fetching questions');
+        }).toThrowError('Erreur lors de la récupération des questions');
     }));
 
     it('should load questions when lastModification is string from JSON', fakeAsync(() => {

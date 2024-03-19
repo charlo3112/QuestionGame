@@ -1,10 +1,10 @@
 /* eslint-disable max-lines */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { RESPONSE_OK } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -184,6 +184,19 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/admin`);
         expect(req.request.method).toBe('POST');
         req.flush('');
+    });
+
+    it('should return the stored login value when login is true and there is a stored login in sessionStorage', () => {
+        const storedLogin = true;
+        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(storedLogin));
+        const result = service.verifyLogin(true);
+        expect(result).toBe(storedLogin);
+    });
+
+    it('should return false when login is true and there is no stored login in sessionStorage', () => {
+        spyOn(sessionStorage, 'getItem').and.returnValue(null);
+        const result = service.verifyLogin(true);
+        expect(result).toBeFalse();
     });
 
     it('should throw an error when logging in', () => {

@@ -78,6 +78,17 @@ export class CommunicationService {
         );
     }
 
+    verifyLogin(login: boolean): boolean {
+        const storedLogin = sessionStorage.getItem('login');
+        if (storedLogin !== null) {
+            login = JSON.parse(storedLogin);
+        } else {
+            login = false;
+            sessionStorage.setItem('login', JSON.stringify(login));
+        }
+        return login;
+    }
+
     addQuestion(question: Question): Observable<HttpResponse<Question>> {
         return this.http.post<Question>(`${this.baseUrl}/question`, question, { observe: 'response' });
     }

@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -7,11 +7,11 @@ import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { routes } from '@app/modules/app-routing.module';
-import { CommunicationService } from '@app/services/communication.service';
-import { GameService } from '@app/services/game.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameService } from '@app/services/game/game.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/enums/game-state';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
@@ -119,7 +119,7 @@ describe('StartGamePageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.loadGames();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux");
     }));
 
     it('should have a list of games', () => {

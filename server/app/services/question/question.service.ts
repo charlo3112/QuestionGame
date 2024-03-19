@@ -22,6 +22,8 @@ export class QuestionService {
     }
 
     async getMongoId(text: string): Promise<string> {
+        // The underscore in _id is needed because it's a property of the mongoDB object
+
         // eslint-disable-next-line no-underscore-dangle
         const mongoId = (await this.questionModel.findOne({ text }))._id;
         return mongoId;

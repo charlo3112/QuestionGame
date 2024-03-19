@@ -7,9 +7,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { GameService } from '@app/services/game.service';
-import { TimeService } from '@app/services/time.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { GameService } from '@app/services/game/game.service';
+import { TimeService } from '@app/services/time/time.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 
 @Component({
     selector: 'app-loading-page',

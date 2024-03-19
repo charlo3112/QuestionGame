@@ -5,7 +5,7 @@ import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { routes } from '@app/modules/app-routing.module';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { of } from 'rxjs';
