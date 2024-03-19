@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -49,6 +49,7 @@ describe('ImportDialogComponent', () => {
         expect(validationServiceSpy.validateGame).not.toHaveBeenCalled();
     });
 
+    // Warn
     it('should get an error when the file is not a JSON file', () => {
         const file = new File([''], 'filename', { type: 'text/plain' });
         const dataTransfer = new DataTransfer();
@@ -62,6 +63,7 @@ describe('ImportDialogComponent', () => {
         }, timeout);
     });
 
+    // Warn
     it('should return an error when the json file is not valid', () => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
@@ -77,6 +79,7 @@ describe('ImportDialogComponent', () => {
         }, timeout);
     });
 
+    // Warn
     it('should return an error when the json file is not correctly parsed', () => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
@@ -92,6 +95,7 @@ describe('ImportDialogComponent', () => {
         }, timeout);
     });
 
+    //Warn
     it('should load data if the json file is valid', () => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();

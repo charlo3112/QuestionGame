@@ -4,7 +4,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
-import { HistogramData } from '@common/interfaces/histogram-data';
+import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { AdminGameViewComponent } from './admin-game-view.component';
 
 describe('AdminGameViewComponent', () => {
@@ -16,37 +16,7 @@ describe('AdminGameViewComponent', () => {
     };
 
     beforeEach(() => {
-        const mockHistogramData: HistogramData = {
-            question: [
-                {
-                    type: QuestionType.QCM,
-                    text: "Pourquoi le jus de lichi n'est pas bon?",
-                    points: 69,
-                    choices: [
-                        { text: 'Guillaume en boit', isCorrect: true },
-                        { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
-                        { text: "C'est du lichi", isCorrect: false },
-                        { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
-                    ],
-                },
-                {
-                    type: QuestionType.QCM,
-                    text: 'Pourquoi le jus de lichi est bon?',
-                    points: 69,
-                    choices: [
-                        { text: 'Guillaume en boit', isCorrect: true },
-                        { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
-                        { text: "C'est du lichi", isCorrect: false },
-                        { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
-                    ],
-                },
-            ],
-            indexCurrentQuestion: 0,
-            choicesCounters: [
-                [10, 0, 0, 0],
-                [0, 0, 10, 0],
-            ],
-        };
+        const mockHistogramData: HistogramData = HISTOGRAM_DATA;
         mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram'], {
             currentQuestion: {
                 type: QuestionType.QCM,

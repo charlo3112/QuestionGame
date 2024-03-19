@@ -1,12 +1,13 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
-import { USERS } from '@common/interfaces/user-stat';
+import { USERS, UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Socket } from 'socket.io-client';
 import { WebSocketService } from './websocket.service';
@@ -41,20 +42,6 @@ describe('WebSocketService', () => {
         const payloadJoin: PayloadJoinGame = { gameCode: 'game123', username: 'John Doe' };
         service.joinRoom(payloadJoin.gameCode, payloadJoin.username);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:join', payloadJoin, jasmine.any(Function));
-    });
-
-    it('getMessage should return an observable and subscribe message', () => {
-        const testMessage = 'Hello, world!';
-        const testName = 'John Doe';
-        const testRoomId = 'room123';
-
-        let messageReceived = '';
-        service.getMessage().subscribe((message) => {
-            messageReceived = message.message;
-        });
-
-        mockSocket.on.calls.argsFor(0)[1]({ message: testMessage, name: testName, roomId: testRoomId });
-        expect(messageReceived).toEqual(testMessage);
     });
 
     it('getMessages should emit the correct payload', () => {
@@ -107,6 +94,30 @@ describe('WebSocketService', () => {
         expect(mockSocket.emit).toHaveBeenCalledWith('game:users', jasmine.any(Function));
     });
 
+    it('getMessage should return an observable and subscribe message', () => {
+        const testMessage = 'Hello, world!';
+        const testName = 'John Doe';
+        const testRoomId = 'room123';
+
+        let messageReceived = '';
+        service.getMessage().subscribe((message) => {
+            messageReceived = message.message;
+        });
+
+        mockSocket.on.calls.argsFor(0)[1]({ message: testMessage, name: testName, roomId: testRoomId });
+        expect(messageReceived).toEqual(testMessage);
+    });
+
+    it('getState should return an observable and subscribe message', () => {
+        const statePayload = { state: GameState.Wait };
+
+        service.getState().subscribe((state) => {
+            expect(state).toEqual(statePayload);
+        });
+
+        mockSocket.on.calls.argsFor(1)[1](statePayload);
+    });
+
     it('getClosedConnection should return an observable and subscribe message', () => {
         const testMessage = 'Hello, world!';
 
@@ -119,20 +130,6 @@ describe('WebSocketService', () => {
         expect(messageReceived).toEqual(testMessage);
     });
 
-    it('getState should return an observable and subscribe message', () => {
-        mockSocket.on.and.callFake((eventName, callback) => {
-            if (eventName === 'game:state') {
-                const statePayload = { state: GameState.Wait };
-                callback(statePayload);
-            }
-            return mockSocket;
-        });
-
-        service.getState().subscribe((state: GameStatePayload) => {
-            expect(state.state).toEqual(GameState.Wait);
-        });
-    });
-
     it('getUserUpdate should return an observable and subscribe message', () => {
         const testUser: UserConnectionUpdate = { username: 'John Doe', isConnected: true };
 
@@ -141,6 +138,52 @@ describe('WebSocketService', () => {
         });
 
         mockSocket.on.calls.argsFor(3)[1](testUser);
+    });
+
+    it('getTime should listen for time updates and update timeSubject', () => {
+        const mockTime = 120;
+
+        let timeReceived: number | undefined;
+        service.getTime().subscribe((time) => {
+            timeReceived = time;
+        });
+
+        mockSocket.on.calls.argsFor(4)[1](mockTime);
+        expect(timeReceived).toEqual(mockTime);
+    });
+
+    it('getScoreUpdate should return an observable and subscribe message', () => {
+        const mockScore: Score = { score: 100, bonus: true };
+
+        let scoreReceived: Score | undefined;
+        service.getScoreUpdate().subscribe((score) => {
+            scoreReceived = score;
+        });
+
+        mockSocket.on.calls.argsFor(5)[1](mockScore);
+        expect(scoreReceived).toEqual(mockScore);
+    });
+
+    it('getUsersStat should return an observable and subscribe message', () => {
+        const expectedUsersStat = USERS;
+
+        let usersStatReceived: UserStat[] | undefined;
+        service.getUsersStat().subscribe((usersStat) => {
+            usersStatReceived = usersStat;
+        });
+        mockSocket.on.calls.argsFor(6)[1](expectedUsersStat);
+        expect(usersStatReceived).toEqual(expectedUsersStat);
+    });
+
+    it('getHistogramData should return an observable and subscribe message', () => {
+        const expectedHistogramData = HISTOGRAM_DATA;
+
+        let histogramDataReceived: HistogramData | undefined;
+        service.getHistogramData().subscribe((histogramData) => {
+            histogramDataReceived = histogramData;
+        });
+        mockSocket.on.calls.argsFor(7)[1](expectedHistogramData);
+        expect(histogramDataReceived).toEqual(expectedHistogramData);
     });
 
     it('should emit game:create event and resolve with the user', async () => {
@@ -282,22 +325,6 @@ describe('WebSocketService', () => {
         tick();
     }));
 
-    it('should listen for score updates and update scoreSubject', () => {
-        const mockScore: Score = { score: 100, bonus: true };
-        service.getScoreUpdate().subscribe((score) => {
-            expect(score).toEqual(mockScore);
-        });
-        mockSocket.on.calls.mostRecent().args[1](mockScore);
-    });
-
-    it('should listen for time updates and update timeSubject', () => {
-        const mockTime = 120;
-        service.getTime().subscribe((time) => {
-            expect(time).toEqual(mockTime);
-        });
-        mockSocket.on.calls.mostRecent().args[1](mockTime);
-    });
-
     it('should resolve isValidate with true', fakeAsync(() => {
         const expectedResult = true;
         mockSocket.emit.and.callFake((eventName: string, ...args: any[]) => {
@@ -325,62 +352,5 @@ describe('WebSocketService', () => {
         const result = await service.testGame(gameId);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:test', gameId, jasmine.any(Function));
         expect(result).toEqual(expectedUser);
-    });
-
-    it('should update usersStatSubject when game:users-stat event is received', () => {
-        const expectedUsersStat = USERS;
-        mockSocket.on.and.callFake((event, callback) => {
-            if (event === 'game:users-stat') {
-                callback(USERS);
-            }
-            return mockSocket;
-        });
-        service['listenForUsersStat']();
-        service.getUsersStat().subscribe((data) => {
-            expect(data).toEqual(expectedUsersStat);
-        });
-    });
-    it('should update scoreSubject when game:score event is received', () => {
-        const expectedScore = { score: 120, bonus: true };
-        mockSocket.on.and.callFake((event, callback) => {
-            if (event === 'game:score') {
-                callback(expectedScore);
-            }
-            return mockSocket;
-        });
-        service['listenForScoreUpdate']();
-        service.getScoreUpdate().subscribe((data) => {
-            expect(data).toEqual(expectedScore);
-        });
-    });
-    it('should update stateSubject when game:state event is received', () => {
-        const expectedState: GameStatePayload = { state: GameState.AskingQuestion, payload: undefined }; // Assurez-vous que cela correspond à la définition de GameStatePayload
-        mockSocket.on.and.callFake((event, callback) => {
-            if (event === 'game:state') {
-                callback(expectedState);
-            }
-            return mockSocket;
-        });
-
-        service['listenForState']();
-
-        service.getState().subscribe((data) => {
-            expect(data).toEqual(expectedState);
-        });
-    });
-    it('should update timeSubject when game:time event is received', () => {
-        const expectedTime = 30;
-        mockSocket.on.and.callFake((event, callback) => {
-            if (event === 'game:time') {
-                callback(expectedTime);
-            }
-            return mockSocket;
-        });
-
-        service['listenForTimeUpdate']();
-
-        service.getTime().subscribe((data) => {
-            expect(data).toEqual(expectedTime);
-        });
     });
 });
