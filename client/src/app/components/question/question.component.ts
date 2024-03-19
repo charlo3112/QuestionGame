@@ -8,6 +8,7 @@ import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
+import { GameState } from '@common/enums/game-state';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -20,7 +21,7 @@ import { Question } from '@common/interfaces/question';
 export class QuestionComponent {
     @Input() question: Question;
     isChatFocused: boolean = false;
-
+    askingQuestion: GameState = GameState.AskingQuestion;
     constructor(readonly gameService: GameService) {}
 
     @HostListener('keydown', ['$event'])
