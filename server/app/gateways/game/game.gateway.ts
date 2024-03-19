@@ -65,7 +65,7 @@ export class GameGateway implements OnGatewayDisconnect {
         );
         client.join(user.roomId);
         const activeGame = this.roomService.getActiveGame(client.id);
-        activeGame.testGame();
+        await activeGame.testGame();
         return user;
     }
 

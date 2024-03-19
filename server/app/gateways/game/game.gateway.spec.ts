@@ -1,4 +1,5 @@
 import { GameGateway } from '@app/gateways/game/game.gateway';
+import { ActiveGame } from '@app/model/classes/active-game';
 import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
@@ -9,13 +10,14 @@ import { User } from '@common/interfaces/user';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { BroadcastOperator, Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 describe('GameGateway', () => {
     let gateway: GameGateway;
     let logger: SinonStubbedInstance<Logger>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
+    let activeGame: SinonStubbedInstance<ActiveGame>;
     let roomManagementService: SinonStubbedInstance<RoomManagementService>;
     let gameService: SinonStubbedInstance<GameService>;
 
@@ -25,6 +27,7 @@ describe('GameGateway', () => {
         server = createStubInstance<Server>(Server);
         roomManagementService = createStubInstance(RoomManagementService);
         gameService = createStubInstance(GameService);
+        activeGame = createStubInstance(ActiveGame);
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -36,6 +39,10 @@ describe('GameGateway', () => {
                 {
                     provide: RoomManagementService,
                     useValue: roomManagementService,
+                },
+                {
+                    provide: ActiveGame,
+                    useValue: activeGame,
                 },
                 {
                     provide: GameService,
@@ -93,19 +100,16 @@ describe('GameGateway', () => {
     });
 
     it('launchGame() should launch the game', () => {
-        const roomId = 'room123';
-
-        roomManagementService.getRoomId.returns(roomId);
-
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual('game:state');
-            },
-        } as BroadcastOperator<unknown, unknown>);
-
         gateway.launchGame(socket);
 
-        expect(server.to.calledWith(roomId)).toBeTruthy();
+        expect(roomManagementService.confirmAction.calledOnceWithExactly(socket.id)).toBeTruthy();
+    });
+
+    it('handleChoice() should update selected choices', () => {
+        const mockChoiceAnswers: boolean[] = [false, true, true, false];
+        gateway.handleChoice(socket, mockChoiceAnswers);
+
+        expect(roomManagementService.handleChoice.calledOnceWithExactly(socket.id, mockChoiceAnswers)).toBeTruthy();
     });
 
     it('handleDisconnect() should remove a user on disconnect', () => {
@@ -114,10 +118,58 @@ describe('GameGateway', () => {
         expect(roomManagementService.leaveUser.calledWith(socket.id)).toBeTruthy();
     });
 
+    it('handleValidate() should send validation request', () => {
+        gateway.handleValidate(socket);
+
+        expect(roomManagementService.validateChoice.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleScore() should send request for the score', () => {
+        gateway.handleScore(socket);
+
+        expect(roomManagementService.getScore.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('isValidate() should send request for the validation', () => {
+        gateway.isValidate(socket);
+
+        expect(roomManagementService.isValidate.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('getChoice() should send request to get choices', () => {
+        gateway.getChoice(socket);
+
+        expect(roomManagementService.getChoice.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('showResults() should send request to go to showResult state', () => {
+        gateway.showResults(socket);
+
+        expect(roomManagementService.showFinalResults.calledWith(socket.id)).toBeTruthy();
+    });
+
     it('handleLeaveGame() should remove a user from the game', () => {
         gateway.handleLeaveGame(socket);
 
         expect(roomManagementService.performUserRemoval.calledWith(socket.id)).toBeTruthy();
+    });
+
+    // activeGame.testGame is not a function
+    it('handleTestGame() allow the user to test a quizz', async () => {
+        const mockGameId = 'game123';
+        const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
+
+        gameService.getGameById.resolves({} as GameData);
+        roomManagementService.testGame.resolves(mockUser);
+        roomManagementService.getActiveGame.resolves();
+        socket.join.resolves();
+
+        const result = await gateway.handleTestGame(socket, mockGameId);
+
+        expect(result).toBeDefined();
+        expect(result).toEqual(mockUser);
+        expect(socket.join.calledWith(mockUser.roomId)).toBeTruthy();
+        expect(logger.log.called).toBeTruthy();
     });
 
     it('handleToggleGame() should toggle the game closed', () => {
