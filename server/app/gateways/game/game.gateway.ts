@@ -2,6 +2,7 @@
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
@@ -39,6 +40,7 @@ export class GameGateway implements OnGatewayDisconnect {
             this.handleStateUpdate.bind(this),
             this.handleTimeUpdate.bind(this),
             this.handleScoreUpdate.bind(this),
+            this.handleChoiceCounterUpdate.bind(this),
         );
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
@@ -159,5 +161,9 @@ export class GameGateway implements OnGatewayDisconnect {
 
     private handleUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
         this.server.to(userId).emit('game:users-stat', usersStat);
+    }
+
+    private handleChoiceCounterUpdate(roomId: string, histogramData: HistogramData): void {
+        this.server.to(roomId).emit('game:choice-counter', histogramData);
     }
 }

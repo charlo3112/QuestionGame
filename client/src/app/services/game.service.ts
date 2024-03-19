@@ -5,6 +5,7 @@ import { WebSocketService } from '@app/services/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
@@ -30,6 +31,8 @@ export class GameService implements OnDestroy {
     private players: Set<string> = new Set();
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
+    private choicesCounterSubscription: Subscription;
+    private histogramData: HistogramData;
     private usersStat: UserStat[] = [];
 
     constructor(
@@ -43,6 +46,7 @@ export class GameService implements OnDestroy {
         this.subscribeToScoreUpdate();
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
+        this.subscribeToChoicesCounter();
 
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
             this.websocketService.leaveRoom();
@@ -81,6 +85,10 @@ export class GameService implements OnDestroy {
     get message(): string | undefined {
         if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
         return 'Vous avez un bonus!';
+    }
+
+    get histogram(): HistogramData {
+        return this.histogramData;
     }
 
     get usernameValue(): string {
@@ -305,6 +313,14 @@ export class GameService implements OnDestroy {
         this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
+            },
+        });
+    }
+
+    private subscribeToChoicesCounter() {
+        this.choicesCounterSubscription = this.websocketService.getChoicesCounter().subscribe({
+            next: (histogramData: HistogramData) => {
+                this.histogramData = histogramData;
             },
         });
     }

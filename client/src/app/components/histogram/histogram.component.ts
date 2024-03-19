@@ -19,24 +19,9 @@ export class HistogramComponent {
     @Input() showArrows: boolean = true;
     listQuestions: Question[];
     indexQuestionDisplayed: number = 0;
-    questionsCounters: number[][];
     private stateSubscription: Subscription;
 
-    constructor(public gameService: GameService) {
-        this.subscribeToQuestionUpdates();
-    }
-
-    subscribeToQuestionUpdates() {
-        this.stateSubscription = this.gameService.stateSubscribe().subscribe({
-            next: () => {
-                const currentQuestion = this.gameService.currentQuestion;
-                if (currentQuestion && !this.questionExists(currentQuestion)) {
-                    this.listQuestions.push(currentQuestion);
-                    this.indexQuestionDisplayed = this.listQuestions.length - 1;
-                }
-            },
-        });
-    }
+    constructor(public gameService: GameService) {}
 
     questionExists(question: Question): boolean {
         return this.listQuestions.some((q) => q.text === question.text);
@@ -67,8 +52,8 @@ export class HistogramComponent {
     getMaxCounter(): number {
         let max = 0;
         for (let i = 0; i < this.listQuestions[this.indexQuestionDisplayed].choices.length; i++) {
-            if (this.questionsCounters[this.indexQuestionDisplayed][i] > max) {
-                max = this.questionsCounters[this.indexQuestionDisplayed][i];
+            if (this.gameService.histogram.choicesCounters[this.indexQuestionDisplayed][i] > max) {
+                max = this.gameService.histogram.choicesCounters[this.indexQuestionDisplayed][i];
             }
         }
         return max;
@@ -79,10 +64,10 @@ export class HistogramComponent {
     }
 
     setDisplayedQuestionCounters(tab: number[]) {
-        this.questionsCounters[this.indexQuestionDisplayed] = tab;
+        this.gameService.histogram.choicesCounters[this.indexQuestionDisplayed] = tab;
     }
 
     getCounter(choice: Choice): number {
-        return this.questionsCounters[this.indexQuestionDisplayed][this.getChoiceIndex(choice)];
+        return this.gameService.histogram.choicesCounters[this.indexQuestionDisplayed][this.getChoiceIndex(choice)];
     }
 }

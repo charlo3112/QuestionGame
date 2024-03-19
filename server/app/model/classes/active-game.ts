@@ -4,6 +4,7 @@ import { GameData } from '@app/model/database/game';
 import { TIME_CONFIRM_S, WAITING_TIME_S, WAIT_FOR_NEXT_QUESTION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
@@ -18,10 +19,12 @@ export class ActiveGame {
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private updateScore: (userId: string, score: Score) => void;
     private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
+    private updateChoicesCounters: (roomId: string, histogramData: HistogramData) => void;
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
     private readyForNextQuestion: boolean = false;
+    private histogramData: HistogramData;
     private questionsCounters: number[][];
 
     // eslint-disable-next-line max-params
@@ -32,6 +35,7 @@ export class ActiveGame {
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
         updateUsersStat: (userId: string, usersStat: UserStat[]) => void,
+        updateChoicesCounters: (roomId: string, histogramData: HistogramData) => void,
     ) {
         this.game = game;
         this.users = new Map<string, UserData>();
@@ -44,6 +48,7 @@ export class ActiveGame {
         this.timer = new CountDownTimer(roomId, updateTime);
         this.updateScore = updateScore;
         this.updateUsersStat = updateUsersStat;
+        this.updateChoicesCounters = updateChoicesCounters;
         this.questionsCounters = new Array(game.questions.length).fill(0).map(() => new Array(4).fill(0));
     }
 
@@ -121,19 +126,29 @@ export class ActiveGame {
             return;
         }
         user.newChoice = choice;
-        // this.sendUserSelectedChoice();
+        this.sendUserSelectedChoice();
     }
 
-    // sendUserSelectedChoice() {
-    //     this.users.forEach((user) => {
-    //         for (let i = 0; i < 4; i++) {
-    //             if (user.userChoice[i]) {
-    //                 this.questionsCounters[this.questionIndex][i]++;
-    //             }
-    //         }
-    //     });
-    //     // Transmettre les choix des utilisateurs
-    // }
+    sendUserSelectedChoice() {
+        this.questionsCounters[this.questionIndex] = [0, 0, 0, 0];
+        let hostID = '';
+        this.users.forEach((user) => {
+            for (let i = 0; i < 4; i++) {
+                if (user.userChoice[i]) {
+                    this.questionsCounters[this.questionIndex][i]++;
+                }
+            }
+            if (user.isHost()) {
+                hostID = user.uid;
+            }
+        });
+        this.histogramData = {
+            choicesCounters: this.questionsCounters,
+            question: this.game.questions,
+            indexCurrentQuestion: this.questionIndex,
+        };
+        this.updateChoicesCounters(hostID, this.histogramData);
+    }
 
     validateChoice(userId: string) {
         const user = this.users.get(userId);

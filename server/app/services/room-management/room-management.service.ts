@@ -4,6 +4,7 @@ import { GameData } from '@app/model/database/game';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
@@ -61,10 +62,19 @@ export class RoomManagementService {
         updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
+        updateChoicesCounter: (roomId: string, histogramData: HistogramData) => void,
     ): User {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
+        const newActiveGame: ActiveGame = new ActiveGame(
+            game,
+            roomId,
+            updateState,
+            updateTime,
+            updateScore,
+            this.updateUsersStat,
+            updateChoicesCounter,
+        );
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
