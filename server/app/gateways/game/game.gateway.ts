@@ -46,6 +46,25 @@ export class GameGateway implements OnGatewayDisconnect {
         return user;
     }
 
+    @SubscribeMessage('game:test')
+    async handleTestGame(client: Socket, id: string) {
+        const game = await this.gamesService.getGameById(id);
+        if (!game) {
+            return null;
+        }
+        const user = this.roomService.testGame(
+            client.id,
+            game,
+            this.handleStateUpdate.bind(this),
+            this.handleTimeUpdate.bind(this),
+            this.handleScoreUpdate.bind(this),
+        );
+        client.join(user.roomId);
+        const activeGame = this.roomService.getActiveGame(client.id);
+        activeGame.testGame();
+        return user;
+    }
+
     @SubscribeMessage('game:leave')
     handleLeaveGame(client: Socket) {
         this.roomService.performUserRemoval(client.id);

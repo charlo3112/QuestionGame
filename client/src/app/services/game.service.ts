@@ -105,36 +105,28 @@ export class GameService implements OnDestroy {
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
-            this.routerService.navigate(['/']);
-        } else {
-            const user: User = JSON.parse(data);
-            const res = await this.websocketService.rejoinRoom(user);
-
-            if (!res.ok) {
-                sessionStorage.removeItem('user');
-                this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']);
-                return;
-            }
-            sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
-
-            this.username = user.name;
-            this.roomCode = user.roomId;
-            this.setState(res.value);
-            const score = await this.websocketService.getScore();
-            this.scoreValue = score.score;
-            this.showBonus = score.bonus;
-
-            if (this.state === GameState.AskingQuestion) {
-                this.choicesSelected = await this.websocketService.getChoice();
-                if (await this.websocketService.isValidate()) {
-                    this.state = GameState.WaitingResults;
-                }
-            }
-
-            (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
-            this.players.delete(HOST_NAME);
+            return;
         }
+        const user: User = JSON.parse(data);
+        const res = await this.websocketService.rejoinRoom(user);
+
+        if (!res.ok) {
+            sessionStorage.removeItem('user');
+            this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
+            this.routerService.navigate(['/']);
+            return;
+        }
+        sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
+
+        this.username = user.name;
+        this.roomCode = user.roomId;
+        this.setState(res.value);
+        const score = await this.websocketService.getScore();
+        this.scoreValue = score.score;
+        this.showBonus = score.bonus;
+
+        (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
+        this.players.delete(HOST_NAME);
     }
 
     ngOnDestroy() {
@@ -219,10 +211,6 @@ export class GameService implements OnDestroy {
             return;
         }
         this.state = GameState.WaitingResults;
-    }
-
-    private askQuestion() {
-        // this.timeService.startTimer(this.game.duration);
     }
 
     private isResponseGood(): boolean {
@@ -312,7 +300,6 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.AskingQuestion) {
             this.question = state.payload as Question;
             this.choicesSelected = [false, false, false, false];
-            this.askQuestion();
         }
 
         if (this.state === GameState.ShowResults) {

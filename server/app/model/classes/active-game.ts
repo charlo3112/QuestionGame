@@ -22,6 +22,7 @@ export class ActiveGame {
     private questionIndex: number = 0;
     private timer;
 
+    // This class needs all these parameters to be able to communicate with the server
     // eslint-disable-next-line max-params
     constructor(
         game: GameData,
@@ -142,7 +143,7 @@ export class ActiveGame {
     }
 
     needToClosed(): boolean {
-        return this.activeUsers.size === 0 || this.activeUsers.size === 1;
+        return this.activeUsers.size === 0 || (this.activeUsers.size === 1 && this.roomId.slice(0, 'test'.length) !== 'test');
     }
 
     removeUser(userId: string) {
@@ -218,6 +219,13 @@ export class ActiveGame {
         this.advanceState(GameState.Starting);
         await this.timer.start(WAITING_TIME_S);
         await this.askQuestion();
+    }
+
+    async testGame() {
+        this.advanceState(GameState.Starting);
+        while (this.questionIndex < this.game.questions.length) {
+            await this.askQuestion();
+        }
     }
 
     async advance() {

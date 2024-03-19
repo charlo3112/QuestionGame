@@ -45,6 +45,14 @@ export class WebSocketService {
         });
     }
 
+    async testGame(gameId: string): Promise<User> {
+        return new Promise<User>((resolve) => {
+            this.socket.emit('game:test', gameId, (user: User) => {
+                resolve(user);
+            });
+        });
+    }
+
     sendChoice(choice: boolean[]): void {
         this.socket.emit('game:choice', choice);
     }

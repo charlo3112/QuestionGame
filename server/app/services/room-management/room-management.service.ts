@@ -54,6 +54,7 @@ export class RoomManagementService {
         game.validateChoice(userId);
     }
 
+    // The callback for createGame needs to be passed down to the ActiveGame class
     // eslint-disable-next-line max-params
     createGame(
         userId: string,
@@ -75,6 +76,33 @@ export class RoomManagementService {
         this.roomMembers.set(host.uid, roomId);
 
         return { name: HOST_NAME, roomId, userId };
+    }
+
+    // The callback for testGame needs to be passed down to the ActiveGame class
+    // eslint-disable-next-line max-params
+    testGame(
+        userId: string,
+        game: GameData,
+        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
+        updateTime: (roomId: string, time: number) => void,
+        updateScore: (userId: string, score: Score) => void,
+    ): User {
+        const roomId = 'test' + this.generateRoomId();
+        const noHost: UserData = new UserData(userId, roomId, '');
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, this.updateUsersStat);
+        newActiveGame.addUser(noHost);
+
+        this.gameState.set(roomId, newActiveGame);
+        this.roomMembers.set(noHost.uid, roomId);
+        return { name: HOST_NAME, roomId, userId };
+    }
+
+    async startTestGame(roomId: string) {
+        const game = this.gameState.get(roomId);
+        if (!game) {
+            return;
+        }
+        await game.testGame();
     }
 
     toggleGameClosed(userId: string, closed: boolean) {
