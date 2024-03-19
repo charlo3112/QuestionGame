@@ -18,48 +18,48 @@ describe('HistogramComponent', () => {
                     text: "Pourquoi le jus de lichi n'est pas bon?",
                     points: 69,
                     choices: [
-                        { text: 'Guillaume en boit' },
-                        { text: 'Guillaume en a apporté 2 boites' },
-                        { text: "C'est du lichi" },
-                        { text: 'Guillaume en a bu à 9h du matin' },
+                        { text: 'Guillaume en boit', isCorrect: true },
+                        { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
+                        { text: "C'est du lichi", isCorrect: false },
+                        { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
+                    ],
+                },
+                {
+                    type: QuestionType.QCM,
+                    text: 'Pourquoi le jus de lichi est bon?',
+                    points: 69,
+                    choices: [
+                        { text: 'Guillaume en boit', isCorrect: true },
+                        { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
+                        { text: "C'est du lichi", isCorrect: false },
+                        { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
                     ],
                 },
             ],
             indexCurrentQuestion: 0,
             choicesCounters: [
-                [10, 0, 0],
-                [0, 0, 10],
+                [10, 0, 0, 0],
+                [0, 0, 10, 0],
             ],
         };
-        mockGameService = jasmine.createSpyObj(
-            'GameService',
-            [
-                'init',
-                'leaveRoom',
-                'isChoiceSelected',
-                'isChoiceCorrect',
-                'isChoiceIncorrect',
-                'timerSubscribe',
-                'nextQuestion',
-                'showResults',
-                'stateSubscribe',
-            ],
-            {
-                currentQuestion: {
-                    type: QuestionType.QCM,
-                    text: "Pourquoi le jus de lichi n'est pas bon?",
-                    points: 69,
-                    choices: [
-                        { text: 'Guillaume en boit' },
-                        { text: 'Guillaume en a apporté 2 boites' },
-                        { text: "C'est du lichi" },
-                        { text: 'Guillaume en a bu à 9h du matin' },
-                    ],
-                },
-                currentState: GameState.Starting,
-                histogramData: mockHistogramData,
+        mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram'], {
+            currentQuestion: {
+                type: QuestionType.QCM,
+                text: "Pourquoi le jus de lichi n'est pas bon?",
+                points: 69,
+                choices: [
+                    { text: 'Guillaume en boit', isCorrect: true },
+                    { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
+                    { text: "C'est du lichi", isCorrect: false },
+                    { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
+                ],
             },
-        );
+            currentState: GameState.Starting,
+            histogramData: mockHistogramData,
+        });
+        Object.defineProperty(mockGameService, 'histogram', {
+            get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
+        });
 
         TestBed.configureTestingModule({
             imports: [],
@@ -67,6 +67,7 @@ describe('HistogramComponent', () => {
         });
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;
+        component.indexQuestionDisplayed = 0;
 
         fixture.detectChanges();
     });
@@ -75,7 +76,6 @@ describe('HistogramComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    /*
     it('should go to previous question when previousQuestion is called', () => {
         component.indexQuestionDisplayed = 1;
         component.previousQuestion();
@@ -99,5 +99,4 @@ describe('HistogramComponent', () => {
         component.nextQuestion();
         expect(component.indexQuestionDisplayed).toBe(0);
     });
-    */
 });

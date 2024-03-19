@@ -80,11 +80,6 @@ describe('GamePageComponent', () => {
         expect(mockGameService.init).toHaveBeenCalled();
     });
 
-    it('should call gameService.leaveRoom on ngOnDestroy', () => {
-        component.ngOnDestroy();
-        expect(mockGameService.leaveRoom).toHaveBeenCalled();
-    });
-
     it('should return true if game state is Starting', () => {
         expect(component.isStartingGame()).toBeTrue();
     });

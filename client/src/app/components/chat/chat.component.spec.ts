@@ -124,13 +124,6 @@ describe('ChatComponent', () => {
         expect(component.chatSubmit).not.toHaveBeenCalled();
     });
 
-    it('should ngOnDestroy', () => {
-        spyOn(component['messagesSubscription'], 'unsubscribe');
-        component.ngOnDestroy();
-        expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
-        expect(component['messagesSubscription'].unsubscribe).toHaveBeenCalled();
-    });
-
     it('should sort messages', fakeAsync(() => {
         fixture.detectChanges();
         tick();

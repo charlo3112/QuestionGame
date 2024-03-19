@@ -80,9 +80,11 @@ describe('LoadingPageComponent', () => {
         expect(mockWebSocketService.hostConfirm.calls.any()).toBeTrue();
     });
 
-    it('should call getTime from timeService', () => {
-        const timeSpy = jasmine.createSpy('timeGetter').and.returnValue('00:00:00');
-        Object.defineProperty(mockTimeService, 'time', { get: timeSpy });
-        expect(timeSpy).toHaveBeenCalled();
+    it('should return current time from TimeService', () => {
+        const expectedTime = 100;
+        Object.defineProperty(mockTimeService, 'time', { get: () => expectedTime });
+        const actualTime = component.time;
+        expect(actualTime).toEqual(expectedTime);
+        expect(mockTimeService.time).toBe(expectedTime);
     });
 });
