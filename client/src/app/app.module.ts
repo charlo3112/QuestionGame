@@ -20,6 +20,7 @@ import { CommunicationService } from '@app/services/communication.service';
 import { GameService } from '@app/services/game.service';
 import { ValidationService } from '@app/services/validation.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 
@@ -32,27 +33,28 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
 @NgModule({
     declarations: [AppComponent],
     imports: [
+        AbandonDialogComponent,
+        AdminPageComponent,
+        AnswersComponent,
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
+        CreatePageComponent,
+        CreateQuestionComponent,
         FormsModule,
+        HistogramComponent,
         HttpClientModule,
+        LeaderboardComponent,
         MatButtonModule,
         MatInputModule,
         MatIconModule,
-        ReactiveFormsModule,
-        AdminPageComponent,
-        CreatePageComponent,
-        CreateQuestionComponent,
-        AnswersComponent,
         MatGridListModule,
         QuestionBankComponent,
         QuestionBankPageComponent,
-        HistogramComponent,
-        LeaderboardComponent,
+        ReactiveFormsModule,
         ResultPageComponent,
     ],
-    providers: [WebSocketService, CommunicationService, ValidationService, GameService],
+    providers: [CommunicationService, GameService, ValidationService, WebSocketService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

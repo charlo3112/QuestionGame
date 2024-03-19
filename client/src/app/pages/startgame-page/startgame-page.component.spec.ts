@@ -8,6 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { routes } from '@app/modules/app-routing.module';
 import { CommunicationService } from '@app/services/communication.service';
+import { WebSocketService } from '@app/services/websocket.service';
 import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
@@ -20,10 +21,30 @@ describe('StartGamePageComponent', () => {
     let router: Router;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let snackBarSpy: SpyObj<MatSnackBar>;
+    let webSocketServiceSpy: SpyObj<WebSocketService>;
 
     beforeEach(async () => {
+        webSocketServiceSpy = jasmine.createSpyObj('WebSocketService', ['createRoom']);
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGames', 'getGameByID']);
         communicationServiceSpy.getGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
+
+        const mockGame: Game = {
+            gameId: '123',
+            visibility: true,
+            title: 'Titre du jeu',
+            description: 'Description du jeu',
+            duration: 30,
+            lastModification: '2021-06-01T00:00:00.000Z',
+            questions: [],
+        };
+        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockGame }));
+        webSocketServiceSpy.createRoom.and.returnValue(
+            Promise.resolve({
+                userId: 'user123',
+                roomId: 'room123',
+                name: 'User Name',
+            }),
+        );
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         await TestBed.configureTestingModule({
@@ -113,7 +134,7 @@ describe('StartGamePageComponent', () => {
 
         component.testGame(game);
 
-        tick(); // Advance to the next tick to resolve the Observable
+        tick();
 
         expect(component.openSnackBar).toHaveBeenCalledWith('Jeux invisible, veuillez en choisir un autre');
         expect(component.loadGames).toHaveBeenCalled();
@@ -160,4 +181,13 @@ describe('StartGamePageComponent', () => {
         expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
         expect(component.loadGames).toHaveBeenCalled();
     }));
+
+    /*
+    it('should call webSocketService.createRoom if newGame.visibility is true', fakeAsync(() => {
+        const navigateSpy = spyOn(router, 'navigate');
+        component.startGame({ gameId: '123', visibility: true } as Game);
+        tick();
+        expect(navigateSpy).toHaveBeenCalledWith(['/loading']);
+    }));
+    */
 });

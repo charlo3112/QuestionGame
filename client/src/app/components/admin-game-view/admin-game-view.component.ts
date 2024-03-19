@@ -38,8 +38,4 @@ export class AdminGameViewComponent implements OnChanges {
             this.questionForHistogram[0] = this.question;
         }
     }
-
-    pauseGame() {
-        // TODO sprint3
-    }
 }
