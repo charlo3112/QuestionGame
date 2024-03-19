@@ -243,12 +243,13 @@ describe('QuestionServiceEndToEnd', () => {
     });
 
     it('modifyQuestion() should fail if the question is not valid', async () => {
+        const INVALID_POINTS = 200;
         const question = getFakeQuestion();
         await questionModel.create(new QuestionData(question));
         // eslint-disable-next-line no-underscore-dangle
         const mongoId = await (await questionModel.findOne({ text: question.text }))._id;
         question.mongoId = mongoId;
-        question.setPoints(200);
+        question.setPoints(INVALID_POINTS);
         await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
     });
 });
