@@ -4,8 +4,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game.service';
 import { WebSocketService } from '@app/services/websocket.service';
+import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Message } from '@common/interfaces/message';
+import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
@@ -15,11 +17,16 @@ describe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
+    let mockGameService: jasmine.SpyObj<GameService>;
     const snackBarMock = {
         open: jasmine.createSpy('open'),
     };
 
     beforeEach(async () => {
+        mockGameService = jasmine.createSpyObj('GameService', ['init', 'usernameValue', 'stateSubscribe'], {
+            currentQuestion: QUESTION_PLACEHOLDER,
+            currentState: GameState.Starting,
+        });
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
             'sendMessage',
             'joinRoom',
@@ -51,7 +58,11 @@ describe('ChatComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule],
-            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }, GameService, { provide: MatSnackBar, useValue: snackBarMock }],
+            providers: [
+                { provide: WebSocketService, useValue: mockWebSocketService },
+                { provide: GameService, useValue: mockGameService },
+                { provide: MatSnackBar, useValue: snackBarMock },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ChatComponent);
