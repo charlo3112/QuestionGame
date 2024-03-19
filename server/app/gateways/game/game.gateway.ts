@@ -128,6 +128,10 @@ export class GameGateway implements OnGatewayDisconnect {
         this.roomService.leaveUser(client.id);
     }
 
+    updateQuestionsCounter(roomId: string, questionsCounter: number[]) {
+        this.server.to(roomId).emit('game:questionsCounter', questionsCounter);
+    }
+
     private handleDeleteRoom(roomId: string): void {
         this.server.to(roomId).emit('game:closed', 'La partie a été fermée');
         this.server.socketsLeave(roomId);
