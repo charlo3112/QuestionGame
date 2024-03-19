@@ -37,7 +37,7 @@ describe('RoomManagementService', () => {
 
     it('should create a game room and return user details', () => {
         const game: GameData = getFakeGame();
-        const user = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock);
+        const user = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock);
 
         expect(user).toBeDefined();
         expect(user.userId).toBe('user1');
@@ -83,7 +83,7 @@ describe('RoomManagementService', () => {
         service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock);
         const launchResult = service.launchGame('user3');
 
-        expect(launchResult).toBeUndefined();
+        expect(launchResult).toBe(null);
     });
 
     it('should allow the host user to launch the game', () => {

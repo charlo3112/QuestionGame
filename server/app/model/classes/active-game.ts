@@ -1,9 +1,10 @@
 import { CountDownTimer } from '@app/model/classes/time';
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { TIME_CONFIRM_S, WAITING_TIME_S, WAIT_FOR_NEXT_QUESTION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
@@ -18,9 +19,12 @@ export class ActiveGame {
     private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
     private updateScore: (userId: string, score: Score) => void;
     private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
+    private updateHistogramData: (roomId: string, histogramData: HistogramData) => void;
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
+    private readyForNextQuestion: boolean = false;
+    private histogramData: HistogramData;
 
     // This class needs all these parameters to be able to communicate with the server
     // eslint-disable-next-line max-params
@@ -31,6 +35,7 @@ export class ActiveGame {
         updateTime: (roomId: string, time: number) => void,
         updateScore: (userId: string, score: Score) => void,
         updateUsersStat: (userId: string, usersStat: UserStat[]) => void,
+        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
     ) {
         this.game = game;
         this.users = new Map<string, UserData>();
@@ -43,6 +48,12 @@ export class ActiveGame {
         this.timer = new CountDownTimer(roomId, updateTime);
         this.updateScore = updateScore;
         this.updateUsersStat = updateUsersStat;
+        this.updateHistogramData = updateHistogramData;
+        this.histogramData = {
+            choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
+            question: this.game.questions,
+            indexCurrentQuestion: 0,
+        };
     }
 
     get gameData() {
@@ -51,6 +62,10 @@ export class ActiveGame {
 
     get isLocked() {
         return this.locked;
+    }
+
+    get hostId() {
+        return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
     }
 
     get currentQuestionWithoutAnswer(): Question {
@@ -87,7 +102,7 @@ export class ActiveGame {
         if (this.state === GameState.AskingQuestion) {
             return { state: this.state, payload: this.currentQuestionWithoutAnswer };
         }
-        if (this.state === GameState.ShowResults) {
+        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
             return { state: this.state, payload: this.currentQuestionWithAnswer };
         }
         return { state: this.state };
@@ -115,10 +130,26 @@ export class ActiveGame {
         if (!user) {
             return;
         }
-        if (user.validate !== undefined) {
+        if (user.validate !== undefined && this.state === GameState.AskingQuestion) {
             return;
         }
         user.newChoice = choice;
+        this.sendUserSelectedChoice();
+    }
+
+    sendUserSelectedChoice() {
+        this.histogramData.choicesCounters[this.questionIndex] = [0, 0, 0, 0];
+        this.users.forEach((user) => {
+            for (let i = 0; i < this.game.questions[this.questionIndex].choices.length; i++) {
+                if (!user.userChoice) {
+                    break;
+                }
+                if (user.userChoice[i]) {
+                    this.histogramData.choicesCounters[this.questionIndex][i]++;
+                }
+            }
+        });
+        this.updateHistogramData(this.hostId, this.histogramData);
     }
 
     validateChoice(userId: string) {
@@ -131,6 +162,10 @@ export class ActiveGame {
 
     canRejoin(userId: string): boolean {
         return this.activeUsers.has(userId);
+    }
+
+    nextQuestion() {
+        this.readyForNextQuestion = true;
     }
 
     addUser(user: UserData) {
@@ -151,6 +186,7 @@ export class ActiveGame {
         if (this.state === GameState.Wait) {
             this.users.delete(userId);
         }
+        this.updateUsersStat(this.hostId, this.usersStat);
     }
 
     isBanned(name: string) {
@@ -170,6 +206,10 @@ export class ActiveGame {
         this.activeUsers.delete(userId);
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
+        if (user.isHost() || this.currentState === GameState.ShowFinalResults) {
+            this.updateUsersStat(user.uid, this.usersStat);
+            this.updateHistogramData(user.uid, this.histogramData);
+        }
     }
 
     userExists(name: string) {
@@ -205,6 +245,12 @@ export class ActiveGame {
             return false;
         }
         return user.validate === undefined ? false : true;
+    }
+
+    showFinalResults() {
+        this.advanceState(GameState.ShowFinalResults);
+        this.updateUsersStat(this.roomId, this.usersStat);
+        this.updateHistogramData(this.roomId, this.histogramData);
     }
 
     getChoice(userId: string): boolean[] {
@@ -249,6 +295,24 @@ export class ActiveGame {
         }
     }
 
+    async askQuestion() {
+        this.resetAnswers();
+        this.advanceState(GameState.AskingQuestion);
+        await this.timer.start(this.game.duration);
+
+        this.calculateScores();
+        this.advanceState(GameState.ShowResults);
+        await this.timer.start(TIME_CONFIRM_S);
+        if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
+        else {
+            while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
+            this.histogramData.indexCurrentQuestion = this.questionIndex;
+            this.updateHistogramData(this.hostId, this.histogramData);
+
+            this.readyForNextQuestion = false;
+        }
+    }
+
     private advanceState(state: GameState) {
         this.state = state;
         this.updateState(this.roomId, this.gameStatePayload);
@@ -263,9 +327,7 @@ export class ActiveGame {
     private calculateScores() {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         let users = Array.from(this.users.values());
-
         const time = new Date().getTime();
-
         users.forEach((user) => {
             if (user.validate === undefined) {
                 user.validate = time;
@@ -282,22 +344,6 @@ export class ActiveGame {
                 user.addScore(score);
             }
         });
-
-        this.users.forEach((user) => {
-            this.updateScore(user.uid, user.userScore);
-            if (user.isHost()) {
-                this.updateUsersStat(user.uid, this.usersStat);
-            }
-        });
-    }
-
-    private async askQuestion() {
-        this.resetAnswers();
-        this.advanceState(GameState.AskingQuestion);
-        await this.timer.start(this.game.duration);
-
-        this.calculateScores();
-        this.advanceState(GameState.ShowResults);
-        ++this.questionIndex;
+        this.updateUsersStat(this.hostId, this.usersStat);
     }
 }

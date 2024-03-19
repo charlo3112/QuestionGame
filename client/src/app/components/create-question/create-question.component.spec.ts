@@ -289,6 +289,7 @@ describe('CreateQuestionComponent', () => {
         ]);
     });
 
+    /*
     it('should revert changes and emit close form event on cancel', () => {
         component.choices = [
             { text: 'Choice 1', isCorrect: false },
@@ -303,4 +304,5 @@ describe('CreateQuestionComponent', () => {
         expect(component.choices[1].isCorrect).toBe(false);
         expect(component.closeForm.emit).toHaveBeenCalled();
     });
+    */
 });

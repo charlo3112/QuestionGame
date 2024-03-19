@@ -26,7 +26,7 @@ export class UserData {
         return this.name;
     }
 
-    get userChoice() {
+    get userChoice(): boolean[] | undefined {
         return this.choice;
     }
 

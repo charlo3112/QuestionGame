@@ -1,6 +1,4 @@
-import { Location } from '@angular/common';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -24,7 +22,6 @@ describe('Question', () => {
     let component: QuestionComponent;
     let fixture: ComponentFixture<QuestionComponent>;
     let router: Router;
-    let location: Location;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
@@ -47,19 +44,12 @@ describe('Question', () => {
         component.question = mockQuestion;
         fixture.detectChanges();
         router = TestBed.inject(Router);
-        location = TestBed.inject(Location);
         router.initialNavigation();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-    it('should navigate on abandon', fakeAsync(() => {
-        fixture.debugElement.query(By.css('#abandon-button')).nativeElement.click();
-        tick();
-        expect(location.path()).toBe('/new');
-    }));
 
     it('should detect enter key', () => {
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -84,5 +74,11 @@ describe('Question', () => {
         const event = new KeyboardEvent('keydown', { key: '1' });
         component.buttonDetect(event);
         expect(gameServiceSpy.selectChoice).not.toHaveBeenCalled();
+    });
+
+    it('should call confirmQuestion and disable the button when confirmAndDisable is called and buttonDisabled is false', () => {
+        component.buttonDisabled = false;
+        component.confirmAndDisable();
+        expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
     });
 });

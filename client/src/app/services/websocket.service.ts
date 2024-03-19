@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
@@ -24,6 +25,7 @@ export class WebSocketService {
     private timeSubject: Subject<number> = new Subject<number>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
+    private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
 
     constructor() {
         this.connect();
@@ -63,6 +65,14 @@ export class WebSocketService {
 
     leaveRoom(): void {
         this.socket.emit('game:leave');
+    }
+
+    nextQuestion() {
+        this.socket.emit('game:next');
+    }
+
+    showFinalResults() {
+        this.socket.emit('game:results');
     }
 
     async isValidate(): Promise<boolean> {
@@ -138,6 +148,10 @@ export class WebSocketService {
         return this.usersStatSubject.asObservable();
     }
 
+    getHistogramData(): Observable<HistogramData> {
+        return this.histogramDataSubject.asObservable();
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {
@@ -175,6 +189,7 @@ export class WebSocketService {
         this.listenForTimeUpdate();
         this.listenForScoreUpdate();
         this.listenForUsersStat();
+        this.listenForHistogramData();
     }
 
     private listenForClosedConnection() {
@@ -216,6 +231,12 @@ export class WebSocketService {
     private listenForUsersStat() {
         this.socket.on('game:users-stat', (usersStat: UserStat[]) => {
             this.usersStatSubject.next(usersStat);
+        });
+    }
+
+    private listenForHistogramData() {
+        this.socket.on('game:histogramData', (histogramData: HistogramData) => {
+            this.histogramDataSubject.next(histogramData);
         });
     }
 }

@@ -17,15 +17,13 @@
 .choice-container {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 10px;
-    .choice-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: inline-block;
-        max-width: 70%;
-        vertical-align: middle;
-    }
+    width: 100%;
+}
+.bar-container {
+    flex-grow: 1;
+    margin-right: 10px;
 }
 
 .bar {
@@ -40,10 +38,22 @@
 .histogram {
     min-height: 280px;
 }
+.choice-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    width: 30%;
+    margin-left: 10px;
+}
 .question-title {
     margin: 15px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+}
+.counter-zero {
+    margin: 15px;
+    color: black;
 }

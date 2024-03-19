@@ -1,11 +1,10 @@
 <div class="main-container">
     <app-leaderboard></app-leaderboard>
-    <!-- <app-histogram class="histogram" [listQuestions]="questionForHistogram" [showArrows]="false"></app-histogram> -->
+    <app-histogram class="histogram" [showArrows]="false"></app-histogram>
     <div class="flex column">
         <app-chat></app-chat>
         <div class="flex">
-            <button mat-raised-button (click)="nextQuestion()" color="primary">Prochaine question</button>
-            <button mat-raised-button (click)="pauseGame()" color="primary">Pause</button>
+            <button mat-raised-button color="primary">Pause</button>
         </div>
     </div>
 </div>

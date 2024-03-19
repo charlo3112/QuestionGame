@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -7,10 +7,10 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Result } from '@common/result';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;

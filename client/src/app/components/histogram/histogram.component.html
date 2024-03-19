@@ -1,31 +1,33 @@
 <div class="main-container">
     <mat-card class="content-container">
         <mat-card-header>
-            <h2 class="question-title">Question {{ questionDisplayed + 1 }} : {{ listQuestions[questionDisplayed] }}</h2>
+            <h2 class="question-title">Question {{ indexQuestion + 1 }} : {{ this.gameService.histogram.question[indexQuestion].text }}</h2>
         </mat-card-header>
         <mat-card-content>
             <div class="histogram">
-                <!-- <div *ngFor="let choice of listQuestions[questionDisplayed].choices" class="choice-container">
+                <div *ngFor="let choice of this.gameService.histogram.question[indexQuestion]?.choices" class="choice-container">
                     <div
+                        *ngIf="getCounter(choice) > 0"
                         class="bar"
                         [ngStyle]="{
                             'background-color': choice.isCorrect ? 'Green' : 'Red'
                         }"
-                        [style.width]="(choice.counter / getMaxCounter()) * 100 + '%'"
+                        [style.width]="(getCounter(choice) / getMaxCounter()) * 100 + '%'"
                     >
-                        {{ choice.counter }}
+                        {{ getCounter(choice) }}
                     </div>
+                    <span *ngIf="getCounter(choice) === 0" class="counter-zero">{{ getCounter(choice) }}</span>
                     <span class="choice-text">{{ choice.text }}</span>
-                </div> -->
+                </div>
             </div>
         </mat-card-content>
     </mat-card>
-    <!-- <div *ngIf="!(listQuestions.length <= 1) && showArrows" class="icon-container">
+    <div *ngIf="!(this.gameService.histogram.question.length <= 1) && showArrows" class="icon-container">
         <button mat-icon-button aria-label="Before" (click)="previousQuestion()">
             <mat-icon>navigate_before</mat-icon>
         </button>
         <button mat-icon-button aria-label="Next" (click)="nextQuestion()">
             <mat-icon>navigate_next</mat-icon>
         </button>
-    </div> -->
+    </div>
 </div>

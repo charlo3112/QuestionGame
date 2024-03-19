@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -8,8 +8,8 @@ import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { PLAYERS, Player } from '@app/interfaces/player';
-import { Question } from '@common/interfaces/question';
+import { GameService } from '@app/services/game.service';
+import { UserStat } from '@common/interfaces/user-stat';
 
 @Component({
     selector: 'app-result-page',
@@ -28,24 +28,12 @@ import { Question } from '@common/interfaces/question';
         MatButtonModule,
     ],
 })
-export class ResultPageComponent implements OnInit {
-    histogramData: Question[] = [];
-    leaderboard: Player[] = [];
+export class ResultPageComponent implements OnDestroy {
+    leaderboard: UserStat[] = [];
     showStats: boolean;
+    constructor(readonly gameService: GameService) {}
 
-    ngOnInit(): void {
-        this.fetchLeaderboard();
-    }
-
-    fetchLeaderboard() {
-        // TODO get array of players instead of PLAYERS
-        this.leaderboard = PLAYERS;
-        this.leaderboard.sort((a, b) => {
-            const scoreComparison = b.score - a.score;
-            if (scoreComparison === 0) {
-                return a.name.localeCompare(b.name);
-            }
-            return scoreComparison;
-        });
+    ngOnDestroy() {
+        this.gameService.leaveRoom();
     }
 }
