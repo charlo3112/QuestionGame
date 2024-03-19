@@ -109,14 +109,6 @@ export class RoomManagementService {
         return game.getScore(userId);
     }
 
-    async launchGame(userId: string) {
-        const game = this.getActiveGame(userId);
-        if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait || !game.isLocked) {
-            return null;
-        }
-        await game.launchGame();
-    }
-
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
         const activeGame = this.gameState.get(roomId);
         if (!activeGame) {
@@ -251,6 +243,15 @@ export class RoomManagementService {
             return undefined;
         }
         return this.gameState.get(roomId);
+    }
+
+    async confirmAction(userId: string) {
+        const user = this.getUser(userId);
+        if (!user || !user.isHost()) {
+            return;
+        }
+        const game = this.getActiveGame(userId);
+        await game.advance();
     }
 
     private generateRoomId(): string {

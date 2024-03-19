@@ -217,21 +217,28 @@ export class ActiveGame {
     async launchGame() {
         this.advanceState(GameState.Starting);
         await this.timer.start(WAITING_TIME_S);
-
-        while (this.questionIndex < this.game.questions.length) {
-            await this.askQuestion();
-        }
+        await this.askQuestion();
     }
 
-    async askQuestion() {
-        this.resetAnswers();
-        this.advanceState(GameState.AskingQuestion);
-        await this.timer.start(this.game.duration);
-
-        this.calculateScores();
-        this.advanceState(GameState.ShowResults);
-        await this.timer.start(TIME_CONFIRM_S);
-        ++this.questionIndex;
+    async advance() {
+        switch (this.state) {
+            case GameState.Wait:
+                if (this.isLocked) {
+                    return null;
+                }
+                await this.launchGame();
+                break;
+            case GameState.ShowResults:
+                if (this.questionIndex < this.game.questions.length) {
+                    await this.timer.start(TIME_CONFIRM_S);
+                    await this.askQuestion();
+                } else {
+                    this.advanceState(GameState.GameOver);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     private advanceState(state: GameState) {
@@ -274,5 +281,15 @@ export class ActiveGame {
                 this.updateUsersStat(user.uid, this.usersStat);
             }
         });
+    }
+
+    private async askQuestion() {
+        this.resetAnswers();
+        this.advanceState(GameState.AskingQuestion);
+        await this.timer.start(this.game.duration);
+
+        this.calculateScores();
+        this.advanceState(GameState.ShowResults);
+        ++this.questionIndex;
     }
 }

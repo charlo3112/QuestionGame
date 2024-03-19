@@ -99,9 +99,9 @@ export class GameGateway implements OnGatewayDisconnect {
         return res;
     }
 
-    @SubscribeMessage('game:launch')
+    @SubscribeMessage('game:confirm')
     async launchGame(client: Socket) {
-        await this.roomService.launchGame(client.id);
+        await this.roomService.confirmAction(client.id);
     }
 
     @SubscribeMessage('game:ban')
