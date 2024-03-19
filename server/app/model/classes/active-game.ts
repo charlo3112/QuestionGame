@@ -44,6 +44,7 @@ export class ActiveGame {
         this.timer = new CountDownTimer(roomId, updateTime);
         this.updateScore = updateScore;
         this.updateUsersStat = updateUsersStat;
+        this.questionsCounters = new Array(game.questions.length).fill(0).map(() => new Array(4).fill(0));
     }
 
     get gameData() {
@@ -131,7 +132,7 @@ export class ActiveGame {
                 }
             }
         });
-        // il faut envoyer question counter
+        // Transmettre les choix des utilisateurs
     }
 
     validateChoice(userId: string) {
