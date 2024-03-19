@@ -10,7 +10,7 @@ import { User } from '@common/interfaces/user';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -178,14 +178,14 @@ export class WebSocketService {
 
     private connect() {
         this.socket = this.createSocket();
-        this.listenForMessage(); //0
-        this.listenForState(); //1
-        this.listenForClosedConnection(); //2
-        this.listenForUserUpdate(); //3
-        this.listenForTimeUpdate(); //4
-        this.listenForScoreUpdate(); //5
-        this.listenForUsersStat(); //6
-        this.listenForHistogramData(); //7
+        this.listenForMessage(); // 0
+        this.listenForState(); // 1
+        this.listenForClosedConnection(); // 2
+        this.listenForUserUpdate(); // 3
+        this.listenForTimeUpdate(); // 4
+        this.listenForScoreUpdate(); // 5
+        this.listenForUsersStat(); // 6
+        this.listenForHistogramData(); // 7
     }
 
     private listenForClosedConnection() {

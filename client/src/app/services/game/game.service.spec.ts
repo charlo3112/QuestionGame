@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
+import { HOST_NAME, MAX_TIME_RETURN, MOCK_CHOICES_COUNTER, SNACKBAR_DURATION, TIME_RETURN } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { GAME_PLACEHOLDER } from '@common/interfaces/game';
@@ -66,7 +66,7 @@ describe('Game', () => {
         ]);
 
         webSocketSpy.getState.and.returnValue(of({ state: GameState.Wait }));
-        webSocketSpy.getTime.and.returnValue(of(30));
+        webSocketSpy.getTime.and.returnValue(of(TIME_RETURN));
         webSocketSpy.getUserUpdate.and.returnValue(of({ username: 'test', isConnected: true }));
         webSocketSpy.getUsersStat.and.returnValue(of([]));
         webSocketSpy.getClosedConnection.and.returnValue(of('Connection closed'));
@@ -91,8 +91,8 @@ describe('Game', () => {
                 ],
                 indexCurrentQuestion: 0,
                 choicesCounters: [
-                    [10, 0, 0],
-                    [0, 0, 10],
+                    [MOCK_CHOICES_COUNTER, 0, 0],
+                    [0, 0, MOCK_CHOICES_COUNTER],
                 ],
             }),
         );
@@ -231,7 +231,7 @@ describe('Game', () => {
     });
 
     it('should return the same time as timeService', () => {
-        expect(service.time).toEqual(30);
+        expect(service.time).toEqual(TIME_RETURN);
     });
 
     it('should return 0 at the start of the game', () => {
@@ -239,7 +239,7 @@ describe('Game', () => {
     });
 
     it('should return the max time (20) of the game', () => {
-        expect(service.maxTime).toEqual(20);
+        expect(service.maxTime).toEqual(MAX_TIME_RETURN);
     });
 
     it('should return the current game title', () => {
@@ -330,9 +330,10 @@ describe('Game', () => {
         expect(service.currentState).toEqual(GameState.WaitingResults);
     });
 
+    // eslint-disable-next-line no-undef
     it('timerSubscribe should return the time Observable', (done: DoneFn) => {
         service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(30);
+            expect(time).toEqual(TIME_RETURN);
             done();
         });
     });
@@ -372,6 +373,7 @@ describe('Game', () => {
         service.showFinalResults();
         expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
     });
+    // eslint-disable-next-line no-undef
     it('stateSubscribe() should return an observable that emits the state payload from WebSocketService', (done: DoneFn) => {
         service.stateSubscribe().subscribe({
             next: () => {
