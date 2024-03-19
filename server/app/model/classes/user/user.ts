@@ -37,7 +37,6 @@ export class UserData {
     get uid() {
         return this.userId;
     }
-
     get userScore() {
         return { score: this.score, bonus: this.isBonus } as Score;
     }
