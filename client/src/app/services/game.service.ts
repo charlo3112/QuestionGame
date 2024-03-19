@@ -223,7 +223,7 @@ export class GameService implements OnDestroy {
     }
 
     nextQuestion() {
-        this.websocketService.nextQuestion();
+        this.websocketService.hostConfirm();
     }
 
     showFinalResults() {

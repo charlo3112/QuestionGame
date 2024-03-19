@@ -1,7 +1,7 @@
 import { CountDownTimer } from '@app/model/classes/time';
 import { UserData } from '@app/model/classes/user';
 import { GameData } from '@app/model/database/game';
-import { TIME_CONFIRM_S, WAITING_TIME_S, WAIT_FOR_NEXT_QUESTION } from '@common/constants';
+import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -23,7 +23,6 @@ export class ActiveGame {
     private roomId: string;
     private questionIndex: number = 0;
     private timer;
-    private readyForNextQuestion: boolean = false;
     private histogramData: HistogramData;
 
     // This class needs all these parameters to be able to communicate with the server
@@ -164,10 +163,6 @@ export class ActiveGame {
         return this.activeUsers.has(userId);
     }
 
-    nextQuestion() {
-        this.readyForNextQuestion = true;
-    }
-
     addUser(user: UserData) {
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
@@ -296,21 +291,15 @@ export class ActiveGame {
     }
 
     async askQuestion() {
+        this.histogramData.indexCurrentQuestion = this.questionIndex;
+        this.updateHistogramData(this.hostId, this.histogramData);
         this.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
 
         this.calculateScores();
         this.advanceState(GameState.ShowResults);
-        await this.timer.start(TIME_CONFIRM_S);
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
-        else {
-            while (!this.readyForNextQuestion) await new Promise((resolve) => setTimeout(resolve, WAIT_FOR_NEXT_QUESTION));
-            this.histogramData.indexCurrentQuestion = this.questionIndex;
-            this.updateHistogramData(this.hostId, this.histogramData);
-
-            this.readyForNextQuestion = false;
-        }
     }
 
     private advanceState(state: GameState) {

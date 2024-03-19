@@ -39,8 +39,6 @@ import { Question } from '@common/interfaces/question';
     ],
 })
 export class GamePageComponent implements OnInit, OnDestroy {
-    countdownReachedZeroCount: number = 0;
-    showButton: boolean = false;
     buttonText: string = 'Prochaine Question';
     constructor(
         readonly gameService: GameService,
@@ -51,11 +49,15 @@ export class GamePageComponent implements OnInit, OnDestroy {
         return this.gameService.currentQuestion;
     }
 
-    saveGameData(countdownReachedZeroCount: number, buttonText: string): void {
-        localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ countdownReachedZeroCount, buttonText }));
+    showButton(): boolean {
+        return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
     }
 
-    getGameData(): { countdownReachedZeroCount: number; showButton: boolean; buttonText: string } | null {
+    saveGameData(buttonText: string): void {
+        localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ buttonText }));
+    }
+
+    getGameData(): { buttonText: string } | null {
         const gameStateData = localStorage.getItem(this.gameService.roomCodeValue);
         return gameStateData ? JSON.parse(gameStateData) : null;
     }
@@ -68,45 +70,29 @@ export class GamePageComponent implements OnInit, OnDestroy {
         if (this.buttonText === 'Résultats') {
             localStorage.clear();
             this.gameService.showFinalResults();
-        } else if (this.buttonText === 'Prochaine Question') this.gameService.nextQuestion();
+        } else if (this.buttonText === 'Prochaine Question') {
+            this.gameService.nextQuestion();
+        }
     }
 
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
         const gameData = this.getGameData();
         if (gameData === null) {
-            this.countdownReachedZeroCount = 0;
             this.buttonText = 'Prochaine Question';
         } else {
-            this.countdownReachedZeroCount = gameData.countdownReachedZeroCount;
             this.buttonText = gameData.buttonText;
         }
-        this.gameService.timerSubscribe().subscribe((time: number) => {
-            if (time === 0) {
-                this.countdownReachedZero();
-            }
-        });
         this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
             if (statePayload.state === GameState.LastQuestion) {
                 this.buttonText = 'Résultats';
             }
         });
-        window.onbeforeunload = () => this.saveGameData(this.countdownReachedZeroCount, this.buttonText);
+        window.onbeforeunload = () => this.saveGameData(this.buttonText);
     }
 
     ngOnDestroy(): void {
-        this.countdownReachedZeroCount = 0;
-        this.showButton = false;
         this.buttonText = 'Prochaine Question';
-    }
-
-    countdownReachedZero(): void {
-        this.countdownReachedZeroCount++;
-        if (this.countdownReachedZeroCount % 2 === 1 && this.countdownReachedZeroCount !== 1) {
-            this.showButton = true;
-        } else {
-            this.showButton = false;
-        }
     }
 
     openAbandonDialog(): void {
