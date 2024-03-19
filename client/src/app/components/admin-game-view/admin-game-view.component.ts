@@ -7,7 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-admin-game-view',

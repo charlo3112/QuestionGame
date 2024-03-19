@@ -367,12 +367,6 @@ describe('Game', () => {
     });
 
     it('should assign question when state is AskingQuestion with payload', () => {
-        const mockQuestion: Question = {
-            text: 'Sample question?',
-            choices: [{ text: 'Answer 1', isCorrect: false }],
-            type: QuestionType.QCM,
-            points: 5,
-        };
         service['setState']({ state: GameState.AskingQuestion, payload: mockQuestion });
         expect(service['question']).toEqual(mockQuestion);
         expect(service['choicesSelected']).toEqual([false, false, false, false]);

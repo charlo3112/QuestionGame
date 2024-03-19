@@ -1,8 +1,8 @@
 /* eslint-disable max-params */
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Question } from '@app/interfaces/question';
 import { NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { Question } from '@common/interfaces/question';
 
 @Injectable({
     providedIn: 'root',

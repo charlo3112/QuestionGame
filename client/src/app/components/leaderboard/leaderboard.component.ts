@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-leaderboard',

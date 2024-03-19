@@ -2,11 +2,11 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { SNACKBAR_DURATION } from '@common/constants';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
 import { lastValueFrom } from 'rxjs';
 
 @Injectable({

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { Choice } from '@common/interfaces/choice';
+import { Game } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
 
 @Injectable({
     providedIn: 'root',
@@ -30,11 +32,11 @@ export class AdminService {
                             title: game.title,
                             description: game.description,
                             duration: game.duration,
-                            questions: game.questions.map((question) => ({
+                            questions: game.questions.map((question: Question) => ({
                                 type: question.type,
                                 text: question.text,
                                 points: question.points,
-                                choices: question.choices?.map((choice) => ({
+                                choices: question.choices?.map((choice: Choice) => ({
                                     text: choice.text,
                                     isCorrect: choice.isCorrect,
                                 })),

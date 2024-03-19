@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { DAY_IN_MS, MAX_MESSAGE_LENGTH } from '@common/constants';
 import { Message } from '@common/interfaces/message';
