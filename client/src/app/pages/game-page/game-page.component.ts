@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { GAME_PLACEHOLDER } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-game-page',
@@ -27,7 +27,7 @@ export class GamePageComponent implements OnInit {
         if (state && state.game) {
             this.gameService.startGame(state.game);
         } else {
-            this.gameService.startGame(this.placeholder); // Starts with placeholder questions
+            this.gameService.startGame(this.placeholder);
         }
     }
 }

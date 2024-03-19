@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router } from '@angular/router';
-import { WebSocketService } from '@app/services/websocket.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
 @Component({

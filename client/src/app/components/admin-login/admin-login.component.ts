@@ -4,7 +4,7 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { CommunicationService } from '@app/services/communication.service';
+import { CommunicationService } from '@app/services//communication/communication.service';
 import { lastValueFrom } from 'rxjs';
 
 @Component({

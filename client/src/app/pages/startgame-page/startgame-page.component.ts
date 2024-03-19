@@ -6,8 +6,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { Game } from '@app/interfaces/game';
-import { CommunicationService } from '@app/services/communication.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { Result } from '@common/result';
 import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -36,6 +36,7 @@ export class StartGamePageComponent {
     }
 
     loadGames(): void {
+        const ERROR_FETCHING_GAMES = "Erreur lors de l'obtention des jeux";
         this.subscription.add(
             this.communicationService.getGames().subscribe({
                 next: (result: Result<Game[]>) => {
@@ -45,11 +46,11 @@ export class StartGamePageComponent {
                             game.image = 'assets/logo.png';
                         });
                     } else {
-                        this.openSnackBar('Error fetching games');
+                        this.openSnackBar(ERROR_FETCHING_GAMES);
                     }
                 },
                 error: () => {
-                    this.openSnackBar('Error fetching games');
+                    this.openSnackBar(ERROR_FETCHING_GAMES);
                 },
             }),
         );
@@ -63,13 +64,15 @@ export class StartGamePageComponent {
 
     startGame(game: Game) {
         const gameId = game.gameId;
+        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
+        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
 
         this.communicationService
             .getGameByID(gameId)
             .pipe(
                 tap((result: Result<Game>) => {
                     if (!result.ok || !result.value) {
-                        this.openSnackBar('Jeux supprimé, veuillez en choisir un autre');
+                        this.openSnackBar(GAME_DELETED);
                         this.loadGames();
                     }
                 }),
@@ -82,7 +85,7 @@ export class StartGamePageComponent {
                         sessionStorage.setItem('user', JSON.stringify(user));
                         this.router.navigate(['/loading']);
                     } else {
-                        this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
+                        this.openSnackBar(GAME_INVISIBLE);
                         this.loadGames();
                     }
                 }
@@ -91,13 +94,15 @@ export class StartGamePageComponent {
 
     testGame(game: Game) {
         const gameId = game.gameId;
+        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
+        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
 
         this.communicationService
             .getGameByID(gameId)
             .pipe(
                 tap((result: Result<Game>) => {
                     if (!result.ok || !result.value) {
-                        this.openSnackBar('Jeux supprimé, veuillez en choisir un autre');
+                        this.openSnackBar(GAME_DELETED);
                         this.loadGames();
                     }
                 }),
@@ -108,7 +113,7 @@ export class StartGamePageComponent {
                     if (newGame.visibility) {
                         this.router.navigate(['/game'], { state: { game: newGame } });
                     } else {
-                        this.openSnackBar('Jeux invisible, veuillez en choisir un autre');
+                        this.openSnackBar(GAME_INVISIBLE);
                         this.loadGames();
                     }
                 }

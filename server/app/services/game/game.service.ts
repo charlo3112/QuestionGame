@@ -24,7 +24,8 @@ export class GameService implements OnModuleInit {
 
     async populateDB(): Promise<void> {
         try {
-            const jsonData = await fs.readFile('assets/quiz-example.json', 'utf8');
+            const JSON_FILE_PATH = 'assets/quiz-example.json';
+            const jsonData = await fs.readFile(JSON_FILE_PATH, 'utf8');
             const gameData = JSON.parse(jsonData);
             const gameDto: CreateGameDto = {
                 title: gameData.title,
@@ -40,13 +41,11 @@ export class GameService implements OnModuleInit {
     }
 
     async getAllGames(): Promise<Game[]> {
-        const games = await this.gameModel.find({ visibility: true });
-        return games || [];
+        return await this.gameModel.find({ visibility: true });
     }
 
     async getAllGamesAdmin(): Promise<Game[]> {
-        const games = await this.gameModel.find({});
-        return games || [];
+        return await this.gameModel.find({});
     }
 
     async getGameById(id: string): Promise<Game | null> {
@@ -117,6 +116,6 @@ export class GameService implements OnModuleInit {
     }
 
     async verifyTitle(title: string): Promise<boolean> {
-        return (await this.gameModel.findOne({ title })) ? true : false;
+        return !!(await this.gameModel.findOne({ title }));
     }
 }

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Game } from '@app/interfaces/game';
 import { Question } from '@app/interfaces/question';
+import { TimeService } from '@app/services/time/time.service';
 import { GameState } from '@common/game-state';
-import { TimeService } from './time.service';
 
 const timeConfirmMs = 3000;
 const bonusMultiplier = 1.2;

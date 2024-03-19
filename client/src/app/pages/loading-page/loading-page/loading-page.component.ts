@@ -8,7 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { WebSocketService } from '@app/services/websocket.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { UserConnectionUpdate } from '@common/user-update.interface';
 import { User } from '@common/user.interface';

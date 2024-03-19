@@ -15,12 +15,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { Game, GAME_PLACEHOLDER } from '@app/interfaces/game';
+import { Game } from '@app/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
-import { CommunicationService } from '@app/services/communication.service';
-import { ValidationService } from '@app/services/validation.service';
-import { MIN_DURATION, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
-import { lastValueFrom } from 'rxjs';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameCreationService } from '@app/services/game-creation/game-creation.service';
+import { QuestionInsertionService } from '@app/services/question-creation/question-insertion.service';
+import { MIN_DURATION, SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
     selector: 'app-create-page',
@@ -48,31 +48,30 @@ import { lastValueFrom } from 'rxjs';
     ],
 })
 export class CreatePageComponent implements OnInit {
-    pageTitle: string;
-    showChildren: boolean = false;
-    showPage: boolean = true;
-    isEditing: boolean = false;
-    isEditingQuestion: boolean = false;
-    questionTitleToEdit: string = '';
-
-    login: boolean;
-    id: string;
-    title: string;
     description: string;
     duration: number;
-    lastModification: string;
+    id: string;
+    isEditing: boolean = false;
+    login: boolean;
+    pageTitle: string;
     questions: Question[] = [];
-    image: string;
-    visibility: boolean;
+    questionTitleToEdit: string = '';
     selectedQuestion: Question | null = null;
+    showChildren: boolean = false;
+    showPage: boolean = true;
+    isEditingQuestion: boolean = false;
+    title: string;
+    visibility: boolean;
 
+    // We had to disable the max-params rule because we need every parameter for the component to work
     // eslint-disable-next-line max-params
     constructor(
-        private router: Router,
+        private readonly communicationService: CommunicationService,
+        private readonly gameCreationService: GameCreationService,
+        private readonly questionInsertionService: QuestionInsertionService,
         private route: ActivatedRoute,
-        private communicationService: CommunicationService,
-        private validationService: ValidationService,
         private snackBar: MatSnackBar,
+        private router: Router,
     ) {}
     ngOnInit() {
         if (this.verifyLogin()) {
@@ -91,48 +90,21 @@ export class CreatePageComponent implements OnInit {
         }
     }
     insertQuestion(question: Question): void {
-        const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index > NOT_FOUND) {
-            this.questions[index] = question;
-        } else {
-            this.questions.push(question);
-        }
+        this.questionInsertionService.insertQuestion(question, this.questions);
     }
     insertQuestionFromBank(question: Question) {
-        if (this.verifPresenceQuestion(question)) {
-            this.insertQuestion(question);
-        }
+        this.questionInsertionService.insertQuestionFromBank(question, this.isEditingQuestion, this.questions);
         this.closeQuestionBank();
     }
     insertQuestionFromCreate(question: Question) {
-        if (this.verifPresenceQuestion(question)) {
-            if (this.questionTitleToEdit === '') {
-                this.insertQuestion(question);
-            } else {
-                const index = this.questions.findIndex((q) => q.text === this.questionTitleToEdit);
-                this.questions[index] = question;
-                this.questionTitleToEdit = '';
-                this.isEditingQuestion = false;
-            }
-        }
+        this.questionInsertionService.insertQuestionFromCreate(question, this.isEditingQuestion, this.questionTitleToEdit, this.questions);
         this.closeCreateQuestion();
     }
-    verifPresenceQuestion(question: Question): boolean {
-        const index = this.questions.findIndex((q) => q.text === question.text);
-        if (index !== NOT_FOUND) {
-            if (this.isEditingQuestion) {
-                return true;
-            }
-            this.snackBar.open("Une question avec le même texte est déjà présente ! Votre question n'a pas été ajoutée.", undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            return false;
-        } else {
-            return true;
-        }
+    verifyPresenceQuestion(question: Question): boolean {
+        return this.questionInsertionService.verifyQuestion(question, this.questions, this.isEditingQuestion);
     }
     deleteQuestion(index: number): void {
-        this.questions.splice(index, 1);
+        this.questionInsertionService.deleteQuestion(index, this.questions);
     }
     drop(event: CdkDragDrop<Question[]>): void {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
@@ -159,78 +131,28 @@ export class CreatePageComponent implements OnInit {
         this.isEditingQuestion = false;
     }
     async save(): Promise<void> {
-        const gameToValidate: Partial<Game> = {
-            title: this.title,
-            description: this.description,
-            duration: this.duration,
-            questions: this.questions,
-        };
-        const validationErrors = this.validationService.validateGame(gameToValidate);
-        if (validationErrors.length > 0) {
-            this.snackBar.open('Erreurs de validation: \n' + validationErrors.join('\n'), undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            return;
-        }
-        const newGame: Game = {
-            ...GAME_PLACEHOLDER,
-            ...gameToValidate,
-            lastModification: new Date().toISOString(),
-            visibility: this.visibility,
-        };
-
-        if (this.isEditing) {
-            newGame.gameId = this.id;
-            await this.updateGame(newGame);
-        } else {
-            await this.createGame(newGame);
-        }
+        this.gameCreationService.save(this.title, this.description, this.duration, this.questions, this.visibility, this.id, this.isEditing);
     }
 
     async createGame(game: Game): Promise<void> {
-        try {
-            await lastValueFrom(this.communicationService.addGame(game));
-            this.snackBar.open('Le jeu a été créé avec succès !', undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            this.router.navigate(['/admin']);
-        } catch (e) {
-            this.snackBar.open('Erreur lors de la création du jeu', undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-        }
+        this.gameCreationService.createGame(game);
     }
+
     async updateGame(game: Game): Promise<void> {
-        try {
-            await lastValueFrom(this.communicationService.editGame(game));
-            this.snackBar.open('Le jeu a été modifié avec succès !', undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-            this.router.navigate(['/admin']);
-        } catch (e) {
-            this.snackBar.open('Erreur lors de la modification du jeu', undefined, {
-                duration: SNACKBAR_DURATION,
-            });
-        }
+        this.gameCreationService.updateGame(game);
     }
     verifyLogin(): boolean {
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            this.login = JSON.parse(storedLogin);
-        } else {
-            this.login = false;
-            sessionStorage.setItem('login', JSON.stringify(this.login));
-        }
-        return this.login;
+        return this.communicationService.verifyLogin(this.login);
     }
 
     loadGameData(gameId: string) {
+        const ERROR_LOADING_GAME = 'Erreur lors du chargement du jeu';
         this.communicationService.getGameById(gameId).subscribe({
             next: (game) => {
                 this.fillForm(game, gameId);
             },
             error: () => {
-                this.snackBar.open('Erreur lors du chargement du jeu', undefined, {
+                this.snackBar.open(ERROR_LOADING_GAME, undefined, {
                     duration: SNACKBAR_DURATION,
                 });
                 this.router.navigate(['/admin']);

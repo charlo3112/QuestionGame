@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { WebSocketService } from '@app/services/websocket.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { Message } from '@common/message.interface';
 import { of } from 'rxjs';
 

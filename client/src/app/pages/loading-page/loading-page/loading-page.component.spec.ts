@@ -5,7 +5,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
-import { WebSocketService } from '@app/services/websocket.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/game-state';
 import { Message } from '@common/message.interface';
 import { Result } from '@common/result';

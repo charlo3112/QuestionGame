@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { Game } from '@app/interfaces/game';
-import { CommunicationService } from '@app/services/communication.service';
-import { ValidationService } from '@app/services/validation.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Result } from '@common/result';
 import { lastValueFrom } from 'rxjs';
 
@@ -68,13 +68,14 @@ export class ImportDialogComponent {
     }
 
     private async loadFile(reader: FileReader): Promise<void> {
+        const INVALID_GAME_FORMAT = 'Le format du jeu est invalide.';
         const text = reader.result as string;
         let game;
-        this.validationErrors = ['Le format du jeu est invalide.'];
+        this.validationErrors = [INVALID_GAME_FORMAT];
         try {
             game = JSON.parse(text);
         } catch (error) {
-            this.validationErrors = ['Le format du jeu est invalide.'];
+            this.validationErrors = [INVALID_GAME_FORMAT];
             return;
         }
         this.validationErrors = this.validationService.validateGame(game);

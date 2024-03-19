@@ -15,9 +15,9 @@ import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
-import { CommunicationService } from './services/communication.service';
-import { ValidationService } from './services/validation.service';
-import { WebSocketService } from './services/websocket.service';
+import { CommunicationService } from './services/communication/communication.service';
+import { ValidationService } from './services/validation/validation.service';
+import { WebSocketService } from './services/websocket/websocket.service';
 
 /**
  * Main module that is used in main.ts.
@@ -28,24 +28,24 @@ import { WebSocketService } from './services/websocket.service';
 @NgModule({
     declarations: [AppComponent],
     imports: [
+        AdminPageComponent,
+        AnswersComponent,
         AppRoutingModule,
         BrowserAnimationsModule,
         BrowserModule,
+        CreatePageComponent,
+        CreateQuestionComponent,
         FormsModule,
         HttpClientModule,
         MatButtonModule,
-        MatInputModule,
-        MatIconModule,
-        ReactiveFormsModule,
-        AdminPageComponent,
-        CreatePageComponent,
-        CreateQuestionComponent,
-        AnswersComponent,
         MatGridListModule,
+        MatIconModule,
+        MatInputModule,
         QuestionBankComponent,
         QuestionBankPageComponent,
+        ReactiveFormsModule,
     ],
-    providers: [WebSocketService, CommunicationService, ValidationService],
+    providers: [CommunicationService, ValidationService, WebSocketService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}
