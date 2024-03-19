@@ -1,5 +1,5 @@
-import { CountDownTimer } from '@app/model/classes/time';
-import { UserData } from '@app/model/classes/user';
+import { CountDownTimer } from '@app/model/classes/time/time';
+import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
 import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';

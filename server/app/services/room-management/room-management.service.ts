@@ -1,5 +1,5 @@
-import { ActiveGame } from '@app/model/classes/active-game';
-import { UserData } from '@app/model/classes/user';
+import { ActiveGame } from '@app/model/classes/active-game/active-game';
+import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
