@@ -82,31 +82,34 @@ export class ValidationService {
     }
 
     checkQCM(question: Partial<Question>, errors: string[]): void {
-        if (question.type === QuestionType.QCM) {
-            if (!Array.isArray(question.choices)) {
-                errors.push('Les choix de la question doivent être un tableau.');
-            } else {
-                const choices = question.choices;
-                if (choices.length < MIN_CHOICES_NUMBER) {
-                    errors.push('La question doit avoir au minimum deux choix.');
-                }
-                if (choices.length > MAX_CHOICES_NUMBER) {
-                    errors.push('La question doit avoir au maximum quatre choix.');
-                }
-                let answer = 0;
-                for (let j = 0; j < choices.length; j++) {
-                    const choice = choices[j];
-                    if (choice.isCorrect) {
-                        answer++;
-                    }
-                    if (!choice.text || choice.text === '') {
-                        errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
-                    }
-                }
-                if (answer === 0 || answer === choices.length) {
-                    errors.push('Les choix de réponse sont fautifs');
-                }
+        const CHOICES_NOT_IN_TABLE = 'Les choix de la question doivent être un tableau.';
+        const QUESTION_MINIMUM_CHOICES = 'La question doit avoir au minimum deux choix.';
+        const QUESTION_MAXIMUM_CHOICES = 'La question doit avoir au maximum quatre choix.';
+        const FALSE_CHOICES = 'Les choix de réponse sont fautifs';
+        if (question.type !== QuestionType.QCM) {
+            return;
+        }
+        const choices = question.choices;
+        if (!Array.isArray(choices)) {
+            errors.push(CHOICES_NOT_IN_TABLE);
+            return;
+        }
+        const choicesLength = choices.length;
+        if (choicesLength < MIN_CHOICES_NUMBER || choicesLength > MAX_CHOICES_NUMBER) {
+            errors.push(choicesLength < MIN_CHOICES_NUMBER ? QUESTION_MINIMUM_CHOICES : QUESTION_MAXIMUM_CHOICES);
+        }
+        let numAnswer = 0;
+        for (let j = 0; j < choicesLength; j++) {
+            const choice = choices[j];
+            if (choice.isCorrect) {
+                numAnswer++;
             }
+            if (!choice.text || choice.text === '') {
+                errors.push(`Le choix ${j + 1} de la question doit avoir un texte.`);
+            }
+        }
+        if (numAnswer === 0 || numAnswer === choicesLength) {
+            errors.push(FALSE_CHOICES);
         }
     }
 

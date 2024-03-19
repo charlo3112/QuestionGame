@@ -4,8 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { CommunicationService } from '@app/services/communication.service';
-import { ValidationService } from '@app/services/validation.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { of } from 'rxjs';
 import { ImportDialogComponent } from './import-dialog.component';
 

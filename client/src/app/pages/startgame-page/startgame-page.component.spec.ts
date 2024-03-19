@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -7,9 +7,12 @@ import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { routes } from '@app/modules/app-routing.module';
-import { CommunicationService } from '@app/services/communication.service';
-import { WebSocketService } from '@app/services/websocket.service';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameService } from '@app/services/game/game.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
+import { GameState } from '@common/enums/game-state';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
@@ -22,12 +25,32 @@ describe('StartGamePageComponent', () => {
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let snackBarSpy: SpyObj<MatSnackBar>;
     let webSocketServiceSpy: SpyObj<WebSocketService>;
+    let mockGameService: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
         webSocketServiceSpy = jasmine.createSpyObj('WebSocketService', ['createRoom']);
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGames', 'getGameByID']);
         communicationServiceSpy.getGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
-
+        mockGameService = jasmine.createSpyObj(
+            'GameService',
+            [
+                'init',
+                'leaveRoom',
+                'isChoiceSelected',
+                'isChoiceCorrect',
+                'isChoiceIncorrect',
+                'timerSubscribe',
+                'nextQuestion',
+                'showResults',
+                'stateSubscribe',
+                'reset',
+            ],
+            {
+                currentQuestion: QUESTION_PLACEHOLDER,
+                currentState: GameState.Starting,
+            },
+        );
+        mockGameService.timerSubscribe.and.returnValue(of(0));
         const mockGame: Game = {
             gameId: '123',
             visibility: true,
@@ -61,6 +84,7 @@ describe('StartGamePageComponent', () => {
                 RouterModule.forRoot(routes),
             ],
             providers: [
+                { provide: GameService, useValue: mockGameService },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
             ],
@@ -95,7 +119,7 @@ describe('StartGamePageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.loadGames();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error fetching games');
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux");
     }));
 
     it('should have a list of games', () => {

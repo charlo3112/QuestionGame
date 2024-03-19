@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { GameService } from '@app/services/game.service';
+import { GameService } from '@app/services/game/game.service';
 import { Choice } from '@common/interfaces/choice';
 
 @Component({
@@ -15,7 +15,7 @@ import { Choice } from '@common/interfaces/choice';
 })
 export class HistogramComponent {
     @Input() showArrows: boolean = true;
-    private indexQuestionDisplayed: number = 0;
+    indexQuestionDisplayed: number = 0;
 
     constructor(readonly gameService: GameService) {}
 

@@ -1,6 +1,8 @@
 <div class="main-container">
-    <app-leaderboard></app-leaderboard>
-    <app-histogram class="histogram" [showArrows]="false"></app-histogram>
+    <div class="flex column stat-container">
+        <app-leaderboard></app-leaderboard>
+        <app-histogram class="histogram" [showArrows]="false"></app-histogram>
+    </div>
     <div class="flex column">
         <app-chat></app-chat>
         <div class="flex">

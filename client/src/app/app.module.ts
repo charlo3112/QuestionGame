@@ -15,14 +15,14 @@ import { AdminPageComponent } from '@app/pages/admin-page/admin-page.component';
 import { AppComponent } from '@app/pages/app/app.component';
 import { CreatePageComponent } from '@app/pages/create-page/create-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
-import { ResultPageComponent } from '@app/pages/result-page/result-page.component';
-import { CommunicationService } from '@app/services/communication.service';
-import { GameService } from '@app/services/game.service';
-import { ValidationService } from '@app/services/validation.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { ValidationService } from '@app/services/validation/validation.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { ResultPageComponent } from './pages/result-page/result-page.component';
+import { GameService } from './services/game/game.service';
 
 /**
  * Main module that is used in main.ts.
@@ -41,6 +41,8 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
         BrowserModule,
         CreatePageComponent,
         CreateQuestionComponent,
+        CreatePageComponent,
+        CreateQuestionComponent,
         FormsModule,
         HistogramComponent,
         HttpClientModule,
@@ -49,6 +51,8 @@ import { LeaderboardComponent } from './components/leaderboard/leaderboard.compo
         MatInputModule,
         MatIconModule,
         MatGridListModule,
+        MatIconModule,
+        MatInputModule,
         QuestionBankComponent,
         QuestionBankPageComponent,
         ReactiveFormsModule,

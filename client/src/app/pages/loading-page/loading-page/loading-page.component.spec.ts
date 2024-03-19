@@ -3,9 +3,9 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
-import { GameService } from '@app/services/game.service';
-import { TimeService } from '@app/services/time.service';
-import { WebSocketService } from '@app/services/websocket.service';
+import { GameService } from '@app/services/game/game.service';
+import { TimeService } from '@app/services/time/time.service';
+import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { of } from 'rxjs';
 import { LoadingPageComponent } from './loading-page.component';
 

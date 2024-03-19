@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -7,11 +7,12 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { CommunicationService } from '@app/services/communication.service';
+import { AdminService } from '@app/services/admin/admin.service';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
-import { of, throwError } from 'rxjs';
+import { firstValueFrom, of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;
 
@@ -19,6 +20,7 @@ describe('AdminPageComponent', () => {
     let component: AdminPageComponent;
     let fixture: ComponentFixture<AdminPageComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
+    let adminServiceSpy: SpyObj<AdminService>;
     let snackBarSpy: SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
@@ -43,6 +45,8 @@ describe('AdminPageComponent', () => {
         );
         communicationServiceSpy.addGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
 
+        adminServiceSpy = jasmine.createSpyObj('AdminService', ['deleteGame', 'toggleGameVisibility', 'exportGame', 'downloadFile', 'handleLogin']);
+
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         TestBed.overrideProvider(MatDialog, {
@@ -65,6 +69,7 @@ describe('AdminPageComponent', () => {
             ],
             providers: [
                 { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: AdminService, useValue: adminServiceSpy },
                 { provide: MatSnackBar, useValue: snackBarSpy },
             ],
         }).compileComponents();
@@ -157,7 +162,7 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
-
+        adminServiceSpy.deleteGame.withArgs(GAME_PLACEHOLDER.gameId).and.resolveTo();
         component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
@@ -172,6 +177,7 @@ describe('AdminPageComponent', () => {
         component.games = [];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
+        adminServiceSpy.deleteGame.withArgs(GAME_PLACEHOLDER.gameId).and.rejectWith(throwError(() => new HttpErrorResponse({ status: 500 })));
         component.deleteGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
@@ -198,6 +204,7 @@ describe('AdminPageComponent', () => {
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
+        adminServiceSpy.exportGame.withArgs(GAME_PLACEHOLDER.gameId).and.resolveTo(GAME_PLACEHOLDER);
         component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).not.toHaveBeenCalled();
@@ -211,6 +218,7 @@ describe('AdminPageComponent', () => {
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
+        adminServiceSpy.exportGame.withArgs(GAME_PLACEHOLDER.gameId).and.rejectWith();
         component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
@@ -222,6 +230,7 @@ describe('AdminPageComponent', () => {
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
         spyOn(component, 'openSnackBar');
+        adminServiceSpy.exportGame.withArgs(GAME_PLACEHOLDER.gameId).and.resolveTo(null);
         component.exportGame(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
@@ -242,10 +251,12 @@ describe('AdminPageComponent', () => {
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
 
+        adminServiceSpy.toggleGameVisibility.withArgs(GAME_PLACEHOLDER.gameId).and.resolveTo(!GAME_PLACEHOLDER.visibility);
+
         component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         fixture.detectChanges();
-        expect(component.games[0].visibility).toBeFalse();
+        expect(component.games[0].visibility).toBe(!GAME_PLACEHOLDER.visibility);
         expect(snackBarSpy.open).not.toHaveBeenCalled();
     }));
 
@@ -267,7 +278,12 @@ describe('AdminPageComponent', () => {
         component.login = true;
         component.games = [{ ...GAME_PLACEHOLDER }];
         fixture.detectChanges();
+
         spyOn(component, 'openSnackBar');
+
+        const errorResponse = new HttpErrorResponse({ status: HttpStatusCode.NotFound });
+        adminServiceSpy.toggleGameVisibility.and.returnValue(firstValueFrom(throwError(() => errorResponse)));
+
         component.toggleGameVisibility(GAME_PLACEHOLDER.gameId);
         tick();
         expect(component.openSnackBar).toHaveBeenCalled();
@@ -283,7 +299,7 @@ describe('AdminPageComponent', () => {
         component.openImportDialog();
         tick();
         expect(communicationServiceSpy.addGame).toHaveBeenCalledWith(GAME_PLACEHOLDER);
-        expect(component.openSnackBar).toHaveBeenCalledWith('Game added');
+        expect(component.openSnackBar).toHaveBeenCalledWith('Jeu ajouté avec succès !');
     }));
 
     it('should show snackbar when openImportDialog is called and error occurs', fakeAsync(() => {
@@ -293,6 +309,6 @@ describe('AdminPageComponent', () => {
         spyOn(component, 'openSnackBar');
         component.openImportDialog();
         tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Error adding game');
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'ajout du jeu");
     }));
 });
