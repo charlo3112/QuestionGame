@@ -2,11 +2,11 @@ import { HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Game } from '@app/interfaces/game';
-import { QUESTIONS_PLACEHOLDER } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { SNACKBAR_DURATION } from '@common/constants';
+import { Game } from '@common/interfaces/game';
+import { QUESTIONS_PLACEHOLDER } from '@common/interfaces/question';
 import { of } from 'rxjs';
 import { GameCreationService } from './game-creation.service';
 

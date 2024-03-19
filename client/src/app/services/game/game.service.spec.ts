@@ -61,6 +61,8 @@ describe('Game', () => {
             'banUser',
             'leaveRoom',
             'getHistogramData',
+            'hostConfirm',
+            'showFinalResults',
         ]);
 
         webSocketSpy.getState.and.returnValue(of({ state: GameState.Wait }));
@@ -121,6 +123,7 @@ describe('Game', () => {
 
     afterEach(() => {
         sessionStorage.clear();
+        jasmine.getEnv().allowRespy(true);
     });
 
     it('should be created', () => {
@@ -326,17 +329,6 @@ describe('Game', () => {
         service.confirmQuestion();
         expect(service.currentState).toEqual(GameState.WaitingResults);
     });
-    /*
-    it('should call the nextQuestion function in webSocketService', () => {
-        service.nextQuestion();
-        expect(webSocketSpy.nextQuestion).toHaveBeenCalled();
-    });
-
-    it('should call the showResult function in webSocketService', () => {
-        service.showResults();
-        expect(webSocketSpy.showResults).toHaveBeenCalled();
-    });
-    */
 
     it('timerSubscribe should return the time Observable', (done: DoneFn) => {
         service.timerSubscribe().subscribe((time) => {
@@ -361,11 +353,6 @@ describe('Game', () => {
         expect(service['isResponseGood']()).toBeFalsy();
     });
 
-    it('should navigate to /results if state is GameOver', () => {
-        service['setState']({ state: GameState.GameOver });
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/results']);
-    });
-
     it('should assign question when state is AskingQuestion with payload', () => {
         service['setState']({ state: GameState.AskingQuestion, payload: mockQuestion });
         expect(service['question']).toEqual(mockQuestion);
@@ -377,4 +364,28 @@ describe('Game', () => {
         service['setState']({ state: GameState.Starting, payload: title });
         expect(service['title']).toEqual(title);
     });
+    it('nextQuestion() should call hostConfirm on WebSocketService', () => {
+        service.nextQuestion();
+        expect(webSocketSpy.hostConfirm).toHaveBeenCalled();
+    });
+    it('showFinalResults() should call showFinalResults on WebSocketService', () => {
+        service.showFinalResults();
+        expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
+    });
+    it('stateSubscribe() should return an observable that emits the state payload from WebSocketService', (done: DoneFn) => {
+        service.stateSubscribe().subscribe({
+            next: () => {
+                done();
+            },
+            error: done.fail,
+        });
+        expect(webSocketSpy.getState).toHaveBeenCalled();
+    });
+
+    it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {
+        service['state'] = GameState.ShowFinalResults;
+        service['setState']({ state: GameState.ShowFinalResults, payload: undefined });
+        const navigateSpy = spyOn(service['routerService'], 'navigate');
+        expect(navigateSpy).toHaveBeenCalledWith(['/results']);
+    }));
 });

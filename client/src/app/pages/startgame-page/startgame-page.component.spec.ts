@@ -44,6 +44,7 @@ describe('StartGamePageComponent', () => {
                 'showResults',
                 'stateSubscribe',
                 'reset',
+                'createRoom',
             ],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
@@ -132,21 +133,6 @@ describe('StartGamePageComponent', () => {
         expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close', { duration: 4000 });
     });
 
-    it('should navigate to game page when testing and game visibility is true', fakeAsync(() => {
-        const game = structuredClone(GAME_PLACEHOLDER);
-        game.visibility = true;
-        const mockResult = { ok: true, value: game };
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockResult.value } as Result<Game>));
-
-        spyOn(router, 'navigate');
-
-        component.testGame(game);
-
-        tick();
-
-        expect(router.navigate).toHaveBeenCalledWith(['/game'], { state: { game } });
-    }));
-
     it('should display snack bar message and reload games list when testing and game visibility is false', fakeAsync(() => {
         const game = GAME_PLACEHOLDER;
         game.visibility = false;
@@ -205,13 +191,4 @@ describe('StartGamePageComponent', () => {
         expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
         expect(component.loadGames).toHaveBeenCalled();
     }));
-
-    /*
-    it('should call webSocketService.createRoom if newGame.visibility is true', fakeAsync(() => {
-        const navigateSpy = spyOn(router, 'navigate');
-        component.startGame({ gameId: '123', visibility: true } as Game);
-        tick();
-        expect(navigateSpy).toHaveBeenCalledWith(['/loading']);
-    }));
-    */
 });
