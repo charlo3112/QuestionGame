@@ -1,4 +1,5 @@
 // src/game/game.gateway.ts
+import { ActiveGame } from '@app/model/classes/active-game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -64,7 +65,7 @@ export class GameGateway implements OnGatewayDisconnect {
             this.handleHistogramDataUpdate.bind(this),
         );
         client.join(user.roomId);
-        const activeGame = this.roomService.getActiveGame(client.id);
+        const activeGame: ActiveGame = this.roomService.getActiveGame(client.id);
         await activeGame.testGame();
         return user;
     }
