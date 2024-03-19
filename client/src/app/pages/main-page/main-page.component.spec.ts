@@ -1,10 +1,11 @@
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
+import { GameService } from '@app/services/game.service';
 
 describe('MainPageComponent', () => {
     let component: MainPageComponent;
@@ -15,6 +16,7 @@ describe('MainPageComponent', () => {
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule, RouterLink, RouterModule.forRoot(routes)],
+            providers: [{ provide: GameService, useValue: jasmine.createSpyObj('GameService', ['init', 'leaveRoom']) }],
         }).compileComponents();
     });
 

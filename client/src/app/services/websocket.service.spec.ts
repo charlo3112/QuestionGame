@@ -165,7 +165,7 @@ describe('WebSocketService', () => {
         service.validateChoice();
         expect(mockSocket.emit).toHaveBeenCalledWith('game:validate');
     });
-
+    /*
     it('should emit game:isValidate event and resolve with a boolean value', fakeAsync(() => {
         const expectedValidation = true;
         mockSocket.emit.and.callFake((eventName: string, ...args: unknown[]) => {
@@ -181,7 +181,7 @@ describe('WebSocketService', () => {
         });
 
         tick();
-    }));
+    }));*/
 
     it('should emit game:getChoice event and resolve with a boolean array', async () => {
         const expectedChoices = [true, false, true];

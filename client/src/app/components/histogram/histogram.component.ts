@@ -15,7 +15,7 @@ import { Choice } from '@common/interfaces/choice';
 })
 export class HistogramComponent {
     @Input() showArrows: boolean = true;
-    private indexQuestionDisplayed: number = 0;
+    indexQuestionDisplayed: number = 0;
 
     constructor(readonly gameService: GameService) {}
 

@@ -32,6 +32,7 @@ describe('ChatComponent', () => {
             'getScoreUpdate',
             'getUserUpdate',
             'getUsersStat',
+            'getHistogramData',
         ]);
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
         mockWebSocketService.getState.and.returnValue(of({} as GameStatePayload));

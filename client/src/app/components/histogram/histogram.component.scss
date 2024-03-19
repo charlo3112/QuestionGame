@@ -46,6 +46,12 @@
     width: 30%;
     margin-left: 10px;
 }
+.bar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 70%;
+}
 .question-title {
     margin: 15px;
     white-space: nowrap;
