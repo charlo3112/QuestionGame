@@ -168,7 +168,7 @@ describe('WebSocketService', () => {
 
     it('should emit game:isValidate event and resolve with a boolean value', fakeAsync(() => {
         const expectedValidation = true;
-        mockSocket.emit.and.callFake((eventName: string, ...args: any[]) => {
+        mockSocket.emit.and.callFake((eventName: string, ...args: unknown[]) => {
             const callback = args.find((arg) => typeof arg === 'function');
             if (callback) {
                 callback(expectedValidation);
@@ -196,13 +196,13 @@ describe('WebSocketService', () => {
         expect(result).toEqual(expectedChoices);
     });
 
-    it('should emit game:next event when nextQuestion is called', () => {
-        service.nextQuestion();
-        expect(mockSocket.emit).toHaveBeenCalledWith('game:next');
+    it('should emit game:hostConfirm event when nextQuestion is called', () => {
+        service.hostConfirm();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:hostConfirm');
     });
 
     it('should emit game:results event when showResults is called', () => {
-        service.showResults();
+        service.showFinalResults();
         expect(mockSocket.emit).toHaveBeenCalledWith('game:results');
     });
 
@@ -306,7 +306,7 @@ describe('WebSocketService', () => {
     });
 
     it('should listen for time updates and update timeSubject', () => {
-        const mockTime: number = 120;
+        const mockTime = 120;
         service.getTime().subscribe((time) => {
             expect(time).toEqual(mockTime);
         });
