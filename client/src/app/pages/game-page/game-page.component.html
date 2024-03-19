@@ -10,7 +10,7 @@
         <p *ngIf="!gameService.isHost" class="big-text">Score total : {{ gameService.score }}</p>
         <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
         <p class="big-text">Temps restant : {{ gameService.time }}</p>
-        <button mat-raised-button id="abandon-button" routerLink="/new">Abandonner</button>
+        <button mat-raised-button id="abandon-button" (click)="gameService.leaveRoom()" routerLink="/new">Abandonner</button>
     </mat-toolbar-row>
 </mat-toolbar>
 

@@ -121,19 +121,19 @@ export class ActiveGame {
             return;
         }
         user.newChoice = choice;
-        this.sendUserSelectedChoice();
+        // this.sendUserSelectedChoice();
     }
 
-    sendUserSelectedChoice() {
-        this.users.forEach((user) => {
-            for (let i = 0; i < 4; i++) {
-                if (user.userChoice[i]) {
-                    this.questionsCounters[this.questionIndex][i]++;
-                }
-            }
-        });
-        // Transmettre les choix des utilisateurs
-    }
+    // sendUserSelectedChoice() {
+    //     this.users.forEach((user) => {
+    //         for (let i = 0; i < 4; i++) {
+    //             if (user.userChoice[i]) {
+    //                 this.questionsCounters[this.questionIndex][i]++;
+    //             }
+    //         }
+    //     });
+    //     // Transmettre les choix des utilisateurs
+    // }
 
     validateChoice(userId: string) {
         const user = this.users.get(userId);

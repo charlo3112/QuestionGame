@@ -45,17 +45,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
         return this.gameService.currentQuestion;
     }
 
-    saveGameState(countdownReachedZeroCount: number, buttonText: string): void {
+    saveGameData(countdownReachedZeroCount: number, buttonText: string): void {
         localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ countdownReachedZeroCount, buttonText }));
     }
 
-    getGameState(): { countdownReachedZeroCount: number; showButton: boolean; buttonText: string } | null {
+    getGameData(): { countdownReachedZeroCount: number; showButton: boolean; buttonText: string } | null {
         const gameStateData = localStorage.getItem(this.gameService.roomCodeValue);
         return gameStateData ? JSON.parse(gameStateData) : null;
-    }
-
-    ngOnDestroy(): void {
-        this.saveGameState(this.countdownReachedZeroCount, this.buttonText);
     }
 
     isStartingGame(): boolean {
@@ -71,10 +67,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
-        const gameData = this.getGameState();
+        const gameData = this.getGameData();
         if (gameData === null) {
             this.countdownReachedZeroCount = 0;
-            this.showButton = false;
             this.buttonText = 'Prochaine Question';
         } else {
             this.countdownReachedZeroCount = gameData.countdownReachedZeroCount;
@@ -90,7 +85,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
                 this.buttonText = 'Résultats';
             }
         });
-        window.onbeforeunload = () => this.ngOnDestroy();
+        window.onbeforeunload = () => this.saveGameData(this.countdownReachedZeroCount, this.buttonText);
+    }
+
+    ngOnDestroy(): void {
+        this.countdownReachedZeroCount = 0;
+        this.showButton = false;
+        this.buttonText = 'Prochaine Question';
     }
 
     countdownReachedZero(): void {
