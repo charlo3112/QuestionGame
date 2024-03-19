@@ -9,7 +9,7 @@ import { User } from '@common/interfaces/user';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
-import { BroadcastOperator, Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 
 describe('GameGateway', () => {
     let gateway: GameGateway;
@@ -93,25 +93,58 @@ describe('GameGateway', () => {
     });
 
     it('launchGame() should launch the game', () => {
-        const roomId = 'room123';
-
-        roomManagementService.getRoomId.returns(roomId);
-
-        server.to.returns({
-            emit: (event: string) => {
-                expect(event).toEqual('game:state');
-            },
-        } as BroadcastOperator<unknown, unknown>);
-
         gateway.launchGame(socket);
 
-        expect(server.to.calledWith(roomId)).toBeTruthy();
+        expect(roomManagementService.launchGame.calledOnceWithExactly(socket.id)).toBeTruthy();
+    });
+
+    it('handleChoice() should update selected choices', () => {
+        const mockChoiceAnswers: boolean[] = [false, true, true, false];
+        gateway.handleChoice(socket, mockChoiceAnswers);
+
+        expect(roomManagementService.handleChoice.calledOnceWithExactly(socket.id, mockChoiceAnswers)).toBeTruthy();
     });
 
     it('handleDisconnect() should remove a user on disconnect', () => {
         gateway.handleDisconnect(socket);
 
         expect(roomManagementService.leaveUser.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleValidate() should send validation request', () => {
+        gateway.handleValidate(socket);
+
+        expect(roomManagementService.validateChoice.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleScore() should send request for the score', () => {
+        gateway.handleScore(socket);
+
+        expect(roomManagementService.getScore.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('isValidate() should send request for the validation', () => {
+        gateway.isValidate(socket);
+
+        expect(roomManagementService.isValidate.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('getChoice() should send request to get choices', () => {
+        gateway.getChoice(socket);
+
+        expect(roomManagementService.getChoice.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('nextQuestion() should send request to go to next question', () => {
+        gateway.nextQuestion(socket);
+
+        expect(roomManagementService.nextQuestion.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('showResults() should send request to go to showResult state', () => {
+        gateway.showResults(socket);
+
+        expect(roomManagementService.showFinalResults.calledWith(socket.id)).toBeTruthy();
     });
 
     it('handleLeaveGame() should remove a user from the game', () => {

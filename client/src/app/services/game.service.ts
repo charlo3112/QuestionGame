@@ -47,7 +47,6 @@ export class GameService implements OnDestroy {
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
-
         if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
             this.websocketService.leaveRoom();
         }
@@ -117,7 +116,6 @@ export class GameService implements OnDestroy {
         } else {
             const user: User = JSON.parse(data);
             const res = await this.websocketService.rejoinRoom(user);
-
             if (!res.ok) {
                 sessionStorage.removeItem('user');
                 this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
@@ -125,21 +123,18 @@ export class GameService implements OnDestroy {
                 return;
             }
             sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
-
             this.username = user.name;
             this.roomCode = user.roomId;
             this.setState(res.value);
             const score = await this.websocketService.getScore();
             this.scoreValue = score.score;
             this.showBonus = score.bonus;
-
             if (this.state === GameState.AskingQuestion) {
                 this.choicesSelected = await this.websocketService.getChoice();
                 if (await this.websocketService.isValidate()) {
                     this.state = GameState.WaitingResults;
                 }
             }
-
             (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
             this.players.delete(HOST_NAME);
         }
@@ -158,15 +153,12 @@ export class GameService implements OnDestroy {
         if (this.scoreSubscription) {
             this.scoreSubscription.unsubscribe();
         }
-
         if (this.userSubscription) {
             this.userSubscription.unsubscribe();
         }
-
         if (this.usersStatSubscription) {
             this.usersStatSubscription.unsubscribe();
         }
-
         if (this.histogramDataSubscription) {
             this.histogramDataSubscription.unsubscribe();
         }
@@ -261,7 +253,6 @@ export class GameService implements OnDestroy {
         if (this.question === undefined) {
             return false;
         }
-
         const length = this.question.choices.length;
         for (let i = 0; i < length; ++i) {
             if (this.choicesSelected[i] !== this.question.choices[i].isCorrect) {
