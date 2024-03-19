@@ -29,6 +29,9 @@ export class QuestionInsertionService {
     insertQuestionFromCreate(question: Question, isEditingQuestion: boolean, questionTitleToEdit: string, questions: Question[]) {
         if (this.verifyQuestion(question, questions, isEditingQuestion)) {
             if (!questionTitleToEdit.length) {
+                if (question.points === 0) {
+                    question.points = 10;
+                }
                 this.insertQuestion(question, questions);
             } else {
                 const index = questions.findIndex((q) => q.text === questionTitleToEdit);

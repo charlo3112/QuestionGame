@@ -59,4 +59,20 @@ describe('QuestionInsertionService', () => {
         const isEditingQuestion = false;
         expect(service.verifyQuestion(question, questions, isEditingQuestion)).toBe(false);
     });
+
+    it('should set points to 10 if they are 0', () => {
+        const question: Question = {
+            text: 'Quelle est la capitale du Canada ?',
+            points: 0,
+            choices: [new Choice('Ottawa', true), new Choice('Montreal', false)],
+            type: QuestionType.QCM,
+        };
+        const questions: Question[] = [];
+        const isEditingQuestion = false;
+        const questionTitleToEdit = '';
+        const minimumPoints = 10;
+
+        service.insertQuestionFromCreate(question, isEditingQuestion, questionTitleToEdit, questions);
+        expect(question.points).toBe(minimumPoints);
+    });
 });
