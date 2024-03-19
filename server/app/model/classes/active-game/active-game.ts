@@ -55,16 +55,10 @@ export class ActiveGame {
         };
     }
 
-    get gameData() {
-        return this.game;
-    }
-
-    get isLocked() {
-        return this.locked;
-    }
-
-    get hostId() {
-        return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
+    get currentQuestionWithAnswer(): Question {
+        return {
+            ...this.game.questions[this.questionIndex],
+        };
     }
 
     get currentQuestionWithoutAnswer(): Question {
@@ -84,14 +78,12 @@ export class ActiveGame {
         };
     }
 
-    get currentQuestionWithAnswer(): Question {
-        return {
-            ...this.game.questions[this.questionIndex],
-        };
-    }
-
     get currentState() {
         return this.state;
+    }
+
+    get gameData() {
+        return this.game;
     }
 
     get gameStatePayload(): GameStatePayload {
@@ -105,6 +97,14 @@ export class ActiveGame {
             return { state: this.state, payload: this.currentQuestionWithAnswer };
         }
         return { state: this.state };
+    }
+
+    get hostId() {
+        return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
+    }
+
+    get isLocked() {
+        return this.locked;
     }
 
     get usersStat(): UserStat[] {
@@ -124,6 +124,50 @@ export class ActiveGame {
         this.locked = locked;
     }
 
+    addUser(user: UserData) {
+        this.users.set(user.uid, user);
+        this.activeUsers.add(user.uid);
+    }
+
+    banUser(name: string): string {
+        if (this.currentState !== GameState.Wait) {
+            return undefined;
+        }
+        this.bannedNames.push(name.toLowerCase());
+        const userId = Array.from(this.users.values()).find((user) => user.username === name)?.uid;
+        this.users.delete(userId);
+        this.activeUsers.delete(userId);
+        return userId;
+    }
+
+    canRejoin(userId: string): boolean {
+        return this.activeUsers.has(userId);
+    }
+
+    getChoice(userId: string): boolean[] {
+        const user = this.users.get(userId);
+        if (!user) {
+            return [false, false, false, false];
+        }
+        return user.userChoice === undefined ? [false, false, false, false] : user.userChoice;
+    }
+
+    getScore(userId: string): Score {
+        const user = this.users.get(userId);
+        if (!user) {
+            return { score: 0, bonus: false };
+        }
+        return user.userScore;
+    }
+
+    getUser(userId: string): UserData {
+        return this.users.get(userId);
+    }
+
+    getUsers(): string[] {
+        return Array.from(this.users.values()).map((user) => user.username);
+    }
+
     handleChoice(userId: string, choice: boolean[]) {
         const user = this.users.get(userId);
         if (!user) {
@@ -134,6 +178,38 @@ export class ActiveGame {
         }
         user.newChoice = choice;
         this.sendUserSelectedChoice();
+    }
+
+    isBanned(name: string) {
+        return this.bannedNames.includes(name.toLowerCase());
+    }
+
+    isHost(userId: string): boolean {
+        const user = this.users.get(userId);
+        if (!user) {
+            return false;
+        }
+        return user.isHost();
+    }
+
+    isValidate(userId: string): boolean {
+        const user = this.users.get(userId);
+        if (!user) {
+            return false;
+        }
+        return user.validate === undefined ? false : true;
+    }
+
+    needToClosed(): boolean {
+        return this.activeUsers.size === 0 || (this.activeUsers.size === 1 && this.roomId.slice(0, 'test'.length) !== 'test');
+    }
+
+    removeUser(userId: string) {
+        this.activeUsers.delete(userId);
+        if (this.state === GameState.Wait) {
+            this.users.delete(userId);
+        }
+        this.updateUsersStat(this.hostId, this.usersStat);
     }
 
     sendUserSelectedChoice() {
@@ -151,49 +227,10 @@ export class ActiveGame {
         this.updateHistogramData(this.hostId, this.histogramData);
     }
 
-    validateChoice(userId: string) {
-        const user = this.users.get(userId);
-        if (!user) {
-            return;
-        }
-        user.validate = new Date().getTime();
-    }
-
-    canRejoin(userId: string): boolean {
-        return this.activeUsers.has(userId);
-    }
-
-    addUser(user: UserData) {
-        this.users.set(user.uid, user);
-        this.activeUsers.add(user.uid);
-    }
-
-    getUser(userId: string): UserData {
-        return this.users.get(userId);
-    }
-
-    needToClosed(): boolean {
-        return this.activeUsers.size === 0 || (this.activeUsers.size === 1 && this.roomId.slice(0, 'test'.length) !== 'test');
-    }
-
-    removeUser(userId: string) {
-        this.activeUsers.delete(userId);
-        if (this.state === GameState.Wait) {
-            this.users.delete(userId);
-        }
-        this.updateUsersStat(this.hostId, this.usersStat);
-    }
-
-    isBanned(name: string) {
-        return this.bannedNames.includes(name.toLowerCase());
-    }
-
-    isHost(userId: string): boolean {
-        const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.isHost();
+    showFinalResults() {
+        this.advanceState(GameState.ShowFinalResults);
+        this.updateUsersStat(this.roomId, this.usersStat);
+        this.updateHistogramData(this.roomId, this.histogramData);
     }
 
     update(userId: string, user: UserData) {
@@ -211,62 +248,12 @@ export class ActiveGame {
         return Array.from(this.users.values()).some((user) => user.username.toLowerCase() === name.toLowerCase());
     }
 
-    banUser(name: string): string {
-        if (this.currentState !== GameState.Wait) {
-            return undefined;
-        }
-        this.bannedNames.push(name.toLowerCase());
-        const userId = Array.from(this.users.values()).find((user) => user.username === name)?.uid;
-        this.users.delete(userId);
-        this.activeUsers.delete(userId);
-        return userId;
-    }
-
-    getUsers(): string[] {
-        return Array.from(this.users.values()).map((user) => user.username);
-    }
-
-    getScore(userId: string): Score {
+    validateChoice(userId: string) {
         const user = this.users.get(userId);
         if (!user) {
-            return { score: 0, bonus: false };
+            return;
         }
-        return user.userScore;
-    }
-
-    isValidate(userId: string): boolean {
-        const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.validate === undefined ? false : true;
-    }
-
-    showFinalResults() {
-        this.advanceState(GameState.ShowFinalResults);
-        this.updateUsersStat(this.roomId, this.usersStat);
-        this.updateHistogramData(this.roomId, this.histogramData);
-    }
-
-    getChoice(userId: string): boolean[] {
-        const user = this.users.get(userId);
-        if (!user) {
-            return [false, false, false, false];
-        }
-        return user.userChoice === undefined ? [false, false, false, false] : user.userChoice;
-    }
-
-    async launchGame() {
-        this.advanceState(GameState.Starting);
-        await this.timer.start(WAITING_TIME_S);
-        await this.askQuestion();
-    }
-
-    async testGame() {
-        this.advanceState(GameState.Starting);
-        while (this.questionIndex < this.game.questions.length) {
-            await this.askQuestion();
-        }
+        user.validate = new Date().getTime();
     }
 
     async advance() {
@@ -302,15 +289,22 @@ export class ActiveGame {
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
     }
 
+    async launchGame() {
+        this.advanceState(GameState.Starting);
+        await this.timer.start(WAITING_TIME_S);
+        await this.askQuestion();
+    }
+
+    async testGame() {
+        this.advanceState(GameState.Starting);
+        while (this.questionIndex < this.game.questions.length) {
+            await this.askQuestion();
+        }
+    }
+
     private advanceState(state: GameState) {
         this.state = state;
         this.updateState(this.roomId, this.gameStatePayload);
-    }
-
-    private resetAnswers() {
-        this.users.forEach((user) => {
-            user.resetChoice();
-        });
     }
 
     private calculateScores() {
@@ -334,5 +328,11 @@ export class ActiveGame {
             }
         });
         this.updateUsersStat(this.hostId, this.usersStat);
+    }
+
+    private resetAnswers() {
+        this.users.forEach((user) => {
+            user.resetChoice();
+        });
     }
 }
