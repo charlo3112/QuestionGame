@@ -4,7 +4,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
-import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
 import { AdminGameViewComponent } from './admin-game-view.component';
 
 describe('AdminGameViewComponent', () => {

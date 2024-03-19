@@ -42,3 +42,16 @@ export const TIME_CONFIRM_S = 3;
 export const HOST_NAME = 'Organisateur';
 
 export const WAIT_FOR_NEXT_QUESTION = 100;
+
+export const MOCK_CHOICES_COUNTER = 10;
+export const TIME_RETURN = 30;
+export const MAX_TIME_RETURN = 20;
+
+export const LISTEN_MESSAGE = 0;
+export const LISTEN_STATE = 1;
+export const LISTEN_CLOSED_CONNECTION = 2;
+export const LISTEN_USER_UPDATE = 3;
+export const LISTEN_TIME_UPDATE = 4;
+export const LISTEN_SCORE_UPDATE = 5;
+export const LISTEN_USERS_STAT = 6;
+export const LISTEN_HISTOGRAM_DATA = 7;
