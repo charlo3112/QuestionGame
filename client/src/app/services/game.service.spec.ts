@@ -72,7 +72,27 @@ describe('Game', () => {
         const mockScoreUpdate: Score = { score: 0, bonus: false };
         webSocketSpy.getScoreUpdate.and.returnValue(of(mockScoreUpdate));
         webSocketSpy.getUsers.and.returnValue(Promise.resolve(['user1', 'user2', 'user3']));
-
+        webSocketSpy.getHistogramData.and.returnValue(
+            of({
+                question: [
+                    {
+                        type: QuestionType.QCM,
+                        text: 'Question test',
+                        points: 8,
+                        choices: [
+                            { text: 'A', isCorrect: true },
+                            { text: 'B', isCorrect: false },
+                            { text: 'C', isCorrect: false },
+                        ],
+                    },
+                ],
+                indexCurrentQuestion: 0,
+                choicesCounters: [
+                    [10, 0, 0],
+                    [0, 0, 10],
+                ],
+            }),
+        );
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
             providers: [
