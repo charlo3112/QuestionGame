@@ -104,6 +104,15 @@ describe('QuestionServiceEndToEnd', () => {
         expect(questionModel).toBeDefined();
     });
 
+    it('getMongoId() should return the mongoId of the question', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
+        expect(await service.getMongoId(question.getText())).toEqual(mongoId);
+    });
+
     it('getAllQuestions() return all questions in database', async () => {
         await questionModel.deleteMany({});
         expect((await service.getAllQuestions()).length).toEqual(0);
@@ -120,6 +129,12 @@ describe('QuestionServiceEndToEnd', () => {
         expect(answers[1]).toBe(false);
         expect(answers[2]).toBe(false);
         expect(answers[3]).toBe(false);
+    });
+
+    it('getAnswers() should return an empty array if the question does not exist', async () => {
+        await questionModel.deleteMany({});
+        const answers = await service.getAnswers('test');
+        expect(answers).toEqual([]);
     });
 
     it('deleteQuestion() should delete the question', async () => {
@@ -142,6 +157,20 @@ describe('QuestionServiceEndToEnd', () => {
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
         const question = getFakeQuestion();
         await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
+    });
+
+    it('deleteQuestion() should fail if the mongoId is not valid', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await expect(service.deleteQuestion('test')).rejects.toBeTruthy();
+    });
+
+    it('deleteQuestion() should fail if the mongoId is not found', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await expect(service.deleteQuestion('5f3f0a0f4f3c0a3e4f3c0a3e')).rejects.toBeTruthy();
     });
 
     it('addQuestion() should add the question to the DB', async () => {
@@ -169,6 +198,14 @@ describe('QuestionServiceEndToEnd', () => {
         ).rejects.toBeTruthy();
     });
 
+    it('addQuestion() should fail if the question already exists', async () => {
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: question.getText(), points: 10, choices: getFakeChoicesDto() }),
+        ).rejects.toBeTruthy();
+    });
+
     it('modifyQuestion() should modify the Question attribute', async () => {
         const questionData = getFakeCreateQuestionDto();
         await questionModel.create(new QuestionData(questionData));
@@ -190,6 +227,37 @@ describe('QuestionServiceEndToEnd', () => {
         const newChoices = getFakeChoices();
         question.setChoices(newChoices);
         expect(question.getChoices()).toEqual(newChoices);
+    });
+
+    it('modifyQuestion() should fail if the question does not exist', async () => {
+        const questionDto = getFakeCreateQuestionDto();
+        const question = new QuestionData(questionDto);
+        await service.addQuestion(questionDto);
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
+        await service.deleteQuestion(mongoId);
+        // await service.deleteQuestion(question.mongoId);
+        await expect(service.modifyQuestion(question)).rejects.toThrowError();
+    });
+
+    it('modifyQuestion() should fail if mongo query failed', async () => {
+        jest.spyOn(questionModel, 'replaceOne').mockRejectedValue('');
+        const question = getFakeQuestion();
+        await questionModel.create(new QuestionData(question));
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.text }))._id;
+        question.mongoId = mongoId;
+        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
+    });
+
+    it('modifyQuestion() should fail if the question is not valid', async () => {
+        const question = getFakeQuestion();
+        await questionModel.create(new QuestionData(question));
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.text }))._id;
+        question.mongoId = mongoId;
+        question.setPoints(200);
+        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
     });
 });
 

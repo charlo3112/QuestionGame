@@ -61,10 +61,11 @@ export class QuestionService {
     async modifyQuestion(newQuestionData: CreateQuestionDto): Promise<void> {
         try {
             if (!(await this.validateQuestion(newQuestionData))) {
-                return Promise.reject('The question data is invalid');
+                throw new Error('The question data is invalid');
             }
+
             const question = new QuestionData(newQuestionData);
-            await this.questionModel.replaceOne(
+            const result = await this.questionModel.replaceOne(
                 { _id: newQuestionData.mongoId },
                 {
                     type: question.getType(),
@@ -74,9 +75,13 @@ export class QuestionService {
                     choices: question.getChoices(),
                 },
             );
+
+            if (result.modifiedCount !== 1) {
+                throw new Error('Failed to modify question');
+            }
         } catch (error) {
             this.logger.error(`Failed to modify question: ${error.message || error}`);
-            return Promise.reject('Failed to modify question');
+            throw new Error('Failed to modify question');
         }
     }
 
