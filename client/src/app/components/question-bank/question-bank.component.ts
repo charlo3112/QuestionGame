@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
-import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@common/interfaces/question';
+import { Question, QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 
 @Component({
@@ -23,7 +23,9 @@ export class QuestionBankComponent implements OnInit {
     @Input() adminMode = false;
     @Input() showChildren = false;
     @Output() closeAdd: EventEmitter<void> = new EventEmitter<void>();
+    @Output() formClosed: EventEmitter<void> = new EventEmitter<void>();
     @Output() sendQuestionSelected: EventEmitter<Question> = new EventEmitter<Question>();
+
     questionsWithModificationDate: QuestionWithModificationDate[] = [];
     highlightedQuestion: QuestionWithModificationDate | null;
     questionToAdd: Question = QUESTIONS_PLACEHOLDER[0];
@@ -124,5 +126,9 @@ export class QuestionBankComponent implements OnInit {
         this.showChildren = false;
         this.loadQuestions();
         this.closeAdd.emit();
+    }
+
+    closeQuestionBank() {
+        this.formClosed.emit();
     }
 }
