@@ -117,6 +117,12 @@ export class ActiveGame {
                     bonus: user.userBonus,
                     isConnected: this.activeUsers.has(user.uid),
                 };
+            })
+            .sort((a, b) => {
+                if (a.score === b.score) {
+                    return a.username.localeCompare(b.username);
+                }
+                return b.score - a.score;
             });
     }
 
@@ -309,17 +315,14 @@ export class ActiveGame {
 
     private calculateScores() {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
-        let users = Array.from(this.users.values());
         const time = new Date().getTime();
+        let users = Array.from(this.users.values());
         users.forEach((user) => {
             if (user.validate === undefined) {
                 user.validate = time;
             }
         });
-
-        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => b.validate - a.validate);
-        const score = this.game.questions[this.questionIndex].points;
-
+        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => a.validate - b.validate);
         let bonus = true;
         if (users.length >= 2) {
             if (users[1].validate - users[0].validate <= BONUS_TIME) {
@@ -329,10 +332,11 @@ export class ActiveGame {
 
         users.forEach((user) => {
             if (users[0] === user && bonus) {
-                user.addBonus(score);
+                user.addBonus(this.game.questions[this.questionIndex].points);
             } else {
-                user.addScore(score);
+                user.addScore(this.game.questions[this.questionIndex].points);
             }
+            this.updateScore(user.uid, user.userScore);
         });
         this.updateUsersStat(this.hostId, this.usersStat);
     }
