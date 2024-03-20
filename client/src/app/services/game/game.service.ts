@@ -48,10 +48,6 @@ export class GameService implements OnDestroy {
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
-
-        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
-            this.websocketService.leaveRoom();
-        }
     }
 
     get gameTitle(): string {
@@ -70,24 +66,19 @@ export class GameService implements OnDestroy {
         const twenty = 20;
         return twenty;
     }
-
     get usersStatValue(): UserStat[] {
         return this.usersStat;
     }
-
     get currentState(): GameState {
         return this.state;
     }
-
     get currentQuestion(): Question | undefined {
         return this.question;
     }
-
     get message(): string | undefined {
         if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
         return 'Vous avez un bonus!';
     }
-
     get histogram(): HistogramData {
         return this.histogramData;
     }
@@ -126,7 +117,11 @@ export class GameService implements OnDestroy {
             if (!res.ok) {
                 sessionStorage.removeItem('user');
                 this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']);
+                if (this.test) {
+                    this.routerService.navigate(['/new']);
+                } else {
+                    this.routerService.navigate(['/']);
+                }
                 return;
             }
             this.setState(res.value);
@@ -266,7 +261,11 @@ export class GameService implements OnDestroy {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']); // permet de rester en vue résultat si commentée
+                if (this.test) {
+                    this.routerService.navigate(['/new']);
+                } else {
+                    this.routerService.navigate(['/']);
+                }
             },
         });
     }
@@ -343,7 +342,7 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;
         }
-        if (this.routerService.url !== '/game' && this.routerService.url !== '/new') {
+        if (this.routerService.url !== '/game') {
             this.routerService.navigate(['/game']);
         }
     }
