@@ -324,6 +324,8 @@ describe('WebSocketService', () => {
 
     it('getUsers should resolve with an array of user IDs', fakeAsync(() => {
         const mockUsers: string[] = ['user1', 'user2', 'user3'];
+        // We need to use Function to avoid using any as the type
+        // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, callback: Function) => {
             if (event === 'game:users') {
                 callback(mockUsers);
