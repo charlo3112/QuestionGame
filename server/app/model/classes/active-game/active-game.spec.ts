@@ -107,24 +107,115 @@ describe('ActiveGame', () => {
         expect(result).toBeUndefined();
     });
 
+    it('getChoice() should return an array of false when there is no user', () => {
+        const result = game.getChoice('userId');
+        expect(result).toStrictEqual([false, false, false, false]);
+    });
+
+    it('getScore() should return 0 when there is no user', () => {
+        const result = game.getScore('userId');
+        expect(result).toStrictEqual({ bonus: false, score: 0 });
+    });
+
+    it('handleChoice() should return if no user', () => {
+        const result = game.handleChoice('userId', [false, false, false, false]);
+        expect(result).toBeUndefined();
+    });
+
+    it('handleChoice() should return if currentState === AskingQuestion and user validate is not undefined', () => {
+        const mockUserData = new UserData('userId', 'roomId', 'username');
+        mockUserData.validate = 2;
+        game.addUser(mockUserData);
+        game['advanceState'](GameState.AskingQuestion);
+        const result = game.handleChoice('userId', [false, false, false, false]);
+        expect(result).toBeUndefined();
+    });
+
+    it('handleChoice() should call sendUserSelectedChoice if currentState !== AskingQuestion', () => {
+        const mockUserData = new UserData('userId', 'roomId', 'username');
+        mockUserData.validate = 2;
+        game.addUser(mockUserData);
+        const sendUserSelectedChoiceMock = jest.spyOn(game, 'sendUserSelectedChoice');
+        game['advanceState'](GameState.ShowResults);
+        game.handleChoice('userId', [false, false, false, false]);
+        expect(sendUserSelectedChoiceMock).toHaveBeenCalled();
+    });
+
+    it('isHost() should return false if no user', () => {
+        const result = game.isHost('userId');
+        expect(result).toBe(false);
+    });
+
+    it('isValidate() should return false if no user', () => {
+        const result = game.isValidate('userId');
+        expect(result).toBe(false);
+    });
+
+    it('sendUserSelectedChoice() should break if no user.userChoice', () => {
+        const mockUserData = new UserData('userId', 'roomId', 'username');
+        game.addUser(mockUserData);
+        const result = game.sendUserSelectedChoice();
+        expect(result).toBeUndefined();
+    });
+
+    it('sendUserSelectedChoice() should add userChoice to histogram', () => {
+        const mockUserData = new UserData('userId', 'roomId', 'username');
+        mockUserData.newChoice = [false, true, false, false];
+        game.addUser(mockUserData);
+        game.sendUserSelectedChoice();
+        const expectedCounter = [0, 1, 0, 0];
+        expect(game.histoData.choicesCounters[game.questionIndexCurrent]).toStrictEqual(expectedCounter);
+    });
+
+    it('needToClosed() should be true if the game is empty', async () => {
+        expect(game.needToClosed()).toBeTruthy();
+    });
+
     it('showFinalResults() should change game state', async () => {
         game.showFinalResults();
         expect(game.currentState).toBe(GameState.ShowFinalResults);
     });
+
+    it('userExist() should be false if the user is not in the game', async () => {
+        const searchResult = game.userExists('user');
+        expect(searchResult).toBeFalsy();
+    });
+
+    it('validateChoice() should be undefined if the user is not in the game', async () => {
+        const validationResult = game.validateChoice('user');
+        expect(validationResult).toBeUndefined();
+    });
+
+    it('advance() should not start the game if the room in unlocked', async () => {
+        game.isLocked = false;
+        expect(await game.advance()).toBeNull();
+    });
+
+    // it('advance() should start the game if the room in locked', async () => {
+    //     game.isLocked = true;
+    //     const launchGameMock = jest.spyOn(game, 'launchGame');
+    //     await game.advance();
+    //     expect(launchGameMock).toHaveBeenCalled();
+    // });
+
+    // it('advance() should showQuestion if the game is in state Show Results', async () => {
+    //     game.isLocked = true;
+    //     game['advanceState'](GameState.ShowResults);
+    //     const askQuestionMock = jest.spyOn(game, 'askQuestion');
+    //     await game.advance();
+    //     expect(askQuestionMock).toHaveBeenCalled();
+    // });
 
     it('advanceState() should modify the state of the Game', () => {
         game['advanceState'](GameState.AskingQuestion);
         expect(game.currentState).toBe(GameState.AskingQuestion);
     });
 
-    // it('askQuestion() should update the histogram, calculate the scores and advance state', () => {
-    //     const updateHistogramDataMock = jest.spyOn(game, 'updateHistogramData');
-    //     const advanceStateMock = jest.spyOn(game, 'advanceState');
-    //     const calculateScoresMock = jest.spyOn(game, 'calculateScores');
-    //     game.askQuestion();
-    //     expect(updateHistogramDataMock).toHaveBeenCalled();
-    //     expect(advanceStateMock).toHaveBeenCalled();
-    //     expect(calculateScoresMock).toHaveBeenCalled();
+    // it('askQuestion() should update the histogram, calculate the scores and advance state', async () => {
+    //     const initState = game.currentState;
+    //     await game.askQuestion();
+    //     const finalState = game.currentState;
+    //     expect(finalState).toBeGreaterThanOrEqual(initState);
     // });
 
     // it('launchGame() should change game state', async () => {

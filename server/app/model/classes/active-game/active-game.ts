@@ -99,12 +99,20 @@ export class ActiveGame {
         return { state: this.state };
     }
 
+    get histoData() {
+        return this.histogramData;
+    }
+
     get hostId() {
         return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
     }
 
     get isLocked() {
         return this.locked;
+    }
+
+    get questionIndexCurrent() {
+        return this.questionIndex;
     }
 
     get usersStat(): UserStat[] {
