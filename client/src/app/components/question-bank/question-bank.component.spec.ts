@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communication/communication.service';
@@ -181,5 +181,11 @@ describe('QuestionBankComponent', () => {
         component.closeCreateQuestion();
         expect(component.closeAdd.emit).toHaveBeenCalled();
         expect(component.loadQuestions).toHaveBeenCalled();
+    });
+
+    it('should close the form when closeQuestionBank is called', () => {
+        spyOn(component.formClosed, 'emit');
+        component.closeQuestionBank();
+        expect(component.formClosed.emit).toHaveBeenCalled();
     });
 });

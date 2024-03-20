@@ -33,6 +33,7 @@
 </div>
 <div *ngIf="!adminMode" class="add-button-containter">
     <button mat-raised-button color="primary" (click)="sendQuestion()">Ajouter au jeu</button>
+    <button mat-raised-button color="primary" (click)="closeQuestionBank()">Annuler</button>
 </div>
 <div *ngIf="showChildren" class="question-creation">
     <app-create-question
