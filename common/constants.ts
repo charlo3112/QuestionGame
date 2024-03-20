@@ -55,3 +55,5 @@ export const LISTEN_TIME_UPDATE = 4;
 export const LISTEN_SCORE_UPDATE = 5;
 export const LISTEN_USERS_STAT = 6;
 export const LISTEN_HISTOGRAM_DATA = 7;
+
+export const BONUS_TIME = 1000;
