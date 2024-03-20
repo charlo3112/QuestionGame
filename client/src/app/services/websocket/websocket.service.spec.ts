@@ -1,4 +1,4 @@
-// Nous preferons avoir un fichier de test plus long plustot que moins de code coverage
+/* eslint-disable @typescript-eslint/ban-types*/
 /* eslint-disable max-lines */
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { LISTEN_HISTOGRAM_DATA, LISTEN_SCORE_UPDATE, LISTEN_TIME_UPDATE, LISTEN_USERS_STAT } from '@common/constants';
@@ -90,6 +90,11 @@ describe('WebSocketService', () => {
         const testUserId = 'user123';
         service.banUser(testUserId);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:ban', testUserId);
+    });
+
+    it('getUsers should emit the correct payload', () => {
+        service.getUsers();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:users', jasmine.any(Function));
     });
 
     it('getMessage should return an observable and subscribe message', () => {
@@ -195,6 +200,7 @@ describe('WebSocketService', () => {
         });
         const user = await service.createRoom(testGameId);
         expect(user).toEqual(expectedUser);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:create', testGameId, jasmine.any(Function));
     });
 
     it('should emit game:choice event with the correct choice array', () => {
@@ -236,9 +242,6 @@ describe('WebSocketService', () => {
             { name: 'test1', message: 'Hello', timestamp: 1 },
             { name: 'test2', message: 'Hi there', timestamp: 1 },
         ];
-        // Sert à pouvoir simuler la réponse attendue de la fonction `emit` sans modifier sa signature originale,
-        // en respectant les contraintes de typage de TypeScript On a pas trouvé de meilleure solution
-        // Meme chose pour les autres disable du lint
         // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, callback: Function) => {
             if (event === 'messages:get') {
@@ -317,7 +320,6 @@ describe('WebSocketService', () => {
 
     it('getUsers should resolve with an array of user IDs', fakeAsync(() => {
         const mockUsers: string[] = ['user1', 'user2', 'user3'];
-        // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, callback: Function) => {
             if (event === 'game:users') {
                 callback(mockUsers);
@@ -326,6 +328,20 @@ describe('WebSocketService', () => {
         });
         service.getUsers().then((users) => {
             expect(users).toEqual(mockUsers);
+        });
+        tick();
+    }));
+
+    it('isValidate should resolve with true', fakeAsync(() => {
+        const expectedResult = true;
+        mockSocket.emit.and.callFake((eventName: string, callback: (isValidate: boolean) => void) => {
+            if (eventName === 'game:isValidate') {
+                callback(expectedResult);
+            }
+            return mockSocket;
+        });
+        service.isValidate().then((result) => {
+            expect(result).toEqual(expectedResult);
         });
         tick();
     }));
