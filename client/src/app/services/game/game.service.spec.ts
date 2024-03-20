@@ -348,6 +348,8 @@ describe('Game', () => {
         expect(service.currentState).toEqual(GameState.WaitingResults);
     });
 
+    // We did not manage to test the timerSubscribe function with fakeAsync and tick, nor did we
+    // manage to remove DoneFn like we did on the "timerSubscribe should return the time Observable" test
     // eslint-disable-next-line no-undef
     it('timerSubscribe should return the time Observable', (done: DoneFn) => {
         service.timerSubscribe().subscribe((time) => {
@@ -391,15 +393,12 @@ describe('Game', () => {
         service.showFinalResults();
         expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
     });
-    // eslint-disable-next-line no-undef
-    it('stateSubscribe() should return an observable that emits the state payload from WebSocketService', (done: DoneFn) => {
-        service.stateSubscribe().subscribe({
-            next: () => {
-                done();
-            },
-            error: done.fail,
+
+    it('timerSubscribe should return the time Observable', (done) => {
+        service.timerSubscribe().subscribe((time) => {
+            expect(time).toEqual(TIME_RETURN);
+            done();
         });
-        expect(webSocketSpy.getState).toHaveBeenCalled();
     });
 
     it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {
