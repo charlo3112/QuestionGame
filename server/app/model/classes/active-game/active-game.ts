@@ -176,10 +176,7 @@ export class ActiveGame {
 
     handleChoice(userId: string, choice: boolean[]) {
         const user = this.users.get(userId);
-        if (!user) {
-            return;
-        }
-        if (user.validate !== undefined && this.state === GameState.AskingQuestion) {
+        if (!user || user.validate !== undefined || this.state !== GameState.AskingQuestion) {
             return;
         }
         user.newChoice = choice;
@@ -239,7 +236,9 @@ export class ActiveGame {
         this.updateHistogramData(this.roomId, this.histogramData);
     }
 
-    update(userId: string, user: UserData) {
+    update(userId: string, newId: string) {
+        const user = this.users.get(userId);
+        user.uid = newId;
         this.users.delete(userId);
         this.activeUsers.delete(userId);
         this.users.set(user.uid, user);

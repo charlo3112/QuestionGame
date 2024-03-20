@@ -180,11 +180,9 @@ export class RoomManagementService {
         ) {
             return { ok: false, error: 'Reconnection impossible' };
         }
-
         this.roomMembers.delete(user.userId);
         this.roomMembers.set(newUserId, user.roomId);
-        const newUser: UserData = new UserData(newUserId, user.roomId, user.name);
-        activeGame.update(user.userId, newUser);
+        activeGame.update(user.userId, newUserId);
         return { ok: true, value: activeGame.gameStatePayload };
     }
 
