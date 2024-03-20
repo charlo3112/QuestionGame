@@ -322,7 +322,7 @@ export class ActiveGame {
 
         let bonus = true;
         if (users.length >= 2) {
-            if (users[1].validate - users[0].validate >= BONUS_TIME) {
+            if (users[1].validate - users[0].validate <= BONUS_TIME) {
                 bonus = false;
             }
         }
