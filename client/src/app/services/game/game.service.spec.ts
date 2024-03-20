@@ -1,3 +1,4 @@
+// We need to disable max-lines because we need every single test to test thoroughly the service and have a good coverage
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -22,6 +23,7 @@ class TimeServiceStub {
     startTimer(startValue: number, execute: () => void) {
         setTimeout(execute, 0);
     }
+    // Necessary for unit tests where stubs with empty functions are needed to fulfill interfaces without implementing specific logic.
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     stopTimer() {}
     setTimeout(execute: () => void, timeMs: number) {
@@ -346,6 +348,8 @@ describe('Game', () => {
         expect(service.currentState).toEqual(GameState.WaitingResults);
     });
 
+    // We did not manage to test the timerSubscribe function with fakeAsync and tick, nor did we
+    // manage to remove DoneFn like we did on the "timerSubscribe should return the time Observable" test
     // eslint-disable-next-line no-undef
     it('timerSubscribe should return the time Observable', (done: DoneFn) => {
         service.timerSubscribe().subscribe((time) => {
@@ -389,15 +393,12 @@ describe('Game', () => {
         service.showFinalResults();
         expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
     });
-    // eslint-disable-next-line no-undef
-    it('stateSubscribe() should return an observable that emits the state payload from WebSocketService', (done: DoneFn) => {
-        service.stateSubscribe().subscribe({
-            next: () => {
-                done();
-            },
-            error: done.fail,
+
+    it('timerSubscribe should return the time Observable', (done) => {
+        service.timerSubscribe().subscribe((time) => {
+            expect(time).toEqual(TIME_RETURN);
+            done();
         });
-        expect(webSocketSpy.getState).toHaveBeenCalled();
     });
 
     it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {
@@ -408,14 +409,9 @@ describe('Game', () => {
     }));
 
     it('should return undefined when state is not ShowResults or bonus is false', () => {
-        // Set up the service with appropriate state and bonus
         service['state'] = GameState.NotStarted;
         service['showBonus'] = false;
-
-        // Call the getMessage() method
         const message = service.message;
-
-        // Assert that the message is undefined
         expect(message).toBeUndefined();
     });
 

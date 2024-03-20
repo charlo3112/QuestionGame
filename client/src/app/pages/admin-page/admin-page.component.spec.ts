@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -10,7 +10,7 @@ import { AdminLoginComponent } from '@app/components/admin-login/admin-login.com
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -52,7 +52,7 @@ describe('AdminPageComponent', () => {
         TestBed.overrideProvider(MatDialog, {
             useValue: {
                 open: () => ({
-                    afterClosed: () => of(GAME_PLACEHOLDER), // Simulate dialog closing with a result
+                    afterClosed: () => of(GAME_PLACEHOLDER),
                 }),
             },
         });

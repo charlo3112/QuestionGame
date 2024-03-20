@@ -45,19 +45,17 @@ describe('JoinGamePageComponent', () => {
 
     it('should check form validity', () => {
         const form = component.connectForm;
-        expect(form.valid).toBeFalsy(); // Initially form is invalid
-
-        // Set values for form fields
+        expect(form.valid).toBeFalsy();
         form.controls['code'].setValue('1234');
         form.controls['name'].setValue('TestUser');
 
-        expect(form.valid).toBeTruthy(); // Form should now be valid
+        expect(form.valid).toBeTruthy();
     });
 
     it('should display entry error when form is submitted with invalid data', () => {
         expect(component.entryError).toBeFalse();
 
-        component.connectForm.controls['code'].setValue('abc'); // Invalid code
+        component.connectForm.controls['code'].setValue('abc');
         component.onSubmit();
 
         expect(component.entryError).toBeTrue();

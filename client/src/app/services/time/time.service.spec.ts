@@ -1,4 +1,4 @@
-import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 
 import { TimeService } from './time.service';
 
@@ -58,7 +58,7 @@ describe('TimeService', () => {
     it('startTimer should call stopTimer at the end of timer', fakeAsync(() => {
         const spy = spyOn(service, 'stopTimer').and.callThrough();
         service.startTimer(TIMEOUT);
-        tick((TIMEOUT + 1) * MS_SECOND); // un tick de plus que la limite
+        tick((TIMEOUT + 1) * MS_SECOND);
         expect(spy).toHaveBeenCalled();
         discardPeriodicTasks();
     }));
