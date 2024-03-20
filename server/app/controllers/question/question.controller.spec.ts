@@ -50,6 +50,19 @@ describe.only('QuestionController', () => {
         await controller.getAllQuestions(res);
     });
 
+    it('getQuestions() should return BAD_REQUEST when service cannot get all questions', async () => {
+        questionService.getAllQuestions.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAllQuestions(res);
+    });
+
     it('modifyQuestion() should modify the question attributes', async () => {
         const fakeCreateQuestionDto: CreateQuestionDto = {
             text: 'old Text',
@@ -77,6 +90,19 @@ describe.only('QuestionController', () => {
         await controller.modifyQuestion(fakeUpdateQuestionDto, res);
     });
 
+    it('modifyQuestion() should return NOT_MODIFIED when service cannot modify the question', async () => {
+        questionService.modifyQuestion.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_MODIFIED);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.modifyQuestion({} as CreateQuestionDto, res);
+    });
+
     it('getAnswers() should return the answers to the question', async () => {
         const fakeQuestion = getFakeQuestions()[0];
         questionService.getAnswers.resolves([true, false, false, false]);
@@ -92,6 +118,19 @@ describe.only('QuestionController', () => {
         };
 
         await controller.getAnswers(fakeQuestion.getText(), res);
+    });
+
+    it('getAnswers() should return BAD_REQUEST when service cannot get the answers', async () => {
+        questionService.getAnswers.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.getAnswers('', res);
     });
 
     it('addQuestion() should succeed if service able to add the course', async () => {

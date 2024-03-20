@@ -63,6 +63,12 @@ describe('ChatGateway', () => {
         expect(res).toEqual(roomMessages);
     });
 
+    it('handleMessage() should not send message to the room if room is not found', () => {
+        stub(socket, 'rooms').value(new Set());
+        gateway.handleMessage(socket, 'X');
+        expect(server.to.notCalled).toBeTruthy();
+    });
+
     it('handleDeleteRoom() should delete the room', () => {
         gateway['roomMessages'].set('X', []);
         gateway['handleDeleteRoom']('X');

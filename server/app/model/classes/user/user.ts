@@ -49,6 +49,10 @@ export class UserData {
         return this.roomId;
     }
 
+    set uid(uid: string) {
+        this.userId = uid;
+    }
+
     set newChoice(choice: boolean[]) {
         this.choice = choice;
     }
