@@ -99,12 +99,20 @@ export class ActiveGame {
         return { state: this.state };
     }
 
+    get histoData() {
+        return this.histogramData;
+    }
+
     get hostId() {
         return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
     }
 
     get isLocked() {
         return this.locked;
+    }
+
+    get questionIndexCurrent() {
+        return this.questionIndex;
     }
 
     get usersStat(): UserStat[] {
@@ -260,7 +268,6 @@ export class ActiveGame {
         }
         user.validate = new Date().getTime();
     }
-
     async advance() {
         switch (this.state) {
             case GameState.Wait:
@@ -281,7 +288,6 @@ export class ActiveGame {
                 break;
         }
     }
-
     async askQuestion() {
         this.histogramData.indexCurrentQuestion = this.questionIndex;
         this.updateHistogramData(this.hostId, this.histogramData);
@@ -293,13 +299,11 @@ export class ActiveGame {
         this.advanceState(GameState.ShowResults);
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
     }
-
     async launchGame() {
         this.advanceState(GameState.Starting);
         await this.timer.start(WAITING_TIME_S);
         await this.askQuestion();
     }
-
     async testGame() {
         this.advanceState(GameState.Starting);
         while (this.questionIndex < this.game.questions.length) {
@@ -307,12 +311,10 @@ export class ActiveGame {
             await this.timer.start(TIME_CONFIRM_S);
         }
     }
-
     private advanceState(state: GameState) {
         this.state = state;
         this.updateState(this.roomId, this.gameStatePayload);
     }
-
     private calculateScores() {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         const time = new Date().getTime();
@@ -340,7 +342,6 @@ export class ActiveGame {
         });
         this.updateUsersStat(this.hostId, this.usersStat);
     }
-
     private resetAnswers() {
         this.users.forEach((user) => {
             user.resetChoice();

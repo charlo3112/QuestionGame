@@ -215,6 +215,19 @@ describe('GameController', () => {
         await controller.verifyTitle({ title: game.getTitle() }, res);
     });
 
+    it('verifyTitle() should return FOUND when game title already exists', async () => {
+        gameService.verifyTitle.resolves(true);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: '' }, res);
+    });
+
     it('verifyTitle() should return BAD_REQUEST when error occurs', async () => {
         gameService.verifyTitle.rejects();
 
@@ -226,6 +239,19 @@ describe('GameController', () => {
         res.send = () => res;
 
         await controller.verifyTitle({ title: '' }, res);
+    });
+
+    it('deleteGameById() should return NOT_FOUND when service cannot delete the game', async () => {
+        gameService.deleteGameById.resolves(0);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.NOT_FOUND);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.deleteGameById('', res);
     });
 });
 
