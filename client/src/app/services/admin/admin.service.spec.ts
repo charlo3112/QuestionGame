@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { Choice } from '@common/interfaces/choice';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
 import { of, throwError } from 'rxjs';
 import SpyObj = jasmine.SpyObj;

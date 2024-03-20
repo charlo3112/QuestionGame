@@ -132,7 +132,7 @@ export class GameService implements OnDestroy {
         const score = await this.websocketService.getScore();
         this.scoreValue = score.score;
         this.showBonus = score.bonus;
-
+        this.players.clear();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
         this.players.delete(HOST_NAME);
     }
