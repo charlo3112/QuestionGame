@@ -1,7 +1,7 @@
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { BONUS_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -320,8 +320,15 @@ export class ActiveGame {
         users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => b.validate - a.validate);
         const score = this.game.questions[this.questionIndex].points;
 
+        let bonus = true;
+        if (users.length >= 2) {
+            if (users[1].validate - users[0].validate >= BONUS_TIME) {
+                bonus = false;
+            }
+        }
+
         users.forEach((user) => {
-            if (users[0] === user) {
+            if (users[0] === user && bonus) {
                 user.addBonus(score);
             } else {
                 user.addScore(score);
