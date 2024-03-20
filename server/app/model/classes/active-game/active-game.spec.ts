@@ -133,10 +133,9 @@ describe('ActiveGame', () => {
 
     it('handleChoice() should call sendUserSelectedChoice if currentState !== AskingQuestion', () => {
         const mockUserData = new UserData('userId', 'roomId', 'username');
-        mockUserData.validate = 2;
         game.addUser(mockUserData);
         const sendUserSelectedChoiceMock = jest.spyOn(game, 'sendUserSelectedChoice');
-        game['advanceState'](GameState.ShowResults);
+        game['advanceState'](GameState.AskingQuestion);
         game.handleChoice('userId', [false, false, false, false]);
         expect(sendUserSelectedChoiceMock).toHaveBeenCalled();
     });
