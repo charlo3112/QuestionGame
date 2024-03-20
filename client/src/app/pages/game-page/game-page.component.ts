@@ -101,7 +101,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe((result) => {
             if (result === true) {
                 this.gameService.leaveRoom();
-                this.router.navigate(['/new']);
             }
         });
     }

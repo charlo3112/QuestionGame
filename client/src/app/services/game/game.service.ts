@@ -15,6 +15,7 @@ import { Observable, Subscription } from 'rxjs';
 
 @Injectable()
 export class GameService implements OnDestroy {
+    test: boolean = false;
     private state: GameState = GameState.NotStarted;
     private question: Question | undefined = undefined;
     private scoreValue: number = 0;
@@ -47,10 +48,6 @@ export class GameService implements OnDestroy {
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
-
-        if (this.routerService.url !== '/game' && this.routerService.url !== '/loading' && this.routerService.url !== '/results') {
-            this.websocketService.leaveRoom();
-        }
     }
 
     get gameTitle(): string {
@@ -69,24 +66,19 @@ export class GameService implements OnDestroy {
         const twenty = 20;
         return twenty;
     }
-
     get usersStatValue(): UserStat[] {
         return this.usersStat;
     }
-
     get currentState(): GameState {
         return this.state;
     }
-
     get currentQuestion(): Question | undefined {
         return this.question;
     }
-
     get message(): string | undefined {
         if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
         return 'Vous avez un bonus!';
     }
-
     get histogram(): HistogramData {
         return this.histogramData;
     }
@@ -110,26 +102,35 @@ export class GameService implements OnDestroy {
         return this.players;
     }
 
+    setTest(test: boolean) {
+        this.test = test;
+    }
+
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
-            this.routerService.navigate(['/']);
             return;
         }
         const user: User = JSON.parse(data);
-        const res = await this.websocketService.rejoinRoom(user);
-
-        if (!res.ok) {
-            sessionStorage.removeItem('user');
-            this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-            this.routerService.navigate(['/']);
-            return;
+        if (!this.test) {
+            const res = await this.websocketService.rejoinRoom(user);
+            if (!res.ok) {
+                sessionStorage.removeItem('user');
+                this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
+                if (this.test) {
+                    this.routerService.navigate(['/new']);
+                } else {
+                    this.routerService.navigate(['/']);
+                }
+                return;
+            }
+            this.setState(res.value);
         }
+
         sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
 
         this.username = user.name;
         this.roomCode = user.roomId;
-        this.setState(res.value);
         const score = await this.websocketService.getScore();
         this.scoreValue = score.score;
         this.showBonus = score.bonus;
@@ -161,12 +162,10 @@ export class GameService implements OnDestroy {
             this.histogramDataSubscription.unsubscribe();
         }
     }
-
     onKickPlayer(player: string) {
         this.players.delete(player);
         this.websocketService.banUser(player);
     }
-
     leaveRoom() {
         if (this.state !== GameState.Starting) {
             this.websocketService.leaveRoom();
@@ -174,18 +173,15 @@ export class GameService implements OnDestroy {
             this.reset();
         }
     }
-
     reset() {
         this.question = undefined;
         this.state = GameState.NotStarted;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
     }
-
     isChoiceSelected(index: number): boolean {
         return this.choicesSelected[index];
     }
-
     isChoiceCorrect(index: number): boolean {
         if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
@@ -264,7 +260,11 @@ export class GameService implements OnDestroy {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                this.routerService.navigate(['/']); // permet de rester en vue résultat si commentée
+                if (this.test) {
+                    this.routerService.navigate(['/new']);
+                } else {
+                    this.routerService.navigate(['/']);
+                }
             },
         });
     }

@@ -304,6 +304,7 @@ export class ActiveGame {
         this.advanceState(GameState.Starting);
         while (this.questionIndex < this.game.questions.length) {
             await this.askQuestion();
+            await this.timer.start(TIME_CONFIRM_S);
         }
     }
 

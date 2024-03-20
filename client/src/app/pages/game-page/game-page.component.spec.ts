@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { routes } from '@app/modules/app-routing.module';
@@ -16,7 +16,6 @@ describe('GamePageComponent', () => {
     let fixture: ComponentFixture<GamePageComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
     let mockMatDialog: jasmine.SpyObj<MatDialog>;
-    let router: Router;
 
     beforeEach(async () => {
         mockGameService = jasmine.createSpyObj(
@@ -67,7 +66,6 @@ describe('GamePageComponent', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
         Object.defineProperties(window, { history: { value: { state: {} } } });
-        router = TestBed.inject(Router);
     });
 
     it('should create', () => {
@@ -84,13 +82,13 @@ describe('GamePageComponent', () => {
         expect(component.isStartingGame()).toBeTrue();
     });
 
-    it('should navigate to /new when openAbandonDialog is called with true result', () => {
-        spyOn(router, 'navigate');
+    it('should call leaveRoom openAbandonDialog is called with true result', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         mockMatDialog.open.and.returnValue(dialogRefSpy);
         component.openAbandonDialog();
-        expect(router.navigate).toHaveBeenCalledWith(['/new']);
+
+        expect(component.gameService.leaveRoom).toHaveBeenCalled();
     });
 
     it('should save game data to localStorage', () => {
