@@ -82,12 +82,12 @@ describe('GamePageComponent', () => {
         expect(component.isStartingGame()).toBeTrue();
     });
 
-    it('should navigate to /new when openAbandonDialog is called with true result', () => {
-        spyOn(component.gameService, 'leaveRoom');
+    it('should call leaveRoom openAbandonDialog is called with true result', () => {
         const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
         dialogRefSpy.afterClosed.and.returnValue(of(true));
         mockMatDialog.open.and.returnValue(dialogRefSpy);
         component.openAbandonDialog();
+
         expect(component.gameService.leaveRoom).toHaveBeenCalled();
     });
 
