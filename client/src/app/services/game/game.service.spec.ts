@@ -225,7 +225,7 @@ describe('Game', () => {
     });
 
     it('should confirm a question', () => {
-        service['state'] = GameState.WaitingResults;
+        service['state'] = GameState.AskingQuestion;
         service.confirmQuestion();
         expect(webSocketSpy.validateChoice).toHaveBeenCalled();
     });

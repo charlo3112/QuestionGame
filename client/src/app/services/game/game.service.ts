@@ -218,7 +218,6 @@ export class GameService implements OnDestroy {
     confirmQuestion() {
         if (this.state === GameState.AskingQuestion) {
             this.websocketService.validateChoice();
-            return;
         }
         this.state = GameState.WaitingResults;
     }
