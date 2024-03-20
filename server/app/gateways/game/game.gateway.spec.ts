@@ -145,7 +145,7 @@ describe('GameGateway', () => {
     });
 
     // activeGame.testGame is not a function
-    // it('handleTestGame() allow the user to test a quizz', async () => {
+    // it('handleTestGame() allow the user to test a quiz', async () => {
     //     const mockGameId = 'game123';
     //     const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
     //     gameService.getGameById.resolves({} as GameData);
