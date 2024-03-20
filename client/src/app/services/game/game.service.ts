@@ -15,6 +15,7 @@ import { Observable, Subscription } from 'rxjs';
 
 @Injectable()
 export class GameService implements OnDestroy {
+    test: boolean = false;
     private state: GameState = GameState.NotStarted;
     private question: Question | undefined = undefined;
     private scoreValue: number = 0;
@@ -110,25 +111,31 @@ export class GameService implements OnDestroy {
         return this.players;
     }
 
+    setTest(test: boolean) {
+        this.test = test;
+    }
+
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
             return;
         }
         const user: User = JSON.parse(data);
-        const res = await this.websocketService.rejoinRoom(user);
-
-        if (!res.ok) {
-            sessionStorage.removeItem('user');
-            this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-            this.routerService.navigate(['/']);
-            return;
+        if (!this.test) {
+            const res = await this.websocketService.rejoinRoom(user);
+            if (!res.ok) {
+                sessionStorage.removeItem('user');
+                this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
+                this.routerService.navigate(['/']);
+                return;
+            }
+            this.setState(res.value);
         }
+
         sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
 
         this.username = user.name;
         this.roomCode = user.roomId;
-        this.setState(res.value);
         const score = await this.websocketService.getScore();
         this.scoreValue = score.score;
         this.showBonus = score.bonus;
@@ -160,12 +167,10 @@ export class GameService implements OnDestroy {
             this.histogramDataSubscription.unsubscribe();
         }
     }
-
     onKickPlayer(player: string) {
         this.players.delete(player);
         this.websocketService.banUser(player);
     }
-
     leaveRoom() {
         if (this.state !== GameState.Starting) {
             this.websocketService.leaveRoom();
@@ -173,18 +178,15 @@ export class GameService implements OnDestroy {
             this.reset();
         }
     }
-
     reset() {
         this.question = undefined;
         this.state = GameState.NotStarted;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
     }
-
     isChoiceSelected(index: number): boolean {
         return this.choicesSelected[index];
     }
-
     isChoiceCorrect(index: number): boolean {
         if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
             return false;
@@ -341,7 +343,7 @@ export class GameService implements OnDestroy {
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;
         }
-        if (this.routerService.url !== '/game') {
+        if (this.routerService.url !== '/game' && this.routerService.url !== '/new') {
             this.routerService.navigate(['/game']);
         }
     }
