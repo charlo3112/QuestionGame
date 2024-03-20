@@ -113,6 +113,7 @@ export class GameService implements OnDestroy {
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
+            this.routerService.navigate(['/']);
             return;
         }
         const user: User = JSON.parse(data);
