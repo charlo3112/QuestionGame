@@ -7,11 +7,11 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { RouterTestingModule } from '@angular/router/testing';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Result } from '@common/result';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
 import SpyObj = jasmine.SpyObj;

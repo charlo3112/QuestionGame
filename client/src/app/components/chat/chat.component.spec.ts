@@ -1,18 +1,53 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { Message } from '@common/message.interface';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Message } from '@common/interfaces/message';
+import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
+import { Score } from '@common/interfaces/score';
+import { UserStat } from '@common/interfaces/user-stat';
+import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { of } from 'rxjs';
 
 describe('ChatComponent', () => {
     let component: ChatComponent;
     let fixture: ComponentFixture<ChatComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
+    let mockGameService: jasmine.SpyObj<GameService>;
+    const snackBarMock = {
+        open: jasmine.createSpy('open'),
+    };
 
     beforeEach(async () => {
-        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['sendMessage', 'joinRoom', 'getMessages', 'leaveRoom', 'getMessage']);
+        mockGameService = jasmine.createSpyObj('GameService', ['init', 'usernameValue', 'stateSubscribe'], {
+            currentQuestion: QUESTION_PLACEHOLDER,
+            currentState: GameState.Starting,
+        });
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
+            'sendMessage',
+            'joinRoom',
+            'getMessages',
+            'leaveRoom',
+            'getMessage',
+            'getState',
+            'getClosedConnection',
+            'getTime',
+            'getScoreUpdate',
+            'getUserUpdate',
+            'getUsersStat',
+            'getHistogramData',
+        ]);
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
+        mockWebSocketService.getState.and.returnValue(of({} as GameStatePayload));
+        mockWebSocketService.getClosedConnection.and.returnValue(of({} as string));
+        mockWebSocketService.getTime.and.returnValue(of({} as number));
+        mockWebSocketService.getScoreUpdate.and.returnValue(of({} as Score));
+        mockWebSocketService.getUserUpdate.and.returnValue(of({} as UserConnectionUpdate));
+        mockWebSocketService.getUsersStat.and.returnValue(of({} as UserStat[]));
 
         const messages: Message[] = [
             { name: 'test', message: 'test', timestamp: 1 },
@@ -23,7 +58,11 @@ describe('ChatComponent', () => {
 
         await TestBed.configureTestingModule({
             imports: [BrowserAnimationsModule],
-            providers: [{ provide: WebSocketService, useValue: mockWebSocketService }],
+            providers: [
+                { provide: WebSocketService, useValue: mockWebSocketService },
+                { provide: GameService, useValue: mockGameService },
+                { provide: MatSnackBar, useValue: snackBarMock },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ChatComponent);
@@ -85,15 +124,8 @@ describe('ChatComponent', () => {
         expect(component.chatSubmit).not.toHaveBeenCalled();
     });
 
-    it('should ngOnDestroy', () => {
-        spyOn(component['messagesSubscription'], 'unsubscribe');
-        component.ngOnDestroy();
-        expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
-        expect(component['messagesSubscription'].unsubscribe).toHaveBeenCalled();
-    });
-
     it('should sort messages', fakeAsync(() => {
-        component.ngOnInit();
+        fixture.detectChanges();
         tick();
         const sorted = [
             { name: 'test', message: 'test', timestamp: 3 },

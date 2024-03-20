@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Choice } from '@app/classes/choice';
-import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
-import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, QuestionType, RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
+import { MAX_CHOICES_NUMBER, MIN_CHOICES_NUMBER, RESPONSE_CREATED, SNACKBAR_DURATION } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Question } from '@common/interfaces/question';
 
 @Injectable({
     providedIn: 'root',
@@ -24,7 +25,7 @@ export class CreateQuestionService {
         const CHOICE_EMPTY = 'Le champ Choix doit être rempli pour créer un choix.';
         if (choiceInput.length) {
             if (choices.length < MAX_CHOICES_NUMBER) {
-                const newChoice: Choice = new Choice(choiceInput, false);
+                const newChoice: Choice = { text: choiceInput, isCorrect: false };
                 choices.push(newChoice);
                 editArray.push(false);
             } else {

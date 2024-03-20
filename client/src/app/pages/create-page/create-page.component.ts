@@ -15,12 +15,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
-import { Game } from '@app/interfaces/game';
-import { EMPTY_QUESTION, Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { QuestionInsertionService } from '@app/services/question-creation/question-insertion.service';
 import { MIN_DURATION, SNACKBAR_DURATION } from '@common/constants';
+import { Game } from '@common/interfaces/game';
+import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-create-page',

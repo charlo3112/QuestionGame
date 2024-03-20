@@ -1,42 +1,43 @@
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { Game } from '@common/interfaces/game';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Question } from './question';
+import { QuestionData } from './question';
 
-export type GameDocument = Game & Document;
+export type GameDocument = GameData & Document;
 
 @Schema()
-export class Game {
+export class GameData implements Game {
     @ApiProperty()
     @Prop({ required: true })
     visibility: boolean = false;
 
     @ApiProperty()
     @Prop({ required: true })
-    private gameId: string;
+    gameId: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private title: string;
+    title: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private description: string;
+    description: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private duration: number;
+    duration: number;
 
     @ApiProperty()
     @Prop({ required: true })
-    private lastModification: string;
+    lastModification: string;
 
     @ApiProperty()
     @Prop({ required: true })
-    private questions: Question[];
+    questions: QuestionData[];
 
     constructor(gameData: CreateGameDto) {
         this.gameId = uuidv4();
@@ -45,7 +46,7 @@ export class Game {
         this.duration = gameData.duration;
         this.lastModification = new Date().toISOString();
         this.questions = gameData.questions.map((questionData) => {
-            return new Question(questionData);
+            return new QuestionData(questionData);
         });
 
         this.visibility = false;
@@ -55,7 +56,7 @@ export class Game {
     }
 
     addQuestion(newQuestion: CreateQuestionDto) {
-        this.questions.push(new Question(newQuestion));
+        this.questions.push(new QuestionData(newQuestion));
     }
 
     getGameId(): string {
@@ -78,9 +79,9 @@ export class Game {
         return this.lastModification;
     }
 
-    getQuestions(): Question[] {
+    getQuestions(): QuestionData[] {
         return this.questions;
     }
 }
 
-export const gameSchema = SchemaFactory.createForClass(Game);
+export const gameSchema = SchemaFactory.createForClass(GameData);

@@ -5,10 +5,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
-import { Game } from '@app/interfaces/game';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { Result } from '@common/result';
+import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -31,8 +32,10 @@ export class StartGamePageComponent {
         private readonly communicationService: CommunicationService,
         private snackBar: MatSnackBar,
         private webSocketService: WebSocketService,
+        private gameService: GameService,
     ) {
         this.loadGames();
+        this.gameService.reset();
     }
 
     loadGames(): void {
@@ -107,11 +110,12 @@ export class StartGamePageComponent {
                     }
                 }),
             )
-            .subscribe((result: Result<Game>) => {
+            .subscribe(async (result: Result<Game>) => {
                 if (result.ok && result.value) {
                     const newGame = result.value;
                     if (newGame.visibility) {
-                        this.router.navigate(['/game'], { state: { game: newGame } });
+                        const user = await this.webSocketService.testGame(newGame.gameId);
+                        sessionStorage.setItem('user', JSON.stringify(user));
                     } else {
                         this.openSnackBar(GAME_INVISIBLE);
                         this.loadGames();

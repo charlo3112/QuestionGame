@@ -12,11 +12,12 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Choice } from '@app/classes/choice';
-import { Question } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { CreateQuestionService } from '@app/services/create-question/create-question.service';
-import { MIN_NB_OF_POINTS, QuestionType, SNACKBAR_DURATION, WEIGHTS_QUESTIONS } from '@common/constants';
+import { MIN_NB_OF_POINTS, SNACKBAR_DURATION, WEIGHTS_QUESTIONS } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-create-question',
@@ -67,7 +68,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     ngOnInit() {
         if (this.questionData && this.questionData.choices) {
             for (const choice of this.questionData.choices) {
-                this.choiceValue.push(choice.isCorrect);
+                if (choice.isCorrect !== undefined) this.choiceValue.push(choice.isCorrect);
             }
         }
     }

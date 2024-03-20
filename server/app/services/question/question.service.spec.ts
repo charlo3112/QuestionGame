@@ -4,11 +4,12 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { QuestionService } from './question.service';
 
-import { Choice } from '@app/model/database/choice';
-import { Question, QuestionDocument, questionSchema } from '@app/model/database/question';
+import { ChoiceData } from '@app/model/database/choice';
+import { QuestionData, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
+import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
 /**
@@ -44,7 +45,7 @@ describe('QuestionService', () => {
                 QuestionService,
                 Logger,
                 {
-                    provide: getModelToken(Question.name),
+                    provide: getModelToken(QuestionData.name),
                     useValue: questionModel,
                 },
             ],
@@ -77,13 +78,13 @@ describe('QuestionServiceEndToEnd', () => {
                         uri: mongoServer.getUri(),
                     }),
                 }),
-                MongooseModule.forFeature([{ name: Question.name, schema: questionSchema }]),
+                MongooseModule.forFeature([{ name: QuestionData.name, schema: questionSchema }]),
             ],
             providers: [QuestionService, Logger],
         }).compile();
 
         service = module.get<QuestionService>(QuestionService);
-        questionModel = module.get<Model<QuestionDocument>>(getModelToken(Question.name));
+        questionModel = module.get<Model<QuestionDocument>>(getModelToken(QuestionData.name));
         connection = await module.get(getConnectionToken());
     });
 
@@ -103,6 +104,15 @@ describe('QuestionServiceEndToEnd', () => {
         expect(questionModel).toBeDefined();
     });
 
+    it('getMongoId() should return the mongoId of the question', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
+        expect(await service.getMongoId(question.getText())).toEqual(mongoId);
+    });
+
     it('getAllQuestions() return all questions in database', async () => {
         await questionModel.deleteMany({});
         expect((await service.getAllQuestions()).length).toEqual(0);
@@ -119,6 +129,12 @@ describe('QuestionServiceEndToEnd', () => {
         expect(answers[1]).toBe(false);
         expect(answers[2]).toBe(false);
         expect(answers[3]).toBe(false);
+    });
+
+    it('getAnswers() should return an empty array if the question does not exist', async () => {
+        await questionModel.deleteMany({});
+        const answers = await service.getAnswers('test');
+        expect(answers).toEqual([]);
     });
 
     it('deleteQuestion() should delete the question', async () => {
@@ -141,6 +157,23 @@ describe('QuestionServiceEndToEnd', () => {
         jest.spyOn(questionModel, 'deleteOne').mockRejectedValue('');
         const question = getFakeQuestion();
         await expect(service.deleteQuestion(question.getText())).rejects.toBeTruthy();
+    });
+
+    it('deleteQuestion() should fail if the mongoId is not valid', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await expect(service.deleteQuestion('test')).rejects.toBeTruthy();
+    });
+
+    it('deleteQuestion() should fail if the mongoId does not exist', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
+        await service.deleteQuestion(mongoId);
+        await expect(service.deleteQuestion(mongoId)).rejects.toBeTruthy();
     });
 
     it('addQuestion() should add the question to the DB', async () => {
@@ -168,16 +201,24 @@ describe('QuestionServiceEndToEnd', () => {
         ).rejects.toBeTruthy();
     });
 
+    it('addQuestion() should fail if the question already exists', async () => {
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        await expect(
+            service.addQuestion({ ...question, type: QuestionType.QCM, text: question.getText(), points: 10, choices: getFakeChoicesDto() }),
+        ).rejects.toBeTruthy();
+    });
+
     it('modifyQuestion() should modify the Question attribute', async () => {
         const questionData = getFakeCreateQuestionDto();
-        await questionModel.create(new Question(questionData));
+        await questionModel.create(new QuestionData(questionData));
         // eslint-disable-next-line no-underscore-dangle
         const mongoId = await (await questionModel.findOne({ text: questionData.text }))._id;
         questionData.mongoId = mongoId;
         const newText = 'new Text';
         questionData.text = newText;
         await service.modifyQuestion(questionData);
-        expect(await (await questionModel.findOne<Question>({ _id: mongoId })).text).toBe(newText);
+        expect(await (await questionModel.findOne<QuestionData>({ _id: mongoId })).text).toBe(newText);
     });
 
     it('setters should modify Question properties', async () => {
@@ -189,6 +230,27 @@ describe('QuestionServiceEndToEnd', () => {
         const newChoices = getFakeChoices();
         question.setChoices(newChoices);
         expect(question.getChoices()).toEqual(newChoices);
+    });
+
+    it('modifyQuestion() should fail if mongo query failed', async () => {
+        jest.spyOn(questionModel, 'replaceOne').mockRejectedValue('');
+        const question = getFakeQuestion();
+        await questionModel.create(new QuestionData(question));
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.text }))._id;
+        question.mongoId = mongoId;
+        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
+    });
+
+    it('modifyQuestion() should fail if the question is not valid', async () => {
+        const INVALID_POINTS = 200;
+        const question = getFakeQuestion();
+        await questionModel.create(new QuestionData(question));
+        // eslint-disable-next-line no-underscore-dangle
+        const mongoId = await (await questionModel.findOne({ text: question.text }))._id;
+        question.mongoId = mongoId;
+        question.setPoints(INVALID_POINTS);
+        await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
     });
 });
 
@@ -202,7 +264,7 @@ const getFakeCreateQuestionDto = (): CreateQuestionDto => {
     return questionData;
 };
 
-const getFakeQuestion = (): Question => {
+const getFakeQuestion = (): QuestionData => {
     const questionData: CreateQuestionDto = {
         type: QuestionType.QCM,
         text: getRandomString(),
@@ -210,19 +272,19 @@ const getFakeQuestion = (): Question => {
         choices: getFakeChoicesDto(),
     };
 
-    const question = new Question(questionData);
+    const question = new QuestionData(questionData);
 
     return question;
 };
 
-const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): Choice[] => {
-    const choices: Choice[] = [];
+const getFakeChoices = (numChoices: number = MAX_CHOICES_NUMBER): ChoiceData[] => {
+    const choices: ChoiceData[] = [];
     for (let i = 0; i < numChoices; i++) {
         const choiceData: CreateChoiceDto = {
             text: getRandomString(),
             isCorrect: i === 0,
         };
-        choices.push(new Choice(choiceData));
+        choices.push(new ChoiceData(choiceData));
     }
 
     return choices;

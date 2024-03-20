@@ -1,10 +1,11 @@
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { GameService } from '@app/services/game/game.service';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
+import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
@@ -35,7 +36,7 @@ describe('GameController', () => {
     });
 
     it('getAllGames() should return all games', async () => {
-        const fakeGame: Game[] = [getFakeGame()];
+        const fakeGame: GameData[] = [getFakeGame()];
         gameService.getAllGames.resolves(fakeGame);
 
         const res = {} as unknown as Response;
@@ -228,8 +229,8 @@ describe('GameController', () => {
     });
 });
 
-const getFakeGame = (): Game => {
-    const game = new Game(getFakeCreateGameDto());
+const getFakeGame = (): GameData => {
+    const game = new GameData(getFakeCreateGameDto());
 
     return game;
 };

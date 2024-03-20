@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
+import { GameService } from '@app/services/game/game.service';
 
 @Component({
     selector: 'app-main-page',
@@ -9,4 +10,10 @@ import { RouterModule } from '@angular/router';
     standalone: true,
     imports: [MatButtonModule, RouterModule],
 })
-export class MainPageComponent {}
+export class MainPageComponent implements OnInit {
+    constructor(readonly gameService: GameService) {}
+
+    ngOnInit(): void {
+        this.gameService.leaveRoom();
+    }
+}

@@ -1,7 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Choice } from '@app/classes/choice';
-import { Game } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
 import {
     MAX_CHOICES_NUMBER,
     MAX_DURATION,
@@ -10,9 +7,11 @@ import {
     MIN_DURATION,
     MIN_NB_OF_POINTS,
     PONDERATION_INCREMENT,
-    QuestionType,
 } from '@common/constants';
-import { Result } from '@common/result';
+import { QuestionType } from '@common/enums/question-type';
+import { Game } from '@common/interfaces/game';
+import { Question } from '@common/interfaces/question';
+import { Result } from '@common/interfaces/result';
 
 @Injectable({
     providedIn: 'root',
@@ -128,7 +127,9 @@ export class ValidationService {
                     type: question.type,
                     text: question.text,
                     points: question.points,
-                    choices: question.choices?.map((choice) => new Choice(choice.text, choice.isCorrect)),
+                    choices: question.choices?.map((choice) => {
+                        return { text: choice.text, isCorrect: choice.isCorrect };
+                    }),
                 })),
             };
 

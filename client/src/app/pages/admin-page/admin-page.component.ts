@@ -11,11 +11,11 @@ import { RouterLink } from '@angular/router';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
-import { Game } from '@app/interfaces/game';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Result } from '@common/result';
+import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { Subscription } from 'rxjs';
 
 @Component({

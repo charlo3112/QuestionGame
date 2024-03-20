@@ -1,0 +1,20 @@
+<h2 class="title">Tableau des résultats</h2>
+<div class="table-wrapper">
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Pointage</th>
+                <th class="bonus-column">Bonus</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let player of gameService.usersStatValue">
+                <td [ngClass]="{ 'disconnected': !player.isConnected }">{{ player.username }}</td>
+                <td>{{ player.score }}</td>
+                <td>{{ player.bonus }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

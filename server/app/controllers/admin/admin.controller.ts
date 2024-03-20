@@ -1,4 +1,4 @@
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -26,7 +26,7 @@ export class AdminController {
 
     @ApiOkResponse({
         description: 'Returns all games',
-        type: Game,
+        type: GameData,
         isArray: true,
     })
     @ApiNotFoundResponse({

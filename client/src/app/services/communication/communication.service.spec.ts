@@ -1,10 +1,11 @@
 /* eslint-disable max-lines */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { GAME_PLACEHOLDER, Game } from '@app/interfaces/game';
-import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@app/interfaces/question';
 import { CommunicationService } from '@app/services/communication/communication.service';
-import { QuestionType, RESPONSE_OK } from '@common/constants';
+import { RESPONSE_OK } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
     let service: CommunicationService;

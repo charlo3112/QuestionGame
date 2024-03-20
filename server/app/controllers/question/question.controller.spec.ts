@@ -1,9 +1,10 @@
 import { QuestionController } from '@app/controllers/question/question.controller';
-import { Question } from '@app/model/database/question';
+import { QuestionData } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { QuestionService } from '@app/services/question/question.service';
-import { MAX_CHOICES_NUMBER, QuestionType } from '@common/constants';
+import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Response } from 'express';
@@ -160,8 +161,8 @@ describe.only('QuestionController', () => {
     });
 });
 
-const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] => {
-    const questions: Question[] = [];
+const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): QuestionData[] => {
+    const questions: QuestionData[] = [];
     for (let i = 0; i < numChoices; i++) {
         const questionData: CreateQuestionDto = {
             type: QuestionType.QCM,
@@ -169,7 +170,7 @@ const getFakeQuestions = (numChoices: number = MAX_CHOICES_NUMBER): Question[] =
             points: 40,
             choices: getFakeChoicesDto(),
         };
-        questions.push(new Question(questionData));
+        questions.push(new QuestionData(questionData));
     }
 
     return questions;

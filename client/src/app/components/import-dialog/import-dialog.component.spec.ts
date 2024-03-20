@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -49,20 +49,26 @@ describe('ImportDialogComponent', () => {
         expect(validationServiceSpy.validateGame).not.toHaveBeenCalled();
     });
 
-    it('should get an error when the file is not a JSON file', () => {
+    it('should get an error when the file is not a JSON file', fakeAsync(() => {
         const file = new File([''], 'filename', { type: 'text/plain' });
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         const fileList = dataTransfer.files;
 
+        validationServiceSpy.validateGame.and.returnValue(['error']);
+
         component.onFileSelected(fileList);
+        const reader = new FileReader();
+        reader.readAsText(file);
 
-        setTimeout(() => {
-            expect(component.validationErrors.length).toBe(1);
-        }, timeout);
-    });
+        component['loadFile'](reader);
+        fixture.detectChanges();
+        tick(timeout);
 
-    it('should return an error when the json file is not valid', () => {
+        expect(component.validationErrors.length).toBe(1);
+    }));
+
+    it('should return an error when the json file is not valid', fakeAsync(() => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -71,13 +77,14 @@ describe('ImportDialogComponent', () => {
         validationServiceSpy.validateGame.and.returnValue(['error']);
 
         component.onFileSelected(fileList);
+        const reader = new FileReader();
+        component['loadFile'](reader);
+        fixture.detectChanges();
+        tick(timeout);
+        expect(component.validationErrors.length).toBe(1);
+    }));
 
-        setTimeout(() => {
-            expect(component.validationErrors.length).toBe(1);
-        }, timeout);
-    });
-
-    it('should return an error when the json file is not correctly parsed', () => {
+    it('should return an error when the json file is not correctly parsed', fakeAsync(() => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -86,13 +93,14 @@ describe('ImportDialogComponent', () => {
         validationServiceSpy.filterJSONInput.and.returnValue({ ok: false, error: 'error' });
 
         component.onFileSelected(fileList);
+        const reader = new FileReader();
+        component['loadFile'](reader);
+        fixture.detectChanges();
+        tick(timeout);
+        expect(component.validationErrors.length).toBe(1);
+    }));
 
-        setTimeout(() => {
-            expect(component.validationErrors.length).toBe(1);
-        }, timeout);
-    });
-
-    it('should load data if the json file is valid', () => {
+    it('should load data if the json file is valid', fakeAsync(() => {
         const file = new File(['{}'], 'filename', { type: 'application/json' });
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
@@ -103,11 +111,12 @@ describe('ImportDialogComponent', () => {
         validationServiceSpy.filterJSONInput.and.returnValue({ ok: true, value: game });
 
         component.onFileSelected(fileList);
-
-        setTimeout(() => {
-            expect(component.data.ok).toBeTrue();
-        }, timeout);
-    });
+        const reader = new FileReader();
+        component['loadFile'](reader);
+        fixture.detectChanges();
+        tick(timeout);
+        expect(component.validationErrors.length).toBe(0);
+    }));
 
     it('should close the dialog when clicking on the close button', () => {
         component.onNoClick();

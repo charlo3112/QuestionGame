@@ -1,33 +1,108 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router, RouterModule } from '@angular/router';
+import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
+import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
+import { AnswersComponent } from '@app/components/answers/answers.component';
+import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
-import { GAME_PLACEHOLDER } from '@app/interfaces/game';
-import { Question } from '@app/interfaces/question';
 import { GameService } from '@app/services/game/game.service';
+import { GameState } from '@common/enums/game-state';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-game-page',
     templateUrl: './game-page.component.html',
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
-    imports: [QuestionComponent, CommonModule],
+    imports: [
+        AdminGameViewComponent,
+        CommonModule,
+        QuestionComponent,
+        MatIconModule,
+        MatFormFieldModule,
+        FormsModule,
+        AnswersComponent,
+        MatButtonModule,
+        MatToolbarModule,
+        MatDividerModule,
+        CountdownComponent,
+        RouterModule,
+    ],
 })
-export class GamePageComponent implements OnInit {
-    questions: Question[] = [];
-    placeholder = GAME_PLACEHOLDER;
-
-    constructor(private readonly gameService: GameService) {}
-
+export class GamePageComponent implements OnInit, OnDestroy {
+    buttonText: string = 'Prochaine Question';
+    constructor(
+        readonly gameService: GameService,
+        public dialog: MatDialog,
+        public router: Router,
+    ) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
     }
 
-    ngOnInit(): void {
-        const state = window.history.state;
-        if (state && state.game) {
-            this.gameService.startGame(state.game);
-        } else {
-            this.gameService.startGame(this.placeholder);
+    showButton(): boolean {
+        return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
+    }
+
+    saveGameData(buttonText: string): void {
+        localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ buttonText }));
+    }
+
+    getGameData(): { buttonText: string } | null {
+        const gameStateData = localStorage.getItem(this.gameService.roomCodeValue);
+        return gameStateData ? JSON.parse(gameStateData) : null;
+    }
+
+    isStartingGame(): boolean {
+        return this.gameService.currentState === GameState.Starting;
+    }
+
+    nextStep(): void {
+        if (this.buttonText === 'Résultats') {
+            localStorage.clear();
+            this.gameService.showFinalResults();
+        } else if (this.buttonText === 'Prochaine Question') {
+            this.gameService.nextQuestion();
         }
+    }
+
+    async ngOnInit(): Promise<void> {
+        await this.gameService.init();
+        const gameData = this.getGameData();
+        if (gameData === null) {
+            this.buttonText = 'Prochaine Question';
+        } else {
+            this.buttonText = gameData.buttonText;
+        }
+        this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
+            if (statePayload.state === GameState.LastQuestion) {
+                this.buttonText = 'Résultats';
+            }
+        });
+        window.onbeforeunload = () => this.saveGameData(this.buttonText);
+    }
+
+    ngOnDestroy(): void {
+        this.buttonText = 'Prochaine Question';
+    }
+
+    openAbandonDialog(): void {
+        const dialogRef = this.dialog.open(AbandonDialogComponent);
+
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result === true) {
+                this.gameService.leaveRoom();
+                this.router.navigate(['/new']);
+            }
+        });
     }
 }

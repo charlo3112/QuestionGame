@@ -1,4 +1,4 @@
-import { Game } from '@app/model/database/game';
+import { GameData } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
@@ -13,7 +13,7 @@ export class GameController {
 
     @ApiOkResponse({
         description: 'Returns all games',
-        type: Game,
+        type: GameData,
         isArray: true,
     })
     @ApiResponse({
@@ -32,7 +32,7 @@ export class GameController {
 
     @ApiOkResponse({
         description: 'Get game by id',
-        type: Game,
+        type: GameData,
     })
     @ApiNotFoundResponse({
         description: 'Return NOT_FOUND http status when the game doesnt exist',
@@ -98,7 +98,7 @@ export class GameController {
 
     @ApiOkResponse({
         description: 'Modify a game',
-        type: Game,
+        type: GameData,
     })
     @ApiResponse({
         status: HttpStatus.NOT_MODIFIED,

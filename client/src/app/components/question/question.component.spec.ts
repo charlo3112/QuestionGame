@@ -1,27 +1,30 @@
-import { Location } from '@angular/common';
+import { SimpleChange, SimpleChanges } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { Choice } from '@app/classes/choice';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game/game.service';
-import { QuestionType } from '@common/constants';
+import { GameState } from '@common/enums/game-state';
+import { QuestionType } from '@common/enums/question-type';
+import { of } from 'rxjs';
 
 const mockQuestion = {
     type: QuestionType.QCM,
     text: 'Question test',
     points: 8,
-    choices: [new Choice('A', true), new Choice('B', false), new Choice('C', false)],
+    choices: [
+        { text: 'A', isCorrect: true },
+        { text: 'B', isCorrect: false },
+        { text: 'C', isCorrect: false },
+    ],
 };
 
 describe('Question', () => {
     let component: QuestionComponent;
     let fixture: ComponentFixture<QuestionComponent>;
     let router: Router;
-    let location: Location;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
@@ -31,7 +34,9 @@ describe('Question', () => {
             'isChoiceCorrect',
             'isChoiceIncorrect',
             'isChoiceSelected',
+            'stateSubscribe',
         ]);
+        gameServiceSpy.stateSubscribe.and.returnValue(of({ state: GameState.AskingQuestion, payload: mockQuestion }));
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [{ provide: GameService, useValue: gameServiceSpy }],
@@ -44,19 +49,12 @@ describe('Question', () => {
         component.question = mockQuestion;
         fixture.detectChanges();
         router = TestBed.inject(Router);
-        location = TestBed.inject(Location);
         router.initialNavigation();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
-
-    it('should navigate on abandon', fakeAsync(() => {
-        fixture.debugElement.query(By.css('#abandon-button')).nativeElement.click();
-        tick();
-        expect(location.path()).toBe('/new');
-    }));
 
     it('should detect enter key', () => {
         const event = new KeyboardEvent('keydown', { key: 'Enter' });
@@ -81,5 +79,42 @@ describe('Question', () => {
         const event = new KeyboardEvent('keydown', { key: '1' });
         component.buttonDetect(event);
         expect(gameServiceSpy.selectChoice).not.toHaveBeenCalled();
+    });
+
+    it('should call confirmQuestion and disable the button when confirmAndDisable is called and buttonDisabled is false', () => {
+        component.buttonDisabled = false;
+        component.confirmAndDisable();
+        expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
+    });
+
+    it('should reset button', () => {
+        const mockButton = document.createElement('button');
+        mockButton.disabled = true;
+        spyOn(document, 'getElementById').and.returnValue(mockButton);
+        component.resetButton();
+        expect(mockButton.disabled).toBeFalse();
+        expect(component.buttonDisabled).toBeFalse();
+    });
+
+    it('should disable button when state is LastQuestion', fakeAsync(() => {
+        const mockButton = document.createElement('button');
+        spyOn(document, 'getElementById').and.returnValue(mockButton);
+        gameServiceSpy.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
+        component.ngOnInit();
+        tick();
+        expect(mockButton.disabled).toBeTrue();
+        expect(component.buttonDisabled).toBeTrue();
+    }));
+
+    it('should reset button and changesCounter when ngOnChanges is called with specific changes', () => {
+        component.changesCounter = 2;
+        const mockButton = document.createElement('button');
+        spyOn(document, 'getElementById').and.returnValue(mockButton);
+        const changes: SimpleChanges = {
+            question: new SimpleChange(undefined, mockQuestion, false),
+        };
+
+        component.ngOnChanges(changes);
+        expect(mockButton.disabled).toBeFalse();
     });
 });

@@ -1,30 +1,14 @@
-<mat-toolbar color="primary" class="toolbar">
-    <mat-toolbar-row color="primary" class="toolbar">
-        <a routerLink="#"><img src="assets/logo.png" /></a>
-        <h1 class="title">{{ question.text }}</h1>
-        <span class="spacer"></span>
-        <span id="points" class="big-text">{{ question.points }} points</span>
-    </mat-toolbar-row>
-    <mat-toolbar-row class="row-container">
-        <p class="big-text">Score total : {{ gameService.score }}</p>
-        <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
-        <p *ngIf="gameService.time" class="big-text">Temps restant : {{ gameService.time }}</p>
-        <button mat-raised-button id="abandon-button" routerLink="/new">Abandonner</button>
-    </mat-toolbar-row>
-</mat-toolbar>
-
 <div id="grid-container">
     <div id="bottom-container">
         <div id="left-container">
             <section id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="gameService.confirmQuestion()" class="big-text" color="primary">Confirmer</button>
+            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary">Confirmer</button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
         </div>
     </div>
-    <mat-slide-toggle (change)="gameService.toggleBonus()"> 20% bonus points </mat-slide-toggle>
     <div class="bottom" [ngStyle]="{ 'bottom.%': (-gameService.time / gameService.maxTime) * 100 - 20 }"></div>
 </div>
