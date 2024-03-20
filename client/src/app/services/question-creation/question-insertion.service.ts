@@ -8,6 +8,7 @@ import { Question } from '@common/interfaces/question';
     providedIn: 'root',
 })
 export class QuestionInsertionService {
+    // We need all the parameters to make the service work
     // eslint-disable-next-line max-params
     constructor(private snackBar: MatSnackBar) {}
 

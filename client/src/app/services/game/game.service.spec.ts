@@ -1,3 +1,4 @@
+// We need to disable max-lines because we need every single test to test thoroughly the service and have a good coverage
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
@@ -22,6 +23,7 @@ class TimeServiceStub {
     startTimer(startValue: number, execute: () => void) {
         setTimeout(execute, 0);
     }
+    // Necessary for unit tests where stubs with empty functions are needed to fulfill interfaces without implementing specific logic.
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     stopTimer() {}
     setTimeout(execute: () => void, timeMs: number) {
@@ -408,14 +410,9 @@ describe('Game', () => {
     }));
 
     it('should return undefined when state is not ShowResults or bonus is false', () => {
-        // Set up the service with appropriate state and bonus
         service['state'] = GameState.NotStarted;
         service['showBonus'] = false;
-
-        // Call the getMessage() method
         const message = service.message;
-
-        // Assert that the message is undefined
         expect(message).toBeUndefined();
     });
 

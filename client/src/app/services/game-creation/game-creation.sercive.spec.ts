@@ -91,26 +91,26 @@ describe('GameCreationService', () => {
 
         it('should display error message if game creation fails', async () => {
             const error = new Error('Game creation failed');
-            communicationServiceSpy.addGame.and.throwError(error); // Simulate an error being thrown
+            communicationServiceSpy.addGame.and.throwError(error);
 
             await service.createGame(game);
 
             expect(snackBarSpy.open).toHaveBeenCalledWith(ERROR_CREATING_GAME, undefined, {
                 duration: SNACKBAR_DURATION,
             });
-            expect(routerSpy.navigate).not.toHaveBeenCalled(); // Ensure router.navigate is not called
+            expect(routerSpy.navigate).not.toHaveBeenCalled();
         });
 
         it('should display error message if game update fails', async () => {
             const error = new Error('Game creation failed');
-            communicationServiceSpy.addGame.and.throwError(error); // Simulate an error being thrown
+            communicationServiceSpy.addGame.and.throwError(error);
 
             await service.updateGame(game);
 
             expect(snackBarSpy.open).toHaveBeenCalledWith(ERROR_UPDATING_GAME, undefined, {
                 duration: SNACKBAR_DURATION,
             });
-            expect(routerSpy.navigate).not.toHaveBeenCalled(); // Ensure router.navigate is not called
+            expect(routerSpy.navigate).not.toHaveBeenCalled();
         });
     });
 });

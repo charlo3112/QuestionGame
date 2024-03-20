@@ -77,7 +77,7 @@ export class CreateQuestionService {
         return true;
     }
 
-    // Every parameter is important for this method
+    // Every parameter is important for this method to work properly
     // eslint-disable-next-line max-params
     async editQuestion(questionName: string, questionPoints: number, choices: Choice[], questionMongoId: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {

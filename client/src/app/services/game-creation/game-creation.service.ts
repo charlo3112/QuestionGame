@@ -1,3 +1,4 @@
+// We need each parametre for the functionality of the service
 /* eslint-disable max-params */
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';

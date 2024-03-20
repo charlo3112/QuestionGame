@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/ban-types*/
+// We need every for great coverage so we disable the line limit
 /* eslint-disable max-lines */
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { LISTEN_HISTOGRAM_DATA, LISTEN_SCORE_UPDATE, LISTEN_TIME_UPDATE, LISTEN_USERS_STAT } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
+import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
@@ -242,6 +242,7 @@ describe('WebSocketService', () => {
             { name: 'test1', message: 'Hello', timestamp: 1 },
             { name: 'test2', message: 'Hi there', timestamp: 1 },
         ];
+        // We need to use Function to avoid using any as the type
         // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, callback: Function) => {
             if (event === 'messages:get') {
@@ -262,6 +263,7 @@ describe('WebSocketService', () => {
             score: 100,
             bonus: false,
         };
+        // We need to use Function to avoid using any as the type
         // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, callback: Function) => {
             if (event === 'game:score') {
@@ -282,6 +284,7 @@ describe('WebSocketService', () => {
             ok: true,
             value: GameState.Wait,
         };
+        // We need to use Function to avoid using any as the type
         // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, payload: PayloadJoinGame, callback: Function) => {
             if (event === 'game:join' && payload.gameCode === gameCode && payload.username === username) {
@@ -305,6 +308,7 @@ describe('WebSocketService', () => {
             ok: true,
             value: mockGameStatePayload,
         };
+        // We need to use Function to avoid using any as the type
         // eslint-disable-next-line @typescript-eslint/ban-types
         mockSocket.emit.and.callFake((event: string, user: User, callback: Function) => {
             if (event === 'game:rejoin' && user.userId === mockUser.userId) {
