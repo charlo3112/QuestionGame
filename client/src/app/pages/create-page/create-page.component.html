@@ -81,6 +81,7 @@
         class="right"
         (sendQuestionSelected)="insertQuestionFromBank($event)"
         (closeForm)="closeQuestionBank()"
+        (formClosed)="closeQuestionBank()"
         [adminMode]="false"
     >
     </app-question-bank>

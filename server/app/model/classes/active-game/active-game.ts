@@ -1,7 +1,7 @@
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { BONUS_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -125,6 +125,12 @@ export class ActiveGame {
                     bonus: user.userBonus,
                     isConnected: this.activeUsers.has(user.uid),
                 };
+            })
+            .sort((a, b) => {
+                if (a.score === b.score) {
+                    return a.username.localeCompare(b.username);
+                }
+                return b.score - a.score;
             });
     }
 
@@ -178,10 +184,7 @@ export class ActiveGame {
 
     handleChoice(userId: string, choice: boolean[]) {
         const user = this.users.get(userId);
-        if (!user) {
-            return;
-        }
-        if (user.validate !== undefined && this.state === GameState.AskingQuestion) {
+        if (!user || user.validate !== undefined || this.state !== GameState.AskingQuestion) {
             return;
         }
         user.newChoice = choice;
@@ -241,7 +244,9 @@ export class ActiveGame {
         this.updateHistogramData(this.roomId, this.histogramData);
     }
 
-    update(userId: string, user: UserData) {
+    update(userId: string, newId: string) {
+        const user = this.users.get(userId);
+        user.uid = newId;
         this.users.delete(userId);
         this.activeUsers.delete(userId);
         this.users.set(user.uid, user);
@@ -307,6 +312,7 @@ export class ActiveGame {
         this.advanceState(GameState.Starting);
         while (this.questionIndex < this.game.questions.length) {
             await this.askQuestion();
+            await this.timer.start(TIME_CONFIRM_S);
         }
     }
 
@@ -317,23 +323,28 @@ export class ActiveGame {
 
     private calculateScores() {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
-        let users = Array.from(this.users.values());
         const time = new Date().getTime();
+        let users = Array.from(this.users.values());
         users.forEach((user) => {
             if (user.validate === undefined) {
                 user.validate = time;
             }
         });
-
-        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => b.validate - a.validate);
-        const score = this.game.questions[this.questionIndex].points;
+        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => a.validate - b.validate);
+        let bonus = true;
+        if (users.length >= 2) {
+            if (users[1].validate - users[0].validate <= BONUS_TIME) {
+                bonus = false;
+            }
+        }
 
         users.forEach((user) => {
-            if (users[0] === user) {
-                user.addBonus(score);
+            if (users[0] === user && bonus) {
+                user.addBonus(this.game.questions[this.questionIndex].points);
             } else {
-                user.addScore(score);
+                user.addScore(this.game.questions[this.questionIndex].points);
             }
+            this.updateScore(user.uid, user.userScore);
         });
         this.updateUsersStat(this.hostId, this.usersStat);
     }

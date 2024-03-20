@@ -225,7 +225,7 @@ describe('Game', () => {
     });
 
     it('should confirm a question', () => {
-        service['state'] = GameState.WaitingResults;
+        service['state'] = GameState.AskingQuestion;
         service.confirmQuestion();
         expect(webSocketSpy.validateChoice).toHaveBeenCalled();
     });
@@ -236,6 +236,22 @@ describe('Game', () => {
 
     it('should return 0 at the start of the game', () => {
         expect(service.score).toEqual(0);
+    });
+
+    it('should return the max time of the game', () => {
+        expect(service.maxTime).toEqual(MAX_TIME_RETURN);
+    });
+
+    it('should return the current game title', () => {
+        const expectedTitle = 'Titre du Jeu Test';
+        service['title'] = expectedTitle;
+        expect(service.gameTitle).toEqual(expectedTitle);
+    });
+
+    it('should return the current room code value', () => {
+        const expectedRoomCode = '2323';
+        service['roomCode'] = expectedRoomCode;
+        expect(service.roomCodeValue).toEqual(expectedRoomCode);
     });
 
     it('should return the max time (20) of the game', () => {
@@ -390,4 +406,29 @@ describe('Game', () => {
         const navigateSpy = spyOn(service['routerService'], 'navigate');
         expect(navigateSpy).toHaveBeenCalledWith(['/results']);
     }));
+
+    it('should return undefined when state is not ShowResults or bonus is false', () => {
+        // Set up the service with appropriate state and bonus
+        service['state'] = GameState.NotStarted;
+        service['showBonus'] = false;
+
+        // Call the getMessage() method
+        const message = service.message;
+
+        // Assert that the message is undefined
+        expect(message).toBeUndefined();
+    });
+
+    it('setState() should set the state and payload', () => {
+        const state = GameState.ShowResults;
+        const payload = 'payload';
+        service['setState']({ state, payload });
+        expect(service['state']).toEqual(state);
+    });
+
+    it('should return if game state is not started', () => {
+        service['state'] = GameState.NotStarted;
+        service['setState']({ state: GameState.NotStarted, payload: undefined });
+        expect(service['state']).toEqual(GameState.NotStarted);
+    });
 });
