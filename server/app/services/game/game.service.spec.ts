@@ -13,22 +13,11 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { Connection, Model } from 'mongoose';
 import { GameService } from './game.service';
 
-/**
- * There is two way to test the service :
- * - Mock the mongoose Model implementation and do what ever we want to do with it (see describe CourseService) or
- * - Use mongodb memory server implementation (see describe CourseServiceEndToEnd) and let everything go through as if we had a real database
- *
- * The second method is generally better because it tests the database queries too.
- * We will use it more
- */
-
 describe('GameService', () => {
     let service: GameService;
     let gameModel: Model<GameDocument>;
 
     beforeEach(async () => {
-        // notice that only the functions we call from the model are mocked
-        // we can´t use sinon because mongoose Model is an interface
         gameModel = {
             countDocuments: jest.fn(),
             insertMany: jest.fn(),
@@ -71,8 +60,6 @@ describe('GameServiceEndToEnd', () => {
 
     beforeEach(async () => {
         mongoServer = await MongoMemoryServer.create();
-        // notice that only the functions we call from the model are mocked
-        // we can´t use sinon because mongoose Model is an interface
         const module = await Test.createTestingModule({
             imports: [
                 MongooseModule.forRootAsync({
@@ -92,9 +79,6 @@ describe('GameServiceEndToEnd', () => {
     });
 
     afterEach((done) => {
-        // The database get auto populated in the constructor
-        // We want to make sur we close the connection after the database got
-        // populated. So we add small delay
         setTimeout(async () => {
             await connection.close();
             await mongoServer.stop();

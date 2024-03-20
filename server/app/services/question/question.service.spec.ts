@@ -12,22 +12,11 @@ import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
 
-/**
- * There is two way to test the service :
- * - Mock the mongoose Model implementation and do what ever we want to do with it (see describe CourseService) or
- * - Use mongodb memory server implementation (see describe CourseServiceEndToEnd) and let everything go through as if we had a real database
- *
- * The second method is generally better because it tests the database queries too.
- * We will use it more
- */
-
 describe('QuestionService', () => {
     let service: QuestionService;
     let questionModel: Model<QuestionDocument>;
 
     beforeEach(async () => {
-        // notice that only the functions we call from the model are mocked
-        // we can´t use sinon because mongoose Model is an interface
         questionModel = {
             countDocuments: jest.fn(),
             insertMany: jest.fn(),
@@ -69,8 +58,6 @@ describe('QuestionServiceEndToEnd', () => {
 
     beforeEach(async () => {
         mongoServer = await MongoMemoryServer.create();
-        // notice that only the functions we call from the model are mocked
-        // we can´t use sinon because mongoose Model is an interface
         const module = await Test.createTestingModule({
             imports: [
                 MongooseModule.forRootAsync({
@@ -89,9 +76,6 @@ describe('QuestionServiceEndToEnd', () => {
     });
 
     afterEach((done) => {
-        // The database get auto populated in the constructor
-        // We want to make sur we close the connection after the database got
-        // populated. So we add small delay
         setTimeout(async () => {
             await connection.close();
             await mongoServer.stop();
@@ -108,6 +92,7 @@ describe('QuestionServiceEndToEnd', () => {
         await questionModel.deleteMany({});
         const question = getFakeQuestion();
         await questionModel.create(question);
+        // no choice to acces mongo attribute _id
         // eslint-disable-next-line no-underscore-dangle
         const mongoId = await (await questionModel.findOne({ text: question.getText() }))._id;
         expect(await service.getMongoId(question.getText())).toEqual(mongoId);
