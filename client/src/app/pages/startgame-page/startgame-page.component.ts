@@ -86,6 +86,7 @@ export class StartGamePageComponent {
                     if (newGame.visibility) {
                         const user = await this.webSocketService.createRoom(newGame.gameId);
                         sessionStorage.setItem('user', JSON.stringify(user));
+                        this.gameService.setTest(false);
                         this.router.navigate(['/loading']);
                     } else {
                         this.openSnackBar(GAME_INVISIBLE);
