@@ -38,8 +38,6 @@ describe('ActiveGame', () => {
         gameDto.questions = [expectedQuestionData];
         gameDto.visibility = true;
         mockGameData = new GameData(gameDto);
-
-        game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
     });
     it('should be defined', () => {
         expect(ActiveGame).toBeDefined();

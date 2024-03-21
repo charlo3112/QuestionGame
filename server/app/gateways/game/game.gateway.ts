@@ -21,11 +21,7 @@ export class GameGateway implements OnGatewayDisconnect {
         private roomService: RoomManagementService,
         private readonly gamesService: GameService,
         private readonly logger: Logger,
-    ) {
-        this.roomService.setGatewayCallback(this.handleDeleteRoom.bind(this));
-        this.roomService.setDisconnectUser(this.handleUserRemoval.bind(this));
-        this.roomService.setUpdateUser(this.handleUpdateUser.bind(this));
-    }
+    ) {}
 
     @SubscribeMessage('game:create')
     async handleCreateGame(client: Socket, id: string): Promise<User> {
@@ -33,15 +29,7 @@ export class GameGateway implements OnGatewayDisconnect {
         if (!game) {
             return null;
         }
-        const user = this.roomService.createGame(
-            client.id,
-            game,
-            this.handleStateUpdate.bind(this),
-            this.handleTimeUpdate.bind(this),
-            this.handleScoreUpdate.bind(this),
-            this.handleUsersStatUpdate.bind(this),
-            this.handleHistogramDataUpdate.bind(this),
-        );
+        const user = await this.roomService.createGame(client.id, game);
         client.join(user.roomId);
         this.logger.log(`User ${user.name} created room ${user.roomId}`);
 
@@ -54,15 +42,7 @@ export class GameGateway implements OnGatewayDisconnect {
         if (!game) {
             return null;
         }
-        const user = this.roomService.testGame(
-            client.id,
-            game,
-            this.handleStateUpdate.bind(this),
-            this.handleTimeUpdate.bind(this),
-            this.handleScoreUpdate.bind(this),
-            this.handleUsersStatUpdate.bind(this),
-            this.handleHistogramDataUpdate.bind(this),
-        );
+        const user = await this.roomService.testGame(client.id, game);
         client.join(user.roomId);
         const activeGame = this.roomService.getActiveGame(client.id);
         activeGame.testGame();
@@ -150,36 +130,36 @@ export class GameGateway implements OnGatewayDisconnect {
         this.server.to(roomId).emit('game:questionsCounter', questionsCounter);
     }
 
-    private handleDeleteRoom(roomId: string): void {
+    sendTimeUpdate(roomId: string, time: number): void {
+        this.server.to(roomId).emit('game:time', time);
+    }
+
+    sendDeleteRoom(roomId: string): void {
         this.server.to(roomId).emit('game:closed', 'La partie a été fermée');
         this.server.socketsLeave(roomId);
     }
 
-    private handleUserRemoval(userId: string, message: string): void {
+    sendUserRemoval(userId: string, message: string): void {
         this.server.to(userId).emit('game:closed', message);
     }
 
-    private handleUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
+    sendUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
         this.server.to(roomId).emit('game:user-update', userUpdate);
     }
 
-    private handleStateUpdate(roomId: string, state: GameStatePayload): void {
+    sendStateUpdate(roomId: string, state: GameStatePayload): void {
         this.server.to(roomId).emit('game:state', state);
     }
 
-    private handleTimeUpdate(roomId: string, time: number): void {
-        this.server.to(roomId).emit('game:time', time);
-    }
-
-    private handleScoreUpdate(userId: string, score: Score): void {
+    sendScoreUpdate(userId: string, score: Score): void {
         this.server.to(userId).emit('game:score', score);
     }
 
-    private handleUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
+    sendUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
         this.server.to(userId).emit('game:users-stat', usersStat);
     }
 
-    private handleHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
+    sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
         this.server.to(roomId).emit('game:histogramData', histogramData);
     }
 }

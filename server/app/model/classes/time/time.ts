@@ -1,15 +1,18 @@
+import { GameGateway } from '@app/gateways/game/game.gateway';
 import { TIMEOUT_DURATION } from '@common/constants';
+import { Injectable, Scope } from '@nestjs/common';
 import { setTimeout } from 'timers/promises';
 
+@Injectable({ scope: Scope.TRANSIENT })
 export class CountDownTimer {
     private seconds: number = 0;
-    private updateTime: (roomId: string, time: number) => void;
     private roomId: string;
     private stopped: boolean = false;
 
-    constructor(roomId: string, updateTime: (roomId: string, time: number) => void) {
+    constructor(private readonly gameGateway: GameGateway) {}
+
+    setRoomId(roomId: string) {
         this.roomId = roomId;
-        this.updateTime = updateTime;
     }
 
     async start(seconds: number) {
@@ -20,11 +23,11 @@ export class CountDownTimer {
     async restart() {
         this.stopped = false;
         while (this.seconds > 0 && !this.stopped) {
-            this.updateTime(this.roomId, this.seconds);
+            this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
             await setTimeout(TIMEOUT_DURATION);
             --this.seconds;
         }
-        this.updateTime(this.roomId, this.seconds);
+        this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
     }
 
     async stop() {

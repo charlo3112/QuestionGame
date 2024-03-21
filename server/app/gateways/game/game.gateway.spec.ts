@@ -1,6 +1,6 @@
 import { GameGateway } from '@app/gateways/game/game.gateway';
-import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { GameData } from '@app/model/database/game';
+import { ActiveGame } from '@app/services/active-game/active-game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/enums/game-state';

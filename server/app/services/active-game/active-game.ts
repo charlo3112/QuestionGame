@@ -1,3 +1,4 @@
+import { GameGateway } from '@app/gateways/game/game.gateway';
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
@@ -8,46 +9,29 @@ import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
+import { Injectable, Scope } from '@nestjs/common';
 
+@Injectable({ scope: Scope.TRANSIENT })
 export class ActiveGame {
-    private locked: boolean;
+    isLocked: boolean;
     private game: GameData;
     private users: Map<string, UserData>;
     private state: GameState = GameState.Wait;
     private bannedNames: string[];
     private activeUsers: Set<string>;
-    private updateState: (roomId: string, gameStatePayload: GameStatePayload) => void;
-    private updateScore: (userId: string, score: Score) => void;
-    private updateUsersStat: (userId: string, usersStat: UserStat[]) => void;
-    private updateHistogramData: (roomId: string, histogramData: HistogramData) => void;
     private roomId: string;
     private questionIndex: number = 0;
-    private timer;
     private histogramData: HistogramData;
 
-    // This class needs all these parameters to be able to communicate with the server
-    // eslint-disable-next-line max-params
     constructor(
-        game: GameData,
-        roomId: string,
-        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
-        updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: Score) => void,
-        updateUsersStat: (userId: string, usersStat: UserStat[]) => void,
-        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
+        private readonly timer: CountDownTimer,
+        private readonly gameGateway: GameGateway,
     ) {
-        this.game = game;
         this.users = new Map<string, UserData>();
         this.activeUsers = new Set<string>();
-        this.locked = false;
+        this.isLocked = false;
         this.state = GameState.Wait;
         this.bannedNames = [];
-        this.roomId = roomId;
-        this.updateState = updateState;
-        this.timer = new CountDownTimer(roomId, updateTime);
-        this.updateScore = updateScore;
-        this.updateUsersStat = updateUsersStat;
-        this.updateHistogramData = updateHistogramData;
         this.histogramData = {
             choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
             question: this.game.questions,
@@ -107,10 +91,6 @@ export class ActiveGame {
         return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
     }
 
-    get isLocked() {
-        return this.locked;
-    }
-
     get questionIndexCurrent() {
         return this.questionIndex;
     }
@@ -134,8 +114,10 @@ export class ActiveGame {
             });
     }
 
-    set isLocked(locked: boolean) {
-        this.locked = locked;
+    set(game: GameData, roomId: string) {
+        this.game = game;
+        this.roomId = roomId;
+        this.timer.setRoomId(roomId);
     }
 
     addUser(user: UserData) {
@@ -220,7 +202,7 @@ export class ActiveGame {
         if (this.state === GameState.Wait) {
             this.users.delete(userId);
         }
-        this.updateUsersStat(this.hostId, this.usersStat);
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
     sendUserSelectedChoice() {
@@ -235,13 +217,13 @@ export class ActiveGame {
                 }
             }
         });
-        this.updateHistogramData(this.hostId, this.histogramData);
+        this.gameGateway.sendHistogramDataUpdate(this.hostId, this.histogramData);
     }
 
     showFinalResults() {
         this.advanceState(GameState.ShowFinalResults);
-        this.updateUsersStat(this.roomId, this.usersStat);
-        this.updateHistogramData(this.roomId, this.histogramData);
+        this.gameGateway.sendUsersStatUpdate(this.roomId, this.usersStat);
+        this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
     }
 
     update(userId: string, newId: string) {
@@ -252,8 +234,8 @@ export class ActiveGame {
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
         if (user.isHost() || this.currentState === GameState.ShowFinalResults) {
-            this.updateUsersStat(user.uid, this.usersStat);
-            this.updateHistogramData(user.uid, this.histogramData);
+            this.gameGateway.sendUsersStatUpdate(this.roomId, this.usersStat);
+            this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
         }
     }
 
@@ -290,7 +272,7 @@ export class ActiveGame {
     }
     async askQuestion() {
         this.histogramData.indexCurrentQuestion = this.questionIndex;
-        this.updateHistogramData(this.hostId, this.histogramData);
+        this.gameGateway.sendHistogramDataUpdate(this.hostId, this.histogramData);
         this.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
@@ -313,7 +295,7 @@ export class ActiveGame {
     }
     private advanceState(state: GameState) {
         this.state = state;
-        this.updateState(this.roomId, this.gameStatePayload);
+        this.gameGateway.sendStateUpdate(this.roomId, this.gameStatePayload);
     }
     private calculateScores() {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
@@ -338,9 +320,9 @@ export class ActiveGame {
             } else {
                 user.addScore(this.game.questions[this.questionIndex].points);
             }
-            this.updateScore(user.uid, user.userScore);
+            this.gameGateway.sendScoreUpdate(user.uid, user.userScore);
         });
-        this.updateUsersStat(this.hostId, this.usersStat);
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
     private resetAnswers() {
         this.users.forEach((user) => {
