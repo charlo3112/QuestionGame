@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpErrorResponse, HttpResponse, HttpStatusCode } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -10,7 +10,7 @@ import { AdminLoginComponent } from '@app/components/admin-login/admin-login.com
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { AdminPageComponent } from './admin-page.component';
@@ -45,7 +45,17 @@ describe('AdminPageComponent', () => {
         );
         communicationServiceSpy.addGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
 
-        adminServiceSpy = jasmine.createSpyObj('AdminService', ['deleteGame', 'toggleGameVisibility', 'exportGame', 'downloadFile', 'handleLogin']);
+        adminServiceSpy = jasmine.createSpyObj('AdminService', [
+            'deleteGame',
+            'toggleGameVisibility',
+            'exportGame',
+            'downloadFile',
+            'handleLogin',
+            'login',
+        ]);
+        Object.defineProperty(adminServiceSpy, 'login', {
+            get: () => false,
+        });
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
@@ -115,11 +125,14 @@ describe('AdminPageComponent', () => {
         expect(gamePreviews.length).toBe(component.games.length);
     });
 
-    it('should display game previews when already logged in', () => {
-        sessionStorage.setItem('login', 'true');
+    it('should display game previews when already logged in', fakeAsync(() => {
+        Object.defineProperty(adminServiceSpy, 'login', {
+            get: () => true,
+        });
         component.ngOnInit();
+        tick();
         expect(component.login).toBeTrue();
-    });
+    }));
 
     it('should handle login', () => {
         component.handleLogin(true);

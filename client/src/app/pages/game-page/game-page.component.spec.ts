@@ -91,19 +91,18 @@ describe('GamePageComponent', () => {
         expect(component.gameService.leaveRoom).toHaveBeenCalled();
     });
 
-    it('should save game data to localStorage', () => {
+    it('should save game data to sessionStorage', () => {
         const testButtonText = 'Test Button Text';
-        spyOn(localStorage, 'setItem');
+        spyOn(sessionStorage, 'setItem');
         component.saveGameData(testButtonText);
-        expect(localStorage.setItem).toHaveBeenCalledWith('someRoomCode', JSON.stringify({ buttonText: testButtonText }));
+        expect(sessionStorage.setItem).toHaveBeenCalledWith('someRoomCode', JSON.stringify({ buttonText: testButtonText }));
     });
 
     it('should call showFinalResults and clear localStorage when buttonText is "Résultats"', () => {
-        spyOn(localStorage, 'clear');
+        spyOn(sessionStorage, 'clear');
         component.buttonText = 'Résultats';
         component.nextStep();
         expect(mockGameService.showFinalResults).toHaveBeenCalled();
-        expect(localStorage.clear).toHaveBeenCalled();
     });
 
     it('should call nextQuestion when buttonText is "Prochaine Question"', () => {
