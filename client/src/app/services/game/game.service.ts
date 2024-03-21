@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { SubscriptionService } from '@app/services/subscription/subscription.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
@@ -40,6 +41,7 @@ export class GameService implements OnDestroy {
         private readonly websocketService: WebSocketService,
         private readonly snackBarService: MatSnackBar,
         private readonly routerService: Router,
+        private readonly subscriptionService: SubscriptionService,
     ) {
         this.subscribeToStateUpdate();
         this.subscribeToClosedConnection();
@@ -227,11 +229,11 @@ export class GameService implements OnDestroy {
     }
 
     timerSubscribe(): Observable<number> {
-        return this.websocketService.getTime();
+        return this.subscriptionService.timerSubscribe();
     }
 
     stateSubscribe(): Observable<GameStatePayload> {
-        return this.websocketService.getState();
+        return this.subscriptionService.stateSubscribe();
     }
 
     private subscribeToTimeUpdate() {
