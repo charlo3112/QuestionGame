@@ -142,6 +142,7 @@ export class RoomManagementService {
     }
 
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
+        username = username.trim();
         const activeGame = this.gameState.get(roomId);
         if (!activeGame) {
             return { ok: false, error: 'Code invalide' };
