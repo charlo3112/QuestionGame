@@ -23,6 +23,7 @@ import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
 import { GameService } from './services/game/game.service';
+import { HistoryPageComponent } from './pages/history-page/history-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -31,7 +32,7 @@ import { GameService } from './services/game/game.service';
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent],
+    declarations: [AppComponent, HistoryPageComponent],
     imports: [
         AbandonDialogComponent,
         AdminPageComponent,
