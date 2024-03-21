@@ -23,6 +23,7 @@ import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
 import { GameService } from './services/game/game.service';
+import { SubscriptionService } from './services/subscription/subscription.service';
 
 /**
  * Main module that is used in main.ts.
@@ -58,7 +59,7 @@ import { GameService } from './services/game/game.service';
         ReactiveFormsModule,
         ResultPageComponent,
     ],
-    providers: [CommunicationService, GameService, ValidationService, WebSocketService],
+    providers: [CommunicationService, GameService, ValidationService, WebSocketService, SubscriptionService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}
