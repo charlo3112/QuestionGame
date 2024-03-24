@@ -1,0 +1,20 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.old-game {
+    background-color: map.get(constant.$blue-palette, 500);
+    color: white;
+    margin: 1%;
+}
+
+.bottom-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: auto;
+}
+
+.old-game-name {
+    padding-bottom: 10px;
+}

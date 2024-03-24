@@ -20,6 +20,7 @@ import { ValidationService } from '@app/services/validation/validation.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
+import { HistoryItemsComponent } from './components/history-items/history-items.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
 import { HistoryPageComponent } from './pages/history-page/history-page.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
@@ -46,6 +47,7 @@ import { GameService } from './services/game/game.service';
         CreateQuestionComponent,
         FormsModule,
         HistogramComponent,
+        HistoryItemsComponent,
         HistoryPageComponent,
         HttpClientModule,
         LeaderboardComponent,
