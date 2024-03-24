@@ -21,9 +21,9 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { HistoryPageComponent } from './pages/history-page/history-page.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
 import { GameService } from './services/game/game.service';
-import { HistoryPageComponent } from './pages/history-page/history-page.component';
 
 /**
  * Main module that is used in main.ts.
@@ -32,7 +32,7 @@ import { HistoryPageComponent } from './pages/history-page/history-page.componen
  * Otherwise Angular Cli will not know in which module to put new component
  */
 @NgModule({
-    declarations: [AppComponent, HistoryPageComponent],
+    declarations: [AppComponent],
     imports: [
         AbandonDialogComponent,
         AdminPageComponent,
@@ -46,6 +46,7 @@ import { HistoryPageComponent } from './pages/history-page/history-page.componen
         CreateQuestionComponent,
         FormsModule,
         HistogramComponent,
+        HistoryPageComponent,
         HttpClientModule,
         LeaderboardComponent,
         MatButtonModule,
