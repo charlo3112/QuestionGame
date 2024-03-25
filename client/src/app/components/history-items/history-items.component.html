@@ -1,3 +1,15 @@
+<div class="sort-options-order">
+    <label id="sort-option-label">Trier par:</label>
+    <select id="sort-option" [(ngModel)]="selectedSort">
+        <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+    </select>
+
+    <label id="sort-order-label">Ordre:</label>
+    <select id="sort-order" [(ngModel)]="selectedSortOrder">
+        <option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</option>
+    </select>
+</div>
+
 <div class="history-list">
     <mat-card class="old-game" *ngFor="let item of items">
         <mat-card-content class="old-game-name"> {{ item.name }}</mat-card-content>
