@@ -10,6 +10,8 @@
     </select>
 </div>
 
+<button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
+
 <div class="history-list">
     <mat-card class="old-game" *ngFor="let item of items">
         <mat-card-content class="old-game-name"> {{ item.name }}</mat-card-content>

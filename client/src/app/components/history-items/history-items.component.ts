@@ -43,5 +43,20 @@ export class HistoryItemsComponent {
         { value: 'desc', label: 'Décroissant' },
     ];
 
-    sortItems(value: string, order: string) {}
+    sortItems(value: string, order: string) {
+        this.items.sort((a, b) => {
+            const aTemp = value === 'name' ? a.name : a.date.getTime();
+            const bTemp = value === 'name' ? b.name : b.date.getTime();
+
+            if (order === 'asc') {
+                // -1 is used to sort in ascending order
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                return aTemp < bTemp ? -1 : aTemp > bTemp ? 1 : 0;
+            } else {
+                // -1 is used to sort in descending order
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                return aTemp > bTemp ? -1 : aTemp < bTemp ? 1 : 0;
+            }
+        });
+    }
 }
