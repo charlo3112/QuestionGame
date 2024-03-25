@@ -1,15 +1,19 @@
-<div class="sort">
-    <label id="sort-option-label">Trier par:</label>
-    <select id="sort-option" [(ngModel)]="selectedSort">
-        <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
-    </select>
+<div class="top-row">
+    <div class="sort">
+        <label id="sort-option-label">Trier par:</label>
+        <select id="sort-option" [(ngModel)]="selectedSort">
+            <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
 
-    <label id="sort-order-label">Ordre:</label>
-    <select id="sort-order" [(ngModel)]="selectedSortOrder">
-        <option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</option>
-    </select>
+        <label id="sort-order-label">Ordre:</label>
+        <select id="sort-order" [(ngModel)]="selectedSortOrder">
+            <option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</option>
+        </select>
 
-    <button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
+        <button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
+    </div>
+
+    <button mat-flat-button id="empty-button" (click)="emptyHistory()">Vider</button>
 </div>
 
 <div class="history-list">

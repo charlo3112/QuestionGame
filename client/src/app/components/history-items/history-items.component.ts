@@ -44,6 +44,10 @@ export class HistoryItemsComponent {
         { value: 'desc', label: 'Décroissant' },
     ];
 
+    emptyHistory() {
+        this.items = [];
+    }
+
     sortItems(value: string, order: string) {
         this.items.sort((a, b) => {
             const aTemp = value === 'name' ? a.name : a.date.getTime();

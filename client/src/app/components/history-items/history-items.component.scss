@@ -12,11 +12,16 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    flex: auto;
 }
 
 .old-game-name {
     padding-bottom: 10px;
+}
+
+.top-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .sort {
@@ -38,4 +43,8 @@
 #sort-button {
     margin-top: 1%;
     margin-left: 1%;
+}
+
+#empty-button {
+    margin: 1%;
 }
