@@ -18,3 +18,24 @@
 .old-game-name {
     padding-bottom: 10px;
 }
+
+.sort {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+#sort-option-label,
+#sort-order-label {
+    padding: 1%;
+}
+
+#sort-option,
+#sort-order {
+    margin-top: 1%;
+}
+
+#sort-button {
+    margin-top: 1%;
+    margin-left: 1%;
+}

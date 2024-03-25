@@ -1,4 +1,4 @@
-<div class="sort-options-order">
+<div class="sort">
     <label id="sort-option-label">Trier par:</label>
     <select id="sort-option" [(ngModel)]="selectedSort">
         <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
@@ -8,9 +8,9 @@
     <select id="sort-order" [(ngModel)]="selectedSortOrder">
         <option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</option>
     </select>
-</div>
 
-<button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
+    <button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
+</div>
 
 <div class="history-list">
     <mat-card class="old-game" *ngFor="let item of items">

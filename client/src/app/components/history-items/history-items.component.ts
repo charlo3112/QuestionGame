@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
@@ -8,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
     templateUrl: './history-items.component.html',
     styleUrls: ['./history-items.component.scss'],
     standalone: true,
-    imports: [MatCardModule, CommonModule, FormsModule],
+    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule],
 })
 export class HistoryItemsComponent {
     selectedSort: string = 'name';
