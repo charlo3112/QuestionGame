@@ -1,14 +1,18 @@
 <div class="top-row">
     <div class="sort">
-        <label id="sort-option-label">Trier par:</label>
-        <select id="sort-option" [(ngModel)]="selectedSort">
-            <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
-        </select>
+        <mat-form-field>
+            <mat-label id="sort-option-label">Trier par:</mat-label>
+            <mat-select id="sort-option" [(ngModel)]="selectedSort">
+                <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
+            </mat-select>
+        </mat-form-field>
 
-        <label id="sort-order-label">Ordre:</label>
-        <select id="sort-order" [(ngModel)]="selectedSortOrder">
-            <option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</option>
-        </select>
+        <mat-form-field>
+            <mat-label id="sort-order-label">Ordre:</mat-label>
+            <mat-select id="sort-order" [(ngModel)]="selectedSortOrder">
+                <mat-option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</mat-option>
+            </mat-select>
+        </mat-form-field>
 
         <button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
     </div>
