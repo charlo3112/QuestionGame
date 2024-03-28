@@ -39,7 +39,28 @@ export class CreateQuestionService {
     // need to transmit every parameter
     // eslint-disable-next-line max-params
     async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[], questionType: QuestionType): Promise<Question> {
-        if (this.choiceVerif(questionName, choices)) {
+        if (questionType === 'QCM') {
+            if (this.choiceVerif(questionName, choices)) {
+                const newQuestion: Question = {
+                    type: questionType,
+                    text: questionName,
+                    points: +parseInt(questionPoints.toString(), 10),
+                    choices,
+                };
+                return new Promise<Question>((resolve, reject) => {
+                    this.communicationService.addQuestion(newQuestion).subscribe({
+                        next: (response) => {
+                            if (response.status === RESPONSE_CREATED) {
+                                resolve(newQuestion);
+                            }
+                        },
+                        error: (error) => {
+                            reject(error);
+                        },
+                    });
+                });
+            }
+        } else if (questionType === 'QRL') {
             const newQuestion: Question = {
                 type: questionType,
                 text: questionName,

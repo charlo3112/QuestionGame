@@ -45,8 +45,10 @@ export class QuestionService {
 
     async addQuestion(questionData: CreateQuestionDto): Promise<void> {
         try {
-            if (!(await this.validateQuestion(questionData))) {
-                return Promise.reject('The question data is invalid');
+            if (questionData.type === 'QCM') {
+                if (!(await this.validateQuestion(questionData))) {
+                    return Promise.reject('The question data is invalid');
+                }
             } else if (await this.questionModel.findOne({ text: questionData.text })) {
                 return Promise.reject('A similar question already exists');
             }
