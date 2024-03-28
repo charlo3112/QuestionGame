@@ -21,6 +21,7 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { TextAnswerComponent } from './components/text-answer/text-answer.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
 import { GameService } from './services/game/game.service';
 
@@ -57,6 +58,7 @@ import { GameService } from './services/game/game.service';
         QuestionBankPageComponent,
         ReactiveFormsModule,
         ResultPageComponent,
+        TextAnswerComponent,
     ],
     providers: [CommunicationService, GameService, ValidationService, WebSocketService],
     bootstrap: [AppComponent],

@@ -7,6 +7,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -17,7 +18,17 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterLink, ChatComponent, MatSlideToggleModule, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [
+        CommonModule,
+        TextAnswerComponent,
+        RouterLink,
+        ChatComponent,
+        MatSlideToggleModule,
+        MatIconModule,
+        AnswersComponent,
+        MatButtonModule,
+        MatToolbarModule,
+    ],
 })
 export class QuestionComponent implements OnChanges, OnInit {
     @Input() question: Question;

@@ -1,0 +1,4 @@
+ <div class="text-area-container">
+    <textarea matInput [(ngModel)]="answer" maxlength="200" class="text-area"></textarea>
+    <mat-hint class="char-count" align="end">{{200 - answer.length}} </mat-hint>
+</div> 
