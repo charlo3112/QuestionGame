@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnChanges, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -17,7 +17,7 @@ import { History } from '@common/interfaces/history';
     standalone: true,
     imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatGridListModule, MatButtonModule, MatSnackBarModule],
 })
-export class HistoryItemsComponent implements OnChanges, OnInit {
+export class HistoryItemsComponent implements OnInit {
     selectedSort: string = 'name';
     selectedSortOrder: string = 'az';
     historyItems: History[] = [];
@@ -43,10 +43,6 @@ export class HistoryItemsComponent implements OnChanges, OnInit {
 
     ngOnInit() {
         this.getHistory();
-    }
-
-    ngOnChanges() {
-        this.sortItems(this.selectedSort, this.selectedSortOrder);
     }
 
     emptyHistory() {
