@@ -46,6 +46,19 @@ describe('HistoryItemsComponent', () => {
         expect(component.getHistory).toHaveBeenCalled();
     });
 
+    it('should get historyItems from getHistories', () => {
+        communicationServiceSpy.getHistories.and.returnValue(of({ ok: true, value: historyItems }));
+        component.getHistory();
+        expect(component.historyItems).toEqual(historyItems);
+    });
+
+    it('should show an error message if getHistories fails', () => {
+        communicationServiceSpy.getHistories.and.returnValue(of({ ok: false, error: 'Erreur lors de la récupération' }));
+        spyOn(component, 'openSnackBar');
+        component.getHistory();
+        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de la récupération de l'historique");
+    });
+
     it('should clear historyItems if deleteHistories is successful', () => {
         communicationServiceSpy.deleteHistories.and.returnValue(of({ ok: true, value: 'succes' }));
         component.historyItems = historyItems;
