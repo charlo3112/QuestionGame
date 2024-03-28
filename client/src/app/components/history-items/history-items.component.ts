@@ -1,40 +1,25 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { SNACKBAR_DURATION } from '@common/constants';
+import { History } from '@common/interfaces/history';
 
 @Component({
     selector: 'app-history-items',
     templateUrl: './history-items.component.html',
     styleUrls: ['./history-items.component.scss'],
     standalone: true,
-    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatButtonModule],
+    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatButtonModule, MatSnackBarModule],
 })
-export class HistoryItemsComponent {
+export class HistoryItemsComponent implements OnChanges {
     selectedSort: string = 'name';
     selectedSortOrder: string = 'asc';
-    items = [
-        {
-            name: 'This is a very long game name for test purposes',
-            date: new Date('2024-03-01'),
-            numberPlayers: 4,
-            bestScore: 100,
-        },
-        {
-            name: 'Item 2',
-            date: new Date('2024-03-08'),
-            numberPlayers: 2,
-            bestScore: 56,
-        },
-        {
-            name: 'Item 3',
-            date: new Date('2024-03-24'),
-            numberPlayers: 5,
-            bestScore: 78,
-        },
-    ];
+    historyItems: History[] = [];
     sortOptions = [
         { value: 'name', label: 'Nom du jeu' },
         { value: 'creationDate', label: 'Date de création' },
@@ -45,12 +30,56 @@ export class HistoryItemsComponent {
         { value: 'desc', label: 'Décroissant' },
     ];
 
+    constructor(
+        private readonly communicationService: CommunicationService,
+        private readonly snackBar: MatSnackBar,
+    ) {
+        this.getHistory();
+    }
+
+    ngOnChanges() {
+        this.sortItems(this.selectedSort, this.selectedSortOrder);
+    }
+
     emptyHistory() {
-        this.items = [];
+        this.communicationService.deleteHistories();
+        this.historyItems = [];
+    }
+
+    getHistory() {
+        const FETCH_ERROR = "Erreur lors de la récupération de l'historique";
+        this.communicationService.getHistories().subscribe((histories) => {
+            if (histories.ok) {
+                this.historyItems = histories.value.map((item: History) => {
+                    return {
+                        ...item,
+                        date: new Date(item.date),
+                    };
+                });
+            } else {
+                this.openSnackBar(FETCH_ERROR);
+            }
+        });
+    }
+
+    openSnackBar(message: string) {
+        this.snackBar.open(message, undefined, {
+            duration: SNACKBAR_DURATION,
+        });
+    }
+
+    onSortOptionChange(value: string) {
+        this.selectedSort = value;
+        this.sortItems(this.selectedSort, this.selectedSortOrder);
+    }
+
+    onSortOrderChange(value: string) {
+        this.selectedSortOrder = value;
+        this.sortItems(this.selectedSort, this.selectedSortOrder);
     }
 
     sortItems(value: string, order: string) {
-        this.items.sort((a, b) => {
+        this.historyItems.sort((a, b) => {
             const aTemp = value === 'name' ? a.name : a.date.getTime();
             const bTemp = value === 'name' ? b.name : b.date.getTime();
 

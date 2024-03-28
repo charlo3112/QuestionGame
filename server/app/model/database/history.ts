@@ -14,7 +14,7 @@ export class HistoryData implements History {
 
     @ApiProperty()
     @Prop({ required: true })
-    date: string;
+    date: Date;
 
     @ApiProperty()
     @Prop({ required: true })

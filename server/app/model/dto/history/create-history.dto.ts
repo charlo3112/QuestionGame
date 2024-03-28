@@ -11,7 +11,7 @@ export class CreateHistoryDto implements History {
 
     @ApiProperty({ required: true })
     @IsString()
-    date: string;
+    date: Date;
 
     @ApiProperty({ required: true })
     @IsNumber()

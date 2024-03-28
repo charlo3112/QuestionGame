@@ -2,26 +2,24 @@
     <div class="sort">
         <mat-form-field class="option">
             <mat-label id="sort-option-label">Trier par:</mat-label>
-            <mat-select class="sort-option" [(ngModel)]="selectedSort">
+            <mat-select class="sort-option" [(ngModel)]="selectedSort" (ngModelChange)="onSortOptionChange($event)">
                 <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
             </mat-select>
         </mat-form-field>
 
         <mat-form-field class="order">
             <mat-label id="sort-order-label">Ordre:</mat-label>
-            <mat-select class="sort-order" [(ngModel)]="selectedSortOrder">
+            <mat-select class="sort-order" [(ngModel)]="selectedSortOrder" (ngModelChange)="onSortOrderChange($event)">
                 <mat-option *ngFor="let order of sortOrderOptions" [value]="order.value">{{ order.label }}</mat-option>
             </mat-select>
         </mat-form-field>
-
-        <button mat-flat-button id="sort-button" (click)="sortItems(selectedSort, selectedSortOrder)">Trier</button>
     </div>
 
     <button mat-flat-button id="empty-button" (click)="emptyHistory()">Vider</button>
 </div>
 
 <div class="history-list">
-    <mat-card class="old-game" *ngFor="let item of items">
+    <mat-card class="old-game" *ngFor="let item of historyItems">
         <mat-card-content class="old-game-name"> {{ item.name }}</mat-card-content>
         <div class="bottom-row">
             <mat-card-content class="old-game-creation"> Date de création: {{ item.date | date: 'yyyy-MM-dd' }}</mat-card-content>

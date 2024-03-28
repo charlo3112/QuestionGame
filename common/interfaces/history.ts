@@ -1,6 +1,6 @@
 export interface History {
     name: string;
-    date: string;
+    date: Date;
     numberPlayers: number;
     bestScore: number;
 }
