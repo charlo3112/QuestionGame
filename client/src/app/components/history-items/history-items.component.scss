@@ -2,20 +2,21 @@
 @use '../../../constant.scss';
 
 .old-game {
-    background-color: map.get(constant.$blue-palette, 500);
+    background-color: map.get(constant.$green-palette, 1000);
     color: white;
     margin: 1%;
 }
 
 .bottom-row {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
 }
 
 .old-game-name {
-    padding-bottom: 10px;
+    font-size: 25px;
+    font-style: bold;
 }
 
 .top-row {
@@ -28,6 +29,11 @@
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+}
+
+.history-list {
+    height: 71%;
+    overflow: auto;
 }
 
 .option,

@@ -3,6 +3,7 @@ import { Component, OnChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommunicationService } from '@app/services/communication/communication.service';
@@ -14,20 +15,25 @@ import { History } from '@common/interfaces/history';
     templateUrl: './history-items.component.html',
     styleUrls: ['./history-items.component.scss'],
     standalone: true,
-    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatButtonModule, MatSnackBarModule],
+    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatGridListModule, MatButtonModule, MatSnackBarModule],
 })
 export class HistoryItemsComponent implements OnChanges {
     selectedSort: string = 'name';
-    selectedSortOrder: string = 'asc';
+    selectedSortOrder: string = 'az';
     historyItems: History[] = [];
     sortOptions = [
         { value: 'name', label: 'Nom du jeu' },
         { value: 'creationDate', label: 'Date de création' },
     ];
 
-    sortOrderOptions = [
-        { value: 'asc', label: 'Croissant' },
-        { value: 'desc', label: 'Décroissant' },
+    sortOrderOptionsName = [
+        { value: 'az', label: 'A-Z' },
+        { value: 'za', label: 'Z-A' },
+    ];
+
+    sortOrderOptionsDate = [
+        { value: 'recent', label: 'Plus récent' },
+        { value: 'old', label: 'Plus ancien' },
     ];
 
     constructor(
@@ -42,8 +48,14 @@ export class HistoryItemsComponent implements OnChanges {
     }
 
     emptyHistory() {
-        this.communicationService.deleteHistories();
-        this.historyItems = [];
+        const DELETE_ERROR = "Erreur lors de la suppression de l'historique";
+        this.communicationService.deleteHistories().subscribe((response) => {
+            if (response.ok) {
+                this.historyItems = [];
+            } else {
+                this.openSnackBar(DELETE_ERROR);
+            }
+        });
     }
 
     getHistory() {
@@ -56,6 +68,7 @@ export class HistoryItemsComponent implements OnChanges {
                         date: new Date(item.date),
                     };
                 });
+                this.sortItems(this.selectedSort, this.selectedSortOrder);
             } else {
                 this.openSnackBar(FETCH_ERROR);
             }
@@ -70,6 +83,11 @@ export class HistoryItemsComponent implements OnChanges {
 
     onSortOptionChange(value: string) {
         this.selectedSort = value;
+        if (value === 'creationDate') {
+            this.selectedSortOrder = 'recent';
+        } else {
+            this.selectedSortOrder = 'az';
+        }
         this.sortItems(this.selectedSort, this.selectedSortOrder);
     }
 
@@ -83,7 +101,7 @@ export class HistoryItemsComponent implements OnChanges {
             const aTemp = value === 'name' ? a.name : a.date.getTime();
             const bTemp = value === 'name' ? b.name : b.date.getTime();
 
-            if (order === 'asc') {
+            if (order === 'az' || order === 'old') {
                 // -1 is used to sort in ascending order
                 // eslint-disable-next-line @typescript-eslint/no-magic-numbers
                 return aTemp < bTemp ? -1 : aTemp > bTemp ? 1 : 0;
