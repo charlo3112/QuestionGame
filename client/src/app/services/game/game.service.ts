@@ -272,10 +272,8 @@ export class GameService implements OnDestroy {
     }
 
     private subscribeToStateUpdate() {
-        this.stateSubscription = this.websocketService.getState().subscribe({
-            next: (state: GameStatePayload) => {
-                this.setState(state);
-            },
+        this.subscriptionService.subscribeToScoreUpdate((state: GameStatePayload) => {
+            this.setState(state);
         });
     }
 
@@ -289,14 +287,12 @@ export class GameService implements OnDestroy {
     }
 
     private subscribeToUserUpdate() {
-        this.userSubscription = this.websocketService.getUserUpdate().subscribe({
-            next: (userUpdate: UserConnectionUpdate) => {
-                if (userUpdate.isConnected) {
-                    this.players.add(userUpdate.username);
-                } else {
-                    this.players.delete(userUpdate.username);
-                }
-            },
+        this.subscriptionService.subscribeToUserUpdate((user: UserConnectionUpdate) => {
+            if (user.isConnected) {
+                this.players.add(user.username);
+            } else {
+                this.players.delete(user.username);
+            }
         });
     }
 
