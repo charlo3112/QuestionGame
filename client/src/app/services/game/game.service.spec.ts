@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { SubscriptionService } from '@app/services/subscription/subscription.service';
 import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, MAX_TIME_RETURN, MOCK_CHOICES_COUNTER, SNACKBAR_DURATION, TIME_RETURN } from '@common/constants';
@@ -39,6 +40,7 @@ describe('Game', () => {
     };
     let snackBarSpy: SpyObj<MatSnackBar>;
     let webSocketSpy: SpyObj<WebSocketService>;
+    let subscriptionServiceSpy: SpyObj<SubscriptionService>;
     let mockQuestion: Question;
 
     beforeEach(() => {
@@ -66,7 +68,15 @@ describe('Game', () => {
             'hostConfirm',
             'showFinalResults',
         ]);
-
+        subscriptionServiceSpy = jasmine.createSpyObj('SubscriptionService', [
+            'subscribeToStateUpdate',
+            'subscribeToScoreUpdate',
+            'subscribeToUserUpdate',
+            'subscribeToUserStatUpdate',
+            'subscribeToHistogramData',
+            'timerSubscribe',
+            'stateSubscribe',
+        ]);
         webSocketSpy.getState.and.returnValue(of({ state: GameState.Wait }));
         webSocketSpy.getTime.and.returnValue(of(TIME_RETURN));
         webSocketSpy.getUserUpdate.and.returnValue(of({ username: 'test', isConnected: true }));
@@ -106,6 +116,7 @@ describe('Game', () => {
                 { provide: TimeService, useValue: timeService },
                 { provide: MatSnackBar, useValue: snackBarSpy },
                 { provide: WebSocketService, useValue: webSocketSpy },
+                { provide: SubscriptionService, useValue: subscriptionServiceSpy },
             ],
         });
         service = TestBed.inject(GameService);
@@ -351,11 +362,16 @@ describe('Game', () => {
     // We did not manage to test the timerSubscribe function with fakeAsync and tick, nor did we
     // manage to remove DoneFn like we did on the "timerSubscribe should return the time Observable" test
     // eslint-disable-next-line no-undef
-    it('timerSubscribe should return the time Observable', (done: DoneFn) => {
-        service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(TIME_RETURN);
-            done();
-        });
+    // it('timerSubscribe should return the time Observable', (done: DoneFn) => {
+    //     service.timerSubscribe().subscribe((time) => {
+    //         expect(time).toEqual(TIME_RETURN);
+    //         done();
+    //     });
+    // });
+
+    it('timerSubscribe should call timerSubscribe on SubscriptionService', () => {
+        service.timerSubscribe();
+        expect(subscriptionServiceSpy.timerSubscribe).toHaveBeenCalled();
     });
 
     it('should return false when no question is set', () => {
@@ -392,13 +408,6 @@ describe('Game', () => {
     it('showFinalResults() should call showFinalResults on WebSocketService', () => {
         service.showFinalResults();
         expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
-    });
-
-    it('timerSubscribe should return the time Observable', (done) => {
-        service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(TIME_RETURN);
-            done();
-        });
     });
 
     it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {

@@ -2,6 +2,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GameService } from '@app/services/game/game.service';
+import { SubscriptionService } from '@app/services/subscription/subscription.service';
 import { Choice } from '@common/interfaces/choice';
 import { AnswersComponent } from './answers.component';
 
@@ -15,7 +16,7 @@ describe('AnswerComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
-            providers: [GameService, { provide: MatSnackBar, useValue: snackBarMock }],
+            providers: [GameService, SubscriptionService, { provide: MatSnackBar, useValue: snackBarMock }],
         });
         fixture = TestBed.createComponent(AnswersComponent);
         component = fixture.componentInstance;

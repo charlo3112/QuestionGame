@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GameService } from '@app/services/game/game.service';
+import { SubscriptionService } from '@app/services/subscription/subscription.service';
 import { LeaderboardComponent } from './leaderboard.component';
 
 describe('LeaderboardComponent', () => {
@@ -13,7 +14,7 @@ describe('LeaderboardComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [LeaderboardComponent],
-            providers: [GameService, { provide: MatSnackBar, useValue: snackBarMock }],
+            providers: [GameService, SubscriptionService, { provide: MatSnackBar, useValue: snackBarMock }],
         });
         fixture = TestBed.createComponent(LeaderboardComponent);
         component = fixture.componentInstance;

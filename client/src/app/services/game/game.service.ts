@@ -272,17 +272,15 @@ export class GameService implements OnDestroy {
     }
 
     private subscribeToStateUpdate() {
-        this.subscriptionService.subscribeToScoreUpdate((state: GameStatePayload) => {
+        this.subscriptionService.subscribeToStateUpdate((state: GameStatePayload) => {
             this.setState(state);
         });
     }
 
     private subscribeToScoreUpdate() {
-        this.scoreSubscription = this.websocketService.getScoreUpdate().subscribe({
-            next: (score: Score) => {
-                this.scoreValue = score.score;
-                this.showBonus = score.bonus;
-            },
+        this.subscriptionService.subscribeToScoreUpdate((score: Score) => {
+            this.scoreValue = score.score;
+            this.showBonus = score.bonus;
         });
     }
 
@@ -297,18 +295,14 @@ export class GameService implements OnDestroy {
     }
 
     private subscribeToUsersStatUpdate() {
-        this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
-            next: (usersStat: UserStat[]) => {
-                this.usersStat = usersStat;
-            },
+        this.subscriptionService.subscribeToUserStatUpdate((userStat: UserStat[]) => {
+            this.usersStat = userStat;
         });
     }
 
     private subscribeToHistogramData() {
-        this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
-            next: (histogramData: HistogramData) => {
-                this.histogramData = histogramData;
-            },
+        this.subscriptionService.subscribeToHistogramData((data: HistogramData) => {
+            this.histogramData = data;
         });
     }
 
