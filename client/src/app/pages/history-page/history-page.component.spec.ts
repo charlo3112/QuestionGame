@@ -1,4 +1,7 @@
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { RouterTestingModule } from '@angular/router/testing';
 import { HistoryPageComponent } from './history-page.component';
 
 describe('HistoryPageComponent', () => {
@@ -7,7 +10,7 @@ describe('HistoryPageComponent', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
-            imports: [HistoryPageComponent],
+            imports: [HistoryPageComponent, RouterTestingModule, HttpClientTestingModule, BrowserAnimationsModule, NoopAnimationsModule],
         });
         fixture = TestBed.createComponent(HistoryPageComponent);
         component = fixture.componentInstance;
