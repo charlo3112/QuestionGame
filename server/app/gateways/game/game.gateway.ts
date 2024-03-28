@@ -18,7 +18,7 @@ export class GameGateway implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     constructor(
-        private roomService: RoomManagementService,
+        private readonly roomService: RoomManagementService,
         private readonly gamesService: GameService,
         private readonly logger: Logger,
     ) {}
