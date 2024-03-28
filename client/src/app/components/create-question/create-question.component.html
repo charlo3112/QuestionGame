@@ -7,9 +7,17 @@
             <mat-label>Question</mat-label>
             <input matInput [(ngModel)]="questionName" required />
         </mat-form-field>
-        <h2>Liste des choix de réponse</h2>
+        <mat-form-field class="question-field">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="questionType" required>
+                <mat-option *ngFor="let option of questionTypeOptions" [value]="option">
+                    {{ option }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <h2 *ngIf="questionType === 'QCM'">Liste des choix de réponse</h2>
 
-        <div class="choice-field">
+        <div *ngIf="questionType === 'QCM'" class="choice-field">
             <mat-form-field>
                 <mat-label>Choix</mat-label>
                 <input matInput [(ngModel)]="choiceInput" (keyup.enter)="addChoice()" />
@@ -19,7 +27,7 @@
             </button>
         </div>
 
-        <div *ngIf="choices.length > 0" class="list-container">
+        <div *ngIf="choices.length > 0 && questionType === 'QCM'" class="list-container">
             <mat-list cdkDropList (cdkDropListDropped)="drop($event)">
                 <mat-list-item *ngFor="let choice of choices; let i = index" cdkDrag>
                     <div cdkDropList class="choice-content">

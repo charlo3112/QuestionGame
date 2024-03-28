@@ -36,10 +36,12 @@ export class CreateQuestionService {
         }
     }
 
-    async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[]): Promise<Question> {
+    // need to transmit every parameter
+    // eslint-disable-next-line max-params
+    async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[], questionType: QuestionType): Promise<Question> {
         if (this.choiceVerif(questionName, choices)) {
             const newQuestion: Question = {
-                type: QuestionType.QCM,
+                type: questionType,
                 text: questionName,
                 points: +parseInt(questionPoints.toString(), 10),
                 choices,
@@ -79,11 +81,17 @@ export class CreateQuestionService {
 
     // Every parameter is important for this method to work properly
     // eslint-disable-next-line max-params
-    async editQuestion(questionName: string, questionPoints: number, choices: Choice[], questionMongoId: string): Promise<void> {
+    async editQuestion(
+        questionName: string,
+        questionPoints: number,
+        choices: Choice[],
+        questionMongoId: string,
+        questionType: QuestionType,
+    ): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.communicationService
                 .modifyQuestion({
-                    type: QuestionType.QCM,
+                    type: questionType,
                     text: questionName,
                     points: questionPoints,
                     choices,

@@ -56,6 +56,8 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     editArray: boolean[] = [];
     choiceValue: boolean[] = [];
     questionToDelete: string = '';
+    questionType: QuestionType;
+    questionTypeOptions: QuestionType[] = [QuestionType.QRL, QuestionType.QCM];
 
     weights = WEIGHTS_QUESTIONS;
 
@@ -91,7 +93,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     addToQuestionBank() {
         const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
         this.createQuestionService
-            .addToQuestionBank(this.questionName, this.questionPoints, this.choices)
+            .addToQuestionBank(this.questionName, this.questionPoints, this.choices, this.questionType)
             .then((newQuestion) => {
                 if (newQuestion) {
                     this.questionCreated.emit(newQuestion);
@@ -123,7 +125,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         if (this.questionToDelete.length) {
             this.communicationService
                 .modifyQuestion({
-                    type: QuestionType.QCM,
+                    type: this.questionType,
                     text: this.questionName,
                     points: this.questionPoints,
                     choices: this.choices,
@@ -166,7 +168,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     save() {
         if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
             const newQuestion: Question = {
-                type: QuestionType.QCM,
+                type: this.questionType,
                 text: this.questionName,
                 points: this.questionPoints,
                 choices: this.choices,
