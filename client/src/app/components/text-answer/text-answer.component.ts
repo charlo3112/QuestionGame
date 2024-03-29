@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +15,7 @@ import { GameService } from '@app/services/game/game.service';
     imports: [CommonModule, MatIconModule, MatButtonModule, FormsModule, MatInputModule, MatFormFieldModule],
 })
 export class TextAnswerComponent {
+    @Input() isTextLocked: boolean;
     answer: string = '';
     constructor(readonly gameService: GameService) {}
 

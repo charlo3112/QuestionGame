@@ -5,7 +5,7 @@
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
             <section *ngIf="question.type === 'QRL'" id="answer-container">
-                <app-text-answer></app-text-answer>
+                <app-text-answer [isTextLocked]="this.isTextLocked"></app-text-answer>
             </section>
             <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary">Confirmer</button>
         </div>

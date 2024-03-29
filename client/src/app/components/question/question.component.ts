@@ -32,7 +32,9 @@ import { Question } from '@common/interfaces/question';
 })
 export class QuestionComponent implements OnChanges, OnInit {
     @Input() question: Question;
+    @Input() submitFormHandler: () => void;
     isChatFocused: boolean = false;
+    isTextLocked: boolean = false;
     buttonDisabled: boolean = false;
     changesCounter: number = 0;
 
@@ -45,6 +47,7 @@ export class QuestionComponent implements OnChanges, OnInit {
         }
         const key = event.key;
         if (key === 'Enter') {
+            this.isTextLocked = true;
             this.gameService.confirmQuestion();
             this.disableButton();
         }
