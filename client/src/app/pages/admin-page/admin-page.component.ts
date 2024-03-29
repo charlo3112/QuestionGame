@@ -15,8 +15,7 @@ import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { Game } from '@common/interfaces/game';
-import { Result } from '@common/interfaces/result';
-import { Subscription } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-admin-page',
@@ -40,7 +39,6 @@ import { Subscription } from 'rxjs';
 export class AdminPageComponent implements OnInit {
     games: Game[] = [];
     login: boolean;
-    private subscription: Subscription = new Subscription();
 
     // We had to disable the max-params rule because we need every parameter for the component to work
     // eslint-disable-next-line max-params
@@ -51,15 +49,9 @@ export class AdminPageComponent implements OnInit {
         public dialog: MatDialog,
     ) {}
 
-    ngOnInit() {
-        this.loadGames();
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            this.login = JSON.parse(storedLogin);
-        } else {
-            this.login = false;
-            sessionStorage.setItem('login', JSON.stringify(this.login));
-        }
+    async ngOnInit() {
+        this.login = this.adminService.login;
+        await this.loadGames();
     }
     deleteGame(id: string) {
         const ERROR_DELETING_GAME = 'Erreur lors de la suppression du jeu';
@@ -96,25 +88,23 @@ export class AdminPageComponent implements OnInit {
         this.login = success;
         this.adminService.handleLogin(this.login);
     }
-    loadGames(): void {
+    async loadGames(): Promise<void> {
         const ERROR_FETCHING_GAMES = "Erreur lors de l'obtention des jeux";
-        this.subscription.add(
-            this.communicationService.getAdminGames().subscribe({
-                next: (result: Result<Game[]>) => {
-                    if (result.ok && result.value) {
-                        this.games = result.value;
-                        this.games.forEach((game) => {
-                            game.image = 'assets/logo.png';
-                        });
-                    } else {
-                        this.openSnackBar(ERROR_FETCHING_GAMES);
-                    }
-                },
-                error: () => {
-                    this.openSnackBar(ERROR_FETCHING_GAMES);
-                },
-            }),
-        );
+
+        try {
+            const result = await firstValueFrom(this.communicationService.getAdminGames());
+
+            if (result.ok && result.value) {
+                this.games = result.value;
+                this.games.forEach((game) => {
+                    game.image = 'assets/logo.png';
+                });
+            } else {
+                this.openSnackBar(ERROR_FETCHING_GAMES);
+            }
+        } catch (error) {
+            this.openSnackBar(ERROR_FETCHING_GAMES);
+        }
     }
     openImportDialog(): void {
         const ERROR_ADDING_GAME = "Erreur lors de l'ajout du jeu";
@@ -140,7 +130,8 @@ export class AdminPageComponent implements OnInit {
             duration: SNACKBAR_DURATION,
         });
     }
-    toggleGameVisibility(id: string) {
+
+    async toggleGameVisibility(id: string) {
         const ERROR_GAME_VISIBILITY = 'Erreur lors du changement de visibilité';
         const game = this.games.find((g) => g.gameId === id);
         if (!game) {
@@ -148,19 +139,16 @@ export class AdminPageComponent implements OnInit {
         }
         game.visibility = !game.visibility;
 
-        this.adminService
-            .toggleGameVisibility(id)
-            .then((visibility) => {
-                game.visibility = visibility;
-            })
-            .catch((error) => {
-                game.visibility = !game.visibility;
-                this.openSnackBar(ERROR_GAME_VISIBILITY);
-                if (error && error.status === HttpStatusCode.NotFound) {
-                    this.games = this.games.filter((g) => g.gameId !== id);
-                }
-            });
+        try {
+            const visibility = await this.adminService.toggleGameVisibility(id);
+            game.visibility = visibility;
+        } catch (error) {
+            game.visibility = !game.visibility;
+            this.openSnackBar(ERROR_GAME_VISIBILITY);
+            this.games = this.games.filter((g) => g.gameId !== id);
+        }
     }
+
     private downloadFile(data: Partial<Game>, filename: string) {
         this.adminService.downloadFile(data, filename);
     }
