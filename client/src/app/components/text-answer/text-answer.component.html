@@ -1,5 +1,8 @@
  <div class="text-area-container">
-    <textarea matInput [(ngModel)]="answer" maxlength="200" class="text-area" 
-    [disabled]="this.isTextLocked" (keydown.enter)="$event.preventDefault()"></textarea>
+    <textarea 
+        matInput [(ngModel)]="answer" maxlength="200" class="text-area" 
+        [disabled]="this.isTextLocked" (keydown.enter)="$event.preventDefault()"
+        >
+    </textarea>
     <mat-hint class="char-count" align="end">{{200 - answer.length}} </mat-hint>
-</div> 
+</div>

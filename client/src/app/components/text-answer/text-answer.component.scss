@@ -8,7 +8,6 @@
     resize: none;
     font-size: 28px;
     margin-top: 5%;
-    margin-left: 15.5%;
     @media screen and (max-width: 1200px) {
         width: 450px;
         height: 150px;
@@ -18,7 +17,7 @@
 .char-count {
     position: absolute;
     bottom: 5px;
-    right: -5px;
+    right: 5px;
     color: #999;
     font-size: 24px;
 }
