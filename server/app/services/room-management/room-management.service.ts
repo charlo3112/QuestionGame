@@ -1,7 +1,6 @@
-import { GameGateway } from '@app/gateways/game/game.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
-import { ActiveGame } from '@app/services/active-game/active-game';
+import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -10,7 +9,7 @@ import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Injectable } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 
 @Injectable()
 export class RoomManagementService {
@@ -19,10 +18,7 @@ export class RoomManagementService {
     private deleteRoomGatewayCallback: ((roomID: string) => void)[] = [];
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
 
-    constructor(
-        private moduleRef: ModuleRef,
-        private gameGateway: GameGateway,
-    ) {}
+    constructor(private gameWebsocket: GameGatewaySend) {}
 
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
@@ -47,8 +43,7 @@ export class RoomManagementService {
     async createGame(userId: string, game: GameData): Promise<User> {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = await this.moduleRef.resolve(ActiveGame);
-        newActiveGame.set(game, roomId);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -64,8 +59,7 @@ export class RoomManagementService {
     async testGame(userId: string, game: GameData): Promise<User> {
         const roomId = 'test' + this.generateRoomId();
         const noHost: UserData = new UserData(userId, roomId, '');
-        const newActiveGame: ActiveGame = await this.moduleRef.resolve(ActiveGame);
-        newActiveGame.set(game, roomId);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket);
         newActiveGame.addUser(noHost);
 
         this.gameState.set(roomId, newActiveGame);
@@ -135,7 +129,7 @@ export class RoomManagementService {
         this.roomMembers.set(userId, roomId);
         activeGame.addUser(newUser);
         const userUpdate: UserConnectionUpdate = { isConnected: true, username };
-        this.gameGateway.sendUpdateUser(roomId, userUpdate);
+        this.gameWebsocket.sendUpdateUser(roomId, userUpdate);
         return { ok: true, value: activeGame.gameStatePayload };
     }
 
@@ -207,7 +201,7 @@ export class RoomManagementService {
         if (!game) {
             return;
         }
-        this.gameGateway.sendUserRemoval(userId, 'Vous avez été déconnecté');
+        this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
         if (game.isHost(userId)) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
@@ -219,7 +213,7 @@ export class RoomManagementService {
             this.gameState.delete(roomId);
         }
         const userUpdate: UserConnectionUpdate = { isConnected: false, username };
-        this.gameGateway.sendUpdateUser(roomId, userUpdate);
+        this.gameWebsocket.sendUpdateUser(roomId, userUpdate);
     }
 
     banUser(userId: string, bannedUsername: string): void {
@@ -232,10 +226,10 @@ export class RoomManagementService {
         }
         const banId = game.banUser(bannedUsername);
         if (banId) {
-            this.gameGateway.sendUserRemoval(banId, 'Vous avez été banni');
+            this.gameWebsocket.sendUserRemoval(banId, 'Vous avez été banni');
             this.roomMembers.delete(banId);
             const userUpdate: UserConnectionUpdate = { isConnected: false, username: bannedUsername };
-            this.gameGateway.sendUpdateUser(this.getRoomId(userId), userUpdate);
+            this.gameWebsocket.sendUpdateUser(this.getRoomId(userId), userUpdate);
         }
     }
 

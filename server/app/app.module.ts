@@ -9,9 +9,9 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminController } from './controllers/admin/admin.controller';
-import { GameGateway } from './gateways/game/game.gateway';
+import { GameGatewayReceive } from './gateways/game-receive/game-receive.gateway';
 import { RoomManagementService } from './services/room-management/room-management.service';
-import { ActiveGame } from './services/active-game/active-game';
+import { GameGatewaySend } from './gateways/game-send/game-send.gateway';
 
 @Module({
     imports: [
@@ -29,6 +29,6 @@ import { ActiveGame } from './services/active-game/active-game';
         ]),
     ],
     controllers: [GameController, QuestionController, AdminController],
-    providers: [ActiveGame, RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway],
+    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGatewayReceive, GameGatewaySend],
 })
 export class AppModule {}

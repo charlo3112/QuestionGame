@@ -1,6 +1,5 @@
-import { GameGateway } from '@app/gateways/game/game.gateway';
 import { GameData } from '@app/model/database/game';
-import { ActiveGame } from '@app/services/active-game/active-game';
+import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/enums/game-state';
@@ -15,6 +14,7 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
+import { GameGateway } from './game-receive.gateway';
 
 describe('GameGateway', () => {
     let gateway: GameGateway;

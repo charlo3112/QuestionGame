@@ -1,20 +1,16 @@
-// src/game/game.gateway.ts
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
-import { UserStat } from '@common/interfaces/user-stat';
-import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
-export class GameGateway implements OnGatewayDisconnect {
+export class GameGatewayReceive implements OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 
     constructor(
@@ -124,42 +120,5 @@ export class GameGateway implements OnGatewayDisconnect {
 
     handleDisconnect(client: Socket): void {
         this.roomService.leaveUser(client.id);
-    }
-
-    updateQuestionsCounter(roomId: string, questionsCounter: number[]) {
-        this.server.to(roomId).emit('game:questionsCounter', questionsCounter);
-    }
-
-    sendTimeUpdate(roomId: string, time: number): void {
-        this.server.to(roomId).emit('game:time', time);
-    }
-
-    sendDeleteRoom(roomId: string): void {
-        this.server.to(roomId).emit('game:closed', 'La partie a été fermée');
-        this.server.socketsLeave(roomId);
-    }
-
-    sendUserRemoval(userId: string, message: string): void {
-        this.server.to(userId).emit('game:closed', message);
-    }
-
-    sendUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
-        this.server.to(roomId).emit('game:user-update', userUpdate);
-    }
-
-    sendStateUpdate(roomId: string, state: GameStatePayload): void {
-        this.server.to(roomId).emit('game:state', state);
-    }
-
-    sendScoreUpdate(userId: string, score: Score): void {
-        this.server.to(userId).emit('game:score', score);
-    }
-
-    sendUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
-        this.server.to(userId).emit('game:users-stat', usersStat);
-    }
-
-    sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
-        this.server.to(roomId).emit('game:histogramData', histogramData);
     }
 }

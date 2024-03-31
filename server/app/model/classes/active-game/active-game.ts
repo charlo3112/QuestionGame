@@ -1,4 +1,3 @@
-import { GameGateway } from '@app/gateways/game/game.gateway';
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
@@ -9,9 +8,8 @@ import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
-import { Injectable, Scope } from '@nestjs/common';
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 
-@Injectable({ scope: Scope.TRANSIENT })
 export class ActiveGame {
     isLocked: boolean;
     private game: GameData;
@@ -22,11 +20,14 @@ export class ActiveGame {
     private roomId: string;
     private questionIndex: number = 0;
     private histogramData: HistogramData;
+    private timer: CountDownTimer;
+    private gameGateway: GameGatewaySend;
 
-    constructor(
-        private readonly timer: CountDownTimer,
-        private readonly gameGateway: GameGateway,
-    ) {
+    constructor(game: GameData, roomId: string, gameWebsocket: GameGatewaySend) {
+        this.gameGateway = gameWebsocket;
+        this.game = game;
+        this.roomId = roomId;
+        this.timer = new CountDownTimer(roomId, gameWebsocket);
         this.users = new Map<string, UserData>();
         this.activeUsers = new Set<string>();
         this.isLocked = false;
@@ -112,12 +113,6 @@ export class ActiveGame {
                 }
                 return b.score - a.score;
             });
-    }
-
-    set(game: GameData, roomId: string) {
-        this.game = game;
-        this.roomId = roomId;
-        this.timer.setRoomId(roomId);
     }
 
     addUser(user: UserData) {
