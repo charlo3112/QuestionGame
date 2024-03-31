@@ -14,10 +14,10 @@ import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Server, Socket } from 'socket.io';
-import { GameGateway } from './game-receive.gateway';
+import { GameGatewayReceive } from './game-receive.gateway';
 
-describe('GameGateway', () => {
-    let gateway: GameGateway;
+describe('GameGatewayReceive', () => {
+    let gateway: GameGatewayReceive;
     let logger: SinonStubbedInstance<Logger>;
     let socket: SinonStubbedInstance<Socket>;
     let server: SinonStubbedInstance<Server>;
@@ -36,7 +36,7 @@ describe('GameGateway', () => {
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
-                GameGateway,
+                GameGatewayReceive,
                 {
                     provide: Logger,
                     useValue: logger,
@@ -56,7 +56,7 @@ describe('GameGateway', () => {
             ],
         }).compile();
 
-        gateway = module.get<GameGateway>(GameGateway);
+        gateway = module.get<GameGatewayReceive>(GameGatewayReceive);
         // We want to assign a value to the private field
         // eslint-disable-next-line dot-notation
         gateway['server'] = server;
@@ -74,7 +74,11 @@ describe('GameGateway', () => {
         const mockGameId = 'game123';
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
         gameService.getGameById.returns(Promise.resolve({} as GameData));
-        roomManagementService.createGame.returns(mockUser);
+        roomManagementService.createGame.returns(
+            new Promise((resolve) => {
+                resolve(mockUser);
+            }),
+        );
         const result = await gateway.handleCreateGame(socket, mockGameId);
         expect(result).toBeDefined();
         expect(result).toEqual(mockUser);
@@ -200,14 +204,6 @@ describe('GameGateway', () => {
         roomManagementService.getUsers.returns(mockUsers);
         const result = gateway.getUsers(socket);
         expect(result).toEqual(mockUsers);
-    });
-
-    it('updateQuestionsCounter() should emit questions counter to the specified room', () => {
-        const roomId = 'room123';
-        const questionsCounter = [1, 2, 3];
-        gateway.updateQuestionsCounter.call({ server: mockServer }, roomId, questionsCounter);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:questionsCounter', questionsCounter);
     });
 
     it('handleDeleteRoom() should close the room', () => {
