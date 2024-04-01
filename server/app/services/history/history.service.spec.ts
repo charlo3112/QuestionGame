@@ -113,7 +113,7 @@ describe('HistoryServiceEndToEnd', () => {
 const getFakeCreateHistoryDto = (): CreateHistoryDto => {
     const historyData: CreateHistoryDto = {
         name: getRandomString(),
-        date: '2021-01-01',
+        date: new Date('2021-01-01'),
         numberPlayers: 1,
         bestScore: 1,
     } as CreateHistoryDto;
