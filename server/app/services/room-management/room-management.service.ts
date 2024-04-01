@@ -227,12 +227,15 @@ export class RoomManagementService {
         if (game.isHost(userId)) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
+            game.stopGame();
             return;
         }
         game.removeUser(userId);
         if (game.needToClosed() && game.currentState !== GameState.Wait) {
             this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
             this.gameState.delete(roomId);
+            game.stopGame();
+            return;
         }
         const userUpdate: UserConnectionUpdate = { isConnected: false, username };
         this.gameWebsocket.sendUpdateUser(roomId, userUpdate);

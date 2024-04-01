@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -21,7 +21,7 @@ import { tap } from 'rxjs/operators';
     standalone: true,
     imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule, MatSnackBarModule],
 })
-export class StartGamePageComponent {
+export class StartGamePageComponent implements OnInit {
     games: Game[] = [];
 
     title: string = 'Liste de jeux';
@@ -37,6 +37,10 @@ export class StartGamePageComponent {
     ) {
         this.loadGames();
         this.gameService.reset();
+    }
+
+    ngOnInit(): void {
+        this.gameService.leaveRoom();
     }
 
     loadGames(): void {

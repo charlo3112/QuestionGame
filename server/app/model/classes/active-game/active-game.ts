@@ -23,6 +23,7 @@ export class ActiveGame {
     private timer: CountDownTimer;
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
+    private isActive: boolean;
 
     // TODO: Justify the number of parameters for this constructor or reduce it
     constructor(
@@ -45,6 +46,7 @@ export class ActiveGame {
             question: this.game.questions,
             indexCurrentQuestion: 0,
         };
+        this.isActive = true;
     }
 
     get currentState(): GameState {
@@ -196,6 +198,14 @@ export class ActiveGame {
         }
     }
 
+    stopGame(): void {
+        delete this.users;
+        this.users = new Users(this.gameGateway, false);
+        this.roomId = '';
+        this.isActive = false;
+        this.timer.stop();
+    }
+
     async advance(): Promise<void> {
         switch (this.state) {
             case GameState.Wait:
@@ -218,12 +228,14 @@ export class ActiveGame {
     }
 
     async askQuestion(): Promise<void> {
+        if (!this.isActive) return;
         this.histogramData.indexCurrentQuestion = this.questionIndex;
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
         this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
+        if (!this.isActive) return;
 
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
@@ -252,7 +264,7 @@ export class ActiveGame {
 
     async testGame(): Promise<void> {
         this.advanceState(GameState.Starting);
-        while (this.questionIndex < this.game.questions.length) {
+        while (this.questionIndex < this.game.questions.length && this.isActive) {
             await this.askQuestion();
             await this.timer.start(TIME_CONFIRM_S);
         }

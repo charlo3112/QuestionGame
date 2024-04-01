@@ -268,7 +268,7 @@ export class GameService implements OnDestroy {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                if (this.test) {
+                if (this.test || this.routerService.url === '/new') {
                     this.routerService.navigate(['/new']);
                 } else {
                     this.routerService.navigate(['/']);
