@@ -1,4 +1,5 @@
 import { HOST_NAME } from '@common/constants';
+import { UserState } from '@common/enums/user-state';
 import { Score } from '@common/interfaces/score';
 
 export class UserData {
@@ -10,6 +11,7 @@ export class UserData {
     private choice: boolean[] | undefined;
     private timeValidate: number | undefined;
     private isBonus: boolean;
+    private state: UserState;
 
     constructor(userId: string, roomId: string, username: string) {
         this.userId = userId;
@@ -20,6 +22,7 @@ export class UserData {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
+        this.state = UserState.NoInteraction;
     }
 
     get username() {
@@ -32,6 +35,10 @@ export class UserData {
 
     get validate() {
         return this.timeValidate;
+    }
+
+    get userState() {
+        return this.state;
     }
 
     get uid() {
@@ -53,18 +60,25 @@ export class UserData {
         this.userId = uid;
     }
 
+    set userState(state: UserState) {
+        this.state = state;
+    }
+
     set newChoice(choice: boolean[]) {
         this.choice = choice;
+        this.state = UserState.FirstInteraction;
     }
 
     set validate(time: number) {
         this.timeValidate = time;
+        this.state = UserState.AnswerConfirmed;
     }
 
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
+        this.state = UserState.NoInteraction;
     }
 
     isHost(): boolean {

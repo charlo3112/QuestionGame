@@ -10,6 +10,18 @@
     text-decoration: line-through;
 }
 
+.no-interaction{
+    color: #ff0000;
+}
+
+.first-interaction {
+    color: map.get(constant.$green-palette, 100);
+}
+
+.answer-confirmed {
+    color: #00ff00;
+}
+
 .bonus-column{
     width: 50px;
 }

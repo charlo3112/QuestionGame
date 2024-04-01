@@ -201,6 +201,7 @@ export class ActiveGame {
 
     async askQuestion(): Promise<void> {
         this.histogramData.indexCurrentQuestion = this.questionIndex;
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
         this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
@@ -209,6 +210,7 @@ export class ActiveGame {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
         this.advanceState(GameState.ShowResults);
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
     }
 

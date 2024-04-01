@@ -2,6 +2,7 @@ import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
 import { BONUS_TIME } from '@common/constants';
+import { UserState } from '@common/enums/user-state';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
 
@@ -32,7 +33,7 @@ export class Users {
                     username: user.username,
                     score: user.userScore.score,
                     bonus: user.userBonus,
-                    isConnected: this.activeUsers.has(user.uid),
+                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.Disconnect,
                 };
             });
     }
@@ -90,15 +91,18 @@ export class Users {
         this.users.forEach((user) => {
             user.resetChoice();
         });
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
     updateUsersScore(correctAnswers: boolean[], points: number): void {
         const time = new Date().getTime();
         let users = Array.from(this.users.values());
         users.forEach((user) => {
+            const state = user.userState;
             if (user.validate === undefined) {
                 user.validate = time;
             }
+            user.userState = state;
         });
         users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => a.validate - b.validate);
         let bonus = true;
@@ -141,6 +145,7 @@ export class Users {
             return;
         }
         user.validate = new Date().getTime();
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
     removeActiveUser(userId: string) {
@@ -178,6 +183,7 @@ export class Users {
             return;
         }
         user.newChoice = choice;
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
     getCurrentHistogramData(choices: ChoiceData[]): number[] {
