@@ -254,7 +254,7 @@ export class ActiveGame {
                 this.historyService.addHistory(history);
             }
         } else if (this.users.hostIsPlaying) {
-            await this.timer.start(WAITING_TIME_S);
+            await this.timer.start(TIME_CONFIRM_S);
             await this.askQuestion();
         }
     }

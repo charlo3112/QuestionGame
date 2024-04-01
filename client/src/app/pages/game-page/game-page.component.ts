@@ -50,7 +50,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     showButton(): boolean {
-        return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
+        return (
+            (this.gameService.currentState === GameState.ShowResults && !this.gameService.isPlaying) ||
+            this.gameService.currentState === GameState.LastQuestion
+        );
     }
 
     saveGameData(buttonText: string): void {
