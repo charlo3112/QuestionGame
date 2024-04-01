@@ -34,6 +34,7 @@ export class Users {
                     score: user.userScore.score,
                     bonus: user.userBonus,
                     state: this.activeUsers.has(user.uid) ? user.userState : UserState.Disconnect,
+                    canChat: user.userCanChat,
                 };
             });
     }
@@ -133,6 +134,27 @@ export class Users {
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
         return user.isHost();
+    }
+
+    setChat(hostId: string, username: string, value: boolean): string | undefined {
+        if (hostId !== this.hostId) {
+            return undefined;
+        }
+        const user = Array.from(this.users.values()).find((u) => u.username === username);
+        if (!user) {
+            return undefined;
+        }
+        user.userCanChat = value;
+        this.gameGateway.sendUsersStatUpdate(hostId, this.usersStat);
+        return user.uid;
+    }
+
+    canChat(userId: string): boolean {
+        const user = this.users.get(userId);
+        if (!user) {
+            return false;
+        }
+        return user.userCanChat;
     }
 
     userExists(name: string): boolean {

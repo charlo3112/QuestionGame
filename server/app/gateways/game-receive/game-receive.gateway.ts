@@ -4,6 +4,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
+import { SetChatPayload } from '@common/interfaces/set-chat-payload';
 import { User } from '@common/interfaces/user';
 import { Logger } from '@nestjs/common';
 import { OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -116,6 +117,11 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:results')
     showResults(client: Socket) {
         this.roomService.showFinalResults(client.id);
+    }
+
+    @SubscribeMessage('game:set-chat')
+    setChat(client: Socket, payload: SetChatPayload) {
+        this.roomService.setChat(client.id, payload.username, payload.value);
     }
 
     handleDisconnect(client: Socket): void {

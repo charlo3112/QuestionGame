@@ -12,6 +12,7 @@ export class UserData {
     private timeValidate: number | undefined;
     private isBonus: boolean;
     private state: UserState;
+    private canChat: boolean;
 
     constructor(userId: string, roomId: string, username: string) {
         this.userId = userId;
@@ -23,6 +24,7 @@ export class UserData {
         this.timeValidate = undefined;
         this.isBonus = false;
         this.state = UserState.NoInteraction;
+        this.canChat = true;
     }
 
     get username() {
@@ -35,6 +37,10 @@ export class UserData {
 
     get validate() {
         return this.timeValidate;
+    }
+
+    get userCanChat() {
+        return this.canChat;
     }
 
     get userState() {
@@ -58,6 +64,10 @@ export class UserData {
 
     set uid(uid: string) {
         this.userId = uid;
+    }
+
+    set userCanChat(canChat: boolean) {
+        this.canChat = canChat;
     }
 
     set userState(state: UserState) {

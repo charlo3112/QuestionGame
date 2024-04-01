@@ -17,11 +17,16 @@ export class RoomManagementService {
     private roomMembers: Map<string, string> = new Map();
     private deleteRoomGatewayCallback: ((roomID: string) => void)[] = [];
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
+    private sendSystemMessage: (roomId: string, message: string) => void;
 
     constructor(private gameWebsocket: GameGatewaySend) {}
 
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
+    }
+
+    setSystemMessageCallback(sendSystemMessage: (roomId: string, message: string) => void) {
+        this.sendSystemMessage = sendSystemMessage;
     }
 
     handleChoice(userId: string, choice: boolean[]): void {
@@ -38,6 +43,21 @@ export class RoomManagementService {
             return;
         }
         game.validateChoice(userId);
+    }
+
+    setChat(hostId: string, username: string, value: boolean): void {
+        const game = this.getActiveGame(hostId);
+        if (!game) {
+            return;
+        }
+        const uid = game.setChat(hostId, username, value);
+        if (uid) {
+            this.gameWebsocket.sendAlert(uid, `clavardage ${value ? 'activé' : 'désactivé'}`);
+        }
+    }
+
+    canChat(userId: string): boolean {
+        return this.getActiveGame(userId).canChat(userId);
     }
 
     async createGame(userId: string, game: GameData): Promise<User> {
@@ -194,6 +214,7 @@ export class RoomManagementService {
         const game = this.getActiveGame(userId);
         const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
+        this.deleteRoomGatewayCallback.forEach((callback) => callback(userId));
         this.roomMembers.delete(userId);
         if (!game) {
             return;
@@ -211,6 +232,7 @@ export class RoomManagementService {
         }
         const userUpdate: UserConnectionUpdate = { isConnected: false, username };
         this.gameWebsocket.sendUpdateUser(roomId, userUpdate);
+        this.sendSystemMessage(roomId, `${username} a quitté la salle`);
     }
 
     banUser(userId: string, bannedUsername: string): void {

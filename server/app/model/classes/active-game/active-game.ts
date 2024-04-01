@@ -159,11 +159,19 @@ export class ActiveGame {
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
     }
 
+    setChat(hostId: string, username: string, value: boolean): string | undefined {
+        return this.users.setChat(hostId, username, value);
+    }
+
+    canChat(userId: string): boolean {
+        return this.users.canChat(userId);
+    }
+
     update(userId: string, newId: string): void {
         const isHost = this.users.update(userId, newId);
         if (isHost || this.currentState === GameState.ShowFinalResults) {
-            this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
-            this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
+            this.gameGateway.sendUsersStatUpdate(newId, this.users.usersStat);
+            this.gameGateway.sendHistogramDataUpdate(newId, this.histogramData);
         }
     }
 

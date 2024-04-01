@@ -33,6 +33,7 @@ export class GameService implements OnDestroy {
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
     private histogramDataSubscription: Subscription;
+    private alertSubscription: Subscription;
     private histogramData: HistogramData;
     private usersStat: UserStat[] = [];
     private play: boolean = false;
@@ -49,6 +50,7 @@ export class GameService implements OnDestroy {
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
+        this.subscribeToAlert();
     }
 
     get gameTitle(): string {
@@ -163,6 +165,9 @@ export class GameService implements OnDestroy {
         }
         if (this.histogramDataSubscription) {
             this.histogramDataSubscription.unsubscribe();
+        }
+        if (this.alertSubscription) {
+            this.alertSubscription.unsubscribe();
         }
     }
     onKickPlayer(player: string) {
@@ -346,5 +351,12 @@ export class GameService implements OnDestroy {
         if (this.routerService.url !== '/game') {
             this.routerService.navigate(['/game']);
         }
+    }
+    private subscribeToAlert() {
+        this.alertSubscription = this.websocketService.getAlert().subscribe({
+            next: (message: string) => {
+                this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
+            },
+        });
     }
 }

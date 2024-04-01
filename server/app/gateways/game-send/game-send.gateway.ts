@@ -46,4 +46,8 @@ export class GameGatewaySend {
     sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
         this.server.to(roomId).emit('game:histogramData', histogramData);
     }
+
+    sendAlert(roomId: string, message: string): void {
+        this.server.to(roomId).emit('game:alert', message);
+    }
 }
