@@ -12,6 +12,7 @@ import { RoomManagementService } from '@app/services/room-management/room-manage
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { HistoryController } from './controllers/history/history.controller';
 import { GameGatewayReceive } from './gateways/game-receive/game-receive.gateway';
 import { GameGatewaySend } from './gateways/game-send/game-send.gateway';
 
@@ -31,7 +32,7 @@ import { GameGatewaySend } from './gateways/game-send/game-send.gateway';
             { name: HistoryData.name, schema: historySchema },
         ]),
     ],
-    controllers: [GameController, QuestionController, AdminController],
+    controllers: [GameController, QuestionController, AdminController, HistoryController],
     providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGatewayReceive, GameGatewaySend, HistoryService],
 })
 export class AppModule {}

@@ -3,6 +3,8 @@ import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { Users } from '@app/model/classes/users/users';
 import { GameData } from '@app/model/database/game';
+import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
+import { HistoryService } from '@app/services/history/history.service';
 import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -20,9 +22,16 @@ export class ActiveGame {
     private histogramData: HistogramData;
     private timer: CountDownTimer;
     private gameGateway: GameGatewaySend;
+    private historyService: HistoryService | undefined;
 
     // TODO: Justify the number of parameters for this constructor or reduce it
-    constructor(game: GameData, roomId: string, gameWebsocket: GameGatewaySend, hostIsPlaying: boolean = false) {
+    constructor(
+        game: GameData,
+        roomId: string,
+        gameWebsocket: GameGatewaySend,
+        historyService: HistoryService | undefined,
+        hostIsPlaying: boolean = false,
+    ) {
         this.gameGateway = gameWebsocket;
         this.game = game;
         this.roomId = roomId;
@@ -30,6 +39,7 @@ export class ActiveGame {
         this.isLocked = false;
         this.state = GameState.Wait;
         this.users = new Users(gameWebsocket, hostIsPlaying);
+        this.historyService = historyService;
         this.histogramData = {
             choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
             question: this.game.questions,
@@ -219,7 +229,19 @@ export class ActiveGame {
         this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
         this.advanceState(GameState.ShowResults);
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
-        if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
+
+        if (++this.questionIndex === this.game.questions.length) {
+            this.advanceState(GameState.LastQuestion);
+            if (this.historyService) {
+                const history: CreateHistoryDto = {
+                    name: this.game.title,
+                    date: new Date(),
+                    numberPlayers: this.users.totalSize,
+                    bestScore: this.users.bestScore,
+                };
+                this.historyService.addHistory(history);
+            }
+        }
     }
 
     async launchGame(): Promise<void> {

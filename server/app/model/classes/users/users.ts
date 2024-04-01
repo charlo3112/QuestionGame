@@ -47,8 +47,16 @@ export class Users {
         return this.activeUsers.size;
     }
 
+    get totalSize(): number {
+        return this.hostIsPlaying ? this.users.size : this.users.size - 1;
+    }
+
     get allHaveValidated(): boolean {
         return Array.from(this.users.values()).every((user) => user.validate !== undefined || (user.isHost() && !this.hostIsPlaying));
+    }
+
+    get bestScore(): number {
+        return Math.max(...Array.from(this.users.values()).map((user) => user.userScore.score));
     }
 
     addUser(user: UserData) {

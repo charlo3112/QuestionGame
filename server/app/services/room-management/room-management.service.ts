@@ -2,6 +2,7 @@ import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
+import { HistoryService } from '@app/services/history/history.service';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -19,7 +20,10 @@ export class RoomManagementService {
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
     private sendSystemMessage: (roomId: string, message: string) => void;
 
-    constructor(private gameWebsocket: GameGatewaySend) {}
+    constructor(
+        private gameWebsocket: GameGatewaySend,
+        private historyService: HistoryService,
+    ) {}
 
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
         this.deleteRoomGatewayCallback.push(deleteRoom);
@@ -63,7 +67,7 @@ export class RoomManagementService {
     async createGame(userId: string, game: GameData): Promise<User> {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, this.historyService);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -79,7 +83,7 @@ export class RoomManagementService {
     async testGame(userId: string, game: GameData): Promise<User> {
         const roomId = 'test' + this.generateRoomId();
         const noHost: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, undefined, true);
         newActiveGame.addUser(noHost);
 
         if (this.roomMembers.has(userId)) {
