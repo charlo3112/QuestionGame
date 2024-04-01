@@ -1,16 +1,19 @@
+import { AdminController } from '@app/controllers/admin/admin.controller';
 import { GameController } from '@app/controllers/game/game.controller';
+import { HistoryController } from '@app/controllers/history/history.controller';
 import { QuestionController } from '@app/controllers/question/question.controller';
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
+import { GameGateway } from '@app/gateways/game/game.gateway';
 import { GameData, gameSchema } from '@app/model/database/game';
+import { HistoryData, historySchema } from '@app/model/database/history';
 import { QuestionData, questionSchema } from '@app/model/database/question';
 import { GameService } from '@app/services/game/game.service';
+import { HistoryService } from '@app/services/history/history.service';
 import { QuestionService } from '@app/services/question/question.service';
+import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AdminController } from './controllers/admin/admin.controller';
-import { GameGateway } from './gateways/game/game.gateway';
-import { RoomManagementService } from './services/room-management/room-management.service';
 
 @Module({
     imports: [
@@ -25,9 +28,10 @@ import { RoomManagementService } from './services/room-management/room-managemen
         MongooseModule.forFeature([
             { name: GameData.name, schema: gameSchema },
             { name: QuestionData.name, schema: questionSchema },
+            { name: HistoryData.name, schema: historySchema },
         ]),
     ],
-    controllers: [GameController, QuestionController, AdminController],
-    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway],
+    controllers: [GameController, QuestionController, AdminController, HistoryController],
+    providers: [RoomManagementService, ChatGateway, GameService, QuestionService, Logger, GameGateway, HistoryService],
 })
 export class AppModule {}
