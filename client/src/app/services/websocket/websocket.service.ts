@@ -74,6 +74,10 @@ export class WebSocketService {
         this.socket.emit('game:leave');
     }
 
+    startTest(): void {
+        this.socket.emit('game:start-test');
+    }
+
     showFinalResults() {
         this.socket.emit('game:results');
     }

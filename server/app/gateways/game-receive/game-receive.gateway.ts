@@ -41,9 +41,13 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         }
         const user = await this.roomService.testGame(client.id, game);
         client.join(user.roomId);
+        return user;
+    }
+
+    @SubscribeMessage('game:start-test')
+    handleStartTest(client: Socket) {
         const activeGame = this.roomService.getActiveGame(client.id);
         activeGame.testGame();
-        return user;
     }
 
     @SubscribeMessage('game:leave')

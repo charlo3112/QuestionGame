@@ -68,6 +68,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     nextStep(): void {
         if (this.buttonText === 'Résultats') {
+            if (this.gameService.test) {
+                this.router.navigate(['/new']);
+            }
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') {
             this.gameService.nextQuestion();

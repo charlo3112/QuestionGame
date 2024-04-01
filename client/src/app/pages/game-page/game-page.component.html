@@ -15,8 +15,8 @@
 </mat-toolbar>
 
 <app-countdown *ngIf="isStartingGame()"></app-countdown>
-<app-question *ngIf="question && (!gameService.isHost || this.gameService.test)" [question]="question!" tabindex="0"></app-question>
-<app-admin-game-view *ngIf="question && gameService.isHost && !this.gameService.test" class="admin-view"></app-admin-game-view>
+<app-question *ngIf="question && this.gameService.isPlaying" [question]="question!" tabindex="0"></app-question>
+<app-admin-game-view *ngIf="question && !gameService.isPlaying && !this.gameService.test" class="admin-view"></app-admin-game-view>
 
 <div *ngIf="showButton() && gameService.isHost" class="center">
     <button mat-raised-button (click)="nextStep()" color="primary">{{ buttonText }}</button>

@@ -15,7 +15,6 @@ import { Observable, Subscription } from 'rxjs';
 
 @Injectable()
 export class GameService implements OnDestroy {
-    test: boolean = false;
     private state: GameState = GameState.NotStarted;
     private question: Question | undefined = undefined;
     private scoreValue: number = 0;
@@ -61,6 +60,10 @@ export class GameService implements OnDestroy {
         return this.scoreValue;
     }
 
+    get isPlaying(): boolean {
+        return this.play;
+    }
+
     get time(): number {
         return this.serverTime;
     }
@@ -95,7 +98,7 @@ export class GameService implements OnDestroy {
     }
 
     get isHost(): boolean {
-        if (this.username === HOST_NAME && !this.play) {
+        if (this.username === HOST_NAME) {
             return true;
         }
         return false;
@@ -105,8 +108,12 @@ export class GameService implements OnDestroy {
         return this.players;
     }
 
-    setTest(test: boolean) {
-        this.test = test;
+    get test(): boolean {
+        return sessionStorage.getItem('test') === 'true' ? true : false;
+    }
+
+    set test(test: boolean) {
+        sessionStorage.setItem('test', test ? 'true' : 'false');
     }
 
     async init() {
@@ -116,20 +123,18 @@ export class GameService implements OnDestroy {
             return;
         }
         const user: User = JSON.parse(data);
-        if (!this.test) {
-            const res = await this.websocketService.rejoinRoom(user);
-            if (!res.ok) {
-                sessionStorage.removeItem('user');
-                this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-                if (this.test) {
-                    this.routerService.navigate(['/new']);
-                } else {
-                    this.routerService.navigate(['/']);
-                }
-                return;
+        const res = await this.websocketService.rejoinRoom(user);
+        if (!res.ok) {
+            sessionStorage.removeItem('user');
+            this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
+            if (this.test) {
+                this.routerService.navigate(['/new']);
+            } else {
+                this.routerService.navigate(['/']);
             }
-            this.setState(res.value);
+            return;
         }
+        this.setState(res.value);
 
         sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
 
