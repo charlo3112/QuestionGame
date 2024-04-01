@@ -54,11 +54,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     saveGameData(buttonText: string): void {
-        localStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ buttonText }));
+        sessionStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ buttonText }));
     }
 
     getGameData(): { buttonText: string } | null {
-        const gameStateData = localStorage.getItem(this.gameService.roomCodeValue);
+        const gameStateData = sessionStorage.getItem(this.gameService.roomCodeValue);
         return gameStateData ? JSON.parse(gameStateData) : null;
     }
 
@@ -68,7 +68,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     nextStep(): void {
         if (this.buttonText === 'Résultats') {
-            localStorage.clear();
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') {
             this.gameService.nextQuestion();

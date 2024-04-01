@@ -1,8 +1,8 @@
-<mat-expansion-panel *ngIf="gameDetails.visibility">
+<mat-expansion-panel>
     <mat-expansion-panel-header>
         <mat-panel-title class="panel-title"> {{ gameDetails.title }} </mat-panel-title>
     </mat-expansion-panel-header>
-    <mat-panel-description class="row-container">
+    <ng-template matExpansionPanelContent class="row-container">
         <div>
             <p class="item-title">Description du jeu:</p>
             <p class="item-content">{{ gameDetails.description }}</p>
@@ -17,5 +17,5 @@
         </div>
         <span class="spacer"></span>
         <img [src]="gameDetails.image" alt="Game preview" class="game-image" />
-    </mat-panel-description>
+    </ng-template>
 </mat-expansion-panel>
