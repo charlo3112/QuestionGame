@@ -1,10 +1,11 @@
+// We need to disable max-lines because we need every single test to test thoroughly the service and have a good coverage
 /* eslint-disable max-lines */
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { RESPONSE_OK } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -49,7 +50,7 @@ describe('CommunicationService', () => {
 
         service.deleteGame(gameId).subscribe({
             next: (response) => {
-                expect(response.body).toBe(''); // DELETE might not return a body
+                expect(response.body).toBe('');
             },
             error: fail,
         });

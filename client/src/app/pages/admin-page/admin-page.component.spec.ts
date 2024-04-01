@@ -45,14 +45,24 @@ describe('AdminPageComponent', () => {
         );
         communicationServiceSpy.addGame.and.returnValue(of(new HttpResponse<string>({ status: HttpStatusCode.Ok })));
 
-        adminServiceSpy = jasmine.createSpyObj('AdminService', ['deleteGame', 'toggleGameVisibility', 'exportGame', 'downloadFile', 'handleLogin']);
+        adminServiceSpy = jasmine.createSpyObj('AdminService', [
+            'deleteGame',
+            'toggleGameVisibility',
+            'exportGame',
+            'downloadFile',
+            'handleLogin',
+            'login',
+        ]);
+        Object.defineProperty(adminServiceSpy, 'login', {
+            get: () => false,
+        });
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         TestBed.overrideProvider(MatDialog, {
             useValue: {
                 open: () => ({
-                    afterClosed: () => of(GAME_PLACEHOLDER), // Simulate dialog closing with a result
+                    afterClosed: () => of(GAME_PLACEHOLDER),
                 }),
             },
         });
@@ -115,11 +125,14 @@ describe('AdminPageComponent', () => {
         expect(gamePreviews.length).toBe(component.games.length);
     });
 
-    it('should display game previews when already logged in', () => {
-        sessionStorage.setItem('login', 'true');
+    it('should display game previews when already logged in', fakeAsync(() => {
+        Object.defineProperty(adminServiceSpy, 'login', {
+            get: () => true,
+        });
         component.ngOnInit();
+        tick();
         expect(component.login).toBeTrue();
-    });
+    }));
 
     it('should handle login', () => {
         component.handleLogin(true);

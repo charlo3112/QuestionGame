@@ -112,6 +112,7 @@ export class RoomManagementService {
     }
 
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
+        username = username.trim();
         const activeGame = this.gameState.get(roomId);
         if (!activeGame) {
             return { ok: false, error: 'Code invalide' };
@@ -122,7 +123,7 @@ export class RoomManagementService {
         if (activeGame.isLocked) {
             return { ok: false, error: 'La salle est verouillé' };
         }
-        if (activeGame.isBanned(username) || activeGame.userExists(username)) {
+        if (activeGame.isBanned(username) || activeGame.userExists(username) || username === '') {
             return { ok: false, error: 'Le nom est déjà pris ou banni' };
         }
         const newUser: UserData = new UserData(userId, roomId, username);

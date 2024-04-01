@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,7 +34,6 @@ import { Question } from '@common/interfaces/question';
         MatCheckboxModule,
         ReactiveFormsModule,
         DragDropModule,
-        NgIf,
         MatCardModule,
         MatListModule,
         MatSlideToggleModule,

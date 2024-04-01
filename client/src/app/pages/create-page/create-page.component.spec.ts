@@ -1,3 +1,5 @@
+// We disabled max-lines because we judge that we need that many to test thoroughly the component
+// Plus, the testbench initialization is 100 lines long
 /* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
@@ -20,7 +22,7 @@ import { CommunicationService } from '@app/services/communication/communication.
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
@@ -125,7 +127,6 @@ describe('CreatePageComponent', () => {
     });
 
     // ngOnInit
-
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
         component.login = true;
         const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
