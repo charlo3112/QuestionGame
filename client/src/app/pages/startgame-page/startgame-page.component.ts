@@ -10,6 +10,7 @@ import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
+import { User } from '@common/interfaces/user';
 import { Subscription } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -115,10 +116,11 @@ export class StartGamePageComponent {
                 if (result.ok && result.value) {
                     const newGame = result.value;
                     if (newGame.visibility) {
+                        this.gameService.setTest(true);
+                        const tempUser: User = { name: 'test', roomId: newGame.gameId, userId: this.webSocketService.id, play: true };
+                        sessionStorage.setItem('user', JSON.stringify(tempUser));
                         const user = await this.webSocketService.testGame(newGame.gameId);
                         sessionStorage.setItem('user', JSON.stringify(user));
-                        this.gameService.setTest(true);
-                        this.gameService.init();
                         this.router.navigate(['/game']);
                     } else {
                         this.openSnackBar(GAME_INVISIBLE);

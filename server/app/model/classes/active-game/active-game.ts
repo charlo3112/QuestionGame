@@ -1,43 +1,48 @@
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
+import { Users } from '@app/model/classes/users/users';
 import { GameData } from '@app/model/database/game';
-import { BONUS_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
-import { UserStat } from '@common/interfaces/user-stat';
-import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 
 export class ActiveGame {
     isLocked: boolean;
+    private users: Users;
     private game: GameData;
-    private users: Map<string, UserData>;
     private state: GameState = GameState.Wait;
-    private bannedNames: string[];
-    private activeUsers: Set<string>;
     private roomId: string;
     private questionIndex: number = 0;
     private histogramData: HistogramData;
     private timer: CountDownTimer;
     private gameGateway: GameGatewaySend;
 
-    constructor(game: GameData, roomId: string, gameWebsocket: GameGatewaySend) {
+    // TODO: Justify the number of parameters for this constructor or reduce it
+    constructor(game: GameData, roomId: string, gameWebsocket: GameGatewaySend, hostIsPlaying: boolean = false) {
         this.gameGateway = gameWebsocket;
         this.game = game;
         this.roomId = roomId;
         this.timer = new CountDownTimer(roomId, gameWebsocket);
-        this.users = new Map<string, UserData>();
-        this.activeUsers = new Set<string>();
         this.isLocked = false;
         this.state = GameState.Wait;
-        this.bannedNames = [];
+        this.users = new Users(gameWebsocket, hostIsPlaying);
         this.histogramData = {
             choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
             question: this.game.questions,
             indexCurrentQuestion: 0,
         };
+    }
+
+    get currentState(): GameState {
+        return this.state;
+    }
+
+    get gameData(): GameData {
+        return this.game;
     }
 
     get currentQuestionWithAnswer(): Question {
@@ -63,14 +68,6 @@ export class ActiveGame {
         };
     }
 
-    get currentState() {
-        return this.state;
-    }
-
-    get gameData() {
-        return this.game;
-    }
-
     get gameStatePayload(): GameStatePayload {
         if (this.state === GameState.Starting) {
             return { state: this.state, payload: this.game.title };
@@ -84,172 +81,108 @@ export class ActiveGame {
         return { state: this.state };
     }
 
-    get histoData() {
-        return this.histogramData;
-    }
-
-    get hostId() {
-        return Array.from(this.users.values()).find((user) => user.isHost())?.uid;
-    }
-
-    get questionIndexCurrent() {
+    get questionIndexCurrent(): number {
         return this.questionIndex;
     }
 
-    get usersStat(): UserStat[] {
-        return Array.from(this.users.values())
-            .filter((user) => !user.isHost())
-            .map((user) => {
-                return {
-                    username: user.username,
-                    score: user.userScore.score,
-                    bonus: user.userBonus,
-                    isConnected: this.activeUsers.has(user.uid),
-                };
-            })
-            .sort((a, b) => {
-                if (a.score === b.score) {
-                    return a.username.localeCompare(b.username);
-                }
-                return b.score - a.score;
-            });
+    get usersArray(): string[] {
+        return this.users.usersArray;
     }
 
-    addUser(user: UserData) {
-        this.users.set(user.uid, user);
-        this.activeUsers.add(user.uid);
+    addUser(user: UserData): void {
+        this.users.addUser(user);
     }
 
     banUser(name: string): string {
         if (this.currentState !== GameState.Wait) {
             return undefined;
         }
-        this.bannedNames.push(name.toLowerCase());
-        const userId = Array.from(this.users.values()).find((user) => user.username === name)?.uid;
-        this.users.delete(userId);
-        this.activeUsers.delete(userId);
-        return userId;
+        return this.users.banUser(name);
     }
 
     canRejoin(userId: string): boolean {
-        return this.activeUsers.has(userId);
+        return this.users.canRejoin(userId);
     }
 
     getChoice(userId: string): boolean[] {
-        const user = this.users.get(userId);
-        if (!user) {
-            return [false, false, false, false];
-        }
-        return user.userChoice === undefined ? [false, false, false, false] : user.userChoice;
+        return this.users.getChoice(userId);
     }
 
     getScore(userId: string): Score {
-        const user = this.users.get(userId);
-        if (!user) {
-            return { score: 0, bonus: false };
-        }
-        return user.userScore;
+        return this.users.getScore(userId);
     }
 
     getUser(userId: string): UserData {
-        return this.users.get(userId);
+        return this.users.getUser(userId);
     }
 
-    getUsers(): string[] {
-        return Array.from(this.users.values()).map((user) => user.username);
-    }
-
-    handleChoice(userId: string, choice: boolean[]) {
-        const user = this.users.get(userId);
-        if (!user || user.validate !== undefined || this.state !== GameState.AskingQuestion) {
+    handleChoice(userId: string, choice: boolean[]): void {
+        if (this.state !== GameState.AskingQuestion) {
             return;
         }
-        user.newChoice = choice;
+        this.users.handleChoice(userId, choice);
         this.sendUserSelectedChoice();
     }
 
-    isBanned(name: string) {
-        return this.bannedNames.includes(name.toLowerCase());
-    }
-
-    isHost(userId: string): boolean {
-        const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.isHost();
-    }
-
     isValidate(userId: string): boolean {
-        const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.validate === undefined ? false : true;
+        return this.users.isValidate(userId);
+    }
+
+    isBanned(name: string): boolean {
+        return this.users.isBanned(name);
     }
 
     needToClosed(): boolean {
-        return this.activeUsers.size === 0 || (this.activeUsers.size === 1 && this.roomId.slice(0, 'test'.length) !== 'test');
+        return this.users.size === 0 || (this.users.size === 1 && !this.users.hostIsPlaying);
     }
 
-    removeUser(userId: string) {
-        this.activeUsers.delete(userId);
+    isHost(userId: string): boolean {
+        return this.users.isHost(userId);
+    }
+
+    removeUser(userId: string): void {
+        this.users.removeActiveUser(userId);
         if (this.state === GameState.Wait) {
-            this.users.delete(userId);
+            this.users.removeUser(userId);
         }
-        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
     }
 
-    sendUserSelectedChoice() {
-        this.histogramData.choicesCounters[this.questionIndex] = [0, 0, 0, 0];
-        this.users.forEach((user) => {
-            for (let i = 0; i < this.game.questions[this.questionIndex].choices.length; i++) {
-                if (!user.userChoice) {
-                    break;
-                }
-                if (user.userChoice[i]) {
-                    this.histogramData.choicesCounters[this.questionIndex][i]++;
-                }
-            }
-        });
-        this.gameGateway.sendHistogramDataUpdate(this.hostId, this.histogramData);
+    sendUserSelectedChoice(): void {
+        this.histogramData.choicesCounters[this.questionIndex] = this.users.getCurrentHistogramData(this.game.questions[this.questionIndex].choices);
+        this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
     }
 
-    showFinalResults() {
+    showFinalResults(): void {
         this.advanceState(GameState.ShowFinalResults);
-        this.gameGateway.sendUsersStatUpdate(this.roomId, this.usersStat);
+        this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
     }
 
-    update(userId: string, newId: string) {
-        const user = this.users.get(userId);
-        user.uid = newId;
-        this.users.delete(userId);
-        this.activeUsers.delete(userId);
-        this.users.set(user.uid, user);
-        this.activeUsers.add(user.uid);
-        if (user.isHost() || this.currentState === GameState.ShowFinalResults) {
-            this.gameGateway.sendUsersStatUpdate(this.roomId, this.usersStat);
+    update(userId: string, newId: string): void {
+        const isHost = this.users.update(userId, newId);
+        if (isHost || this.currentState === GameState.ShowFinalResults) {
+            this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
             this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
         }
     }
 
-    userExists(name: string) {
-        return Array.from(this.users.values()).some((user) => user.username.toLowerCase() === name.toLowerCase());
+    userExists(name: string): boolean {
+        return this.users.userExists(name);
     }
 
-    validateChoice(userId: string) {
-        const user = this.users.get(userId);
-        if (!user) {
-            return;
+    validateChoice(userId: string): void {
+        this.users.validateChoice(userId);
+        if (this.users.allHaveValidated) {
+            this.timer.stop();
         }
-        user.validate = new Date().getTime();
     }
-    async advance() {
+
+    async advance(): Promise<void> {
         switch (this.state) {
             case GameState.Wait:
                 if (!this.isLocked) {
-                    return null;
+                    return;
                 }
                 await this.launchGame();
                 break;
@@ -265,63 +198,36 @@ export class ActiveGame {
                 break;
         }
     }
-    async askQuestion() {
+
+    async askQuestion(): Promise<void> {
         this.histogramData.indexCurrentQuestion = this.questionIndex;
-        this.gameGateway.sendHistogramDataUpdate(this.hostId, this.histogramData);
-        this.resetAnswers();
+        this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
+        this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
 
-        this.calculateScores();
+        const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
+        this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
         this.advanceState(GameState.ShowResults);
         if (++this.questionIndex === this.game.questions.length) this.advanceState(GameState.LastQuestion);
     }
-    async launchGame() {
+
+    async launchGame(): Promise<void> {
         this.advanceState(GameState.Starting);
         await this.timer.start(WAITING_TIME_S);
         await this.askQuestion();
     }
-    async testGame() {
+
+    async testGame(): Promise<void> {
         this.advanceState(GameState.Starting);
         while (this.questionIndex < this.game.questions.length) {
             await this.askQuestion();
             await this.timer.start(TIME_CONFIRM_S);
         }
     }
-    private advanceState(state: GameState) {
+
+    private advanceState(state: GameState): void {
         this.state = state;
         this.gameGateway.sendStateUpdate(this.roomId, this.gameStatePayload);
-    }
-    private calculateScores() {
-        const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
-        const time = new Date().getTime();
-        let users = Array.from(this.users.values());
-        users.forEach((user) => {
-            if (user.validate === undefined) {
-                user.validate = time;
-            }
-        });
-        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => a.validate - b.validate);
-        let bonus = true;
-        if (users.length >= 2) {
-            if (users[1].validate - users[0].validate <= BONUS_TIME) {
-                bonus = false;
-            }
-        }
-
-        users.forEach((user) => {
-            if (users[0] === user && bonus) {
-                user.addBonus(this.game.questions[this.questionIndex].points);
-            } else {
-                user.addScore(this.game.questions[this.questionIndex].points);
-            }
-            this.gameGateway.sendScoreUpdate(user.uid, user.userScore);
-        });
-        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
-    }
-    private resetAnswers() {
-        this.users.forEach((user) => {
-            user.resetChoice();
-        });
     }
 }

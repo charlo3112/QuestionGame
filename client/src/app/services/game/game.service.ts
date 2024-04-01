@@ -35,6 +35,7 @@ export class GameService implements OnDestroy {
     private histogramDataSubscription: Subscription;
     private histogramData: HistogramData;
     private usersStat: UserStat[] = [];
+    private play: boolean = false;
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -92,7 +93,7 @@ export class GameService implements OnDestroy {
     }
 
     get isHost(): boolean {
-        if (this.username === HOST_NAME) {
+        if (this.username === HOST_NAME && !this.play) {
             return true;
         }
         return false;
@@ -109,6 +110,7 @@ export class GameService implements OnDestroy {
     async init() {
         const data = sessionStorage.getItem('user');
         if (!data) {
+            this.routerService.navigate(['/']);
             return;
         }
         const user: User = JSON.parse(data);
@@ -134,6 +136,7 @@ export class GameService implements OnDestroy {
         const score = await this.websocketService.getScore();
         this.scoreValue = score.score;
         this.showBonus = score.bonus;
+        this.play = user.play;
         this.players.clear();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
         this.players.delete(HOST_NAME);
@@ -313,7 +316,6 @@ export class GameService implements OnDestroy {
             },
         });
     }
-
     private setState(state: GameStatePayload) {
         this.state = state.state;
         if (this.state === GameState.NotStarted) {

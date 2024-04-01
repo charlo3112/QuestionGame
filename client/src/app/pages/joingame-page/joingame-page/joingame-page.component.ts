@@ -43,7 +43,7 @@ export class JoinGamePageComponent {
         if (this.connectForm.value.code && this.connectForm.value.name) {
             const res = await this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
             if (res.ok) {
-                const user = { name: this.connectForm.value.name, roomId: this.connectForm.value.code, userId: this.webSocketService.id };
+                const user = { name: this.connectForm.value.name, roomId: this.connectForm.value.code, userId: this.webSocketService.id, play: true };
                 sessionStorage.setItem('user', JSON.stringify(user));
                 this.router.navigate(['/loading']);
             } else {

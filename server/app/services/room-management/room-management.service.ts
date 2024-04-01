@@ -1,6 +1,7 @@
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
+import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
-import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
@@ -9,7 +10,6 @@ import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Injectable } from '@nestjs/common';
-import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 
 @Injectable()
 export class RoomManagementService {
@@ -53,26 +53,22 @@ export class RoomManagementService {
         this.gameState.set(roomId, newActiveGame);
         this.roomMembers.set(host.uid, roomId);
 
-        return { name: HOST_NAME, roomId, userId };
+        return { name: HOST_NAME, roomId, userId, play: false };
     }
 
     async testGame(userId: string, game: GameData): Promise<User> {
         const roomId = 'test' + this.generateRoomId();
-        const noHost: UserData = new UserData(userId, roomId, '');
+        const noHost: UserData = new UserData(userId, roomId, HOST_NAME);
         const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket);
         newActiveGame.addUser(noHost);
 
+        if (this.roomMembers.has(userId)) {
+            this.performUserRemoval(userId);
+        }
+
         this.gameState.set(roomId, newActiveGame);
         this.roomMembers.set(noHost.uid, roomId);
-        return { name: HOST_NAME, roomId, userId };
-    }
-
-    async startTestGame(roomId: string) {
-        const game = this.gameState.get(roomId);
-        if (!game) {
-            return;
-        }
-        await game.testGame();
+        return { name: HOST_NAME, roomId, userId, play: true };
     }
 
     toggleGameClosed(userId: string, closed: boolean) {
@@ -183,7 +179,7 @@ export class RoomManagementService {
         if (!game) {
             return [];
         }
-        return game.getUsers();
+        return game.usersArray;
     }
 
     getUsername(userId: string): string | undefined {
