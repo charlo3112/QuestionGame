@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { RESPONSE_OK } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -413,5 +413,57 @@ describe('CommunicationService', () => {
         expect(req.request.method).toBe('PATCH');
         expect(req.request.body).toEqual(updatedQuestionData);
         req.flush(updatedQuestionData);
+    });
+
+    it('should get histories', () => {
+        service.getHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should throw an error when getting histories', () => {
+        service.getHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should delete histories', () => {
+        service.deleteHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should throw an error when deleting histories', () => {
+        service.deleteHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
 });

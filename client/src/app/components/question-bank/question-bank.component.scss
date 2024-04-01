@@ -6,7 +6,7 @@
     flex-direction: row;
     align-items: center;
     color: white;
-    background-color: map.get(constant.$blue-palette, 500);
+    background-color: map.get(constant.$green-palette, 1000);
     margin: 1%;
     cursor: pointer;
 }
@@ -14,7 +14,7 @@
 .edit-button,
 .delete-button {
     color: white;
-    background-color: map.get(constant.$blue-palette, 500);
+    background-color: map.get(constant.$green-palette, 1000);
     border: none;
 }
 .edit-button:hover,
