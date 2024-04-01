@@ -253,6 +253,9 @@ export class ActiveGame {
                 };
                 this.historyService.addHistory(history);
             }
+        } else if (this.users.hostIsPlaying) {
+            await this.timer.start(WAITING_TIME_S);
+            await this.askQuestion();
         }
     }
 
@@ -260,14 +263,6 @@ export class ActiveGame {
         this.advanceState(GameState.Starting);
         await this.timer.start(WAITING_TIME_S);
         await this.askQuestion();
-    }
-
-    async testGame(): Promise<void> {
-        this.advanceState(GameState.Starting);
-        while (this.questionIndex < this.game.questions.length && this.isActive) {
-            await this.askQuestion();
-            await this.timer.start(TIME_CONFIRM_S);
-        }
     }
 
     private advanceState(state: GameState): void {
