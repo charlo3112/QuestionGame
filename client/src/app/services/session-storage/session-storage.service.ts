@@ -37,7 +37,7 @@ export class SessionStorageService {
     }
 
     get play(): boolean {
-        return this.user?.play || true;
+        return this.user?.play || false;
     }
 
     get login(): boolean {

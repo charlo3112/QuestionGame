@@ -230,4 +230,10 @@ export class Users {
         });
         return data;
     }
+
+    resetFinalResults() {
+        this.users.forEach((user) => {
+            user.resetFinalResults();
+        });
+    }
 }

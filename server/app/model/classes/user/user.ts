@@ -122,4 +122,8 @@ export class UserData {
         this.isBonus = true;
         this.addScore(score * bonusMultiplier);
     }
+
+    resetFinalResults() {
+        this.state = UserState.FinalResults;
+    }
 }

@@ -165,6 +165,7 @@ export class ActiveGame {
 
     showFinalResults(): void {
         this.advanceState(GameState.ShowFinalResults);
+        this.users.resetFinalResults();
         this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
     }
