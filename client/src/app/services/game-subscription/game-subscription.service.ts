@@ -11,7 +11,7 @@ import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
@@ -25,6 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
+    usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
     private timeSubscription: Subscription;
@@ -96,6 +97,10 @@ export class GameSubscriptionService implements OnDestroy {
         this.choicesSelected = [false, false, false, false];
     }
 
+    emitUserStats(usersStat: UserStat[]) {
+        this.usersStatSubject.next(usersStat);
+    }
+
     private subscribeToTimeUpdate() {
         this.timeSubscription = this.websocketService.getTime().subscribe({
             next: (time: number) => {
@@ -150,6 +155,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
+                this.emitUserStats(usersStat);
             },
         });
     }

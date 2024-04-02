@@ -162,6 +162,16 @@ export class GameService {
         return this.websocketService.getState();
     }
 
+    orderPlayers() {
+        this.usersStatValue.sort((a, b) => {
+            if (a.score === b.score) {
+                return a.username.localeCompare(b.username);
+            } else {
+                return b.score - a.score;
+            }
+        });
+    }
+
     private isResponseGood(): boolean {
         if (this.gameSubscriptionService.question === undefined) {
             return false;
