@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,8 +27,12 @@ import { GameService } from '@app/services/game/game.service';
         MatButtonModule,
     ],
 })
-export class ResultPageComponent implements OnDestroy {
+export class ResultPageComponent implements OnDestroy, OnInit {
     constructor(readonly gameService: GameService) {}
+
+    async ngOnInit() {
+        await this.gameService.init();
+    }
 
     ngOnDestroy() {
         this.gameService.leaveRoom();
