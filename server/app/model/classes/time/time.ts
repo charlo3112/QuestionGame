@@ -31,4 +31,8 @@ export class CountDownTimer {
     async stop() {
         this.stopped = true;
     }
+
+    reset() {
+        this.seconds = 0;
+    }
 }

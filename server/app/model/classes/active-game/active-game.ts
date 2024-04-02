@@ -26,6 +26,7 @@ export class ActiveGame {
     private isActive: boolean;
 
     // TODO: Justify the number of parameters for this constructor or reduce it
+    // eslint-disable-next-line max-params
     constructor(
         game: GameData,
         roomId: string,
@@ -133,6 +134,9 @@ export class ActiveGame {
             return;
         }
         this.users.handleChoice(userId, choice);
+        if (this.users.allHaveValidated) {
+            this.timer.reset();
+        }
         this.sendUserSelectedChoice();
     }
 
