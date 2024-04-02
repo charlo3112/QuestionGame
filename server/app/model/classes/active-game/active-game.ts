@@ -134,9 +134,7 @@ export class ActiveGame {
             return;
         }
         this.users.handleChoice(userId, choice);
-        if (this.users.allHaveValidated) {
-            this.timer.reset();
-        }
+
         this.sendUserSelectedChoice();
     }
 
