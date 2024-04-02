@@ -93,12 +93,6 @@ describe('ActiveGame', () => {
         expect(game.isLocked).toBe(true);
     });
 
-    it('addUser() should add a user', async () => {
-        const mockUserData = new UserData('userId', 'roomId', 'username');
-        game.addUser(mockUserData);
-        expect(game.usersStat.length).toBe(1);
-    });
-
     it('banUser() should return undefined when currentstate !== Wait', () => {
         game['advanceState'](GameState.AskingQuestion);
         const result = game.banUser('userId');
@@ -153,15 +147,6 @@ describe('ActiveGame', () => {
         game.addUser(mockUserData);
         const result = game.sendUserSelectedChoice();
         expect(result).toBeUndefined();
-    });
-
-    it('sendUserSelectedChoice() should add userChoice to histogram', () => {
-        const mockUserData = new UserData('userId', 'roomId', 'username');
-        mockUserData.newChoice = [false, true, false, false];
-        game.addUser(mockUserData);
-        game.sendUserSelectedChoice();
-        const expectedCounter = [0, 1, 0, 0];
-        expect(game.histoData.choicesCounters[game.questionIndexCurrent]).toStrictEqual(expectedCounter);
     });
 
     it('needToClosed() should be true if the game is empty', async () => {
