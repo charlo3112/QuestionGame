@@ -19,7 +19,7 @@ describe('RoomManagementService', () => {
     let mockHistoryService: HistoryService;
 
     beforeEach(() => {
-        mockGateway = { log: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn(), verbose: jest.fn() } as unknown as GameGatewaySend;
+        mockGateway = { sendUpdateUser: jest.fn() } as unknown as GameGatewaySend;
         mockHistoryService = {} as unknown as HistoryService;
         service = new RoomManagementService(mockGateway, mockHistoryService);
 
