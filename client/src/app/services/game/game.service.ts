@@ -1,234 +1,149 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
+import { HOST_NAME } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
-import { Score } from '@common/interfaces/score';
-import { User } from '@common/interfaces/user';
 import { UserStat } from '@common/interfaces/user-stat';
-import { UserConnectionUpdate } from '@common/interfaces/user-update';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable()
-export class GameService implements OnDestroy {
-    private state: GameState = GameState.NotStarted;
-    private question: Question | undefined = undefined;
-    private scoreValue: number = 0;
-    private choicesSelected: boolean[] = [false, false, false, false];
-    private username: string = '';
-    private roomCode: string = '';
-    private stateSubscription: Subscription;
-    private messagesSubscription: Subscription;
-    private timeSubscription: Subscription;
-    private scoreSubscription: Subscription;
-    private serverTime: number;
-    private title: string;
-    private showBonus: boolean;
-    private players: Set<string> = new Set();
-    private userSubscription: Subscription;
-    private usersStatSubscription: Subscription;
-    private histogramDataSubscription: Subscription;
-    private alertSubscription: Subscription;
-    private histogramData: HistogramData;
-    private usersStat: UserStat[] = [];
-    private play: boolean = false;
-
+export class GameService {
     constructor(
         private readonly websocketService: WebSocketService,
-        private readonly snackBarService: MatSnackBar,
-        private readonly routerService: Router,
-    ) {
-        this.subscribeToStateUpdate();
-        this.subscribeToClosedConnection();
-        this.subscribeToTimeUpdate();
-        this.subscribeToScoreUpdate();
-        this.subscribeToUserUpdate();
-        this.subscribeToUsersStatUpdate();
-        this.subscribeToHistogramData();
-        this.subscribeToAlert();
-    }
+        private readonly sessionStorageService: SessionStorageService,
+        private readonly gameSubscriptionService: GameSubscriptionService,
+    ) {}
 
     get gameTitle(): string {
-        return this.title;
+        return this.gameSubscriptionService.title;
     }
 
     get score(): number {
-        return this.scoreValue;
+        return this.gameSubscriptionService.scoreValue;
     }
 
     get isPlaying(): boolean {
-        return this.play;
+        return this.sessionStorageService.play;
     }
 
     get time(): number {
-        return this.serverTime;
+        return this.gameSubscriptionService.serverTime;
     }
 
     get maxTime(): number {
         const twenty = 20;
         return twenty;
     }
+
     get usersStatValue(): UserStat[] {
-        return this.usersStat;
+        return this.gameSubscriptionService.usersStat;
     }
+
     get currentState(): GameState {
-        return this.state;
+        return this.gameSubscriptionService.state;
     }
+
     get currentQuestion(): Question | undefined {
-        return this.question;
+        return this.gameSubscriptionService.question;
     }
+
     get message(): string | undefined {
-        if (this.state !== GameState.ShowResults || !this.isResponseGood() || !this.showBonus) return undefined;
+        if (this.gameSubscriptionService.state !== GameState.ShowResults || !this.isResponseGood() || !this.gameSubscriptionService.showBonus)
+            return undefined;
         return 'Vous avez un bonus!';
     }
+
     get histogram(): HistogramData {
-        return this.histogramData;
+        return this.gameSubscriptionService.histogramData;
     }
 
     get usernameValue(): string {
-        return this.username;
+        return this.sessionStorageService.username;
     }
 
     get roomCodeValue(): string {
-        return this.roomCode;
+        return this.sessionStorageService.roomId;
     }
 
     get isHost(): boolean {
-        if (this.username === HOST_NAME) {
+        if (this.sessionStorageService.username === HOST_NAME) {
             return true;
         }
         return false;
     }
 
     get playersList(): Set<string> {
-        return this.players;
-    }
-
-    get test(): boolean {
-        return sessionStorage.getItem('test') === 'true' ? true : false;
-    }
-
-    set test(test: boolean) {
-        sessionStorage.setItem('test', test ? 'true' : 'false');
+        return this.gameSubscriptionService.players;
     }
 
     async init() {
-        const data = sessionStorage.getItem('user');
-        if (!data) {
-            this.routerService.navigate(['/']);
-            return;
-        }
-        const user: User = JSON.parse(data);
-        const res = await this.websocketService.rejoinRoom(user);
+        const res = await this.sessionStorageService.initUser();
         if (!res.ok) {
-            sessionStorage.removeItem('user');
-            this.snackBarService.open(res.error, undefined, { duration: SNACKBAR_DURATION });
-            if (this.test) {
-                this.routerService.navigate(['/new']);
-            } else {
-                this.routerService.navigate(['/']);
-            }
             return;
         }
-        this.setState(res.value);
 
-        sessionStorage.setItem('user', JSON.stringify({ ...user, userId: this.websocketService.id }));
-
-        this.username = user.name;
-        this.roomCode = user.roomId;
-        const score = await this.websocketService.getScore();
-        this.scoreValue = score.score;
-        this.showBonus = score.bonus;
-        this.play = user.play;
-        this.players.clear();
-        (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
-        this.players.delete(HOST_NAME);
+        await this.gameSubscriptionService.initSubscriptions(res.value);
     }
 
-    ngOnDestroy() {
-        if (this.stateSubscription) {
-            this.stateSubscription.unsubscribe();
-        }
-        if (this.messagesSubscription) {
-            this.messagesSubscription.unsubscribe();
-        }
-        if (this.timeSubscription) {
-            this.timeSubscription.unsubscribe();
-        }
-        if (this.scoreSubscription) {
-            this.scoreSubscription.unsubscribe();
-        }
-        if (this.userSubscription) {
-            this.userSubscription.unsubscribe();
-        }
-        if (this.usersStatSubscription) {
-            this.usersStatSubscription.unsubscribe();
-        }
-        if (this.histogramDataSubscription) {
-            this.histogramDataSubscription.unsubscribe();
-        }
-        if (this.alertSubscription) {
-            this.alertSubscription.unsubscribe();
-        }
+    reset() {
+        this.gameSubscriptionService.reset();
     }
+
     onKickPlayer(player: string) {
-        this.players.delete(player);
+        this.gameSubscriptionService.players.delete(player);
         this.websocketService.banUser(player);
     }
+
     leaveRoom() {
-        if (this.state !== GameState.Starting) {
+        if (this.gameSubscriptionService.state !== GameState.Starting) {
             this.websocketService.leaveRoom();
-            sessionStorage.removeItem('user');
-            this.reset();
+            this.sessionStorageService.removeUser();
+            this.gameSubscriptionService.reset();
         }
     }
-    reset() {
-        this.question = undefined;
-        this.state = GameState.NotStarted;
-        this.scoreValue = 0;
-        this.choicesSelected = [false, false, false, false];
-    }
+
     isChoiceSelected(index: number): boolean {
-        return this.choicesSelected[index];
+        return this.gameSubscriptionService.choicesSelected[index];
     }
+
     isChoiceCorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
+        if (this.gameSubscriptionService.state !== GameState.ShowResults && this.gameSubscriptionService.state !== GameState.LastQuestion) {
             return false;
         }
-        if (this.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined) {
             return false;
         }
-        const choice = this.question.choices[index];
+        const choice = this.gameSubscriptionService.question.choices[index];
         return choice.isCorrect as boolean;
     }
 
     isChoiceIncorrect(index: number): boolean {
-        if (this.state !== GameState.ShowResults && this.state !== GameState.LastQuestion) {
+        if (this.gameSubscriptionService.state !== GameState.ShowResults && this.gameSubscriptionService.state !== GameState.LastQuestion) {
             return false;
         }
-        if (this.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined) {
             return false;
         }
-        const choice = this.question.choices[index];
+        const choice = this.gameSubscriptionService.question.choices[index];
         return !choice.isCorrect;
     }
 
     selectChoice(index: number) {
-        if (this.state === GameState.AskingQuestion) {
-            this.choicesSelected[index] = !this.choicesSelected[index];
-            this.websocketService.sendChoice(this.choicesSelected);
+        if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
+            this.gameSubscriptionService.choicesSelected[index] = !this.gameSubscriptionService.choicesSelected[index];
+            this.websocketService.sendChoice(this.gameSubscriptionService.choicesSelected);
         }
     }
 
     confirmQuestion() {
-        if (this.state === GameState.AskingQuestion) {
+        if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
             this.websocketService.validateChoice();
         }
-        this.state = GameState.WaitingResults;
+        this.gameSubscriptionService.state = GameState.WaitingResults;
     }
 
     nextQuestion() {
@@ -247,121 +162,17 @@ export class GameService implements OnDestroy {
         return this.websocketService.getState();
     }
 
-    private subscribeToTimeUpdate() {
-        this.timeSubscription = this.websocketService.getTime().subscribe({
-            next: (time: number) => {
-                this.serverTime = time;
-            },
-        });
-    }
-
     private isResponseGood(): boolean {
-        if (this.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined) {
             return false;
         }
 
-        const length = this.question.choices.length;
+        const length = this.gameSubscriptionService.question.choices.length;
         for (let i = 0; i < length; ++i) {
-            if (this.choicesSelected[i] !== this.question.choices[i].isCorrect) {
+            if (this.gameSubscriptionService.choicesSelected[i] !== this.gameSubscriptionService.question.choices[i].isCorrect) {
                 return false;
             }
         }
         return true;
-    }
-
-    private subscribeToClosedConnection() {
-        this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
-            next: (message: string) => {
-                this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-                if (this.test || this.routerService.url === '/new') {
-                    this.routerService.navigate(['/new']);
-                } else {
-                    this.routerService.navigate(['/']);
-                }
-            },
-        });
-    }
-
-    private subscribeToStateUpdate() {
-        this.stateSubscription = this.websocketService.getState().subscribe({
-            next: (state: GameStatePayload) => {
-                this.setState(state);
-            },
-        });
-    }
-
-    private subscribeToScoreUpdate() {
-        this.scoreSubscription = this.websocketService.getScoreUpdate().subscribe({
-            next: (score: Score) => {
-                this.scoreValue = score.score;
-                this.showBonus = score.bonus;
-            },
-        });
-    }
-
-    private subscribeToUserUpdate() {
-        this.userSubscription = this.websocketService.getUserUpdate().subscribe({
-            next: (userUpdate: UserConnectionUpdate) => {
-                if (userUpdate.isConnected) {
-                    this.players.add(userUpdate.username);
-                } else {
-                    this.players.delete(userUpdate.username);
-                }
-            },
-        });
-    }
-
-    private subscribeToUsersStatUpdate() {
-        this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
-            next: (usersStat: UserStat[]) => {
-                this.usersStat = usersStat;
-            },
-        });
-    }
-
-    private subscribeToHistogramData() {
-        this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
-            next: (histogramData: HistogramData) => {
-                this.histogramData = histogramData;
-            },
-        });
-    }
-    private setState(state: GameStatePayload) {
-        this.state = state.state;
-        if (this.state === GameState.NotStarted) {
-            return;
-        }
-        if (this.state === GameState.Wait) {
-            if (this.routerService.url !== '/loading') {
-                this.routerService.navigate(['/loading']);
-            }
-            return;
-        }
-        if (this.state === GameState.ShowFinalResults) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
-            return;
-        }
-        if (this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-            this.choicesSelected = [false, false, false, false];
-        }
-        if (this.state === GameState.ShowResults) {
-            this.question = state.payload as Question;
-        }
-        if (this.state === GameState.Starting) {
-            this.title = state.payload as string;
-        }
-        if (this.routerService.url !== '/game') {
-            this.routerService.navigate(['/game']);
-        }
-    }
-    private subscribeToAlert() {
-        this.alertSubscription = this.websocketService.getAlert().subscribe({
-            next: (message: string) => {
-                this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
-            },
-        });
     }
 }

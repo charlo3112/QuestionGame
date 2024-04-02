@@ -15,6 +15,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
+import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { QuestionInsertionService } from '@app/services/question-creation/question-insertion.service';
@@ -69,25 +70,28 @@ export class CreatePageComponent implements OnInit {
         private readonly communicationService: CommunicationService,
         private readonly gameCreationService: GameCreationService,
         private readonly questionInsertionService: QuestionInsertionService,
+        private readonly adminService: AdminService,
         private route: ActivatedRoute,
         private snackBar: MatSnackBar,
         private router: Router,
     ) {}
+
     ngOnInit() {
-        if (this.verifyLogin()) {
-            this.route.paramMap.subscribe((params) => {
-                const gameId = params.get('id');
-                if (gameId) {
-                    this.pageTitle = "Édition d'un jeu existant";
-                    this.loadGameData(gameId);
-                } else {
-                    this.pageTitle = "Création d'un nouveau jeu";
-                    this.resetForm();
-                }
-            });
-        } else {
+        if (!this.adminService.login) {
             this.router.navigate(['/admin']);
+            return;
         }
+
+        this.route.paramMap.subscribe((params) => {
+            const gameId = params.get('id');
+            if (gameId) {
+                this.pageTitle = "Édition d'un jeu existant";
+                this.loadGameData(gameId);
+            } else {
+                this.pageTitle = "Création d'un nouveau jeu";
+                this.resetForm();
+            }
+        });
     }
     insertQuestion(question: Question): void {
         this.questionInsertionService.insertQuestion(question, this.questions);
@@ -140,9 +144,6 @@ export class CreatePageComponent implements OnInit {
 
     async updateGame(game: Game): Promise<void> {
         this.gameCreationService.updateGame(game);
-    }
-    verifyLogin(): boolean {
-        return this.communicationService.verifyLogin(this.login);
     }
 
     loadGameData(gameId: string) {

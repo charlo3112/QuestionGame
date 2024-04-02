@@ -53,6 +53,7 @@ export class AdminPageComponent implements OnInit {
         this.login = this.adminService.login;
         await this.loadGames();
     }
+
     deleteGame(id: string) {
         const ERROR_DELETING_GAME = 'Erreur lors de la suppression du jeu';
         this.adminService

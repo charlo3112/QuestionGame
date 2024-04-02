@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
@@ -24,10 +25,12 @@ export class JoinGamePageComponent {
         name: new FormControl('', [Validators.required]),
     });
 
+    // eslint-disable-next-line max-params
     constructor(
         private webSocketService: WebSocketService,
         private snackBar: MatSnackBar,
         private router: Router,
+        private readonly sessionStorageService: SessionStorageService,
     ) {}
 
     async onSubmit() {
@@ -44,7 +47,7 @@ export class JoinGamePageComponent {
             const res = await this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
             if (res.ok) {
                 const user = { name: this.connectForm.value.name, roomId: this.connectForm.value.code, userId: this.webSocketService.id, play: true };
-                sessionStorage.setItem('user', JSON.stringify(user));
+                this.sessionStorageService.user = user;
                 this.router.navigate(['/loading']);
             } else {
                 this.snackBar.open(res.error, undefined, {
