@@ -4,10 +4,8 @@
 </mat-toolbar>
 <div class="content">
     <div class="accordion-container">
-        <mat-accordion>
-            <div *ngFor="let game of games; index as i">
-                <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game)" (testGame)="testGame(game)"> </app-startgame-expansion>
-            </div>
+        <mat-accordion *ngFor="let game of games; index as i">
+            <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game)" (testGame)="testGame(game)"> </app-startgame-expansion>
         </mat-accordion>
     </div>
 </div>

@@ -10,6 +10,10 @@ import { Question } from '@common/interfaces/question';
 export class AdminService {
     constructor(private readonly communicationService: CommunicationService) {}
 
+    get login(): boolean {
+        return JSON.parse(sessionStorage.getItem('login') || 'false');
+    }
+
     async deleteGame(id: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.communicationService.deleteGame(id).subscribe({
