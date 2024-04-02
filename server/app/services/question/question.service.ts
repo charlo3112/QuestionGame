@@ -21,6 +21,15 @@ export class QuestionService {
         return questions;
     }
 
+    async getAllQCMQuestions(): Promise<QuestionData[]> {
+        const questions = await this.questionModel.find<QuestionData>({ type: 'QCM' });
+        for (const question of questions) {
+            // eslint-disable-next-line no-underscore-dangle
+            question.mongoId = question._id;
+        }
+        return questions;
+    }
+
     async getMongoId(text: string): Promise<string> {
         // The underscore in _id is needed because it's a property of the mongoDB object
 

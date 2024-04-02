@@ -7,10 +7,11 @@ import { Router, RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
-import { Subscription } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Component({
@@ -22,45 +23,49 @@ import { tap } from 'rxjs/operators';
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];
-
     title: string = 'Liste de jeux';
-    private subscription = new Subscription();
+    canCreateRandom = true;
 
     // eslint-disable-next-line max-params
     constructor(
         private router: Router,
         private readonly communicationService: CommunicationService,
+        private readonly sessionStorageService: SessionStorageService,
         private snackBar: MatSnackBar,
         private webSocketService: WebSocketService,
         private gameService: GameService,
-    ) {
-        this.loadGames();
-        this.gameService.reset();
-    }
+    ) {}
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+        await this.loadGames();
+        await this.verifyRandomGame();
+        this.gameService.reset();
         this.gameService.leaveRoom();
     }
 
-    loadGames(): void {
+    async loadGames(): Promise<void> {
         const ERROR_FETCHING_GAMES = "Erreur lors de l'obtention des jeux";
-        this.subscription.add(
-            this.communicationService.getGames().subscribe({
-                next: (result: Result<Game[]>) => {
-                    if (result.ok && result.value) {
-                        this.games = result.value;
-                        this.games.forEach((game) => {
-                            game.image = 'assets/logo.png';
-                        });
-                    } else {
-                        this.openSnackBar(ERROR_FETCHING_GAMES);
-                    }
-                },
-                error: () => {
-                    this.openSnackBar(ERROR_FETCHING_GAMES);
-                },
-            }),
-        );
+        try {
+            const result = await firstValueFrom(this.communicationService.getGames());
+            if (result.ok && result.value) {
+                this.games = result.value;
+                this.games.forEach((game) => {
+                    game.image = 'assets/logo.png';
+                });
+            } else {
+                this.openSnackBar(ERROR_FETCHING_GAMES);
+            }
+        } catch (error) {
+            this.openSnackBar(ERROR_FETCHING_GAMES);
+        }
+    }
+
+    async verifyRandomGame(): Promise<void> {
+        try {
+            this.canCreateRandom = await firstValueFrom(this.communicationService.canCreateRandom());
+        } catch (error) {
+            this.openSnackBar('Erreur lors de la vérification de la création de jeu aléatoire');
+        }
     }
 
     openSnackBar(message: string) {
@@ -89,8 +94,8 @@ export class StartGamePageComponent implements OnInit {
                     const newGame = result.value;
                     if (newGame.visibility) {
                         const user = await this.webSocketService.createRoom(newGame.gameId);
-                        sessionStorage.setItem('user', JSON.stringify(user));
-                        this.gameService.test = false;
+                        this.sessionStorageService.user = user;
+                        this.sessionStorageService.test = false;
                         this.router.navigate(['/loading']);
                     } else {
                         this.openSnackBar(GAME_INVISIBLE);
@@ -98,6 +103,20 @@ export class StartGamePageComponent implements OnInit {
                     }
                 }
             });
+    }
+
+    async startRandomGame() {
+        if (this.canCreateRandom) {
+            const user = await this.webSocketService.startRandom();
+            if (user) {
+                this.sessionStorageService.user = user;
+                this.sessionStorageService.test = false;
+                this.router.navigate(['/loading']);
+                return;
+            }
+        }
+        this.openSnackBar('Impossible de créer un jeu aléatoire');
+        await this.verifyRandomGame();
     }
 
     testGame(game: Game) {
@@ -119,9 +138,9 @@ export class StartGamePageComponent implements OnInit {
                 if (result.ok && result.value) {
                     const newGame = result.value;
                     if (newGame.visibility) {
-                        this.gameService.test = true;
+                        this.sessionStorageService.test = true;
                         const user = await this.webSocketService.testGame(newGame.gameId);
-                        sessionStorage.setItem('user', JSON.stringify(user));
+                        this.sessionStorageService.user = user;
                         this.webSocketService.startTest();
                         this.router.navigate(['/game']);
                     } else {

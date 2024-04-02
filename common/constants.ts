@@ -56,4 +56,6 @@ export const LISTEN_SCORE_UPDATE = 5;
 export const LISTEN_USERS_STAT = 6;
 export const LISTEN_HISTOGRAM_DATA = 7;
 
+export const NUMBER_QUESTIONS_RANDOM = 5;
+
 export const BONUS_TIME = 1000;
