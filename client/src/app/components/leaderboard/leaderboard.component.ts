@@ -55,6 +55,8 @@ export class LeaderboardComponent {
     }
 
     setOptionSort(sortOption: string, sortOrder: string): void {
+        this.selectedSort = sortOption;
+        this.selectedSortOrder = sortOrder;
         const ascending = sortOrder === 'asc';
         switch (sortOption) {
             case 'user':
@@ -65,8 +67,6 @@ export class LeaderboardComponent {
                 break;
             case 'state':
                 this.gameService.sortOption = ascending ? SortOption.StateAscending : SortOption.StateDescending;
-                break;
-            default:
                 break;
         }
     }

@@ -9,6 +9,7 @@ import { StartGameExpansionComponent } from '@app/components/startgame-expansion
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
 import { Game } from '@common/interfaces/game';
+import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
 
@@ -21,6 +22,9 @@ describe('StartGamePageComponent', () => {
     beforeEach(() => {
         mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGames', 'canCreateRandom']);
         mockGameService = jasmine.createSpyObj('GameService', ['reset', 'leaveRoom', 'startGame', 'startRandomGame', 'testGame']);
+        mockGameService.startGame.and.returnValue(Promise.resolve(true));
+        mockGameService.startRandomGame.and.returnValue(Promise.resolve(true));
+        mockGameService.testGame.and.returnValue(Promise.resolve(true));
 
         TestBed.configureTestingModule({
             imports: [
@@ -40,9 +44,19 @@ describe('StartGamePageComponent', () => {
             ],
         }).compileComponents();
 
+        const mockGame: Game = {
+            gameId: '123',
+            visibility: true,
+            title: 'Titre du jeu',
+            description: 'Description du jeu',
+            duration: 30,
+            lastModification: '2021-06-01T00:00:00.000Z',
+            questions: [],
+        };
+
         fixture = TestBed.createComponent(StartGamePageComponent);
         component = fixture.componentInstance;
-        mockCommunicationService.getGames.and.returnValue(of({ ok: true, value: [] }));
+        mockCommunicationService.getGames.and.returnValue(of({ ok: true, value: [mockGame] }));
         mockCommunicationService.canCreateRandom.and.returnValue(of(true));
         fixture.detectChanges();
     });
@@ -66,6 +80,13 @@ describe('StartGamePageComponent', () => {
         expect(component['snackBar'].open).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux", undefined, jasmine.any(Object));
     });
 
+    it('should handle errors when loading games return ok=false', async () => {
+        mockCommunicationService.getGames.and.returnValue(of({ ok: false, error: '' } as Result<Game[]>));
+        spyOn(component['snackBar'], 'open');
+        await component.loadGames();
+        expect(component['snackBar'].open).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux", undefined, jasmine.any(Object));
+    });
+
     it('should handle errors when verifying random game', async () => {
         mockCommunicationService.canCreateRandom.and.returnValue(throwError(() => new Error('Verification failed')));
         spyOn(component['snackBar'], 'open');
@@ -83,6 +104,14 @@ describe('StartGamePageComponent', () => {
         await component.startRandomGame();
         expect(mockGameService.startRandomGame).not.toHaveBeenCalled();
         expect(component['snackBar'].open).toHaveBeenCalledWith('Impossible de créer un jeu aléatoire', undefined, jasmine.any(Object));
+    });
+
+    it('should start random game if canCreateRandom is true', async () => {
+        spyOn(component['snackBar'], 'open');
+        await component.verifyRandomGame();
+        await component.startRandomGame();
+        expect(mockGameService.startRandomGame).toHaveBeenCalled();
+        expect(component['snackBar'].open).not.toHaveBeenCalled();
     });
 
     it('should reload games if starting a game fails', async () => {
