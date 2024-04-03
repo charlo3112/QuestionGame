@@ -24,7 +24,7 @@ describe('StartGamePageComponent', () => {
     let mockGameService: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGames', 'getGameByID']);
+        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGames', 'getGameByID', 'canCreateRandom']);
         communicationServiceSpy.getGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
         mockGameService = jasmine.createSpyObj('GameService', ['leaveRoom', 'reset', 'startGame', 'startRandomGame', 'testGame']);
         mockGameService.testGame.and.returnValue(Promise.resolve(true));
@@ -41,6 +41,7 @@ describe('StartGamePageComponent', () => {
             questions: [],
         };
         communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockGame }));
+        communicationServiceSpy.canCreateRandom.and.returnValue(of(true));
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         await TestBed.configureTestingModule({
@@ -102,40 +103,31 @@ describe('StartGamePageComponent', () => {
         expect(component.openSnackBar).toHaveBeenCalled();
     });
 
-    it('should show snackbar when testGame is failed', async () => {
+    it('should reload game when testGame is failed', async () => {
         mockGameService.testGame.and.returnValue(Promise.resolve(false));
-        spyOn(component, 'openSnackBar');
         spyOn(component, 'loadGames');
-        component.testGame(GAME_PLACEHOLDER);
-        expect(component.openSnackBar).toHaveBeenCalled();
+        await component.testGame(GAME_PLACEHOLDER);
         expect(component.loadGames).toHaveBeenCalled();
     });
 
     it('should start game when testGame is successful', async () => {
         spyOn(component, 'loadGames');
-        component.testGame(GAME_PLACEHOLDER);
+        await component.testGame(GAME_PLACEHOLDER);
         expect(component.loadGames).not.toHaveBeenCalled();
     });
 
-    it('should start game when startGame is successful', async () => {
-        spyOn(component, 'loadGames');
-        component.startGame(GAME_PLACEHOLDER);
-        expect(component.loadGames).not.toHaveBeenCalled();
-    });
-
-    it('should show snackbar when startGame is failed', async () => {
+    it('should reload game when  startGame is failed', async () => {
         mockGameService.startGame.and.returnValue(Promise.resolve(false));
-        spyOn(component, 'openSnackBar');
         spyOn(component, 'loadGames');
-        component.startGame(GAME_PLACEHOLDER);
-        expect(component.openSnackBar).toHaveBeenCalled();
+        await component.startGame(GAME_PLACEHOLDER);
         expect(component.loadGames).toHaveBeenCalled();
     });
 
     it('should start random game when canCreateRandom is true', async () => {
         component.canCreateRandom = true;
+        mockGameService.startRandomGame.and.returnValue(Promise.resolve(true));
         spyOn(component, 'verifyRandomGame');
-        component.startRandomGame();
+        await component.startRandomGame();
         expect(component.verifyRandomGame).not.toHaveBeenCalled();
     });
 
@@ -143,7 +135,7 @@ describe('StartGamePageComponent', () => {
         component.canCreateRandom = false;
         spyOn(component, 'openSnackBar');
         spyOn(component, 'verifyRandomGame');
-        component.startRandomGame();
+        await component.startRandomGame();
         expect(component.openSnackBar).toHaveBeenCalled();
         expect(component.verifyRandomGame).toHaveBeenCalled();
     });
@@ -152,7 +144,7 @@ describe('StartGamePageComponent', () => {
         component.canCreateRandom = false;
         spyOn(component, 'openSnackBar');
         spyOn(component, 'verifyRandomGame');
-        component.startRandomGame();
+        await component.startRandomGame();
         expect(component.openSnackBar).toHaveBeenCalled();
         expect(component.verifyRandomGame).toHaveBeenCalled();
     });
