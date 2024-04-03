@@ -23,7 +23,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:create')
     async handleCreateGame(client: Socket, id: string): Promise<User> {
         const game = await this.gamesService.getGameById(id);
-        if (!game) {
+        if (!game || !game.visibility) {
             return null;
         }
         const user = await this.roomService.createGame(client.id, game);
@@ -48,7 +48,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:test')
     async handleTestGame(client: Socket, id: string) {
         const game = await this.gamesService.getGameById(id);
-        if (!game) {
+        if (!game || !game.visibility) {
             return null;
         }
         const user = await this.roomService.testGame(client.id, game);
