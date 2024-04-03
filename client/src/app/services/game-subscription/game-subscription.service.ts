@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
@@ -24,6 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
+    sortOption: SortOption = SortOption.UsernameAscending;
     private currentState: GameState = GameState.NotStarted;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
@@ -140,6 +142,27 @@ export class GameSubscriptionService implements OnDestroy {
         this.choicesSelected = [false, false, false, false];
     }
 
+    sortUsers(): void {
+        this.usersStat.sort((a, b) => {
+            switch (this.sortOption) {
+                case SortOption.UsernameAscending:
+                    return a.username.localeCompare(b.username);
+                case SortOption.UsernameDescending:
+                    return b.username.localeCompare(a.username);
+                case SortOption.ScoreAscending:
+                    return a.score - b.score;
+                case SortOption.ScoreDescending:
+                    return b.score - a.score;
+                case SortOption.StateAscending:
+                    return a.state - b.state;
+                case SortOption.StateDescending:
+                    return b.state - a.state;
+                default:
+                    return 0;
+            }
+        });
+    }
+
     private subscribeToTimeUpdate() {
         this.timeSubscription = this.websocketService.getTime().subscribe({
             next: (time: number) => {
@@ -194,6 +217,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
+                this.sortUsers();
             },
         });
     }
