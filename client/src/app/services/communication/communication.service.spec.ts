@@ -187,19 +187,6 @@ describe('CommunicationService', () => {
         req.flush('');
     });
 
-    it('should return the stored login value when login is true and there is a stored login in sessionStorage', () => {
-        const storedLogin = true;
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(storedLogin));
-        const result = service.verifyLogin(true);
-        expect(result).toBe(storedLogin);
-    });
-
-    it('should return false when login is true and there is no stored login in sessionStorage', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(null);
-        const result = service.verifyLogin(true);
-        expect(result).toBeFalse();
-    });
-
     it('should throw an error when logging in', () => {
         const mockPassword = 'password';
 

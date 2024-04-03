@@ -1,12 +1,14 @@
 // We need to disable max-lines because we need every single test to test thoroughly the service and have a good coverage
 /* eslint-disable max-lines */
 import { HttpClientModule } from '@angular/common/http';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
-import { TimeService } from '@app/services/time/time.service';
+import { Router, RouterModule } from '@angular/router';
+import { routes } from '@app/modules/app-routing.module';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { HOST_NAME, MAX_TIME_RETURN, MOCK_CHOICES_COUNTER, SNACKBAR_DURATION, TIME_RETURN } from '@common/constants';
+import { HOST_NAME, MAX_TIME_RETURN, MOCK_CHOICES_COUNTER, TIME_RETURN } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { GAME_PLACEHOLDER } from '@common/interfaces/game';
@@ -16,33 +18,24 @@ import { of } from 'rxjs';
 import { GameService } from './game.service';
 import SpyObj = jasmine.SpyObj;
 
-class TimeServiceStub {
-    get time(): number {
-        return 2;
-    }
-    startTimer(startValue: number, execute: () => void) {
-        setTimeout(execute, 0);
-    }
-    // Necessary for unit tests where stubs with empty functions are needed to fulfill interfaces without implementing specific logic.
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    stopTimer() {}
-    setTimeout(execute: () => void, timeMs: number) {
-        setTimeout(execute, timeMs);
-    }
-}
-
 describe('Game', () => {
     let service: GameService;
-    const timeService: TimeServiceStub = new TimeServiceStub();
-    const mockRouter = {
-        navigate: jasmine.createSpy('navigate'),
-    };
-    let snackBarSpy: SpyObj<MatSnackBar>;
     let webSocketSpy: SpyObj<WebSocketService>;
     let mockQuestion: Question;
+    let gameSubSpy: SpyObj<GameSubscriptionService>;
+    let mockState: GameState = GameState.NotStarted;
+    let sessionStorageServiceSpy: SpyObj<SessionStorageService>;
+    let snackSpy: jasmine.SpyObj<MatSnackBar>;
+    let routerSpy: jasmine.SpyObj<Router>;
+
+    let mockUsername = 'user123';
+    let mockRoomId = 'room123';
+    const mockPlay = true;
 
     beforeEach(() => {
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+        snackSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+        routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
         webSocketSpy = jasmine.createSpyObj('WebSocketService', [
             'leaveRoom',
             'rejoinRoom',
@@ -98,19 +91,47 @@ describe('Game', () => {
                 ],
             }),
         );
+
+        sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['initUser', 'removeUser'], ['play', 'username', 'roomId']);
+        Object.defineProperty(sessionStorageServiceSpy, 'play', {
+            get: jasmine.createSpy('play.get').and.callFake(() => mockPlay),
+        });
+        Object.defineProperty(sessionStorageServiceSpy, 'username', {
+            get: jasmine.createSpy('username.get').and.callFake(() => mockUsername),
+        });
+        Object.defineProperty(sessionStorageServiceSpy, 'roomId', {
+            get: jasmine.createSpy('roomId.get').and.callFake(() => mockRoomId),
+        });
+
+        gameSubSpy = jasmine.createSpyObj('GameSubscriptionService', ['initSubscriptions', 'reset']);
+        gameSubSpy.serverTime = 0;
+        gameSubSpy.showBonus = false;
+        gameSubSpy.scoreValue = 0;
+        gameSubSpy.players = new Set();
+        gameSubSpy.histogramData = { question: [], indexCurrentQuestion: 0, choicesCounters: [] };
+        gameSubSpy.usersStat = [];
+        gameSubSpy.question = undefined;
+        gameSubSpy.choicesSelected = [false, false, false, false];
+        Object.defineProperty(gameSubSpy, 'state', {
+            get: jasmine.createSpy('state.get').and.callFake(() => mockState),
+            set: jasmine.createSpy('state.set').and.callFake((value) => {
+                mockState = value;
+            }),
+        });
+
         TestBed.configureTestingModule({
-            imports: [HttpClientModule],
+            imports: [HttpClientModule, RouterModule.forRoot(routes)],
             providers: [
                 GameService,
-                { provide: Router, useValue: mockRouter },
-                { provide: TimeService, useValue: timeService },
-                { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: GameSubscriptionService, useValue: gameSubSpy },
                 { provide: WebSocketService, useValue: webSocketSpy },
+                { provide: SessionStorageService, useValue: sessionStorageServiceSpy },
+                { provide: MatSnackBar, useValue: snackSpy },
+                { provide: Router, useValue: routerSpy },
             ],
         });
         service = TestBed.inject(GameService);
-        const mockUser = { name: 'John Doe', roomId: '2222', userId: 'user123' };
-        sessionStorage.setItem('user', JSON.stringify(mockUser));
+
         mockQuestion = {
             text: 'Quelle est la capitale de la France ?',
             choices: [
@@ -137,24 +158,25 @@ describe('Game', () => {
     });
 
     it('should not return a question when GameState is not AskingQuestion or ShowResults', () => {
-        service['state'] = GameState.GameOver;
+        gameSubSpy.state = GameState.GameOver;
         expect(service.currentQuestion).toBeUndefined();
     });
 
     it('should return the state of the game', () => {
         service.reset();
+        gameSubSpy.state = GameState.NotStarted;
         expect(service.currentState).toEqual(GameState.NotStarted);
     });
 
     it('should return the current question', () => {
-        service['question'] = structuredClone(GAME_PLACEHOLDER).questions[0];
+        gameSubSpy.question = structuredClone(GAME_PLACEHOLDER).questions[0];
         expect(service.currentQuestion).toEqual(structuredClone(GAME_PLACEHOLDER).questions[0]);
     });
 
     it('should return the current question when GameState is ShowResults', () => {
         const currentQuestion = structuredClone(GAME_PLACEHOLDER).questions[0];
-        service['question'] = currentQuestion;
-        service['state'] = GameState.ShowResults;
+        gameSubSpy.question = currentQuestion;
+        gameSubSpy.state = GameState.ShowResults;
         expect(service.currentQuestion).toEqual(currentQuestion);
     });
 
@@ -174,8 +196,8 @@ describe('Game', () => {
                 isCorrect: index === 0,
             })),
         };
-        service['question'] = correctQuestion;
-        service['state'] = GameState.ShowResults;
+        gameSubSpy.question = correctQuestion;
+        gameSubSpy.state = GameState.ShowResults;
         service.selectChoice(0);
         expect(service.isChoiceCorrect(0)).toBeTruthy();
     });
@@ -186,7 +208,7 @@ describe('Game', () => {
 
     it('should return false when the choice is correct', () => {
         service.selectChoice(0);
-        service['state'] = GameState.ShowResults;
+        gameSubSpy.state = GameState.ShowResults;
         expect(service.isChoiceIncorrect(0)).toBeFalsy();
     });
 
@@ -202,32 +224,32 @@ describe('Game', () => {
                 { text: 'Guillaume en a bu à 9h du matin', isCorrect: true },
             ],
         };
-        service['question'] = questionWithIncorrectChoice;
-        service['state'] = GameState.ShowResults;
+        gameSubSpy.question = questionWithIncorrectChoice;
+        gameSubSpy.state = GameState.ShowResults;
         service.selectChoice(2);
         expect(service.isChoiceIncorrect(2)).toBeTruthy();
     });
 
     it('should not allow to select choice when the state is not asking question', () => {
-        service['state'] = GameState.ShowResults;
+        gameSubSpy.state = GameState.ShowResults;
         service.selectChoice(0);
-        expect(service['choicesSelected'][0]).toBeFalsy();
+        expect(gameSubSpy.choicesSelected[0]).toBeFalsy();
     });
 
     it('should allow to select choice when the state is asking question', () => {
-        service['state'] = GameState.AskingQuestion;
+        gameSubSpy.state = GameState.AskingQuestion;
         service.selectChoice(0);
-        expect(service['choicesSelected'][0]).toBeTruthy();
+        expect(gameSubSpy.choicesSelected[0]).toBeTruthy();
     });
 
     it('should not confirm a question when the state is not AskingQuestion', () => {
-        service['state'] = GameState.GameOver;
+        gameSubSpy.state = GameState.GameOver;
         service.confirmQuestion();
         expect(service.currentState).not.toBe(GameState.ShowResults);
     });
 
     it('should confirm a question', () => {
-        service['state'] = GameState.AskingQuestion;
+        gameSubSpy.state = GameState.AskingQuestion;
         service.confirmQuestion();
         expect(webSocketSpy.validateChoice).toHaveBeenCalled();
     });
@@ -246,13 +268,13 @@ describe('Game', () => {
 
     it('should return the current game title', () => {
         const expectedTitle = 'Titre du Jeu Test';
-        service['title'] = expectedTitle;
+        gameSubSpy.title = expectedTitle;
         expect(service.gameTitle).toEqual(expectedTitle);
     });
 
     it('should return the current room code value', () => {
         const expectedRoomCode = '2323';
-        service['roomCode'] = expectedRoomCode;
+        mockRoomId = expectedRoomCode;
         expect(service.roomCodeValue).toEqual(expectedRoomCode);
     });
 
@@ -262,100 +284,65 @@ describe('Game', () => {
 
     it('should return the current game title', () => {
         const expectedTitle = 'Titre du Jeu Test';
-        service['title'] = expectedTitle;
+        gameSubSpy.title = expectedTitle;
         expect(service.gameTitle).toEqual(expectedTitle);
     });
 
     it('should return the current room code value', () => {
         const expectedRoomCode = '2323';
-        service['roomCode'] = expectedRoomCode;
+        mockRoomId = expectedRoomCode;
         expect(service.roomCodeValue).toEqual(expectedRoomCode);
     });
 
     it('should return true if the username is HOST_NAME', () => {
-        service['username'] = HOST_NAME;
+        mockUsername = HOST_NAME;
         expect(service.isHost).toBeTruthy();
     });
 
     it('should return false if the username is not HOST_NAME', () => {
-        service['username'] = 'guest';
+        mockUsername = 'guest';
         expect(service.isHost).toBeFalsy();
     });
 
     it('should return the list of players', () => {
         const players = new Set<string>(['player1', 'player2', 'player3']);
-        service['players'] = players;
+        gameSubSpy.players = players;
         expect(service.playersList).toEqual(players);
     });
 
-    it('should navigate to root if no user data is found in sessionStorage', fakeAsync(() => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(null);
-        service.init();
-        tick();
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
-    }));
-
-    it('should navigate to root and show snackBar if rejoinRoom fails', fakeAsync(() => {
-        const mockUser = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(mockUser));
-        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: false, error: 'Error joining room' }));
-        service.init();
-        tick();
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
-        expect(snackBarSpy.open).toHaveBeenCalledWith('Error joining room', undefined, { duration: SNACKBAR_DURATION });
-    }));
-
-    it('should set username based on user data from sessionStorage', async () => {
+    it('should call init sub if init of session storage is successful', async () => {
+        sessionStorageServiceSpy.initUser.and.returnValue(
+            Promise.resolve({ ok: true, value: { state: GameState.AskingQuestion, payload: undefined } }),
+        );
         await service.init();
-        expect(service.usernameValue).toEqual('John Doe');
+        expect(gameSubSpy.initSubscriptions).toHaveBeenCalled();
     });
 
-    it('should change state to waiting result in init', async () => {
-        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.AskingQuestion, payload: undefined } }));
-        webSocketSpy.isValidate.and.returnValue(Promise.resolve(true));
+    it('should not call init sub if init of session storage is not successful', async () => {
+        sessionStorageServiceSpy.initUser.and.returnValue(Promise.resolve({ ok: false, error: 'Error' }));
         await service.init();
-        expect(service.currentState).toEqual(GameState.AskingQuestion);
-    });
-
-    it('should remove player from players list and call banUser on websocketService', () => {
-        const player = 'playerName';
-        service['players'] = new Set(['player1', player, 'player3']);
-        service.onKickPlayer(player);
-        expect(service['players'].has(player)).toBeFalse();
-        expect(webSocketSpy.banUser).toHaveBeenCalled();
+        expect(gameSubSpy.initSubscriptions).not.toHaveBeenCalled();
     });
 
     it('should call leaveRoom, remove user from sessionStorage, and call reset when state is not Starting', () => {
-        service['state'] = GameState.AskingQuestion;
-        spyOn(sessionStorage, 'removeItem');
-        spyOn(service, 'reset');
+        gameSubSpy.state = GameState.AskingQuestion;
         service.leaveRoom();
         expect(webSocketSpy.leaveRoom).toHaveBeenCalled();
-        expect(sessionStorage.removeItem).toHaveBeenCalledWith('user');
-        expect(service.reset).toHaveBeenCalled();
+        expect(sessionStorageServiceSpy.removeUser).toHaveBeenCalled();
+        expect(gameSubSpy.reset).toHaveBeenCalled();
     });
 
     it('should return false when question is undefined', () => {
-        service['state'] = GameState.ShowResults;
-        service['question'] = undefined;
+        gameSubSpy.state = GameState.ShowResults;
+        gameSubSpy.question = undefined;
         const result = service.isChoiceCorrect(0);
         expect(result).toBeFalse();
     });
 
     it('should set the state to WaintingResults', () => {
-        service['state'] = GameState.AskingQuestion;
+        gameSubSpy.state = GameState.AskingQuestion;
         service.confirmQuestion();
         expect(service.currentState).toEqual(GameState.WaitingResults);
-    });
-
-    // We did not manage to test the timerSubscribe function with fakeAsync and tick, nor did we
-    // manage to remove DoneFn like we did on the "timerSubscribe should return the time Observable" test
-    // eslint-disable-next-line no-undef
-    it('timerSubscribe should return the time Observable', (done: DoneFn) => {
-        service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(TIME_RETURN);
-            done();
-        });
     });
 
     it('should return false when no question is set', () => {
@@ -363,28 +350,17 @@ describe('Game', () => {
     });
 
     it('should return true when the selected choices are correct', () => {
-        service['question'] = mockQuestion;
-        service['choicesSelected'] = [true, false, false];
+        gameSubSpy.question = mockQuestion;
+        gameSubSpy.choicesSelected = [true, false, false];
         expect(service['isResponseGood']()).toBeTruthy();
     });
 
     it('should return false when the selected choices are incorrect', () => {
-        service['question'] = mockQuestion;
-        service['choicesSelected'] = [false, true, false];
+        gameSubSpy.question = mockQuestion;
+        gameSubSpy.choicesSelected = [false, true, false];
         expect(service['isResponseGood']()).toBeFalsy();
     });
 
-    it('should assign question when state is AskingQuestion with payload', () => {
-        service['setState']({ state: GameState.AskingQuestion, payload: mockQuestion });
-        expect(service['question']).toEqual(mockQuestion);
-        expect(service['choicesSelected']).toEqual([false, false, false, false]);
-    });
-
-    it('should update title when state is Starting', () => {
-        const title = 'New Game Title';
-        service['setState']({ state: GameState.Starting, payload: title });
-        expect(service['title']).toEqual(title);
-    });
     it('nextQuestion() should call hostConfirm on WebSocketService', () => {
         service.nextQuestion();
         expect(webSocketSpy.hostConfirm).toHaveBeenCalled();
@@ -401,30 +377,10 @@ describe('Game', () => {
         });
     });
 
-    it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {
-        service['state'] = GameState.ShowFinalResults;
-        service['setState']({ state: GameState.ShowFinalResults, payload: undefined });
-        const navigateSpy = spyOn(service['routerService'], 'navigate');
-        expect(navigateSpy).toHaveBeenCalledWith(['/results']);
-    }));
-
     it('should return undefined when state is not ShowResults or bonus is false', () => {
-        service['state'] = GameState.NotStarted;
-        service['showBonus'] = false;
+        gameSubSpy.state = GameState.NotStarted;
+        gameSubSpy.showBonus = false;
         const message = service.message;
         expect(message).toBeUndefined();
-    });
-
-    it('setState() should set the state and payload', () => {
-        const state = GameState.ShowResults;
-        const payload = 'payload';
-        service['setState']({ state, payload });
-        expect(service['state']).toEqual(state);
-    });
-
-    it('should return if game state is not started', () => {
-        service['state'] = GameState.NotStarted;
-        service['setState']({ state: GameState.NotStarted, payload: undefined });
-        expect(service['state']).toEqual(GameState.NotStarted);
     });
 });

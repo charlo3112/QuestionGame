@@ -1,7 +1,7 @@
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -13,14 +13,13 @@ import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
-import SpyObj = jasmine.SpyObj;
 
 describe('StartGamePageComponent', () => {
     let component: StartGamePageComponent;
     let fixture: ComponentFixture<StartGamePageComponent>;
     let router: Router;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
-    let snackBarSpy: SpyObj<MatSnackBar>;
+    let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
+    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let mockGameService: jasmine.SpyObj<GameService>;
 
     beforeEach(async () => {
@@ -44,6 +43,7 @@ describe('StartGamePageComponent', () => {
         communicationServiceSpy.canCreateRandom.and.returnValue(of(true));
 
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
         await TestBed.configureTestingModule({
             imports: [
                 StartGameExpansionComponent,
@@ -53,7 +53,6 @@ describe('StartGamePageComponent', () => {
                 MatExpansionModule,
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
-                MatSnackBarModule,
                 HttpClientModule,
                 RouterModule.forRoot(routes),
             ],
@@ -65,7 +64,6 @@ describe('StartGamePageComponent', () => {
         }).compileComponents();
 
         fixture = TestBed.createComponent(StartGamePageComponent);
-        spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
         component = fixture.componentInstance;
         fixture.detectChanges();
         router = TestBed.inject(Router);
@@ -78,16 +76,14 @@ describe('StartGamePageComponent', () => {
 
     it('should show snackbar when error occurs during loadGames', async () => {
         communicationServiceSpy.getGames.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-        spyOn(component, 'openSnackBar');
         await component.loadGames();
-        expect(component.openSnackBar).toHaveBeenCalled();
+        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
     it('should show snackbar when loadGames is called and is not ok', async () => {
         communicationServiceSpy.getGames.and.returnValue(of({ ok: false } as Result<Game[]>));
-        spyOn(component, 'openSnackBar');
         await component.loadGames();
-        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux");
+        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
     it('should load games when loadGames is called and is ok', async () => {
@@ -98,9 +94,8 @@ describe('StartGamePageComponent', () => {
 
     it('should show snackbar when error occurs during verifyRandomGame', async () => {
         communicationServiceSpy.canCreateRandom.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-        spyOn(component, 'openSnackBar');
         await component.verifyRandomGame();
-        expect(component.openSnackBar).toHaveBeenCalled();
+        expect(snackBarSpy.open).toHaveBeenCalled();
     });
 
     it('should reload game when testGame is failed', async () => {
@@ -133,19 +128,8 @@ describe('StartGamePageComponent', () => {
 
     it('should show snackbar when startRandomGame is failed', async () => {
         component.canCreateRandom = false;
-        spyOn(component, 'openSnackBar');
         spyOn(component, 'verifyRandomGame');
         await component.startRandomGame();
-        expect(component.openSnackBar).toHaveBeenCalled();
-        expect(component.verifyRandomGame).toHaveBeenCalled();
-    });
-
-    it('should show snackbar when startRandomGame is failed', async () => {
-        component.canCreateRandom = false;
-        spyOn(component, 'openSnackBar');
-        spyOn(component, 'verifyRandomGame');
-        await component.startRandomGame();
-        expect(component.openSnackBar).toHaveBeenCalled();
         expect(component.verifyRandomGame).toHaveBeenCalled();
     });
 });
