@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { SortOption } from '@app/enums/sort-option';
-import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { UserState } from '@common/enums/user-state';
 
@@ -15,10 +14,7 @@ import { UserState } from '@common/enums/user-state';
     standalone: true,
 })
 export class LeaderboardComponent {
-    constructor(
-        readonly gameService: GameService,
-        readonly gameSubscriptionService: GameSubscriptionService,
-    ) {}
+    constructor(readonly gameService: GameService) {}
 
     getClassState(state: UserState): string {
         switch (state) {

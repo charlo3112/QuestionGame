@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ChatComponent } from '@app/components/chat/chat.component';
+import { HistogramComponent } from '@app/components/histogram/histogram.component';
+import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
@@ -11,9 +13,6 @@ describe('AdminGameViewComponent', () => {
     let component: AdminGameViewComponent;
     let fixture: ComponentFixture<AdminGameViewComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
-    const snackBarMock = {
-        open: jasmine.createSpy('open'),
-    };
 
     beforeEach(() => {
         const mockHistogramData: HistogramData = HISTOGRAM_DATA;
@@ -36,11 +35,8 @@ describe('AdminGameViewComponent', () => {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
         });
         TestBed.configureTestingModule({
-            imports: [AdminGameViewComponent, BrowserAnimationsModule, NoopAnimationsModule],
-            providers: [
-                { provide: GameService, useValue: mockGameService },
-                { provide: MatSnackBar, useValue: snackBarMock },
-            ],
+            imports: [AdminGameViewComponent, BrowserAnimationsModule, NoopAnimationsModule, LeaderboardComponent, HistogramComponent, ChatComponent],
+            providers: [{ provide: GameService, useValue: mockGameService }],
         });
         fixture = TestBed.createComponent(AdminGameViewComponent);
         component = fixture.componentInstance;
