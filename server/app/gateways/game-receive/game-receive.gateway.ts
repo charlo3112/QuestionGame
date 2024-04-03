@@ -23,7 +23,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:create')
     async handleCreateGame(client: Socket, id: string): Promise<User> {
         const game = await this.gamesService.getGameById(id);
-        if (!game) {
+        if (!game || !game.visibility) {
             return null;
         }
         const user = await this.roomService.createGame(client.id, game);
@@ -33,10 +33,22 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return user;
     }
 
+    @SubscribeMessage('game:create-random')
+    async handleCreateGameRandom(client: Socket): Promise<User> {
+        const user = await this.roomService.createRandomGame(client.id);
+        if (!user.ok) {
+            return undefined;
+        }
+        client.join(user.value.roomId);
+        this.logger.log(`User ${user.value.name} created random room ${user.value.roomId}`);
+
+        return user.value;
+    }
+
     @SubscribeMessage('game:test')
     async handleTestGame(client: Socket, id: string) {
         const game = await this.gamesService.getGameById(id);
-        if (!game) {
+        if (!game || !game.visibility) {
             return null;
         }
         const user = await this.roomService.testGame(client.id, game);

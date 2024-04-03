@@ -24,7 +24,9 @@ import { CreatePageComponent } from './pages/create-page/create-page.component';
 import { HistoryPageComponent } from './pages/history-page/history-page.component';
 import { QuestionBankPageComponent } from './pages/question-bank-page/question-bank-page.component';
 import { ResultPageComponent } from './pages/result-page/result-page.component';
+import { GameSubscriptionService } from './services/game-subscription/game-subscription.service';
 import { GameService } from './services/game/game.service';
+import { SessionStorageService } from './services/session-storage/session-storage.service';
 
 /**
  * Main module that is used in main.ts.
@@ -62,7 +64,7 @@ import { GameService } from './services/game/game.service';
         ReactiveFormsModule,
         ResultPageComponent,
     ],
-    providers: [CommunicationService, GameService, ValidationService, WebSocketService],
+    providers: [CommunicationService, GameService, ValidationService, WebSocketService, SessionStorageService, GameSubscriptionService],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

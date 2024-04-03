@@ -5,7 +5,7 @@ import { CreatePageComponent } from '@app/pages/create-page/create-page.componen
 import { GamePageComponent } from '@app/pages/game-page/game-page.component';
 import { HistoryPageComponent } from '@app/pages/history-page/history-page.component';
 import { JoinGamePageComponent } from '@app/pages/joingame-page/joingame-page/joingame-page.component';
-import { LoadingPageComponent } from '@app/pages/loading-page/loading-page/loading-page.component';
+import { LoadingPageComponent } from '@app/pages/loading-page/loading-page.component';
 import { MainPageComponent } from '@app/pages/main-page/main-page.component';
 import { QuestionBankPageComponent } from '@app/pages/question-bank-page/question-bank-page.component';
 import { ResultPageComponent } from '@app/pages/result-page/result-page.component';

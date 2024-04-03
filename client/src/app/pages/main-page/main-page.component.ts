@@ -11,7 +11,7 @@ import { GameService } from '@app/services/game/game.service';
     imports: [MatButtonModule, RouterModule],
 })
 export class MainPageComponent implements OnInit {
-    constructor(readonly gameService: GameService) {}
+    constructor(private readonly gameService: GameService) {}
 
     ngOnInit(): void {
         this.gameService.leaveRoom();

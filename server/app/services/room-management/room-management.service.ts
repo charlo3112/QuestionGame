@@ -2,8 +2,10 @@ import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
+import { QuestionData } from '@app/model/database/question';
 import { HistoryService } from '@app/services/history/history.service';
-import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
+import { QuestionService } from '@app/services/question/question.service';
+import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, NUMBER_QUESTIONS_RANDOM, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Result } from '@common/interfaces/result';
@@ -16,17 +18,18 @@ import { Injectable } from '@nestjs/common';
 export class RoomManagementService {
     private gameState: Map<string, ActiveGame> = new Map();
     private roomMembers: Map<string, string> = new Map();
-    private deleteRoomGatewayCallback: ((roomID: string) => void)[] = [];
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
+    private deleteRoomChatGateway: (roomID: string) => void;
     private sendSystemMessage: (roomId: string, message: string) => void;
 
     constructor(
         private gameWebsocket: GameGatewaySend,
         private historyService: HistoryService,
+        private questionService: QuestionService,
     ) {}
 
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
-        this.deleteRoomGatewayCallback.push(deleteRoom);
+        this.deleteRoomChatGateway = deleteRoom;
     }
 
     setSystemMessageCallback(sendSystemMessage: (roomId: string, message: string) => void) {
@@ -80,18 +83,46 @@ export class RoomManagementService {
         return { name: HOST_NAME, roomId, userId, play: false };
     }
 
-    async testGame(userId: string, game: GameData): Promise<User> {
-        const roomId = 'test' + this.generateRoomId();
-        const noHost: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, undefined, true);
-        newActiveGame.addUser(noHost);
+    async createRandomGame(userId: string): Promise<Result<User>> {
+        const questions = await this.questionService.getAllQCMQuestions();
+        if (questions.length < NUMBER_QUESTIONS_RANDOM) {
+            return { ok: false, error: 'Pas assez de questions' };
+        }
+
+        const game: GameData = {
+            title: 'mode aléatoire',
+            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM) as QuestionData[],
+            description: 'mode aléatoire',
+            duration: 20,
+        } as GameData;
+
+        const roomId = this.generateRoomId();
+        const host: UserData = new UserData(userId, roomId, HOST_NAME);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, this.historyService, true);
+        newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
             this.performUserRemoval(userId);
         }
 
         this.gameState.set(roomId, newActiveGame);
-        this.roomMembers.set(noHost.uid, roomId);
+        this.roomMembers.set(host.uid, roomId);
+
+        return { ok: true, value: { name: HOST_NAME, roomId, userId, play: true } };
+    }
+
+    async testGame(userId: string, game: GameData): Promise<User> {
+        const roomId = 'test' + this.generateRoomId();
+        const host: UserData = new UserData(userId, roomId, HOST_NAME);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, undefined, true);
+        newActiveGame.addUser(host);
+
+        if (this.roomMembers.has(userId)) {
+            this.performUserRemoval(userId);
+        }
+
+        this.gameState.set(roomId, newActiveGame);
+        this.roomMembers.set(host.uid, roomId);
         return { name: HOST_NAME, roomId, userId, play: true };
     }
 
@@ -218,21 +249,22 @@ export class RoomManagementService {
         const game = this.getActiveGame(userId);
         const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
-        this.deleteRoomGatewayCallback.forEach((callback) => callback(userId));
         this.roomMembers.delete(userId);
         if (!game) {
             return;
         }
         this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
         if (game.isHost(userId)) {
-            this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
+            this.deleteRoomChatGateway(roomId);
+            this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);
             game.stopGame();
             return;
         }
         game.removeUser(userId);
         if (game.needToClosed() && game.currentState !== GameState.Wait) {
-            this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
+            this.deleteRoomChatGateway(roomId);
+            this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);
             game.stopGame();
             return;
@@ -290,5 +322,14 @@ export class RoomManagementService {
             return undefined;
         }
         return game.getUser(userId);
+    }
+
+    private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {
+        for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+
+        return questions.slice(0, number);
     }
 }

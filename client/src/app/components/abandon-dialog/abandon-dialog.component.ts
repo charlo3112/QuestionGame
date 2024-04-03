@@ -10,7 +10,7 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
     imports: [MatDialogModule, MatButtonModule],
 })
 export class AbandonDialogComponent {
-    constructor(public dialogRef: MatDialogRef<AbandonDialogComponent>) {}
+    constructor(private readonly dialogRef: MatDialogRef<AbandonDialogComponent>) {}
 
     onNoClick(): void {
         this.dialogRef.close();

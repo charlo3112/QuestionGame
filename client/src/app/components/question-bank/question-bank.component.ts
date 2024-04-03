@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
-import { Question, QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
+import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 
 @Component({
@@ -31,8 +31,8 @@ export class QuestionBankComponent implements OnInit {
     questionToAdd: Question = QUESTIONS_PLACEHOLDER[0];
 
     constructor(
-        private communicationService: CommunicationService,
-        private snackBar: MatSnackBar,
+        private readonly communicationService: CommunicationService,
+        private readonly snackBar: MatSnackBar,
     ) {
         this.loadQuestions();
     }

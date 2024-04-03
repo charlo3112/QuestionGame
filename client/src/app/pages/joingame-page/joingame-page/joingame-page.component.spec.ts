@@ -5,6 +5,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { JoinGamePageComponent } from './joingame-page.component';
 
@@ -15,16 +16,20 @@ describe('JoinGamePageComponent', () => {
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let router: Router;
     let location: Location;
+    let sessionStorageServiceSpy: jasmine.SpyObj<SessionStorageService>;
 
     beforeEach(() => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['joinRoom']);
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        sessionStorageServiceSpy = jasmine.createSpyObj('LocalStorageService', ['user']);
 
         TestBed.configureTestingModule({
             imports: [JoinGamePageComponent, RouterModule.forRoot(routes), BrowserAnimationsModule, NoopAnimationsModule, RouterTestingModule],
             providers: [
                 { provide: WebSocketService, useValue: mockWebSocketService },
                 { provide: MatSnackBar, useValue: snackBarSpy },
+                { provide: SessionStorageService, useValue: sessionStorageServiceSpy },
             ],
         });
         fixture = TestBed.createComponent(JoinGamePageComponent);

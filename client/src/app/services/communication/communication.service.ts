@@ -42,6 +42,17 @@ export class CommunicationService {
         );
     }
 
+    canCreateRandom(): Observable<boolean> {
+        return this.http.get<boolean>(`${this.baseUrl}/game/random`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<boolean>) => {
+                return response.body as boolean;
+            }),
+            catchError(() => {
+                return of(false);
+            }),
+        );
+    }
+
     getGames(): Observable<Result<Game[]>> {
         return this.http.get<Game[]>(`${this.baseUrl}/game`, { observe: 'response', responseType: 'json' }).pipe(
             map((response: HttpResponse<Game[]>) => {
@@ -77,17 +88,6 @@ export class CommunicationService {
                 return of(false);
             }),
         );
-    }
-
-    verifyLogin(login: boolean): boolean {
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            login = JSON.parse(storedLogin);
-        } else {
-            login = false;
-            sessionStorage.setItem('login', JSON.stringify(login));
-        }
-        return login;
     }
 
     addQuestion(question: Question): Observable<HttpResponse<Question>> {

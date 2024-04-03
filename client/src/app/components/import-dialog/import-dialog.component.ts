@@ -23,7 +23,7 @@ export class ImportDialogComponent {
 
     constructor(
         private readonly validationService: ValidationService,
-        public dialogRef: MatDialogRef<ImportDialogComponent>,
+        private readonly dialogRef: MatDialogRef<ImportDialogComponent>,
         private readonly communicationService: CommunicationService,
     ) {}
 

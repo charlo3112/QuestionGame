@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HistoryItemsComponent } from '@app/components/history-items/history-items.component';
+import { AdminService } from '@app/services/admin/admin.service';
 
 @Component({
     selector: 'app-history-page',
@@ -11,4 +12,15 @@ import { HistoryItemsComponent } from '@app/components/history-items/history-ite
     standalone: true,
     imports: [MatToolbarModule, RouterLink, MatButtonModule, HistoryItemsComponent],
 })
-export class HistoryPageComponent {}
+export class HistoryPageComponent implements OnInit {
+    constructor(
+        private readonly router: Router,
+        private readonly adminService: AdminService,
+    ) {}
+
+    ngOnInit() {
+        if (!this.adminService.login) {
+            this.router.navigate(['/admin']);
+        }
+    }
+}

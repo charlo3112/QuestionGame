@@ -59,15 +59,11 @@ export class ActiveGame {
     }
 
     get currentQuestionWithAnswer(): Question {
-        return {
-            ...this.game.questions[this.questionIndex],
-        };
+        return this.game.questions[this.questionIndex] as Question;
     }
 
     get currentQuestionWithoutAnswer(): Question {
-        const data: Question = {
-            ...this.game.questions[this.questionIndex],
-        };
+        const data = this.game.questions[this.questionIndex] as Question;
         return {
             type: data.type,
             text: data.text,
@@ -169,6 +165,7 @@ export class ActiveGame {
 
     showFinalResults(): void {
         this.advanceState(GameState.ShowFinalResults);
+        this.users.resetFinalResults();
         this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
     }
@@ -254,6 +251,11 @@ export class ActiveGame {
                     bestScore: this.users.bestScore,
                 };
                 this.historyService.addHistory(history);
+                if (this.users.hostIsPlaying) {
+                    await this.timer.start(TIME_CONFIRM_S);
+                    if (!this.isActive) return;
+                    this.showFinalResults();
+                }
             }
         } else if (this.users.hostIsPlaying) {
             await this.timer.start(TIME_CONFIRM_S);

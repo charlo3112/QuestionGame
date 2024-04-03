@@ -7,14 +7,20 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
+import { AdminService } from '@app/services/admin/admin.service';
 import { QuestionBankPageComponent } from './question-bank-page.component';
+import SpyObj = jasmine.SpyObj;
 
 describe('QuestionBankPageComponent', () => {
     let component: QuestionBankPageComponent;
     let fixture: ComponentFixture<QuestionBankPageComponent>;
     let router: Router;
+    let adminServiceSpy: SpyObj<AdminService>;
+    let mockLogin: boolean;
 
     beforeEach(() => {
+        adminServiceSpy = jasmine.createSpyObj('AdminService', ['login']);
+        Object.defineProperty(adminServiceSpy, 'login', { get: () => mockLogin });
         TestBed.configureTestingModule({
             imports: [
                 QuestionBankPageComponent,
@@ -27,9 +33,10 @@ describe('QuestionBankPageComponent', () => {
                 HttpClientModule,
                 MatSnackBarModule,
             ],
+            providers: [{ provide: AdminService, useValue: adminServiceSpy }],
         });
         fixture = TestBed.createComponent(QuestionBankPageComponent);
-        sessionStorage.setItem('login', 'true');
+        mockLogin = true;
         component = fixture.componentInstance;
         fixture.detectChanges();
         router = TestBed.inject(Router);
@@ -41,7 +48,7 @@ describe('QuestionBankPageComponent', () => {
 
     it('should navigate to the admin page when the stored login is null', () => {
         const routerSpy = spyOn(router, 'navigate');
-        sessionStorage.removeItem('login');
+        mockLogin = false;
         component.ngOnInit();
         expect(routerSpy).toHaveBeenCalledWith(['/admin']);
     });

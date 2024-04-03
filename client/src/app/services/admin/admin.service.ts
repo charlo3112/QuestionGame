@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { Choice } from '@common/interfaces/choice';
 import { Game } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
@@ -8,10 +9,13 @@ import { Question } from '@common/interfaces/question';
     providedIn: 'root',
 })
 export class AdminService {
-    constructor(private readonly communicationService: CommunicationService) {}
+    constructor(
+        private readonly communicationService: CommunicationService,
+        private readonly sessionStorageService: SessionStorageService,
+    ) {}
 
     get login(): boolean {
-        return JSON.parse(sessionStorage.getItem('login') || 'false');
+        return this.sessionStorageService.login;
     }
 
     async deleteGame(id: string): Promise<void> {
@@ -81,7 +85,8 @@ export class AdminService {
         a.click();
         URL.revokeObjectURL(objectUrl);
     }
+
     handleLogin(success: boolean): void {
-        sessionStorage.setItem('login', JSON.stringify(success));
+        this.sessionStorageService.login = success;
     }
 }

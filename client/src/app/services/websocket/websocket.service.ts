@@ -107,6 +107,14 @@ export class WebSocketService {
         });
     }
 
+    async startRandom(): Promise<User> {
+        return new Promise<User>((resolve) => {
+            this.socket.emit('game:create-random', (res: User) => {
+                resolve(res);
+            });
+        });
+    }
+
     async rejoinRoom(user: User): Promise<Result<GameStatePayload>> {
         return new Promise<Result<GameStatePayload>>((resolve) => {
             this.socket.emit('game:rejoin', user, (data: Result<GameStatePayload>) => {

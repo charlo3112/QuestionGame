@@ -27,7 +27,7 @@ export class Users {
 
     get usersStat(): UserStat[] {
         return Array.from(this.users.values())
-            .filter((user) => !user.isHost())
+            .filter((user) => this.hostIsPlaying || !user.isHost())
             .map((user) => {
                 return {
                     username: user.username,
@@ -229,5 +229,11 @@ export class Users {
             }
         });
         return data;
+    }
+
+    resetFinalResults() {
+        this.users.forEach((user) => {
+            user.resetFinalResults();
+        });
     }
 }

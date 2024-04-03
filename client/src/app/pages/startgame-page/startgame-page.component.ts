@@ -1,134 +1,85 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
-import { WebSocketService } from '@app/services/websocket/websocket.service';
+import { SNACKBAR_DURATION } from '@common/constants';
 import { Game } from '@common/interfaces/game';
-import { Result } from '@common/interfaces/result';
-import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-start-game-page',
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule, MatSnackBarModule],
+    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];
+    canCreateRandom = true;
 
-    title: string = 'Liste de jeux';
-    private subscription = new Subscription();
-
-    // eslint-disable-next-line max-params
     constructor(
-        private router: Router,
         private readonly communicationService: CommunicationService,
-        private snackBar: MatSnackBar,
-        private webSocketService: WebSocketService,
-        private gameService: GameService,
-    ) {
-        this.loadGames();
-        this.gameService.reset();
-    }
+        private readonly snackBar: MatSnackBar,
+        private readonly gameService: GameService,
+    ) {}
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+        await this.loadGames();
+        await this.verifyRandomGame();
+        this.gameService.reset();
         this.gameService.leaveRoom();
     }
 
-    loadGames(): void {
+    async loadGames(): Promise<void> {
         const ERROR_FETCHING_GAMES = "Erreur lors de l'obtention des jeux";
-        this.subscription.add(
-            this.communicationService.getGames().subscribe({
-                next: (result: Result<Game[]>) => {
-                    if (result.ok && result.value) {
-                        this.games = result.value;
-                        this.games.forEach((game) => {
-                            game.image = 'assets/logo.png';
-                        });
-                    } else {
-                        this.openSnackBar(ERROR_FETCHING_GAMES);
-                    }
-                },
-                error: () => {
-                    this.openSnackBar(ERROR_FETCHING_GAMES);
-                },
-            }),
-        );
+        try {
+            const result = await firstValueFrom(this.communicationService.getGames());
+            if (result.ok && result.value) {
+                this.games = result.value;
+                this.games.forEach((game) => {
+                    game.image = 'assets/logo.png';
+                });
+            } else {
+                this.snackBar.open(ERROR_FETCHING_GAMES, undefined, { duration: SNACKBAR_DURATION });
+            }
+        } catch (error) {
+            this.snackBar.open(ERROR_FETCHING_GAMES, undefined, { duration: SNACKBAR_DURATION });
+        }
     }
 
-    openSnackBar(message: string) {
-        this.snackBar.open(message, 'Close', {
-            duration: 4000,
-        });
+    async verifyRandomGame(): Promise<void> {
+        try {
+            this.canCreateRandom = await firstValueFrom(this.communicationService.canCreateRandom());
+        } catch (error) {
+            this.snackBar.open('Erreur lors de la vérification de la création de jeu aléatoire', undefined, { duration: SNACKBAR_DURATION });
+        }
     }
 
-    startGame(game: Game) {
-        const gameId = game.gameId;
-        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
-        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
-
-        this.communicationService
-            .getGameByID(gameId)
-            .pipe(
-                tap((result: Result<Game>) => {
-                    if (!result.ok || !result.value) {
-                        this.openSnackBar(GAME_DELETED);
-                        this.loadGames();
-                    }
-                }),
-            )
-            .subscribe(async (result: Result<Game>) => {
-                if (result.ok && result.value) {
-                    const newGame = result.value;
-                    if (newGame.visibility) {
-                        const user = await this.webSocketService.createRoom(newGame.gameId);
-                        sessionStorage.setItem('user', JSON.stringify(user));
-                        this.gameService.test = false;
-                        this.router.navigate(['/loading']);
-                    } else {
-                        this.openSnackBar(GAME_INVISIBLE);
-                        this.loadGames();
-                    }
-                }
-            });
+    async startGame(game: Game): Promise<void> {
+        if (!(await this.gameService.startGame(game))) {
+            await this.loadGames();
+        }
     }
 
-    testGame(game: Game) {
-        const gameId = game.gameId;
-        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
-        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
+    async startRandomGame() {
+        if (this.canCreateRandom) {
+            if (await this.gameService.startRandomGame()) {
+                return;
+            }
+        }
 
-        this.communicationService
-            .getGameByID(gameId)
-            .pipe(
-                tap((result: Result<Game>) => {
-                    if (!result.ok || !result.value) {
-                        this.openSnackBar(GAME_DELETED);
-                        this.loadGames();
-                    }
-                }),
-            )
-            .subscribe(async (result: Result<Game>) => {
-                if (result.ok && result.value) {
-                    const newGame = result.value;
-                    if (newGame.visibility) {
-                        this.gameService.test = true;
-                        const user = await this.webSocketService.testGame(newGame.gameId);
-                        sessionStorage.setItem('user', JSON.stringify(user));
-                        this.webSocketService.startTest();
-                        this.router.navigate(['/game']);
-                    } else {
-                        this.openSnackBar(GAME_INVISIBLE);
-                        this.loadGames();
-                    }
-                }
-            });
+        this.snackBar.open('Impossible de créer un jeu aléatoire', undefined, { duration: SNACKBAR_DURATION });
+        await this.verifyRandomGame();
+    }
+
+    async testGame(game: Game): Promise<void> {
+        if (!(await this.gameService.testGame(game))) {
+            await this.loadGames();
+        }
     }
 }
