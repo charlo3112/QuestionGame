@@ -120,6 +120,7 @@ describe('Game', () => {
             ],
         });
         service = TestBed.inject(GameService);
+        subscriptionServiceSpy = TestBed.inject(SubscriptionService) as jasmine.SpyObj<SubscriptionService>;
         const mockUser = { name: 'John Doe', roomId: '2222', userId: 'user123' };
         sessionStorage.setItem('user', JSON.stringify(mockUser));
         mockQuestion = {
@@ -436,4 +437,15 @@ describe('Game', () => {
         service['setState']({ state: GameState.NotStarted, payload: undefined });
         expect(service['state']).toEqual(GameState.NotStarted);
     });
+
+    // it('should update score and bonus on score update', () => {
+    //     const scoreUpdate = { score: 100, bonus: true };
+    //     const scoreObservable = of(scoreUpdate);
+    //     subscriptionServiceSpy.subscribeToScoreUpdate.and.returnValue(scoreObservable);
+
+    //     service['subscribeToScoreUpdate']();
+
+    //     expect(service['scoreValue']).toEqual(scoreUpdate.score);
+    //     expect(service['showBonus']).toEqual(scoreUpdate.bonus);
+    // });
 });
