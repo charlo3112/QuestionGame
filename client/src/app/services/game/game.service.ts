@@ -240,6 +240,9 @@ export class GameService {
         }
         return true;
     }
+    orderPlayers() {
+        // TODO
+    }
 
     private isResponseGood(): boolean {
         if (this.gameSubscriptionService.question === undefined) {
