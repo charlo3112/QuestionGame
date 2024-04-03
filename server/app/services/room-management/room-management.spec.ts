@@ -5,18 +5,16 @@ import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
-import { Score } from '@common/interfaces/score';
-import { UserStat } from '@common/interfaces/user-stat';
 import { RoomManagementService } from './room-management.service';
 import { HistoryService } from '@app/services/history/history.service';
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
+import { QuestionService } from '@app/services/question/question.service';
 
 describe('RoomManagementService', () => {
     let service: RoomManagementService;
     let mockGateway: GameGatewaySend;
     let mockHistoryService: HistoryService;
+    let mockQuestionService: QuestionService;
 
     beforeEach(() => {
         mockGateway = {
@@ -26,7 +24,8 @@ describe('RoomManagementService', () => {
             sendUsersStatUpdate: jest.fn(),
         } as unknown as GameGatewaySend;
         mockHistoryService = {} as unknown as HistoryService;
-        service = new RoomManagementService(mockGateway, mockHistoryService);
+        mockQuestionService = { getAllQCMQuestions: jest.fn() } as unknown as QuestionService;
+        service = new RoomManagementService(mockGateway, mockHistoryService, mockQuestionService);
 
         service.setGatewayCallback(jest.fn());
     });
