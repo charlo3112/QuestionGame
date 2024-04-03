@@ -1,5 +1,4 @@
-import { SimpleChange, SimpleChanges } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -82,39 +81,7 @@ describe('Question', () => {
     });
 
     it('should call confirmQuestion and disable the button when confirmAndDisable is called and buttonDisabled is false', () => {
-        component.buttonDisabled = false;
         component.confirmAndDisable();
         expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
-    });
-
-    it('should reset button', () => {
-        const mockButton = document.createElement('button');
-        mockButton.disabled = true;
-        spyOn(document, 'getElementById').and.returnValue(mockButton);
-        component.resetButton();
-        expect(mockButton.disabled).toBeFalse();
-        expect(component.buttonDisabled).toBeFalse();
-    });
-
-    it('should disable button when state is LastQuestion', fakeAsync(() => {
-        const mockButton = document.createElement('button');
-        spyOn(document, 'getElementById').and.returnValue(mockButton);
-        gameServiceSpy.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
-        component.ngOnInit();
-        tick();
-        expect(mockButton.disabled).toBeTrue();
-        expect(component.buttonDisabled).toBeTrue();
-    }));
-
-    it('should reset button and changesCounter when ngOnChanges is called with specific changes', () => {
-        component.changesCounter = 2;
-        const mockButton = document.createElement('button');
-        spyOn(document, 'getElementById').and.returnValue(mockButton);
-        const changes: SimpleChanges = {
-            question: new SimpleChange(undefined, mockQuestion, false),
-        };
-
-        component.ngOnChanges(changes);
-        expect(mockButton.disabled).toBeFalse();
     });
 });

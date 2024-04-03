@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { GameService } from '@app/services/game/game.service';
 import { UserState } from '@common/enums/user-state';
 import { UserStat } from '@common/interfaces/user-stat';
@@ -27,7 +28,7 @@ describe('LeaderboardComponent', () => {
         mockUsersStat = [];
 
         TestBed.configureTestingModule({
-            imports: [LeaderboardComponent, CommonModule, MatIconModule, MatButtonModule],
+            imports: [LeaderboardComponent, CommonModule, MatIconModule, MatButtonModule, BrowserAnimationsModule, NoopAnimationsModule],
             providers: [
                 { provide: MatSnackBar, useValue: snackBarMock },
                 { provide: GameService, useValue: gameService },
