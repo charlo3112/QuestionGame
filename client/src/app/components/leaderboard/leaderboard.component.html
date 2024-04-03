@@ -1,4 +1,19 @@
 <h2 class="title">Tableau des résultats</h2>
+
+<mat-form-field class="option">
+    <mat-label id="sort-option-label">Trier par:</mat-label>
+    <mat-select class="sort-option" [(ngModel)]="selectedSort" (ngModelChange)="onSortOptionChange($event)">
+        <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
+<mat-form-field class="order">
+    <mat-label id="sort-order-label">Trier par:</mat-label>
+    <mat-select class="sort-order" [(ngModel)]="selectedSortOrder" (ngModelChange)="onSortOrderChange($event)">
+        <mat-option *ngFor="let order of sortOrder" [value]="order.value">{{ order.label }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
 <div class="table-wrapper">
     <table class="leaderboard-table">
         <thead>
