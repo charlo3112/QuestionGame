@@ -157,9 +157,7 @@ export class GameSubscriptionService implements OnDestroy {
                     result = a.username.localeCompare(b.username);
                     break;
                 case SortOption.UsernameDescending:
-                    // -1 is used to sort in descending order
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    result = a.username.localeCompare(b.username) * -1;
+                    result = b.username.localeCompare(a.username);
                     break;
                 case SortOption.ScoreAscending:
                     result = a.score - b.score;
@@ -168,9 +166,7 @@ export class GameSubscriptionService implements OnDestroy {
                     }
                     break;
                 case SortOption.ScoreDescending:
-                    // -1 is used to sort in descending order
-                    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                    result = (a.score - b.score) * -1;
+                    result = b.score - a.score;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
