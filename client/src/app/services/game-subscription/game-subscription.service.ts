@@ -15,7 +15,6 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
-    state: GameState = GameState.NotStarted;
     serverTime: number;
     showBonus: boolean;
     scoreValue: number = 0;
@@ -25,6 +24,7 @@ export class GameSubscriptionService implements OnDestroy {
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
+    private currentState: GameState = GameState.NotStarted;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
     private timeSubscription: Subscription;
@@ -50,6 +50,50 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
         this.subscribeToAlert();
+    }
+
+    get state(): GameState {
+        return this.currentState;
+    }
+
+    set state(state: GameStatePayload | GameState) {
+        let newState: GameStatePayload = { state: GameState.NotStarted };
+        if (typeof state === 'number') {
+            newState.state = state;
+        } else {
+            newState = state;
+        }
+        this.currentState = newState.state;
+        this.question = undefined;
+        if (this.currentState === GameState.NotStarted) {
+            this.reset();
+            return;
+        }
+        if (this.currentState === GameState.Wait) {
+            if (this.routerService.url !== '/loading') {
+                this.routerService.navigate(['/loading']);
+            }
+            return;
+        }
+        if (this.currentState === GameState.ShowFinalResults) {
+            if (this.routerService.url !== '/results') {
+                this.routerService.navigate(['/results']);
+            }
+            return;
+        }
+        if (this.currentState === GameState.AskingQuestion) {
+            this.question = newState.payload as Question;
+            this.choicesSelected = [false, false, false, false];
+        }
+        if (this.currentState === GameState.ShowResults) {
+            this.question = newState.payload as Question;
+        }
+        if (this.currentState === GameState.Starting) {
+            this.title = newState.payload as string;
+        }
+        if (this.routerService.url !== '/game') {
+            this.routerService.navigate(['/game']);
+        }
     }
 
     ngOnDestroy() {
@@ -86,12 +130,12 @@ export class GameSubscriptionService implements OnDestroy {
         this.players.clear();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
         this.players.delete(HOST_NAME);
-        this.setState(state);
+        this.state = state;
     }
 
     reset() {
         this.question = undefined;
-        this.state = GameState.NotStarted;
+        this.currentState = GameState.NotStarted;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
     }
@@ -120,7 +164,7 @@ export class GameSubscriptionService implements OnDestroy {
     private subscribeToStateUpdate() {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
-                this.setState(state);
+                this.state = state;
             },
         });
     }
@@ -168,37 +212,5 @@ export class GameSubscriptionService implements OnDestroy {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
             },
         });
-    }
-
-    private setState(state: GameStatePayload) {
-        this.state = state.state;
-        if (this.state === GameState.NotStarted) {
-            return;
-        }
-        if (this.state === GameState.Wait) {
-            if (this.routerService.url !== '/loading') {
-                this.routerService.navigate(['/loading']);
-            }
-            return;
-        }
-        if (this.state === GameState.ShowFinalResults) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
-            return;
-        }
-        if (this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-            this.choicesSelected = [false, false, false, false];
-        }
-        if (this.state === GameState.ShowResults) {
-            this.question = state.payload as Question;
-        }
-        if (this.state === GameState.Starting) {
-            this.title = state.payload as string;
-        }
-        if (this.routerService.url !== '/game') {
-            this.routerService.navigate(['/game']);
-        }
     }
 }

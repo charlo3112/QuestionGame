@@ -8,7 +8,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game/game.service';
-import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 
 @Component({
@@ -23,14 +22,9 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
 
     constructor(
         private websocketService: WebSocketService,
-        private timeService: TimeService,
         readonly gameService: GameService,
     ) {
         this.gameService.reset();
-    }
-
-    get time() {
-        return this.timeService.time;
     }
 
     async ngOnInit() {

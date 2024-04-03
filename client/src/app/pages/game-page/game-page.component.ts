@@ -86,12 +86,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
         } else {
             this.buttonText = gameData;
         }
+        this.sessionStorageService.gameData = this.buttonText;
         this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
             if (statePayload.state === GameState.LastQuestion) {
                 this.buttonText = 'Résultats';
+                this.sessionStorageService.gameData = this.buttonText;
             }
         });
-        window.onbeforeunload = () => (this.sessionStorageService.gameData = this.buttonText);
     }
 
     ngOnDestroy(): void {

@@ -1,21 +1,29 @@
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
+import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { HOST_NAME } from '@common/constants';
+import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
+import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
-import { Observable } from 'rxjs';
-
+import { Observable, firstValueFrom } from 'rxjs';
 @Injectable()
 export class GameService {
+    // eslint-disable-next-line max-params
     constructor(
         private readonly websocketService: WebSocketService,
+        private readonly communicationService: CommunicationService,
         private readonly sessionStorageService: SessionStorageService,
         private readonly gameSubscriptionService: GameSubscriptionService,
+        private readonly snackBar: MatSnackBar,
+        private readonly router: Router,
     ) {}
 
     get gameTitle(): string {
@@ -39,7 +47,7 @@ export class GameService {
         return twenty;
     }
 
-    get usersStatValue(): UserStat[] {
+    get usersStat(): UserStat[] {
         return this.gameSubscriptionService.usersStat;
     }
 
@@ -48,6 +56,8 @@ export class GameService {
     }
 
     get currentQuestion(): Question | undefined {
+        if (this.gameSubscriptionService.state !== GameState.AskingQuestion && this.gameSubscriptionService.state !== GameState.ShowResults)
+            return undefined;
         return this.gameSubscriptionService.question;
     }
 
@@ -160,6 +170,75 @@ export class GameService {
 
     stateSubscribe(): Observable<GameStatePayload> {
         return this.websocketService.getState();
+    }
+
+    async startGame(game: Game): Promise<boolean> {
+        const gameId = game.gameId;
+        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
+        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
+
+        try {
+            const result: Result<Game> = await firstValueFrom(this.communicationService.getGameByID(gameId));
+
+            if (!result.ok || !result.value) {
+                this.snackBar.open(GAME_DELETED, undefined, { duration: SNACKBAR_DURATION });
+                return false;
+            }
+            const newGame = result.value;
+            const user = await this.websocketService.createRoom(newGame.gameId);
+            if (!user) {
+                this.snackBar.open(GAME_INVISIBLE, undefined, { duration: SNACKBAR_DURATION });
+                return false;
+            }
+            this.sessionStorageService.user = user;
+            this.sessionStorageService.test = false;
+            this.router.navigate(['/loading']);
+        } catch (error) {
+            this.snackBar.open(GAME_DELETED, undefined, { duration: SNACKBAR_DURATION });
+            return false;
+        }
+        return true;
+    }
+
+    async startRandomGame(): Promise<boolean> {
+        const user = await this.websocketService.startRandom();
+        if (user) {
+            this.sessionStorageService.user = user;
+            this.sessionStorageService.test = false;
+            this.router.navigate(['/loading']);
+            return true;
+        }
+        this.snackBar.open('Impossible de créer un jeu aléatoire', undefined, { duration: SNACKBAR_DURATION });
+        return false;
+    }
+
+    async testGame(game: Game): Promise<boolean> {
+        const gameId = game.gameId;
+        const GAME_DELETED = 'Jeux supprimé, veuillez en choisir un autre';
+        const GAME_INVISIBLE = 'Jeux invisible, veuillez en choisir un autre';
+
+        try {
+            const result: Result<Game> = await firstValueFrom(this.communicationService.getGameByID(gameId));
+
+            if (!result.ok || !result.value) {
+                this.snackBar.open(GAME_DELETED, undefined, { duration: SNACKBAR_DURATION });
+                return false;
+            }
+            const newGame = result.value;
+            const user = await this.websocketService.testGame(newGame.gameId);
+            if (!user) {
+                this.snackBar.open(GAME_INVISIBLE, undefined, { duration: SNACKBAR_DURATION });
+                return false;
+            }
+            this.sessionStorageService.user = user;
+            this.sessionStorageService.test = true;
+            this.websocketService.startTest();
+            this.router.navigate(['/game']);
+        } catch (error) {
+            this.snackBar.open(GAME_DELETED, undefined, { duration: SNACKBAR_DURATION });
+            return false;
+        }
+        return true;
     }
 
     private isResponseGood(): boolean {
