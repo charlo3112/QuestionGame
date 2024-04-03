@@ -1,5 +1,6 @@
 import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -54,6 +55,7 @@ describe('StartGamePageComponent', () => {
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
                 HttpClientModule,
+                MatButtonModule,
                 RouterModule.forRoot(routes),
             ],
             providers: [

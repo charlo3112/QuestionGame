@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -16,11 +17,11 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
+    imports: [RouterModule, CommonModule, MatButtonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];
-    canCreateRandom = true;
+    canCreateRandom = false;
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -29,8 +30,8 @@ export class StartGamePageComponent implements OnInit {
     ) {}
 
     async ngOnInit(): Promise<void> {
-        await this.loadGames();
         await this.verifyRandomGame();
+        await this.loadGames();
         this.gameService.reset();
         this.gameService.leaveRoom();
     }
