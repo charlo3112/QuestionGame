@@ -43,6 +43,10 @@ export class GameService {
         return this.gameSubscriptionService.serverTime;
     }
 
+    get isValidationDisabled(): boolean {
+        return this.gameSubscriptionService.isValidate;
+    }
+
     get maxTime(): number {
         const twenty = 20;
         return twenty;
@@ -57,7 +61,12 @@ export class GameService {
     }
 
     get currentQuestion(): Question | undefined {
-        if (this.gameSubscriptionService.state !== GameState.AskingQuestion && this.gameSubscriptionService.state !== GameState.ShowResults)
+        if (
+            this.gameSubscriptionService.state !== GameState.AskingQuestion &&
+            this.gameSubscriptionService.state !== GameState.ShowResults &&
+            this.gameSubscriptionService.state !== GameState.LastQuestion &&
+            this.gameSubscriptionService.state !== GameState.WaitingResults
+        )
             return undefined;
         return this.gameSubscriptionService.question;
     }

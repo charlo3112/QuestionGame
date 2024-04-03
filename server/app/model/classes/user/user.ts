@@ -1,6 +1,7 @@
 import { HOST_NAME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
 import { Score } from '@common/interfaces/score';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 
 export class UserData {
     private userId: string;
@@ -52,6 +53,11 @@ export class UserData {
     }
     get userScore() {
         return { score: this.score, bonus: this.isBonus } as Score;
+    }
+
+    get userGameInfo() {
+        const choice: boolean[] = this.choice === undefined ? [false, false, false, false] : this.choice;
+        return { choice, validate: this.validate !== undefined } as UserGameInfo;
     }
 
     get userBonus() {

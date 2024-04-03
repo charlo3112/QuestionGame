@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -8,8 +8,6 @@ import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { GameService } from '@app/services/game/game.service';
-import { GameState } from '@common/enums/game-state';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -19,11 +17,9 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
     imports: [CommonModule, RouterLink, ChatComponent, MatSlideToggleModule, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
 })
-export class QuestionComponent implements OnChanges, OnInit {
+export class QuestionComponent {
     @Input() question: Question;
     isChatFocused: boolean = false;
-    buttonDisabled: boolean = false;
-    changesCounter: number = 0;
 
     constructor(readonly gameService: GameService) {}
 
@@ -35,7 +31,6 @@ export class QuestionComponent implements OnChanges, OnInit {
         const key = event.key;
         if (key === 'Enter') {
             this.gameService.confirmQuestion();
-            this.disableButton();
         }
         const value = parseInt(key, 10) - 1;
         if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
@@ -44,50 +39,12 @@ export class QuestionComponent implements OnChanges, OnInit {
     }
 
     confirmAndDisable(): void {
-        if (!this.buttonDisabled) {
+        if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
-            this.disableButton();
-        }
-    }
-
-    disableButton(): void {
-        const button = document.getElementById('confirm-button') as HTMLButtonElement;
-        if (button) {
-            button.disabled = true;
-            this.buttonDisabled = true;
         }
     }
 
     chatFocused(focus: boolean) {
         this.isChatFocused = focus;
-    }
-
-    resetButton(): void {
-        const button = document.getElementById('confirm-button') as HTMLButtonElement;
-        if (button) {
-            button.disabled = false;
-            this.buttonDisabled = false;
-        }
-    }
-
-    ngOnInit(): void {
-        this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
-            if (statePayload.state === GameState.LastQuestion) {
-                const button = document.getElementById('confirm-button') as HTMLButtonElement;
-                if (button) {
-                    button.disabled = true;
-                    this.buttonDisabled = true;
-                }
-            }
-        });
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes.question && this.changesCounter === 2) {
-            this.changesCounter = 0;
-            this.resetButton();
-        }
-
-        this.changesCounter++;
     }
 }

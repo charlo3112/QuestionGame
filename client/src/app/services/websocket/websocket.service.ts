@@ -8,6 +8,7 @@ import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
 import { User } from '@common/interfaces/user';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
@@ -28,6 +29,7 @@ export class WebSocketService {
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
+    private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
 
     constructor() {
         this.connect();
@@ -171,6 +173,10 @@ export class WebSocketService {
         return this.alertSubject.asObservable();
     }
 
+    getUserGameInfo(): Observable<UserGameInfo> {
+        return this.userGameInfoSubject.asObservable();
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {
@@ -210,6 +216,7 @@ export class WebSocketService {
         this.listenForUsersStat(); // 6
         this.listenForHistogramData(); // 7
         this.listenForAlert(); // 8
+        this.listenForUserGameInfo(); // 9
     }
 
     private listenForClosedConnection() {
@@ -263,6 +270,12 @@ export class WebSocketService {
     private listenForAlert() {
         this.socket.on('game:alert', (message: string) => {
             this.alertSubject.next(message);
+        });
+    }
+
+    private listenForUserGameInfo() {
+        this.socket.on('game:user-game-info', (userGameInfo: UserGameInfo) => {
+            this.userGameInfoSubject.next(userGameInfo);
         });
     }
 }

@@ -10,6 +10,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Subscription } from 'rxjs';
@@ -26,6 +27,7 @@ export class GameSubscriptionService implements OnDestroy {
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
     sortOption: SortOption = SortOption.UsernameAscending;
+    isValidate: boolean = false;
     private currentState: GameState = GameState.NotStarted;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
@@ -35,6 +37,7 @@ export class GameSubscriptionService implements OnDestroy {
     private usersStatSubscription: Subscription;
     private histogramDataSubscription: Subscription;
     private alertSubscription: Subscription;
+    private userGameInfoSubscription: Subscription;
 
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
@@ -52,6 +55,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToUsersStatUpdate();
         this.subscribeToHistogramData();
         this.subscribeToAlert();
+        this.subscribeToUserGameInfo();
     }
 
     get state(): GameState {
@@ -66,7 +70,6 @@ export class GameSubscriptionService implements OnDestroy {
             newState = state;
         }
         this.currentState = newState.state;
-        this.question = undefined;
         if (this.currentState === GameState.NotStarted) {
             this.reset();
             return;
@@ -87,7 +90,7 @@ export class GameSubscriptionService implements OnDestroy {
             this.question = newState.payload as Question;
             this.choicesSelected = [false, false, false, false];
         }
-        if (this.currentState === GameState.ShowResults) {
+        if (this.currentState === GameState.ShowResults || this.currentState === GameState.LastQuestion) {
             this.question = newState.payload as Question;
         }
         if (this.currentState === GameState.Starting) {
@@ -122,6 +125,10 @@ export class GameSubscriptionService implements OnDestroy {
         }
         if (this.alertSubscription) {
             this.alertSubscription.unsubscribe();
+        }
+
+        if (this.userGameInfoSubscription) {
+            this.userGameInfoSubscription.unsubscribe();
         }
     }
 
@@ -256,6 +263,15 @@ export class GameSubscriptionService implements OnDestroy {
         this.alertSubscription = this.websocketService.getAlert().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
+            },
+        });
+    }
+
+    private subscribeToUserGameInfo() {
+        this.userGameInfoSubscription = this.websocketService.getUserGameInfo().subscribe({
+            next: (userGameInfo: UserGameInfo) => {
+                this.choicesSelected = userGameInfo.choice;
+                this.isValidate = userGameInfo.validate;
             },
         });
     }

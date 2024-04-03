@@ -62,6 +62,7 @@ export class Users {
     addUser(user: UserData) {
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }
 
     banUser(name: string): string {
@@ -99,6 +100,7 @@ export class Users {
     resetAnswers(): void {
         this.users.forEach((user) => {
             user.resetChoice();
+            this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
         });
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
@@ -141,6 +143,7 @@ export class Users {
         this.activeUsers.delete(userId);
         this.users.set(user.uid, user);
         this.activeUsers.add(user.uid);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
         return user.isHost();
     }
 
@@ -176,6 +179,7 @@ export class Users {
         }
         user.validate = new Date().getTime();
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }
 
     removeActiveUser(userId: string) {
@@ -214,6 +218,7 @@ export class Users {
         }
         user.newChoice = choice;
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }
 
     getCurrentHistogramData(choices: ChoiceData[]): number[] {
@@ -234,6 +239,7 @@ export class Users {
     resetFinalResults() {
         this.users.forEach((user) => {
             user.resetFinalResults();
+            this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
         });
     }
 }

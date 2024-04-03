@@ -216,6 +216,7 @@ export class ActiveGame {
             case GameState.ShowResults:
                 if (this.questionIndex < this.game.questions.length) {
                     await this.timer.start(TIME_CONFIRM_S);
+                    ++this.questionIndex;
                     await this.askQuestion();
                 } else {
                     this.advanceState(GameState.GameOver);
@@ -241,7 +242,7 @@ export class ActiveGame {
         this.advanceState(GameState.ShowResults);
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
 
-        if (++this.questionIndex === this.game.questions.length) {
+        if (this.questionIndex + 1 === this.game.questions.length) {
             this.advanceState(GameState.LastQuestion);
             if (this.historyService) {
                 const history: CreateHistoryDto = {
@@ -259,6 +260,7 @@ export class ActiveGame {
             }
         } else if (this.users.hostIsPlaying) {
             await this.timer.start(TIME_CONFIRM_S);
+            ++this.questionIndex;
             await this.askQuestion();
         }
     }

@@ -1,6 +1,7 @@
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Score } from '@common/interfaces/score';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -49,5 +50,9 @@ export class GameGatewaySend {
 
     sendAlert(roomId: string, message: string): void {
         this.server.to(roomId).emit('game:alert', message);
+    }
+
+    sendUserGameInfo(userId: string, userGameInfo: UserGameInfo): void {
+        this.server.to(userId).emit('game:user-game-info', userGameInfo);
     }
 }
