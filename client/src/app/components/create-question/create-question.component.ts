@@ -61,7 +61,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly createQuestionService: CreateQuestionService,
-        private snackBar: MatSnackBar,
+        private readonly snackBar: MatSnackBar,
     ) {}
 
     ngOnInit() {

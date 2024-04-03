@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
@@ -16,7 +16,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule, MatSnackBarModule],
+    imports: [RouterModule, CommonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];
@@ -45,10 +45,10 @@ export class StartGamePageComponent implements OnInit {
                     game.image = 'assets/logo.png';
                 });
             } else {
-                this.openSnackBar(ERROR_FETCHING_GAMES);
+                this.snackBar.open(ERROR_FETCHING_GAMES, undefined, { duration: SNACKBAR_DURATION });
             }
         } catch (error) {
-            this.openSnackBar(ERROR_FETCHING_GAMES);
+            this.snackBar.open(ERROR_FETCHING_GAMES, undefined, { duration: SNACKBAR_DURATION });
         }
     }
 
@@ -56,14 +56,8 @@ export class StartGamePageComponent implements OnInit {
         try {
             this.canCreateRandom = await firstValueFrom(this.communicationService.canCreateRandom());
         } catch (error) {
-            this.openSnackBar('Erreur lors de la vérification de la création de jeu aléatoire');
+            this.snackBar.open('Erreur lors de la vérification de la création de jeu aléatoire', undefined, { duration: SNACKBAR_DURATION });
         }
-    }
-
-    openSnackBar(message: string) {
-        this.snackBar.open(message, undefined, {
-            duration: SNACKBAR_DURATION,
-        });
     }
 
     async startGame(game: Game): Promise<void> {
@@ -78,7 +72,8 @@ export class StartGamePageComponent implements OnInit {
                 return;
             }
         }
-        this.openSnackBar('Impossible de créer un jeu aléatoire');
+
+        this.snackBar.open('Impossible de créer un jeu aléatoire', undefined, { duration: SNACKBAR_DURATION });
         await this.verifyRandomGame();
     }
 

@@ -28,7 +28,7 @@ import { GameService } from '@app/services/game/game.service';
     ],
 })
 export class ResultPageComponent implements OnDestroy, OnInit {
-    constructor(readonly gameService: GameService) {}
+    constructor(private readonly gameService: GameService) {}
 
     async ngOnInit() {
         await this.gameService.init();

@@ -27,9 +27,9 @@ export class JoinGamePageComponent {
 
     // eslint-disable-next-line max-params
     constructor(
-        private webSocketService: WebSocketService,
-        private snackBar: MatSnackBar,
-        private router: Router,
+        private readonly webSocketService: WebSocketService,
+        private readonly snackBar: MatSnackBar,
+        private readonly router: Router,
         private readonly sessionStorageService: SessionStorageService,
     ) {}
 

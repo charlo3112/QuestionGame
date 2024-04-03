@@ -45,8 +45,8 @@ export class AdminPageComponent implements OnInit {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly adminService: AdminService,
-        private snackBar: MatSnackBar,
-        public dialog: MatDialog,
+        private readonly snackBar: MatSnackBar,
+        private readonly dialog: MatDialog,
     ) {}
 
     async ngOnInit() {

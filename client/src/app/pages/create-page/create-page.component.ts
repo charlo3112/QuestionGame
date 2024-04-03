@@ -71,9 +71,9 @@ export class CreatePageComponent implements OnInit {
         private readonly gameCreationService: GameCreationService,
         private readonly questionInsertionService: QuestionInsertionService,
         private readonly adminService: AdminService,
+        private readonly snackBar: MatSnackBar,
+        private readonly router: Router,
         private route: ActivatedRoute,
-        private snackBar: MatSnackBar,
-        private router: Router,
     ) {}
 
     ngOnInit() {

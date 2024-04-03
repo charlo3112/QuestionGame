@@ -44,10 +44,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     // eslint-disable-next-line max-params
     constructor(
-        readonly sessionStorageService: SessionStorageService,
+        private readonly sessionStorageService: SessionStorageService,
+        private readonly dialog: MatDialog,
+        private readonly router: Router,
         readonly gameService: GameService,
-        public dialog: MatDialog,
-        public router: Router,
     ) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
