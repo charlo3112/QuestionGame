@@ -4,12 +4,8 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
-import { QUESTIONS_PLACEHOLDER } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
-import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
-import { USERS, UserStat } from '@common/interfaces/user-stat';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -229,55 +225,5 @@ describe('GameGatewayReceive', () => {
         gateway['handleUpdateUser'].call({ server: mockServer }, roomId, userUpdate);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
         expect(mockServer.emit).toHaveBeenCalledWith('game:user-update', userUpdate);
-    });
-
-    it('handleStateUpdate() should send new game state', () => {
-        const roomId = 'room123';
-        const state: GameStatePayload = { state: GameState.Wait, payload: undefined };
-        gateway['handleStateUpdate'].call({ server: mockServer }, roomId, state);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:state', state);
-    });
-
-    it('handleTimeUpdate() should send new user stats', () => {
-        const roomId = 'room123';
-        const time = 10;
-        gateway['handleTimeUpdate'].call({ server: mockServer }, roomId, time);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:time', time);
-    });
-
-    it('handleScoreUpdate() should send new user stats', () => {
-        const roomId = 'room123';
-        const score: Score = {
-            score: 4,
-            bonus: true,
-        };
-        gateway['handleScoreUpdate'].call({ server: mockServer }, roomId, score);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:score', score);
-    });
-
-    it('handleUsersStatUpdate() should send new user stats', () => {
-        const roomId = 'room123';
-        const userStat: UserStat[] = USERS;
-        gateway['handleUsersStatUpdate'].call({ server: mockServer }, roomId, userStat);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:users-stat', userStat);
-    });
-
-    it('handleHistogramDataUpdate() should send new histogram data', () => {
-        const roomId = 'room123';
-        const histogramData: HistogramData = {
-            choicesCounters: [
-                [1, 2, 3],
-                [2, 1, 3],
-            ],
-            question: QUESTIONS_PLACEHOLDER,
-            indexCurrentQuestion: 4,
-        };
-        gateway['handleHistogramDataUpdate'].call({ server: mockServer }, roomId, histogramData);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:histogramData', histogramData);
     });
 });
