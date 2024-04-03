@@ -144,22 +144,40 @@ export class GameSubscriptionService implements OnDestroy {
 
     sortUsers(): void {
         this.usersStat.sort((a, b) => {
+            let result = 0;
             switch (this.sortOption) {
                 case SortOption.UsernameAscending:
-                    return a.username.localeCompare(b.username);
+                    result = a.username.localeCompare(b.username);
+                    break;
                 case SortOption.UsernameDescending:
-                    return b.username.localeCompare(a.username);
+                    result = b.username.localeCompare(a.username);
+                    break;
                 case SortOption.ScoreAscending:
-                    return a.score - b.score;
+                    result = a.score - b.score;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
                 case SortOption.ScoreDescending:
-                    return b.score - a.score;
+                    result = b.score - a.score;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
                 case SortOption.StateAscending:
-                    return a.state - b.state;
+                    result = a.state - b.state;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
                 case SortOption.StateDescending:
-                    return b.state - a.state;
-                default:
-                    return 0;
+                    result = b.state - a.state;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
             }
+            return result;
         });
     }
 
