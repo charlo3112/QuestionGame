@@ -21,7 +21,7 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
     roomLocked = false;
 
     constructor(
-        private websocketService: WebSocketService,
+        private readonly websocketService: WebSocketService,
         readonly gameService: GameService,
     ) {
         this.gameService.reset();
