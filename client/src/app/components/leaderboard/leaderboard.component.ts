@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SortOption } from '@app/enums/sort-option';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
@@ -10,7 +11,7 @@ import { UserState } from '@common/enums/user-state';
     selector: 'app-leaderboard',
     templateUrl: './leaderboard.component.html',
     styleUrls: ['./leaderboard.component.scss'],
-    imports: [CommonModule, MatButtonModule],
+    imports: [CommonModule, MatButtonModule, MatIconModule],
     standalone: true,
 })
 export class LeaderboardComponent {

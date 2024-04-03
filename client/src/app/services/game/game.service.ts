@@ -100,6 +100,10 @@ export class GameService {
         this.gameSubscriptionService.sortUsers();
     }
 
+    setChat(username: string, value: boolean): void {
+        this.websocketService.setChat(username, value);
+    }
+
     async init() {
         const res = await this.sessionStorageService.initUser();
         if (!res.ok) {

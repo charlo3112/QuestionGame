@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { GameService } from '@app/services/game/game.service';
 import { UserState } from '@common/enums/user-state';
@@ -25,7 +27,7 @@ describe('LeaderboardComponent', () => {
         mockUsersStat = [];
 
         TestBed.configureTestingModule({
-            imports: [LeaderboardComponent, CommonModule],
+            imports: [LeaderboardComponent, CommonModule, MatIconModule, MatButtonModule],
             providers: [
                 { provide: MatSnackBar, useValue: snackBarMock },
                 { provide: GameService, useValue: gameService },
