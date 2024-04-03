@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
@@ -24,6 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
+    sortOption: SortOption = SortOption.UsernameAscending;
     private currentState: GameState = GameState.NotStarted;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
@@ -140,6 +142,45 @@ export class GameSubscriptionService implements OnDestroy {
         this.choicesSelected = [false, false, false, false];
     }
 
+    sortUsers(): void {
+        this.usersStat.sort((a, b) => {
+            let result = 0;
+            switch (this.sortOption) {
+                case SortOption.UsernameAscending:
+                    result = a.username.localeCompare(b.username);
+                    break;
+                case SortOption.UsernameDescending:
+                    result = b.username.localeCompare(a.username);
+                    break;
+                case SortOption.ScoreAscending:
+                    result = a.score - b.score;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
+                case SortOption.ScoreDescending:
+                    result = b.score - a.score;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
+                case SortOption.StateAscending:
+                    result = a.state - b.state;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
+                case SortOption.StateDescending:
+                    result = b.state - a.state;
+                    if (result === 0) {
+                        result = a.username.localeCompare(b.username);
+                    }
+                    break;
+            }
+            return result;
+        });
+    }
+
     private subscribeToTimeUpdate() {
         this.timeSubscription = this.websocketService.getTime().subscribe({
             next: (time: number) => {
@@ -194,6 +235,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
+                this.sortUsers();
             },
         });
     }

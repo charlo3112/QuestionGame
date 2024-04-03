@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { SortOption } from '@app/enums/sort-option';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
@@ -88,6 +89,19 @@ export class GameService {
 
     get playersList(): Set<string> {
         return this.gameSubscriptionService.players;
+    }
+
+    get sortOption(): SortOption {
+        return this.gameSubscriptionService.sortOption;
+    }
+
+    set sortOption(option: SortOption) {
+        this.gameSubscriptionService.sortOption = option;
+        this.gameSubscriptionService.sortUsers();
+    }
+
+    setChat(username: string, value: boolean): void {
+        this.websocketService.setChat(username, value);
     }
 
     async init() {
@@ -239,9 +253,6 @@ export class GameService {
             return false;
         }
         return true;
-    }
-    orderPlayers() {
-        // TODO
     }
 
     private isResponseGood(): boolean {
