@@ -4,3 +4,10 @@ export interface User {
     name: string;
     play: boolean;
 }
+
+export const USER: User = {
+    userId: '',
+    roomId: '',
+    name: '',
+    play: false,
+};

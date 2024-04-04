@@ -62,43 +62,8 @@ export class GameSubscriptionService implements OnDestroy {
         return this.currentState;
     }
 
-    set state(state: GameStatePayload | GameState) {
-        let newState: GameStatePayload = { state: GameState.NotStarted };
-        if (typeof state === 'number') {
-            newState.state = state;
-        } else {
-            newState = state;
-        }
-        this.currentState = newState.state;
-        if (this.currentState === GameState.NotStarted) {
-            this.reset();
-            return;
-        }
-        if (this.currentState === GameState.Wait) {
-            if (this.routerService.url !== '/loading') {
-                this.routerService.navigate(['/loading']);
-            }
-            return;
-        }
-        if (this.currentState === GameState.ShowFinalResults) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
-            return;
-        }
-        if (this.currentState === GameState.AskingQuestion) {
-            this.question = newState.payload as Question;
-            this.choicesSelected = [false, false, false, false];
-        }
-        if (this.currentState === GameState.ShowResults || this.currentState === GameState.LastQuestion) {
-            this.question = newState.payload as Question;
-        }
-        if (this.currentState === GameState.Starting) {
-            this.title = newState.payload as string;
-        }
-        if (this.routerService.url !== '/game') {
-            this.routerService.navigate(['/game']);
-        }
+    set state(state: GameState) {
+        this.currentState = state;
     }
 
     ngOnDestroy() {
@@ -139,7 +104,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.players.clear();
         (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
         this.players.delete(HOST_NAME);
-        this.state = state;
+        this.setState(state);
     }
 
     reset() {
@@ -212,7 +177,7 @@ export class GameSubscriptionService implements OnDestroy {
     private subscribeToStateUpdate() {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
-                this.state = state;
+                this.setState(state);
             },
         });
     }
@@ -270,5 +235,38 @@ export class GameSubscriptionService implements OnDestroy {
                 this.isValidate = userGameInfo.validate;
             },
         });
+    }
+
+    private setState(state: GameStatePayload) {
+        this.currentState = state.state;
+        if (this.currentState === GameState.NotStarted) {
+            this.reset();
+            return;
+        }
+        if (this.currentState === GameState.Wait) {
+            if (this.routerService.url !== '/loading') {
+                this.routerService.navigate(['/loading']);
+            }
+            return;
+        }
+        if (this.currentState === GameState.ShowFinalResults) {
+            if (this.routerService.url !== '/results') {
+                this.routerService.navigate(['/results']);
+            }
+            return;
+        }
+        if (this.currentState === GameState.AskingQuestion) {
+            this.question = state.payload as Question;
+            this.choicesSelected = [false, false, false, false];
+        }
+        if (this.currentState === GameState.ShowResults || this.currentState === GameState.LastQuestion) {
+            this.question = state.payload as Question;
+        }
+        if (this.currentState === GameState.Starting) {
+            this.title = state.payload as string;
+        }
+        if (this.routerService.url !== '/game') {
+            this.routerService.navigate(['/game']);
+        }
     }
 }

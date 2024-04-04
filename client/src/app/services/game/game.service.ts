@@ -64,8 +64,7 @@ export class GameService {
         if (
             this.gameSubscriptionService.state !== GameState.AskingQuestion &&
             this.gameSubscriptionService.state !== GameState.ShowResults &&
-            this.gameSubscriptionService.state !== GameState.LastQuestion &&
-            this.gameSubscriptionService.state !== GameState.WaitingResults
+            this.gameSubscriptionService.state !== GameState.LastQuestion
         )
             return undefined;
         return this.gameSubscriptionService.question;
@@ -166,7 +165,7 @@ export class GameService {
     }
 
     selectChoice(index: number) {
-        if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
+        if (this.gameSubscriptionService.state === GameState.AskingQuestion && !this.isValidationDisabled) {
             this.gameSubscriptionService.choicesSelected[index] = !this.gameSubscriptionService.choicesSelected[index];
             this.websocketService.sendChoice(this.gameSubscriptionService.choicesSelected);
         }
@@ -176,7 +175,6 @@ export class GameService {
         if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
             this.websocketService.validateChoice();
         }
-        this.gameSubscriptionService.state = GameState.WaitingResults;
     }
 
     nextQuestion() {

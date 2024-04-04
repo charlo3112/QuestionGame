@@ -219,7 +219,7 @@ export class ActiveGame {
                     ++this.questionIndex;
                     await this.askQuestion();
                 } else {
-                    this.advanceState(GameState.GameOver);
+                    this.advanceState(GameState.ShowFinalResults);
                 }
                 break;
             default:
