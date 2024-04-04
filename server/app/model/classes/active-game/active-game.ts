@@ -205,6 +205,14 @@ export class ActiveGame {
         this.timer.stop();
     }
 
+    startPanicking(): void {
+        this.timer.panic = true;
+    }
+
+    async togglePause(): Promise<void> {
+        await this.timer.toggle();
+    }
+
     async advance(): Promise<void> {
         switch (this.state) {
             case GameState.Wait:

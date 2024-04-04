@@ -32,6 +32,7 @@ export const MIN_ROOM_NUMBER = 1000;
 export const MAX_ROOM_NUMBER = 9999;
 
 export const TIMEOUT_DURATION = 1000;
+export const PANIC_DURATION = 250;
 
 export const ROOM_CODE_LENGTH = 4;
 
