@@ -107,18 +107,22 @@ export class QuestionService {
         let nbOfWrongChoices = 0;
         let arePointsCorrect = false;
         let areChoicesCorrect = false;
+        let answersAreCorrect = false;
         const resultModulo = questionData.points.valueOf() % PONDERATION_INCREMENT;
         for (const choice of questionData.choices) {
             if (choice.isCorrect) {
                 nbOfRightChoices++;
             } else nbOfWrongChoices++;
         }
+        if ((nbOfRightChoices >= 1 && nbOfWrongChoices >= 0) || questionData.type === 'QRL') {
+            answersAreCorrect = true;
+        }
         if (resultModulo === 0 && questionData.points <= MAX_NB_OF_POINTS && questionData.points >= MIN_NB_OF_POINTS) {
             arePointsCorrect = true;
         }
-        if (questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) {
+        if ((questionData.choices.length <= MAX_CHOICES_NUMBER && questionData.choices.length > 0) || questionData.type === 'QRL') {
             areChoicesCorrect = true;
         }
-        return areChoicesCorrect && arePointsCorrect && nbOfRightChoices >= 1 && nbOfWrongChoices >= 0;
+        return areChoicesCorrect && arePointsCorrect && answersAreCorrect;
     }
 }
