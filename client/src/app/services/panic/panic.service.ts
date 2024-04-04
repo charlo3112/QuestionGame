@@ -9,6 +9,7 @@ import { TimeEvent } from '@common/enums/time-event';
 export class PanicService implements OnDestroy {
     private audio: HTMLAudioElement;
     private timeEventSubscription: Subscription;
+    private pause: boolean;
 
     constructor(private readonly websocketService: WebSocketService) {
         this.listenForTimeEvent();
@@ -26,14 +27,23 @@ export class PanicService implements OnDestroy {
         this.timeEventSubscription = this.websocketService.getTimeEvent().subscribe((timeEvent) => {
             switch (timeEvent) {
                 case TimeEvent.Panic:
+                    if (this.pause) {
+                        return;
+                    }
+                    this.audio.currentTime = 0;
                     this.audio.play();
                     break;
                 case TimeEvent.PanicEnd:
                     this.audio.pause();
+                    this.audio.currentTime = 0;
                     break;
                 case TimeEvent.Pause:
+                    this.pause = true;
                     this.audio.pause();
-                    this.audio.currentTime = 0;
+                    break;
+                case TimeEvent.Resume:
+                    this.pause = false;
+                    this.audio.play();
                     break;
             }
         });

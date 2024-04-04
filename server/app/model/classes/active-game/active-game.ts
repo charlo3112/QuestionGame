@@ -253,6 +253,7 @@ export class ActiveGame {
         this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
+        this.timer.panic = false;
         if (!this.isActive) return;
 
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);

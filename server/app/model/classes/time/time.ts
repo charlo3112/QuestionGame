@@ -1,5 +1,6 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { PANIC_DURATION, TIMEOUT_DURATION } from '@common/constants';
+import { TimeEvent } from '@common/enums/time-event';
 import { setTimeout } from 'timers/promises';
 
 export class CountDownTimer {
@@ -16,6 +17,11 @@ export class CountDownTimer {
     }
 
     set panic(value: boolean) {
+        if (value && !this.pause) {
+            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Panic);
+        } else if (!this.pause) {
+            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.PanicEnd);
+        }
         this.panicMode = value;
     }
 
@@ -48,6 +54,11 @@ export class CountDownTimer {
     }
 
     toggle() {
+        if (this.pause && this.panicMode) {
+            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Resume);
+        } else if (!this.pause && this.panicMode) {
+            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Pause);
+        }
         this.pause = !this.pause;
     }
 

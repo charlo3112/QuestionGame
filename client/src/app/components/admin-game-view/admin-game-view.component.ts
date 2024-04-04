@@ -18,6 +18,7 @@ import { Subscription } from 'rxjs';
 export class AdminGameViewComponent implements OnDestroy {
     private stateSubscription: Subscription;
     private panicking = false;
+    private pause = false;
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -29,6 +30,7 @@ export class AdminGameViewComponent implements OnDestroy {
     canPanic(): boolean {
         return (
             !this.panicking &&
+            !this.pause &&
             this.gameService.currentQuestion !== undefined &&
             ((this.gameService.currentQuestion.type === 'QCM' && this.gameService.time > MIN_TIME_PANIC_QCM_S) ||
                 (this.gameService.currentQuestion.type === 'QRL' && this.gameService.time > MIN_TIME_PANIC_QRL_S))
@@ -40,6 +42,7 @@ export class AdminGameViewComponent implements OnDestroy {
     }
 
     togglePause(): void {
+        this.pause = !this.pause;
         this.websocketService.togglePause();
     }
 
@@ -54,6 +57,7 @@ export class AdminGameViewComponent implements OnDestroy {
     private listenForStateChanges(): void {
         this.stateSubscription = this.websocketService.getState().subscribe(() => {
             this.panicking = false;
+            this.pause = false;
         });
     }
 }

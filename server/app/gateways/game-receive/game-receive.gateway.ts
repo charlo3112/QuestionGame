@@ -141,8 +141,8 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('game:pause')
-    async togglePause(client: Socket) {
-        await this.roomService.togglePause(client.id);
+    togglePause(client: Socket) {
+        this.roomService.togglePause(client.id);
     }
 
     @SubscribeMessage('game:panic')
