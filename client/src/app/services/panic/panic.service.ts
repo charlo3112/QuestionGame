@@ -23,7 +23,7 @@ export class PanicService implements OnDestroy {
         this.audio = new Audio('assets/panic.mp3');
     }
 
-    listenForTimeEvent() {
+    private listenForTimeEvent() {
         this.timeEventSubscription = this.websocketService.getTimeEvent().subscribe((timeEvent) => {
             switch (timeEvent) {
                 case TimeEvent.Panic:
