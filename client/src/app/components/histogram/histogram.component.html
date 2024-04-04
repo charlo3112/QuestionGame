@@ -3,7 +3,45 @@
         <mat-card-header>
             <h2 class="question-title">Question {{ indexQuestion + 1 }} : {{ this.gameService.histogram.question[indexQuestion].text }}</h2>
         </mat-card-header>
-        <mat-card-content>
+        <mat-card-content
+            *ngIf="
+                this.gameService.histogram.question[indexQuestion].type === questionType.QRL &&
+                this.gameService.histogram.question.length <= 1 &&
+                !showArrows
+            "
+        ></mat-card-content>
+        <mat-card-content
+            *ngIF="
+                this.gameService.histogram.question[indexQuestion].type === questionType.QRL &&
+                !(this.gameService.histogram.question.length <= 1) &&
+                showArrows
+            "
+        >
+            <div class="histogram">
+                <div class="choice-container">
+                    <div class="bar-container">
+                        <!-- <div class="bar"></div> -->
+                        <span class="counter-zero"> {{ 0 }} </span>
+                    </div>
+                    <span class="choice-text"> 0% </span>
+                </div>
+                <div class="choice-container">
+                    <div class="bar-container">
+                        <!-- <div class="bar"></div> -->
+                        <span class="counter-zero"> {{ 0 }} </span>
+                    </div>
+                    <span class="choice-text"> 50% </span>
+                </div>
+                <div class="choice-container">
+                    <div class="bar-container">
+                        <!-- <div class="bar"></div> -->
+                        <span class="counter-zero"> {{ 0 }} </span>
+                    </div>
+                    <span class="choice-text"> 100% </span>
+                </div>
+            </div>
+        </mat-card-content>
+        <mat-card-content *ngIf="this.gameService.histogram.question[indexQuestion].type === questionType.QCM">
             <div class="histogram">
                 <div *ngFor="let choice of this.gameService.histogram.question[indexQuestion]?.choices" class="choice-container">
                     <div class="bar-container">

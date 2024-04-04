@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { GameService } from '@app/services/game/game.service';
+import { QuestionType } from '@common/enums/question-type';
 import { Choice } from '@common/interfaces/choice';
 
 @Component({
@@ -16,6 +17,7 @@ import { Choice } from '@common/interfaces/choice';
 export class HistogramComponent {
     @Input() showArrows: boolean = true;
     indexQuestionDisplayed: number = 0;
+    questionType = QuestionType;
 
     constructor(readonly gameService: GameService) {}
 
