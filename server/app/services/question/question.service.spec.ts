@@ -237,6 +237,13 @@ describe('QuestionServiceEndToEnd', () => {
         question.setPoints(INVALID_POINTS);
         await expect(service.modifyQuestion(question)).rejects.toBeTruthy();
     });
+
+    it('getAllQCMQuestions() should return all QCM questions', async () => {
+        await questionModel.deleteMany({});
+        const question = getFakeQuestion();
+        await questionModel.create(question);
+        expect((await service.getAllQCMQuestions()).length).toEqual(1);
+    });
 });
 
 const getFakeCreateQuestionDto = (): CreateQuestionDto => {
