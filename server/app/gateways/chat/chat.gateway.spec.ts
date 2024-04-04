@@ -75,4 +75,28 @@ describe('ChatGateway', () => {
         gateway['handleDeleteRoom']('X');
         expect(gateway['roomMessages'].has('X')).toBeFalsy();
     });
+
+    it('handleMessage() should not send message if user cannot chat', () => {
+        stub(socket, 'rooms').value(new Set(['X']));
+        roomManagementService.getRoomId.returns('X');
+        roomManagementService.getUsername.returns('test');
+        roomManagementService.canChat.returns(false);
+        gateway.handleMessage(socket, 'X');
+        expect(server.to.notCalled).toBeTruthy();
+    });
+
+    it('handleMessage() should not send message if username is not found', () => {
+        stub(socket, 'rooms').value(new Set(['X']));
+        roomManagementService.getRoomId.returns('X');
+        roomManagementService.getUsername.returns(null);
+        roomManagementService.canChat.returns(true);
+        gateway.handleMessage(socket, 'X');
+        expect(server.to.notCalled).toBeTruthy();
+    });
+
+    it('handleGetMessages() should return empty array if room is not found', async () => {
+        stub(socket, 'rooms').value(new Set());
+        const res = await gateway.handleGetMessages(socket);
+        expect(res).toEqual([]);
+    });
 });
