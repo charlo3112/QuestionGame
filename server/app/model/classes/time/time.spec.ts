@@ -28,4 +28,10 @@ describe('Time', () => {
         await timer.stop();
         expect(timer).toBeDefined();
     });
+
+    it('should reset', () => {
+        const timer = new CountDownTimer('roomId', { sendTimeUpdate: jest.fn() } as unknown as GameGatewaySend);
+        timer.reset();
+        expect(timer).toBeDefined();
+    });
 });
