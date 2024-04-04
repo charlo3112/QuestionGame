@@ -22,3 +22,24 @@
 .accordion-container {
     width: 90%;
 }
+
+
+.row-container {
+    display: flex;
+    flex-direction: row;
+}
+.game-button {
+    margin: 10px;
+}
+.item-title {
+    font-weight: bold;
+    font-size: larger;
+    padding-right: 10px;
+}
+.panel-title {
+    font-weight: bold;
+    font-size: x-large;
+}
+.item-content {
+    font-size: larger;
+}

@@ -1,5 +1,5 @@
 <mat-card class="chat">
-    <h2 class="title">{{ this.username }}</h2>
+    <h2 class="title">{{ this.gameService.usernameValue }}</h2>
     <mat-divider></mat-divider>
     <div class="chat-text">
         <p *ngFor="let text of chat">{{ text.name }} ({{ calculateTime(text.timestamp) }}): {{ text.message }}</p>

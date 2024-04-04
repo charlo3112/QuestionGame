@@ -4,6 +4,7 @@ import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { GameService } from '@app/services/game/game.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
 import { HttpStatus } from '@nestjs/common';
@@ -15,15 +16,21 @@ import { GameController } from './game.controller';
 describe('GameController', () => {
     let controller: GameController;
     let gameService: SinonStubbedInstance<GameService>;
+    let questionService: SinonStubbedInstance<QuestionService>;
 
     beforeEach(async () => {
         gameService = createStubInstance(GameService);
+        questionService = createStubInstance(QuestionService);
         const module: TestingModule = await Test.createTestingModule({
             controllers: [GameController],
             providers: [
                 {
                     provide: GameService,
                     useValue: gameService,
+                },
+                {
+                    provide: QuestionService,
+                    useValue: questionService,
                 },
             ],
         }).compile();

@@ -1,11 +1,29 @@
 <mat-toolbar class="toolbar" color="primary">
     <a routerLink="/home"><img src="assets/logo.png" /></a>
-    <h1 class="title">{{ title }}</h1>
+    <h1 class="title">Liste de jeux</h1>
 </mat-toolbar>
 <div class="content">
+    
     <div class="accordion-container">
-        <mat-accordion *ngFor="let game of games; index as i">
-            <app-startgame-expansion [gameDetails]="game" (startGame)="startGame(game)" (testGame)="testGame(game)"> </app-startgame-expansion>
+        <mat-accordion>
+            <mat-expansion-panel *ngIf="canCreateRandom">
+                <mat-expansion-panel-header>
+                    <mat-panel-title class="panel-title"> mode aléatoire </mat-panel-title>
+                </mat-expansion-panel-header>
+                <ng-template matExpansionPanelContent class="row-container">
+                    <div>
+                        <p class="item-title">Description du jeu:</p>
+                        <p class="item-content">mode aléatoire</p>
+                        <p class="item-title">Temps alloué:</p>
+                        <p class="item-content">20 secondes</p>
+                        <div class="row-container">
+                            <button mat-raised-button color="primary" class="game-button" (click)="startRandomGame()">Commencer</button>
+                        </div>
+                    </div>
+                </ng-template>
+            </mat-expansion-panel>
+            
+            <app-startgame-expansion *ngFor="let game of games; index as i" [gameDetails]="game" (startGame)="startGame(game)" (testGame)="testGame(game)"> </app-startgame-expansion>
         </mat-accordion>
     </div>
 </div>

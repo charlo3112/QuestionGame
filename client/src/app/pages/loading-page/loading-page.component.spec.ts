@@ -4,7 +4,6 @@ import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game/game.service';
-import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { of } from 'rxjs';
 import { LoadingPageComponent } from './loading-page.component';
@@ -14,7 +13,6 @@ describe('LoadingPageComponent', () => {
     let fixture: ComponentFixture<LoadingPageComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
     let mockGameService: jasmine.SpyObj<GameService>;
-    let mockTimeService: jasmine.SpyObj<TimeService>;
     let router: Router;
 
     beforeEach(async () => {
@@ -36,13 +34,11 @@ describe('LoadingPageComponent', () => {
             ]),
         );
         mockGameService = jasmine.createSpyObj('GameService', ['reset', 'init', 'leaveRoom']);
-        mockTimeService = jasmine.createSpyObj('TimeService', ['start', 'stop', 'reset', 'time']);
         TestBed.configureTestingModule({
             imports: [LoadingPageComponent, RouterModule.forRoot(routes), BrowserAnimationsModule, NoopAnimationsModule, RouterTestingModule],
             providers: [
                 { provide: WebSocketService, useValue: mockWebSocketService },
                 { provide: GameService, useValue: mockGameService },
-                { provide: TimeService, useValue: mockTimeService },
             ],
         });
 
@@ -78,13 +74,5 @@ describe('LoadingPageComponent', () => {
     it('should start game on button click', () => {
         component.onStartGame();
         expect(mockWebSocketService.hostConfirm.calls.any()).toBeTrue();
-    });
-
-    it('should return current time from TimeService', () => {
-        const expectedTime = 100;
-        Object.defineProperty(mockTimeService, 'time', { get: () => expectedTime });
-        const actualTime = component.time;
-        expect(actualTime).toEqual(expectedTime);
-        expect(mockTimeService.time).toBe(expectedTime);
     });
 });

@@ -6,7 +6,9 @@ import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
+import { SetChatPayload } from '@common/interfaces/set-chat-payload';
 import { User } from '@common/interfaces/user';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
@@ -26,6 +28,8 @@ export class WebSocketService {
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
+    private alertSubject: Subject<string> = new Subject<string>();
+    private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
 
     constructor() {
         this.connect();
@@ -37,6 +41,11 @@ export class WebSocketService {
 
     sendMessage(message: string): void {
         this.socket.emit('message:send', message);
+    }
+
+    setChat(username: string, value: boolean): void {
+        const payload: SetChatPayload = { username, value };
+        this.socket.emit('game:set-chat', payload);
     }
 
     async createRoom(gameId: string): Promise<User> {
@@ -67,6 +76,10 @@ export class WebSocketService {
         this.socket.emit('game:leave');
     }
 
+    startTest(): void {
+        this.socket.emit('game:start-test');
+    }
+
     showFinalResults() {
         this.socket.emit('game:results');
     }
@@ -91,6 +104,14 @@ export class WebSocketService {
         const payloadJoin: PayloadJoinGame = { gameCode, username };
         return new Promise<Result<GameState>>((resolve) => {
             this.socket.emit('game:join', payloadJoin, (res: Result<GameState>) => {
+                resolve(res);
+            });
+        });
+    }
+
+    async startRandom(): Promise<User> {
+        return new Promise<User>((resolve) => {
+            this.socket.emit('game:create-random', (res: User) => {
                 resolve(res);
             });
         });
@@ -148,6 +169,14 @@ export class WebSocketService {
         return this.histogramDataSubject.asObservable();
     }
 
+    getAlert(): Observable<string> {
+        return this.alertSubject.asObservable();
+    }
+
+    getUserGameInfo(): Observable<UserGameInfo> {
+        return this.userGameInfoSubject.asObservable();
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {
@@ -186,6 +215,8 @@ export class WebSocketService {
         this.listenForScoreUpdate(); // 5
         this.listenForUsersStat(); // 6
         this.listenForHistogramData(); // 7
+        this.listenForAlert(); // 8
+        this.listenForUserGameInfo(); // 9
     }
 
     private listenForClosedConnection() {
@@ -233,6 +264,18 @@ export class WebSocketService {
     private listenForHistogramData() {
         this.socket.on('game:histogramData', (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
+        });
+    }
+
+    private listenForAlert() {
+        this.socket.on('game:alert', (message: string) => {
+            this.alertSubject.next(message);
+        });
+    }
+
+    private listenForUserGameInfo() {
+        this.socket.on('game:user-game-info', (userGameInfo: UserGameInfo) => {
+            this.userGameInfoSubject.next(userGameInfo);
         });
     }
 }

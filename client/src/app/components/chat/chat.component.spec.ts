@@ -68,7 +68,6 @@ describe('ChatComponent', () => {
         fixture = TestBed.createComponent(ChatComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-        component.username = 'username';
     });
 
     it('should create', () => {

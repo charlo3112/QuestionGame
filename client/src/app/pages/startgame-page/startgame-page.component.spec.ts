@@ -1,57 +1,49 @@
-import { HttpClientModule, HttpErrorResponse } from '@angular/common/http';
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { Router, RouterLink, RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
 import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
-import { routes } from '@app/modules/app-routing.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
-import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { GameState } from '@common/enums/game-state';
-import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
-import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
+import { Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
-import SpyObj = jasmine.SpyObj;
 
 describe('StartGamePageComponent', () => {
     let component: StartGamePageComponent;
     let fixture: ComponentFixture<StartGamePageComponent>;
-    let router: Router;
-    let communicationServiceSpy: SpyObj<CommunicationService>;
-    let snackBarSpy: SpyObj<MatSnackBar>;
-    let webSocketServiceSpy: SpyObj<WebSocketService>;
+    let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
     let mockGameService: jasmine.SpyObj<GameService>;
 
-    beforeEach(async () => {
-        webSocketServiceSpy = jasmine.createSpyObj('WebSocketService', ['createRoom']);
-        communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['getGames', 'getGameByID']);
-        communicationServiceSpy.getGames.and.returnValue(of({ ok: true, value: [GAME_PLACEHOLDER] } as Result<Game[]>));
-        mockGameService = jasmine.createSpyObj(
-            'GameService',
-            [
-                'init',
-                'leaveRoom',
-                'isChoiceSelected',
-                'isChoiceCorrect',
-                'isChoiceIncorrect',
-                'timerSubscribe',
-                'nextQuestion',
-                'showResults',
-                'stateSubscribe',
-                'reset',
-                'createRoom',
+    beforeEach(() => {
+        mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGames', 'canCreateRandom']);
+        mockGameService = jasmine.createSpyObj('GameService', ['reset', 'leaveRoom', 'startGame', 'startRandomGame', 'testGame']);
+        mockGameService.startGame.and.returnValue(Promise.resolve(true));
+        mockGameService.startRandomGame.and.returnValue(Promise.resolve(true));
+        mockGameService.testGame.and.returnValue(Promise.resolve(true));
+
+        TestBed.configureTestingModule({
+            imports: [
+                StartGamePageComponent,
+                CommonModule,
+                MatButtonModule,
+                MatExpansionModule,
+                StartGameExpansionComponent,
+                MatToolbarModule,
+                BrowserAnimationsModule,
+                NoopAnimationsModule,
             ],
-            {
-                currentQuestion: QUESTION_PLACEHOLDER,
-                currentState: GameState.Starting,
-            },
-        );
-        mockGameService.timerSubscribe.and.returnValue(of(0));
+            providers: [
+                MatSnackBar,
+                { provide: CommunicationService, useValue: mockCommunicationService },
+                { provide: GameService, useValue: mockGameService },
+            ],
+        }).compileComponents();
+
         const mockGame: Game = {
             gameId: '123',
             visibility: true,
@@ -61,134 +53,76 @@ describe('StartGamePageComponent', () => {
             lastModification: '2021-06-01T00:00:00.000Z',
             questions: [],
         };
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockGame }));
-        webSocketServiceSpy.createRoom.and.returnValue(
-            Promise.resolve({
-                userId: 'user123',
-                roomId: 'room123',
-                name: 'User Name',
-            }),
-        );
-
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-        await TestBed.configureTestingModule({
-            imports: [
-                StartGameExpansionComponent,
-                StartGamePageComponent,
-                RouterTestingModule,
-                RouterLink,
-                MatExpansionModule,
-                BrowserAnimationsModule,
-                NoopAnimationsModule,
-                MatSnackBarModule,
-                HttpClientModule,
-                RouterModule.forRoot(routes),
-            ],
-            providers: [
-                { provide: GameService, useValue: mockGameService },
-                { provide: CommunicationService, useValue: communicationServiceSpy },
-                { provide: MatSnackBar, useValue: snackBarSpy },
-            ],
-        }).compileComponents();
 
         fixture = TestBed.createComponent(StartGamePageComponent);
-        spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
         component = fixture.componentInstance;
+        mockCommunicationService.getGames.and.returnValue(of({ ok: true, value: [mockGame] }));
+        mockCommunicationService.canCreateRandom.and.returnValue(of(true));
         fixture.detectChanges();
-        router = TestBed.inject(Router);
-        router.initialNavigation();
     });
 
     it('should create', () => {
         expect(component).toBeTruthy();
     });
 
-    it('should have a title', () => {
-        expect(component.title).toBe('Liste de jeux');
+    it('should load games and verify random game on init', async () => {
+        await component.ngOnInit();
+        expect(mockCommunicationService.getGames).toHaveBeenCalled();
+        expect(mockCommunicationService.canCreateRandom).toHaveBeenCalled();
+        expect(mockGameService.reset).toHaveBeenCalled();
+        expect(mockGameService.leaveRoom).toHaveBeenCalled();
     });
 
-    it('should show snackbar when error occurs during loadGames', fakeAsync(() => {
-        communicationServiceSpy.getGames.and.returnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
-        spyOn(component, 'openSnackBar');
-        component.loadGames();
-        tick();
-        expect(component.openSnackBar).toHaveBeenCalled();
-    }));
-
-    it('should show snackbar when loadGames is called and is not ok', fakeAsync(() => {
-        communicationServiceSpy.getGames.and.returnValue(of({ ok: false } as Result<Game[]>));
-        spyOn(component, 'openSnackBar');
-        component.loadGames();
-        tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux");
-    }));
-
-    it('should have a list of games', () => {
-        expect(component.games.length).toBeGreaterThan(0);
-    });
-
-    it('should open snackbar when called', () => {
+    it('should handle errors when loading games', async () => {
+        mockCommunicationService.getGames.and.returnValue(throwError(() => new Error('Failed to load games')));
         spyOn(component['snackBar'], 'open');
-        component.openSnackBar('message');
-        expect(component['snackBar'].open).toHaveBeenCalledWith('message', 'Close', { duration: 4000 });
+        await component.loadGames();
+        expect(component['snackBar'].open).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux", undefined, jasmine.any(Object));
     });
 
-    it('should display snack bar message and reload games list when testing and game visibility is false', fakeAsync(() => {
-        const game = GAME_PLACEHOLDER;
-        game.visibility = false;
-        const mockResult = { ok: true, value: game };
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockResult.value } as Result<Game>));
+    it('should handle errors when loading games return ok=false', async () => {
+        mockCommunicationService.getGames.and.returnValue(of({ ok: false, error: '' } as Result<Game[]>));
+        spyOn(component['snackBar'], 'open');
+        await component.loadGames();
+        expect(component['snackBar'].open).toHaveBeenCalledWith("Erreur lors de l'obtention des jeux", undefined, jasmine.any(Object));
+    });
 
-        spyOn(component, 'openSnackBar');
-        spyOn(component, 'loadGames');
+    it('should handle errors when verifying random game', async () => {
+        mockCommunicationService.canCreateRandom.and.returnValue(throwError(() => new Error('Verification failed')));
+        spyOn(component['snackBar'], 'open');
+        await component.verifyRandomGame();
+        expect(component['snackBar'].open).toHaveBeenCalledWith(
+            'Erreur lors de la vérification de la création de jeu aléatoire',
+            undefined,
+            jasmine.any(Object),
+        );
+    });
 
-        component.testGame(game);
+    it('should not start random game if canCreateRandom is false', async () => {
+        mockCommunicationService.canCreateRandom.and.returnValue(of(false));
+        spyOn(component['snackBar'], 'open');
+        await component.startRandomGame();
+        expect(mockGameService.startRandomGame).not.toHaveBeenCalled();
+        expect(component['snackBar'].open).toHaveBeenCalledWith('Impossible de créer un jeu aléatoire', undefined, jasmine.any(Object));
+    });
 
-        tick();
+    it('should start random game if canCreateRandom is true', async () => {
+        spyOn(component['snackBar'], 'open');
+        await component.verifyRandomGame();
+        await component.startRandomGame();
+        expect(mockGameService.startRandomGame).toHaveBeenCalled();
+        expect(component['snackBar'].open).not.toHaveBeenCalled();
+    });
 
-        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux invisible, veuillez en choisir un autre');
-        expect(component.loadGames).toHaveBeenCalled();
-    }));
+    it('should reload games if starting a game fails', async () => {
+        mockGameService.startGame.and.returnValue(Promise.resolve(false));
+        await component.startGame({} as Game);
+        expect(mockCommunicationService.getGames).toHaveBeenCalled();
+    });
 
-    it('should display snack bar message and reload games list when starting and game visibility is false', fakeAsync(() => {
-        const game = GAME_PLACEHOLDER;
-        game.visibility = false;
-        const mockResult = { ok: true, value: game };
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: true, value: mockResult.value } as Result<Game>));
-
-        spyOn(component, 'openSnackBar');
-        spyOn(component, 'loadGames');
-        component.startGame(game);
-        tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux invisible, veuillez en choisir un autre');
-        expect(component.loadGames).toHaveBeenCalled();
-    }));
-
-    it('should display snack bar message and reload games list when testing and game fetch fails', fakeAsync(() => {
-        const mockGameId = 'mock-game-id';
-        const mockGame = { ...GAME_PLACEHOLDER, gameId: mockGameId };
-
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: false, error: 'Error fetching game' } as Result<Game>));
-
-        spyOn(component, 'openSnackBar');
-        spyOn(component, 'loadGames');
-        component.testGame(mockGame);
-        tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
-        expect(component.loadGames).toHaveBeenCalled();
-    }));
-
-    it('should display snack bar message and reload games list when starting and game fetch fails', fakeAsync(() => {
-        const mockGameId = 'mock-game-id';
-        const mockGame = { ...GAME_PLACEHOLDER, gameId: mockGameId };
-
-        communicationServiceSpy.getGameByID.and.returnValue(of({ ok: false, error: 'Error fetching game' } as Result<Game>));
-
-        spyOn(component, 'openSnackBar');
-        spyOn(component, 'loadGames');
-        component.startGame(mockGame);
-        tick();
-        expect(component.openSnackBar).toHaveBeenCalledWith('Jeux supprimé, veuillez en choisir un autre');
-        expect(component.loadGames).toHaveBeenCalled();
-    }));
+    it('should reload games if testing a game fails', async () => {
+        mockGameService.testGame.and.returnValue(Promise.resolve(false));
+        await component.testGame({} as Game);
+        expect(mockCommunicationService.getGames).toHaveBeenCalled();
+    });
 });

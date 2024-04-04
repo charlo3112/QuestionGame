@@ -14,6 +14,7 @@ import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { GameService } from '@app/services/game/game.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { Question } from '@common/interfaces/question';
@@ -40,26 +41,25 @@ import { Question } from '@common/interfaces/question';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     buttonText: string = 'Prochaine Question';
+
+    // eslint-disable-next-line max-params
     constructor(
+        private readonly sessionStorageService: SessionStorageService,
+        private readonly dialog: MatDialog,
+        private readonly router: Router,
         readonly gameService: GameService,
-        public dialog: MatDialog,
-        public router: Router,
     ) {}
     get question(): Question | undefined {
         return this.gameService.currentQuestion;
     }
 
     showButton(): boolean {
-        return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
-    }
-
-    saveGameData(buttonText: string): void {
-        sessionStorage.setItem(this.gameService.roomCodeValue, JSON.stringify({ buttonText }));
-    }
-
-    getGameData(): { buttonText: string } | null {
-        const gameStateData = sessionStorage.getItem(this.gameService.roomCodeValue);
-        return gameStateData ? JSON.parse(gameStateData) : null;
+        return (
+            ((this.gameService.currentState === GameState.ShowResults && !this.gameService.isPlaying) ||
+                this.gameService.currentState === GameState.LastQuestion) &&
+            this.gameService.isHost &&
+            (!this.gameService.isPlaying || this.sessionStorageService.test)
+        );
     }
 
     isStartingGame(): boolean {
@@ -68,6 +68,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     nextStep(): void {
         if (this.buttonText === 'Résultats') {
+            if (this.sessionStorageService.test) {
+                this.router.navigate(['/new']);
+                return;
+            }
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') {
             this.gameService.nextQuestion();
@@ -76,18 +80,19 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     async ngOnInit(): Promise<void> {
         await this.gameService.init();
-        const gameData = this.getGameData();
-        if (gameData === null) {
+        const gameData = this.sessionStorageService.gameData;
+        if (gameData === undefined) {
             this.buttonText = 'Prochaine Question';
         } else {
-            this.buttonText = gameData.buttonText;
+            this.buttonText = gameData;
         }
+        this.sessionStorageService.gameData = this.buttonText;
         this.gameService.stateSubscribe().subscribe((statePayload: GameStatePayload) => {
             if (statePayload.state === GameState.LastQuestion) {
                 this.buttonText = 'Résultats';
+                this.sessionStorageService.gameData = this.buttonText;
             }
         });
-        window.onbeforeunload = () => this.saveGameData(this.buttonText);
     }
 
     ngOnDestroy(): void {

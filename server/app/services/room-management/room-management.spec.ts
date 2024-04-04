@@ -1,53 +1,39 @@
 /* eslint-disable no-unused-vars */
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { GameData } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { HistoryService } from '@app/services/history/history.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
-import { Score } from '@common/interfaces/score';
-import { UserStat } from '@common/interfaces/user-stat';
-import { Logger } from '@nestjs/common';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { RoomManagementService } from './room-management.service';
 
 describe('RoomManagementService', () => {
     let service: RoomManagementService;
-    let mockLogger: Logger;
+    let mockGateway: SinonStubbedInstance<GameGatewaySend>;
+    let mockHistoryService: HistoryService;
+    let mockQuestionService: QuestionService;
 
-    const updateStateMock = (roomId: string, gameState: GameStatePayload) => {
-        return;
-    };
-
-    const updateScoreMock = (roomId: string, score: Score) => {
-        return;
-    };
-
-    const updateTimeMock = (roomId: string, time: number) => {
-        return;
-    };
-
-    const updateHistogramData = (roomId: string, histogramData: HistogramData) => {
-        return;
-    };
-
-    const updateUsersStat = (roomId: string, userStat: UserStat[]) => {
-        return;
-    };
+    let mockSystemMessage = jest.fn();
 
     beforeEach(() => {
-        mockLogger = { log: jest.fn(), error: jest.fn(), warn: jest.fn(), debug: jest.fn(), verbose: jest.fn() } as unknown as Logger;
-        service = new RoomManagementService(mockLogger);
+        mockGateway = createStubInstance<GameGatewaySend>(GameGatewaySend);
+        mockHistoryService = {} as unknown as HistoryService;
+        mockQuestionService = { getAllQCMQuestions: jest.fn() } as unknown as QuestionService;
+        service = new RoomManagementService(mockGateway, mockHistoryService, mockQuestionService);
 
-        service.setDisconnectUser(jest.fn());
-        service.setUpdateUser(jest.fn());
+        mockSystemMessage = jest.fn();
+
         service.setGatewayCallback(jest.fn());
+        service.setSystemMessageCallback(mockSystemMessage);
     });
 
-    it('should create a game room and return user details', () => {
+    it('should create a game room and return user details', async () => {
         const game: GameData = getFakeGame();
-        const user = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const user = await service.createGame('user1', game);
 
         expect(user).toBeDefined();
         expect(user.userId).toBe('user1');
@@ -55,26 +41,26 @@ describe('RoomManagementService', () => {
         expect(user.name).toBe('Organisateur');
     });
 
-    it('should allow a user to join an existing room', () => {
+    it('should allow a user to join an existing room', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user2', game);
         const joinResult = service.joinRoom('user3', hostUser.roomId, 'Guest');
 
         expect(joinResult.ok).toBeTruthy();
     });
 
-    it('should not allow multiple users with the same name', () => {
+    it('should not allow multiple users with the same name', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'test');
         const joinResult = service.joinRoom('user3', hostUser.roomId, 'test');
         expect(joinResult.ok).toBeFalsy();
     });
 
-    it('should not allow multiple users with the same id', () => {
+    it('should not allow multiple users with the same id', async () => {
         const game = getFakeGame();
         const performUserRemovalSpy = jest.spyOn(service, 'performUserRemoval');
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'test2');
         service.joinRoom('user2', hostUser.roomId, 'test3');
         expect(performUserRemovalSpy).toHaveBeenCalled();
@@ -91,17 +77,17 @@ describe('RoomManagementService', () => {
         expect(scoreResult.score).toBe(0);
     });
 
-    it('getScore() should return the users score', () => {
+    it('getScore() should return the users score', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         const scoreResult = service.getScore('user2');
         expect(scoreResult.score).toBe(0);
     });
 
-    it('getChoice() should return the users selected choices', () => {
+    it('getChoice() should return the users selected choices', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         const choiceResult = service.getChoice('user2');
         expect(choiceResult[0]).toBeFalsy();
@@ -120,17 +106,17 @@ describe('RoomManagementService', () => {
         expect(service.isValidate('user1')).toBeFalsy();
     });
 
-    it('isValidate() should return true if the player validates his choice', () => {
+    it('isValidate() should return true if the player validates his choice', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         service.validateChoice('user2');
         expect(service.isValidate('user2')).toBeTruthy();
     });
 
-    it('should not allow a user to join a locked room', () => {
+    it('should not allow a user to join a locked room', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user2', game);
         service.toggleGameClosed(hostUser.userId, true);
         const joinResult = service.joinRoom('user3', hostUser.roomId, 'Guest');
 
@@ -138,7 +124,7 @@ describe('RoomManagementService', () => {
     });
 
     it('should not allow a user to rejoin a non-existing room', () => {
-        const rejoinResult = service.rejoinRoom({ userId: 'user1', name: 'Organisateur', roomId: 'non-existing-room' }, 'user1');
+        const rejoinResult = service.rejoinRoom({ userId: 'user1', name: 'Organisateur', roomId: 'non-existing-room', play: true }, 'user1');
 
         expect(rejoinResult.ok).toBeFalsy();
     });
@@ -148,13 +134,9 @@ describe('RoomManagementService', () => {
         expect(confirmResult).toBe(undefined);
     });
 
-    it('should not allow to join a test game that has not started', async () => {
-        expect(await service.startTestGame('test')).toBe(undefined);
-    });
-
     it('should create a test game', async () => {
         const game = getFakeGame();
-        service.testGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        service.testGame('user2', game);
         expect(service.getRoomId('user2')).toBeDefined();
     });
 
@@ -163,25 +145,25 @@ describe('RoomManagementService', () => {
         expect(service.handleChoice('user2', mockChoices)).toBeUndefined();
     });
 
-    it('should allow a user to rejoin an existing room', () => {
+    it('should allow a user to rejoin an existing room', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
-        const rejoinResult = service.rejoinRoom({ userId: 'user2', name: 'Organisateur', roomId: hostUser.roomId }, 'user1');
+        const hostUser = await service.createGame('user2', game);
+        const rejoinResult = service.rejoinRoom({ userId: 'user2', name: 'Organisateur', roomId: hostUser.roomId, play: true }, 'user1');
 
         expect(rejoinResult.ok).toBeTruthy();
     });
 
-    it('should not toggle the game closed if the user is not the host', () => {
+    it('should not toggle the game closed if the user is not the host', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user2', game);
         service.toggleGameClosed('user3', true);
         const gameRoom = service['gameState'].get(hostUser.roomId);
         expect(gameRoom.isLocked).toBeFalsy();
     });
 
-    it('should toggle the game closed if the user is the host', () => {
+    it('should toggle the game closed if the user is the host', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user2', game);
         service.toggleGameClosed(hostUser.userId, true);
         const gameRoom = service['gameState'].get(hostUser.roomId);
         expect(gameRoom.isLocked).toBeTruthy();
@@ -189,7 +171,7 @@ describe('RoomManagementService', () => {
 
     it('should remove a user from the game and delete de the game if needed', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         service.showFinalResults('user1');
         service.performUserRemoval('user2');
@@ -202,9 +184,9 @@ describe('RoomManagementService', () => {
         expect(service.performUserRemoval('user2')).toBeUndefined();
     });
 
-    it('should delete game if host is kicked', () => {
+    it('should delete game if host is kicked', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         service.performUserRemoval('user1');
         const gameRoom = service['roomMembers'].get('user1');
@@ -212,20 +194,20 @@ describe('RoomManagementService', () => {
         expect(service['gameState'].get(hostUser.roomId)).toBeUndefined();
     });
 
-    it('should ban a user from the game', () => {
+    it('should ban a user from the game', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         service.banUser(hostUser.userId, 'Guest');
         const gameRoom = service['gameState'].get(hostUser.roomId);
         expect(gameRoom.isBanned('Guest')).toBeTruthy();
     });
 
-    it('should return undefined if the game does not exist or is called by a guest', () => {
+    it('should return undefined if the game does not exist or is called by a guest', async () => {
         expect(service.banUser('admin', 'Guest')).toBeUndefined();
 
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         const banResult = service.banUser('user2', hostUser.userId);
         expect(banResult).toBeUndefined();
@@ -233,9 +215,9 @@ describe('RoomManagementService', () => {
         expect(gameRoom.isBanned(hostUser.userId)).toBeFalsy();
     });
 
-    it('leaveUser() should not ban a user from the game', () => {
+    it('leaveUser() should not ban a user from the game', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user2', game);
         service.leaveUser('user2');
         const gameRoom = service['gameState'].get(hostUser.roomId);
         expect(gameRoom.isBanned('Guest')).toBeFalsy();
@@ -247,7 +229,7 @@ describe('RoomManagementService', () => {
 
     it('should get the list of users in the game', () => {
         const game = getFakeGame();
-        service.createGame('user2', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        service.createGame('user2', game);
         const users = service.getUsers('user2');
         expect(users).toHaveLength(1);
         expect(users[0]).toBe('Organisateur');
@@ -259,7 +241,7 @@ describe('RoomManagementService', () => {
 
     it('getRoomId() should return the id of the room', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         const idFromUser1 = service.getRoomId('user1');
         service.joinRoom('user2', hostUser.roomId, 'Guest');
         expect(service.getRoomId('user2')).toBe(idFromUser1);
@@ -267,7 +249,7 @@ describe('RoomManagementService', () => {
 
     it('confirmAction() should allow if the user is admin', async () => {
         const game = getFakeGame();
-        const hostUser = service.createGame('user1', game, updateStateMock, updateTimeMock, updateScoreMock, updateUsersStat, updateHistogramData);
+        const hostUser = await service.createGame('user1', game);
         const getActiveGameSpy = jest.spyOn(service, 'getActiveGame');
         await service.confirmAction(hostUser.userId);
         expect(getActiveGameSpy).toHaveBeenCalled();

@@ -45,14 +45,15 @@ export class AdminPageComponent implements OnInit {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly adminService: AdminService,
-        private snackBar: MatSnackBar,
-        public dialog: MatDialog,
+        private readonly snackBar: MatSnackBar,
+        private readonly dialog: MatDialog,
     ) {}
 
     async ngOnInit() {
         this.login = this.adminService.login;
         await this.loadGames();
     }
+
     deleteGame(id: string) {
         const ERROR_DELETING_GAME = 'Erreur lors de la suppression du jeu';
         this.adminService

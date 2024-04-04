@@ -2,6 +2,8 @@ import { GameData } from '@app/model/database/game';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { GameService } from '@app/services/game/game.service';
+import { QuestionService } from '@app/services/question/question.service';
+import { NUMBER_QUESTIONS_RANDOM } from '@common/constants';
 import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Res } from '@nestjs/common';
 import { ApiCreatedResponse, ApiFoundResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
@@ -9,7 +11,10 @@ import { Response } from 'express';
 @ApiTags('Games')
 @Controller('game')
 export class GameController {
-    constructor(private readonly gamesService: GameService) {}
+    constructor(
+        private readonly gamesService: GameService,
+        private readonly questionService: QuestionService,
+    ) {}
 
     @ApiOkResponse({
         description: 'Returns all games',
@@ -25,6 +30,29 @@ export class GameController {
         try {
             const allGames = await this.gamesService.getAllGames();
             response.status(HttpStatus.OK).json(allGames);
+        } catch (error) {
+            response.status(HttpStatus.BAD_REQUEST).send(error.message);
+        }
+    }
+
+    @ApiOkResponse({
+        description: 'Can create random game',
+        type: Boolean,
+        isArray: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Return BAD_REQUEST http status when request fails',
+    })
+    @Get('/random')
+    async getRandomGame(@Res() response: Response) {
+        try {
+            const allGames = await this.questionService.getAllQCMQuestions();
+            if (allGames.length < NUMBER_QUESTIONS_RANDOM) {
+                response.status(HttpStatus.OK).json(false);
+                return;
+            }
+            response.status(HttpStatus.OK).json(true);
         } catch (error) {
             response.status(HttpStatus.BAD_REQUEST).send(error.message);
         }

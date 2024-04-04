@@ -1,37 +1,39 @@
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
-import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, TIMEOUT_DURATION } from '@common/constants';
+import { QuestionData } from '@app/model/database/question';
+import { HistoryService } from '@app/services/history/history.service';
+import { QuestionService } from '@app/services/question/question.service';
+import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, NUMBER_QUESTIONS_RANDOM, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
-import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RoomManagementService {
     private gameState: Map<string, ActiveGame> = new Map();
     private roomMembers: Map<string, string> = new Map();
-    private deleteRoomGatewayCallback: ((roomID: string) => void)[] = [];
     private disconnectionTimers: Map<string, NodeJS.Timeout> = new Map();
-    private disconnectUser: (userId: string, message: string) => void;
-    private updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void;
+    private deleteRoomChatGateway: (roomID: string) => void;
+    private sendSystemMessage: (roomId: string, message: string) => void;
 
-    constructor(private readonly logger: Logger) {}
+    constructor(
+        private gameWebsocket: GameGatewaySend,
+        private historyService: HistoryService,
+        private questionService: QuestionService,
+    ) {}
+
     setGatewayCallback(deleteRoom: (roomID: string) => void) {
-        this.deleteRoomGatewayCallback.push(deleteRoom);
+        this.deleteRoomChatGateway = deleteRoom;
     }
 
-    setDisconnectUser(disconnectUser: (userId: string, message: string) => void) {
-        this.disconnectUser = disconnectUser;
-    }
-
-    setUpdateUser(updateUser: (roomId: string, userUpdate: UserConnectionUpdate) => void) {
-        this.updateUser = updateUser;
+    setSystemMessageCallback(sendSystemMessage: (roomId: string, message: string) => void) {
+        this.sendSystemMessage = sendSystemMessage;
     }
 
     handleChoice(userId: string, choice: boolean[]): void {
@@ -50,20 +52,25 @@ export class RoomManagementService {
         game.validateChoice(userId);
     }
 
-    // The callback for createGame needs to be passed down to the ActiveGame class
-    // eslint-disable-next-line max-params
-    createGame(
-        userId: string,
-        game: GameData,
-        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
-        updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: Score) => void,
-        updateUsersStat: (roomId: string, userStat: UserStat[]) => void,
-        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
-    ): User {
+    setChat(hostId: string, username: string, value: boolean): void {
+        const game = this.getActiveGame(hostId);
+        if (!game) {
+            return;
+        }
+        const uid = game.setChat(hostId, username, value);
+        if (uid) {
+            this.gameWebsocket.sendAlert(uid, `clavardage ${value ? 'activé' : 'désactivé'}`);
+        }
+    }
+
+    canChat(userId: string): boolean {
+        return this.getActiveGame(userId).canChat(userId);
+    }
+
+    async createGame(userId: string, game: GameData): Promise<User> {
         const roomId = this.generateRoomId();
         const host: UserData = new UserData(userId, roomId, HOST_NAME);
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, updateUsersStat, updateHistogramData);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, this.historyService);
         newActiveGame.addUser(host);
 
         if (this.roomMembers.has(userId)) {
@@ -73,36 +80,50 @@ export class RoomManagementService {
         this.gameState.set(roomId, newActiveGame);
         this.roomMembers.set(host.uid, roomId);
 
-        return { name: HOST_NAME, roomId, userId };
+        return { name: HOST_NAME, roomId, userId, play: false };
     }
 
-    // The callback for testGame needs to be passed down to the ActiveGame class
-    // eslint-disable-next-line max-params
-    testGame(
-        userId: string,
-        game: GameData,
-        updateState: (roomId: string, gameStatePayload: GameStatePayload) => void,
-        updateTime: (roomId: string, time: number) => void,
-        updateScore: (userId: string, score: Score) => void,
-        updateUsersStat: (roomId: string, userStat: UserStat[]) => void,
-        updateHistogramData: (roomId: string, histogramData: HistogramData) => void,
-    ): User {
-        const roomId = 'test' + this.generateRoomId();
-        const noHost: UserData = new UserData(userId, roomId, '');
-        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, updateState, updateTime, updateScore, updateUsersStat, updateHistogramData);
-        newActiveGame.addUser(noHost);
+    async createRandomGame(userId: string): Promise<Result<User>> {
+        const questions = await this.questionService.getAllQCMQuestions();
+        if (questions.length < NUMBER_QUESTIONS_RANDOM) {
+            return { ok: false, error: 'Pas assez de questions' };
+        }
+
+        const game: GameData = {
+            title: 'mode aléatoire',
+            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM) as QuestionData[],
+            description: 'mode aléatoire',
+            duration: 20,
+        } as GameData;
+
+        const roomId = this.generateRoomId();
+        const host: UserData = new UserData(userId, roomId, HOST_NAME);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, this.historyService, true);
+        newActiveGame.addUser(host);
+
+        if (this.roomMembers.has(userId)) {
+            this.performUserRemoval(userId);
+        }
 
         this.gameState.set(roomId, newActiveGame);
-        this.roomMembers.set(noHost.uid, roomId);
-        return { name: HOST_NAME, roomId, userId };
+        this.roomMembers.set(host.uid, roomId);
+
+        return { ok: true, value: { name: HOST_NAME, roomId, userId, play: true } };
     }
 
-    async startTestGame(roomId: string) {
-        const game = this.gameState.get(roomId);
-        if (!game) {
-            return;
+    async testGame(userId: string, game: GameData): Promise<User> {
+        const roomId = 'test' + this.generateRoomId();
+        const host: UserData = new UserData(userId, roomId, HOST_NAME);
+        const newActiveGame: ActiveGame = new ActiveGame(game, roomId, this.gameWebsocket, undefined, true);
+        newActiveGame.addUser(host);
+
+        if (this.roomMembers.has(userId)) {
+            this.performUserRemoval(userId);
         }
-        await game.testGame();
+
+        this.gameState.set(roomId, newActiveGame);
+        this.roomMembers.set(host.uid, roomId);
+        return { name: HOST_NAME, roomId, userId, play: true };
     }
 
     toggleGameClosed(userId: string, closed: boolean) {
@@ -160,7 +181,7 @@ export class RoomManagementService {
         this.roomMembers.set(userId, roomId);
         activeGame.addUser(newUser);
         const userUpdate: UserConnectionUpdate = { isConnected: true, username };
-        this.updateUser(roomId, userUpdate);
+        this.gameWebsocket.sendUpdateUser(roomId, userUpdate);
         return { ok: true, value: activeGame.gameStatePayload };
     }
 
@@ -213,7 +234,7 @@ export class RoomManagementService {
         if (!game) {
             return [];
         }
-        return game.getUsers();
+        return game.usersArray;
     }
 
     getUsername(userId: string): string | undefined {
@@ -232,19 +253,25 @@ export class RoomManagementService {
         if (!game) {
             return;
         }
-        this.disconnectUser(userId, 'Vous avez été déconnecté');
+        this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
         if (game.isHost(userId)) {
-            this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
+            this.deleteRoomChatGateway(roomId);
+            this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);
+            game.stopGame();
             return;
         }
         game.removeUser(userId);
         if (game.needToClosed() && game.currentState !== GameState.Wait) {
-            this.deleteRoomGatewayCallback.forEach((callback) => callback(roomId));
+            this.deleteRoomChatGateway(roomId);
+            this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);
+            game.stopGame();
+            return;
         }
         const userUpdate: UserConnectionUpdate = { isConnected: false, username };
-        this.updateUser(roomId, userUpdate);
+        this.gameWebsocket.sendUpdateUser(roomId, userUpdate);
+        this.sendSystemMessage(roomId, `${username} a quitté la salle`);
     }
 
     banUser(userId: string, bannedUsername: string): void {
@@ -257,10 +284,10 @@ export class RoomManagementService {
         }
         const banId = game.banUser(bannedUsername);
         if (banId) {
-            this.disconnectUser(banId, 'Vous avez été banni');
+            this.gameWebsocket.sendUserRemoval(banId, 'Vous avez été banni');
             this.roomMembers.delete(banId);
             const userUpdate: UserConnectionUpdate = { isConnected: false, username: bannedUsername };
-            this.updateUser(this.getRoomId(userId), userUpdate);
+            this.gameWebsocket.sendUpdateUser(this.getRoomId(userId), userUpdate);
         }
     }
 
@@ -295,5 +322,14 @@ export class RoomManagementService {
             return undefined;
         }
         return game.getUser(userId);
+    }
+
+    private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {
+        for (let i = questions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [questions[i], questions[j]] = [questions[j], questions[i]];
+        }
+
+        return questions.slice(0, number);
     }
 }

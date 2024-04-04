@@ -2,7 +2,7 @@
 // Plus, the testbench initialization is 100 lines long
 /* eslint-disable max-lines */
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { HttpClientModule, HttpResponse } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
@@ -18,11 +18,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
 import { MIN_DURATION, MIN_NB_OF_POINTS } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 import { Observable, of, throwError } from 'rxjs';
 import { CreatePageComponent } from './create-page.component';
@@ -38,9 +39,17 @@ describe('CreatePageComponent', () => {
     let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let routeSpy: jasmine.SpyObj<ActivatedRoute>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
+    let adminServiceSpy: jasmine.SpyObj<AdminService>;
+
+    let mockLogin: boolean;
 
     beforeEach(async () => {
         snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+
+        adminServiceSpy = jasmine.createSpyObj('AdminService', ['login']);
+        Object.defineProperty(adminServiceSpy, 'login', { get: () => mockLogin });
+
+        mockLogin = true;
 
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['addGame', 'editGame', 'getGameById', 'verifyLogin']);
         gameCreationServiceSpy = jasmine.createSpyObj('GameCreationService', ['save', 'createGame', 'updateGame']);
@@ -75,6 +84,7 @@ describe('CreatePageComponent', () => {
                 { provide: ActivatedRoute, useValue: routeSpy },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: AdminService, useValue: adminServiceSpy },
             ],
         }).compileComponents();
         fixture = TestBed.createComponent(CreatePageComponent);
@@ -138,7 +148,7 @@ describe('CreatePageComponent', () => {
 
         component['route'] = routeSpy;
 
-        spyOn(component, 'verifyLogin').and.returnValue(true);
+        // spyOn(component, 'verifyLogin').and.returnValue(true);
         spyOn(component, 'resetForm');
 
         component.ngOnInit();
@@ -148,7 +158,7 @@ describe('CreatePageComponent', () => {
     });
 
     it('should go back to admin if verifyLogin is false', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(false));
+        mockLogin = false;
         component.ngOnInit();
         expect(router.navigate).toHaveBeenCalledWith(['/admin']);
     });
@@ -186,7 +196,7 @@ describe('CreatePageComponent', () => {
 
         component['route'] = routeSpy;
 
-        spyOn(component, 'verifyLogin').and.returnValue(true);
+        // spyOn(component, 'verifyLogin').and.returnValue(true);
         spyOn(component, 'loadGameData');
 
         component.ngOnInit();
@@ -307,30 +317,9 @@ describe('CreatePageComponent', () => {
     });
 
     // save
-    it('should create a game if the form is valid', async () => {
-        const mockResponse: HttpResponse<string> = new HttpResponse({ status: 201, statusText: 'Created' });
-        communicationServiceSpy.addGame.and.returnValue(of(mockResponse));
-        component.isEditing = false;
-        component.title = 'Test titre';
-        component.questions = [mockValidQuestion1, mockValidQuestion2];
-        component.description = 'Test description';
-        component.duration = MIN_DURATION;
-        fixture.detectChanges();
+    it('should call save from gameCreationService', async () => {
         await component.save();
-        expect(router.navigate).toHaveBeenCalledWith(['/admin']);
-    });
-
-    it('should update a game if the form is valid', async () => {
-        const mockResponse: HttpResponse<Game> = new HttpResponse({ status: 200, statusText: 'OK' });
-        communicationServiceSpy.editGame.and.returnValue(of(mockResponse));
-        component.isEditing = true;
-        component.title = 'Test titre';
-        component.questions = [mockValidQuestion1, mockValidQuestion2];
-        component.description = 'Test description';
-        component.duration = MIN_DURATION;
-        fixture.detectChanges();
-        await component.save();
-        expect(router.navigate).toHaveBeenCalledWith(['/admin']);
+        expect(gameCreationServiceSpy.save).toHaveBeenCalled();
     });
 
     // createGame

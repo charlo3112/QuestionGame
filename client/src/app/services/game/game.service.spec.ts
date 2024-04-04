@@ -1,430 +1,544 @@
-// We need to disable max-lines because we need every single test to test thoroughly the service and have a good coverage
 /* eslint-disable max-lines */
-import { HttpClientModule } from '@angular/common/http';
-import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { TimeService } from '@app/services/time/time.service';
+import { SortOption } from '@app/enums/sort-option';
+import { CommunicationService } from '@app/services/communication/communication.service';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { HOST_NAME, MAX_TIME_RETURN, MOCK_CHOICES_COUNTER, SNACKBAR_DURATION, TIME_RETURN } from '@common/constants';
+import { HOST_NAME } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
-import { QuestionType } from '@common/enums/question-type';
-import { GAME_PLACEHOLDER } from '@common/interfaces/game';
-import { Question } from '@common/interfaces/question';
-import { Score } from '@common/interfaces/score';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
+import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { QUESTION_PLACEHOLDER, Question } from '@common/interfaces/question';
+import { Result } from '@common/interfaces/result';
+import { USER, User } from '@common/interfaces/user';
+import { USERS } from '@common/interfaces/user-stat';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
-import SpyObj = jasmine.SpyObj;
 
-class TimeServiceStub {
-    get time(): number {
-        return 2;
-    }
-    startTimer(startValue: number, execute: () => void) {
-        setTimeout(execute, 0);
-    }
-    // Necessary for unit tests where stubs with empty functions are needed to fulfill interfaces without implementing specific logic.
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    stopTimer() {}
-    setTimeout(execute: () => void, timeMs: number) {
-        setTimeout(execute, timeMs);
-    }
-}
+describe('GameService', () => {
+    let gameService: GameService;
+    let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
+    let mockCommunicationService: jasmine.SpyObj<CommunicationService>;
+    let mockSessionStorageService: jasmine.SpyObj<SessionStorageService>;
+    let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
+    let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+    let mockRouter: jasmine.SpyObj<Router>;
 
-describe('Game', () => {
-    let service: GameService;
-    const timeService: TimeServiceStub = new TimeServiceStub();
-    const mockRouter = {
-        navigate: jasmine.createSpy('navigate'),
-    };
-    let snackBarSpy: SpyObj<MatSnackBar>;
-    let webSocketSpy: SpyObj<WebSocketService>;
-    let mockQuestion: Question;
+    let mockUsername: string;
+    let mockRoomCode: string;
+    let mockPlay: boolean;
 
     beforeEach(() => {
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-        webSocketSpy = jasmine.createSpyObj('WebSocketService', [
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
+            'getTime',
+            'getState',
+            'createRoom',
+            'startRandom',
+            'testGame',
+            'startTest',
             'leaveRoom',
-            'rejoinRoom',
-            'getScore',
-            'getUsers',
-            'nextQuestion',
-            'showResults',
+            'setChat',
+            'banUser',
             'sendChoice',
             'validateChoice',
-            'getTime',
-            'getUserUpdate',
-            'getUsersStat',
-            'getState',
-            'getClosedConnection',
-            'getScoreUpdate',
-            'isValidate',
-            'getChoice',
-            'banUser',
-            'leaveRoom',
-            'getHistogramData',
             'hostConfirm',
             'showFinalResults',
         ]);
+        mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGameByID']);
+        mockSessionStorageService = jasmine.createSpyObj('SessionStorageService', ['initUser', 'removeUser', 'username', 'roomId', 'play']);
+        Object.defineProperty(mockSessionStorageService, 'username', {
+            get: jasmine.createSpy('username.get').and.callFake(() => mockUsername),
+        });
+        mockUsername = 'user';
+        Object.defineProperty(mockSessionStorageService, 'roomId', {
+            get: jasmine.createSpy('roomId.get').and.callFake(() => mockRoomCode),
+        });
+        mockRoomCode = 'roomCode';
+        Object.defineProperty(mockSessionStorageService, 'play', {
+            get: jasmine.createSpy('play.get').and.callFake(() => mockPlay),
+        });
+        mockPlay = true;
 
-        webSocketSpy.getState.and.returnValue(of({ state: GameState.Wait }));
-        webSocketSpy.getTime.and.returnValue(of(TIME_RETURN));
-        webSocketSpy.getUserUpdate.and.returnValue(of({ username: 'test', isConnected: true }));
-        webSocketSpy.getUsersStat.and.returnValue(of([]));
-        webSocketSpy.getClosedConnection.and.returnValue(of('Connection closed'));
-        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.Wait, payload: undefined } }));
-        webSocketSpy.getScore.and.returnValue(Promise.resolve({ score: 0, bonus: false }));
-        const mockScoreUpdate: Score = { score: 0, bonus: false };
-        webSocketSpy.getScoreUpdate.and.returnValue(of(mockScoreUpdate));
-        webSocketSpy.getUsers.and.returnValue(Promise.resolve(['user1', 'user2', 'user3']));
-        webSocketSpy.getHistogramData.and.returnValue(
-            of({
-                question: [
-                    {
-                        type: QuestionType.QCM,
-                        text: 'Question test',
-                        points: 8,
-                        choices: [
-                            { text: 'A', isCorrect: true },
-                            { text: 'B', isCorrect: false },
-                            { text: 'C', isCorrect: false },
-                        ],
-                    },
-                ],
-                indexCurrentQuestion: 0,
-                choicesCounters: [
-                    [MOCK_CHOICES_COUNTER, 0, 0],
-                    [0, 0, MOCK_CHOICES_COUNTER],
-                ],
-            }),
-        );
+        mockGameSubscriptionService = jasmine.createSpyObj('GameSubscriptionService', ['initSubscriptions', 'reset', 'sortUsers']);
+        mockGameSubscriptionService.sortOption = SortOption.UsernameAscending;
+        mockGameSubscriptionService.choicesSelected = [false, false, false, false];
+        mockGameSubscriptionService.players = new Set();
+
+        mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
+        mockRouter = jasmine.createSpyObj('Router', ['navigate']);
+
         TestBed.configureTestingModule({
-            imports: [HttpClientModule],
             providers: [
                 GameService,
+                { provide: WebSocketService, useValue: mockWebSocketService },
+                { provide: CommunicationService, useValue: mockCommunicationService },
+                { provide: SessionStorageService, useValue: mockSessionStorageService },
+                { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
+                { provide: MatSnackBar, useValue: mockSnackBar },
                 { provide: Router, useValue: mockRouter },
-                { provide: TimeService, useValue: timeService },
-                { provide: MatSnackBar, useValue: snackBarSpy },
-                { provide: WebSocketService, useValue: webSocketSpy },
             ],
         });
-        service = TestBed.inject(GameService);
-        const mockUser = { name: 'John Doe', roomId: '2222', userId: 'user123' };
-        sessionStorage.setItem('user', JSON.stringify(mockUser));
-        mockQuestion = {
-            text: 'Quelle est la capitale de la France ?',
-            choices: [
-                { text: 'Paris', isCorrect: true },
-                { text: 'Lyon', isCorrect: false },
-                { text: 'Marseille', isCorrect: false },
-            ],
-            type: QuestionType.QCM,
-            points: 1,
-        };
+
+        gameService = TestBed.inject(GameService);
     });
 
-    afterEach(() => {
-        sessionStorage.clear();
-        jasmine.getEnv().allowRespy(true);
-    });
+    describe('Utility Methods', () => {
+        it('should get the correct game title', () => {
+            mockGameSubscriptionService.title = 'Game Title';
+            expect(gameService.gameTitle).toEqual('Game Title');
+        });
 
-    it('should be created', () => {
-        expect(service).toBeTruthy();
-    });
+        it('should get the correct score', () => {
+            const score = 10;
+            mockGameSubscriptionService.scoreValue = score;
+            expect(gameService.score).toEqual(score);
+        });
 
-    it('should return false when the choice is not selected', () => {
-        expect(service.isChoiceSelected(0)).toBeFalsy();
-    });
+        it('should get isPlaying', () => {
+            mockPlay = true;
+            expect(gameService.isPlaying).toBeTrue();
+            mockPlay = false;
+            expect(gameService.isPlaying).toBeFalse();
+        });
 
-    it('should not return a question when GameState is not AskingQuestion or ShowResults', () => {
-        service['state'] = GameState.GameOver;
-        expect(service.currentQuestion).toBeUndefined();
-    });
+        it('should get time', () => {
+            const time = 10;
+            mockGameSubscriptionService.serverTime = time;
+            expect(gameService.time).toEqual(time);
+        });
 
-    it('should return the state of the game', () => {
-        service.reset();
-        expect(service.currentState).toEqual(GameState.NotStarted);
-    });
+        it('should get isValidate', () => {
+            mockGameSubscriptionService.isValidate = true;
+            expect(gameService.isValidationDisabled).toBeTrue();
+        });
 
-    it('should return the current question', () => {
-        service['question'] = structuredClone(GAME_PLACEHOLDER).questions[0];
-        expect(service.currentQuestion).toEqual(structuredClone(GAME_PLACEHOLDER).questions[0]);
-    });
+        it('should get the max time', () => {
+            const twenty = 20;
+            expect(gameService.maxTime).toEqual(twenty);
+        });
 
-    it('should return the current question when GameState is ShowResults', () => {
-        const currentQuestion = structuredClone(GAME_PLACEHOLDER).questions[0];
-        service['question'] = currentQuestion;
-        service['state'] = GameState.ShowResults;
-        expect(service.currentQuestion).toEqual(currentQuestion);
-    });
+        it('should get users stat', () => {
+            mockGameSubscriptionService.usersStat = USERS;
+            expect(gameService.usersStat).toEqual(USERS);
+        });
 
-    it('should return undefined when there is no bonus', () => {
-        expect(service.message).toBeUndefined();
-    });
+        it('should get the correct game state', () => {
+            mockGameSubscriptionService.state = GameState.NotStarted;
+            expect(gameService.currentState).toEqual(GameState.NotStarted);
+        });
 
-    it('should return false when the choice is not correct', () => {
-        expect(service.isChoiceCorrect(0)).toBeFalsy();
-    });
+        describe('currentQuestion', () => {
+            it('should return undefined if the state is not AskingQuestion or ShowResults or LastQuestion', () => {
+                mockGameSubscriptionService.state = GameState.NotStarted;
+                expect(gameService.currentQuestion).toBeUndefined();
 
-    it('should return true when the choice is correct', () => {
-        const correctQuestion: Question = {
-            ...GAME_PLACEHOLDER.questions[0],
-            choices: GAME_PLACEHOLDER.questions[0].choices.map((choice, index) => ({
-                ...choice,
-                isCorrect: index === 0,
-            })),
-        };
-        service['question'] = correctQuestion;
-        service['state'] = GameState.ShowResults;
-        service.selectChoice(0);
-        expect(service.isChoiceCorrect(0)).toBeTruthy();
-    });
+                mockGameSubscriptionService.state = GameState.Starting;
+                expect(gameService.currentQuestion).toBeUndefined();
+            });
 
-    it('should return false when the state is not show results', () => {
-        expect(service.isChoiceIncorrect(0)).toBeFalsy();
-    });
+            it('should return the current question if the state is AskingQuestion', () => {
+                mockGameSubscriptionService.state = GameState.AskingQuestion;
+                mockGameSubscriptionService.question = QUESTION_PLACEHOLDER;
+                expect(gameService.currentQuestion).toEqual(QUESTION_PLACEHOLDER);
+            });
+        });
 
-    it('should return false when the choice is correct', () => {
-        service.selectChoice(0);
-        service['state'] = GameState.ShowResults;
-        expect(service.isChoiceIncorrect(0)).toBeFalsy();
-    });
+        describe('message', () => {
+            it('should return undefined if state is not ShowResults', () => {
+                mockGameSubscriptionService.state = GameState.AskingQuestion;
+                expect(gameService.message).toBeUndefined();
+            });
 
-    it('should return true when the choice is selected and incorrect', () => {
-        const questionWithIncorrectChoice: Question = {
-            type: QuestionType.QCM,
-            text: "Pourquoi le jus de lichi n'est pas bon?",
-            points: 69,
-            choices: [
-                { text: 'Guillaume en boit', isCorrect: true },
-                { text: 'Guillaume en a apporté 2 boites', isCorrect: true },
-                { text: "C'est du lichi", isCorrect: false },
-                { text: 'Guillaume en a bu à 9h du matin', isCorrect: true },
-            ],
-        };
-        service['question'] = questionWithIncorrectChoice;
-        service['state'] = GameState.ShowResults;
-        service.selectChoice(2);
-        expect(service.isChoiceIncorrect(2)).toBeTruthy();
-    });
+            it('should return "Vous avez un bonus!" if state is ShowResults, isResponseGood returns true, and showBonus is true', () => {
+                mockGameSubscriptionService.state = GameState.ShowResults;
+                mockGameSubscriptionService.question = {
+                    text: 'Question text',
+                    choices: [
+                        { text: 'Choice 1', isCorrect: true },
+                        { text: 'Choice 2', isCorrect: false },
+                        { text: 'Choice 3', isCorrect: false },
+                        { text: 'Choice 4', isCorrect: false },
+                    ],
+                } as Question;
+                mockGameSubscriptionService.choicesSelected = [true, false, false, false];
+                mockGameSubscriptionService.showBonus = true;
+                expect(gameService.message).toEqual('Vous avez un bonus!');
+            });
+        });
 
-    it('should not allow to select choice when the state is not asking question', () => {
-        service['state'] = GameState.ShowResults;
-        service.selectChoice(0);
-        expect(service['choicesSelected'][0]).toBeFalsy();
-    });
+        it('should get the histogram data', () => {
+            mockGameSubscriptionService.histogramData = HISTOGRAM_DATA;
+            expect(gameService.histogram).toEqual(HISTOGRAM_DATA);
+        });
 
-    it('should allow to select choice when the state is asking question', () => {
-        service['state'] = GameState.AskingQuestion;
-        service.selectChoice(0);
-        expect(service['choicesSelected'][0]).toBeTruthy();
-    });
+        it('should get the username', () => {
+            mockUsername = 'user';
+            expect(gameService.usernameValue).toEqual('user');
+        });
 
-    it('should not confirm a question when the state is not AskingQuestion', () => {
-        service['state'] = GameState.GameOver;
-        service.confirmQuestion();
-        expect(service.currentState).not.toBe(GameState.ShowResults);
-    });
+        it('should get room code value', () => {
+            mockRoomCode = 'roomCode';
+            expect(gameService.roomCodeValue).toEqual('roomCode');
+        });
 
-    it('should confirm a question', () => {
-        service['state'] = GameState.AskingQuestion;
-        service.confirmQuestion();
-        expect(webSocketSpy.validateChoice).toHaveBeenCalled();
-    });
+        it('should correctly determine if the player is the host', () => {
+            mockUsername = HOST_NAME;
+            expect(gameService.isHost).toBeTrue();
+            mockUsername = 'user';
+            expect(gameService.isHost).toBeFalse();
+        });
 
-    it('should return the same time as timeService', () => {
-        expect(service.time).toEqual(TIME_RETURN);
-    });
+        it('should get players list', () => {
+            mockGameSubscriptionService.players = new Set(['player1', 'player2']);
+            expect(gameService.playersList).toEqual(new Set(['player1', 'player2']));
+        });
 
-    it('should return 0 at the start of the game', () => {
-        expect(service.score).toEqual(0);
-    });
-
-    it('should return the max time of the game', () => {
-        expect(service.maxTime).toEqual(MAX_TIME_RETURN);
-    });
-
-    it('should return the current game title', () => {
-        const expectedTitle = 'Titre du Jeu Test';
-        service['title'] = expectedTitle;
-        expect(service.gameTitle).toEqual(expectedTitle);
-    });
-
-    it('should return the current room code value', () => {
-        const expectedRoomCode = '2323';
-        service['roomCode'] = expectedRoomCode;
-        expect(service.roomCodeValue).toEqual(expectedRoomCode);
-    });
-
-    it('should return the max time (20) of the game', () => {
-        expect(service.maxTime).toEqual(MAX_TIME_RETURN);
-    });
-
-    it('should return the current game title', () => {
-        const expectedTitle = 'Titre du Jeu Test';
-        service['title'] = expectedTitle;
-        expect(service.gameTitle).toEqual(expectedTitle);
-    });
-
-    it('should return the current room code value', () => {
-        const expectedRoomCode = '2323';
-        service['roomCode'] = expectedRoomCode;
-        expect(service.roomCodeValue).toEqual(expectedRoomCode);
-    });
-
-    it('should return true if the username is HOST_NAME', () => {
-        service['username'] = HOST_NAME;
-        expect(service.isHost).toBeTruthy();
-    });
-
-    it('should return false if the username is not HOST_NAME', () => {
-        service['username'] = 'guest';
-        expect(service.isHost).toBeFalsy();
-    });
-
-    it('should return the list of players', () => {
-        const players = new Set<string>(['player1', 'player2', 'player3']);
-        service['players'] = players;
-        expect(service.playersList).toEqual(players);
-    });
-
-    it('should navigate to root if no user data is found in sessionStorage', fakeAsync(() => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(null);
-        service.init();
-        tick();
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
-    }));
-
-    it('should navigate to root and show snackBar if rejoinRoom fails', fakeAsync(() => {
-        const mockUser = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(mockUser));
-        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: false, error: 'Error joining room' }));
-        service.init();
-        tick();
-        expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
-        expect(snackBarSpy.open).toHaveBeenCalledWith('Error joining room', undefined, { duration: SNACKBAR_DURATION });
-    }));
-
-    it('should set username based on user data from sessionStorage', async () => {
-        await service.init();
-        expect(service.usernameValue).toEqual('John Doe');
-    });
-
-    it('should change state to waiting result in init', async () => {
-        webSocketSpy.rejoinRoom.and.returnValue(Promise.resolve({ ok: true, value: { state: GameState.AskingQuestion, payload: undefined } }));
-        webSocketSpy.isValidate.and.returnValue(Promise.resolve(true));
-        await service.init();
-        expect(service.currentState).toEqual(GameState.AskingQuestion);
-    });
-
-    it('should remove player from players list and call banUser on websocketService', () => {
-        const player = 'playerName';
-        service['players'] = new Set(['player1', player, 'player3']);
-        service.onKickPlayer(player);
-        expect(service['players'].has(player)).toBeFalse();
-        expect(webSocketSpy.banUser).toHaveBeenCalled();
-    });
-
-    it('should call leaveRoom, remove user from sessionStorage, and call reset when state is not Starting', () => {
-        service['state'] = GameState.AskingQuestion;
-        spyOn(sessionStorage, 'removeItem');
-        spyOn(service, 'reset');
-        service.leaveRoom();
-        expect(webSocketSpy.leaveRoom).toHaveBeenCalled();
-        expect(sessionStorage.removeItem).toHaveBeenCalledWith('user');
-        expect(service.reset).toHaveBeenCalled();
-    });
-
-    it('should return false when question is undefined', () => {
-        service['state'] = GameState.ShowResults;
-        service['question'] = undefined;
-        const result = service.isChoiceCorrect(0);
-        expect(result).toBeFalse();
-    });
-
-    it('should set the state to WaintingResults', () => {
-        service['state'] = GameState.AskingQuestion;
-        service.confirmQuestion();
-        expect(service.currentState).toEqual(GameState.WaitingResults);
-    });
-
-    // We did not manage to test the timerSubscribe function with fakeAsync and tick, nor did we
-    // manage to remove DoneFn like we did on the "timerSubscribe should return the time Observable" test
-    // eslint-disable-next-line no-undef
-    it('timerSubscribe should return the time Observable', (done: DoneFn) => {
-        service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(TIME_RETURN);
-            done();
+        it('should set and get the correct sort option', () => {
+            expect(gameService.sortOption).toBe(SortOption.UsernameAscending);
+            gameService.sortOption = SortOption.ScoreAscending;
+            expect(mockGameSubscriptionService.sortOption).toBe(SortOption.ScoreAscending);
+            expect(mockGameSubscriptionService.sortUsers).toHaveBeenCalled();
         });
     });
 
-    it('should return false when no question is set', () => {
-        expect(service['isResponseGood']()).toBeFalsy();
-    });
-
-    it('should return true when the selected choices are correct', () => {
-        service['question'] = mockQuestion;
-        service['choicesSelected'] = [true, false, false];
-        expect(service['isResponseGood']()).toBeTruthy();
-    });
-
-    it('should return false when the selected choices are incorrect', () => {
-        service['question'] = mockQuestion;
-        service['choicesSelected'] = [false, true, false];
-        expect(service['isResponseGood']()).toBeFalsy();
-    });
-
-    it('should assign question when state is AskingQuestion with payload', () => {
-        service['setState']({ state: GameState.AskingQuestion, payload: mockQuestion });
-        expect(service['question']).toEqual(mockQuestion);
-        expect(service['choicesSelected']).toEqual([false, false, false, false]);
-    });
-
-    it('should update title when state is Starting', () => {
-        const title = 'New Game Title';
-        service['setState']({ state: GameState.Starting, payload: title });
-        expect(service['title']).toEqual(title);
-    });
-    it('nextQuestion() should call hostConfirm on WebSocketService', () => {
-        service.nextQuestion();
-        expect(webSocketSpy.hostConfirm).toHaveBeenCalled();
-    });
-    it('showFinalResults() should call showFinalResults on WebSocketService', () => {
-        service.showFinalResults();
-        expect(webSocketSpy.showFinalResults).toHaveBeenCalled();
-    });
-
-    it('timerSubscribe should return the time Observable', (done) => {
-        service.timerSubscribe().subscribe((time) => {
-            expect(time).toEqual(TIME_RETURN);
-            done();
+    describe('setChat', () => {
+        it('should set chat for a user', () => {
+            gameService.setChat('user', true);
+            expect(mockWebSocketService.setChat).toHaveBeenCalled();
         });
     });
 
-    it('should navigate to /results if state is ShowFinalResults and current url is not /results', fakeAsync(() => {
-        service['state'] = GameState.ShowFinalResults;
-        service['setState']({ state: GameState.ShowFinalResults, payload: undefined });
-        const navigateSpy = spyOn(service['routerService'], 'navigate');
-        expect(navigateSpy).toHaveBeenCalledWith(['/results']);
-    }));
+    describe('init', () => {
+        it('should initialize if sessionStorageService response is ok', async () => {
+            const payload: GameStatePayload = { state: GameState.NotStarted, payload: '' };
+            mockSessionStorageService.initUser.and.returnValue(Promise.resolve({ ok: true, value: payload } as Result<GameStatePayload>));
+            await gameService.init();
+            expect(mockGameSubscriptionService.initSubscriptions).toHaveBeenCalled();
+        });
 
-    it('should return undefined when state is not ShowResults or bonus is false', () => {
-        service['state'] = GameState.NotStarted;
-        service['showBonus'] = false;
-        const message = service.message;
-        expect(message).toBeUndefined();
+        it('should not initialize if sessionStorageService response is not ok', async () => {
+            mockSessionStorageService.initUser.and.returnValue(Promise.resolve({ ok: false } as Result<GameStatePayload>));
+            await gameService.init();
+            expect(mockGameSubscriptionService.initSubscriptions).not.toHaveBeenCalled();
+        });
     });
 
-    it('setState() should set the state and payload', () => {
-        const state = GameState.ShowResults;
-        const payload = 'payload';
-        service['setState']({ state, payload });
-        expect(service['state']).toEqual(state);
+    describe('reset', () => {
+        it('should reset the game subscription service', () => {
+            gameService.reset();
+            expect(mockGameSubscriptionService.reset).toHaveBeenCalled();
+        });
     });
 
-    it('should return if game state is not started', () => {
-        service['state'] = GameState.NotStarted;
-        service['setState']({ state: GameState.NotStarted, payload: undefined });
-        expect(service['state']).toEqual(GameState.NotStarted);
+    describe('onKickPlayer', () => {
+        it('should kick a player', () => {
+            mockGameSubscriptionService.players = new Set(['player']);
+            spyOn(mockGameSubscriptionService.players, 'delete');
+            gameService.onKickPlayer('player');
+            expect(mockGameSubscriptionService.players.delete).toHaveBeenCalled();
+            expect(mockWebSocketService.banUser).toHaveBeenCalled();
+        });
+    });
+
+    describe('leaveRoom', () => {
+        it('should leave room if state is not Starting', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            gameService.leaveRoom();
+            expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
+            expect(mockSessionStorageService.removeUser).toHaveBeenCalled();
+            expect(mockGameSubscriptionService.reset).toHaveBeenCalled();
+        });
+
+        it('should not leave room if state is Starting', () => {
+            mockGameSubscriptionService.state = GameState.Starting;
+            gameService.leaveRoom();
+            expect(mockWebSocketService.leaveRoom).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('isChoiceSelected', () => {
+        it('should return true if choice is selected', () => {
+            mockGameSubscriptionService.choicesSelected = [true, false, false, false];
+            expect(gameService.isChoiceSelected(0)).toBeTrue();
+        });
+
+        it('should return false if choice is not selected', () => {
+            mockGameSubscriptionService.choicesSelected = [true, false, false, false];
+            expect(gameService.isChoiceSelected(1)).toBeFalse();
+        });
+    });
+
+    describe('isChoiceCorrect', () => {
+        it('should return true if choice is correct', () => {
+            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceCorrect(0)).toBeTrue();
+        });
+
+        it('should return false if choice is not correct', () => {
+            mockGameSubscriptionService.state = GameState.LastQuestion;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceCorrect(1)).toBeFalse();
+        });
+
+        it('should return false if state is not ShowResults or LastQuestion', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceCorrect(0)).toBeFalse();
+        });
+
+        it('should return false if question is undefined', () => {
+            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.question = undefined;
+            expect(gameService.isChoiceCorrect(0)).toBeFalse();
+        });
+    });
+
+    describe('isChoiceIncorrect', () => {
+        it('should return true if choice is incorrect', () => {
+            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceIncorrect(1)).toBeTrue();
+        });
+
+        it('should return false if choice is correct', () => {
+            mockGameSubscriptionService.state = GameState.LastQuestion;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceIncorrect(0)).toBeFalse();
+        });
+
+        it('should return false if state is not ShowResults or LastQuestion', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.question = {
+                choices: [
+                    { text: '', isCorrect: true },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                    { text: '', isCorrect: false },
+                ],
+            } as Question;
+            expect(gameService.isChoiceIncorrect(0)).toBeFalse();
+        });
+
+        it('should return false if question is undefined', () => {
+            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.question = undefined;
+            expect(gameService.isChoiceIncorrect(0)).toBeFalse();
+        });
+    });
+
+    describe('selectChoice', () => {
+        it('should select a choice if in the AskingQuestion state and validation is not disabled', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.isValidate = false;
+            gameService.selectChoice(0);
+            expect(mockWebSocketService.sendChoice).toHaveBeenCalled();
+        });
+
+        it('should not select a choice if validation is disabled', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.isValidate = true;
+            gameService.selectChoice(0);
+            expect(mockWebSocketService.sendChoice).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('confirmQuestion', () => {
+        it('should confirm a question if in the AskingQuestion state', () => {
+            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            gameService.confirmQuestion();
+            expect(mockWebSocketService.validateChoice).toHaveBeenCalled();
+        });
+
+        it('should not confirm a question if not in the AskingQuestion state', () => {
+            mockGameSubscriptionService.state = GameState.ShowResults;
+            gameService.confirmQuestion();
+            expect(mockWebSocketService.validateChoice).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('nextQuestion', () => {
+        it('should confirm the next question', () => {
+            gameService.nextQuestion();
+            expect(mockWebSocketService.hostConfirm).toHaveBeenCalled();
+        });
+    });
+
+    describe('showFinalResults', () => {
+        it('should show the final results', () => {
+            gameService.showFinalResults();
+            expect(mockWebSocketService.showFinalResults).toHaveBeenCalled();
+        });
+    });
+
+    describe('Subscription Handlers', () => {
+        it('should subscribe to timer updates', () => {
+            const mockTime = 10;
+            mockWebSocketService.getTime.and.returnValue(of(mockTime));
+            gameService.timerSubscribe().subscribe((time) => {
+                expect(time).toBe(mockTime);
+            });
+            expect(mockWebSocketService.getTime).toHaveBeenCalled();
+        });
+
+        it('should subscribe to game state updates', () => {
+            const gameStatePayload: GameStatePayload = { state: GameState.AskingQuestion };
+            const observable = of(gameStatePayload);
+            mockWebSocketService.getState.and.returnValue(observable);
+            gameService.stateSubscribe().subscribe((state) => {
+                expect(state).toEqual(gameStatePayload);
+            });
+            expect(mockWebSocketService.getState).toHaveBeenCalled();
+        });
+    });
+
+    describe('startGame', () => {
+        it('should start a game successfully', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.createRoom.and.returnValue(Promise.resolve(USER));
+            const result = await gameService.startGame(GAME_PLACEHOLDER);
+            expect(result).toBeTrue();
+            expect(mockRouter.navigate).toHaveBeenCalledWith(['/loading']);
+        });
+
+        it('should handle game fetch failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: false } as Result<Game>));
+            const result = await gameService.startGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+
+        it('should handle game failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.createRoom.and.returnValue(Promise.reject());
+            const result = await gameService.startGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+
+        it('should handle game failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.createRoom.and.returnValue(Promise.resolve(undefined as unknown as User));
+            const result = await gameService.startGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+    });
+
+    describe('startRandomGame', () => {
+        it('should start a random game successfully', async () => {
+            mockWebSocketService.startRandom.and.returnValue(Promise.resolve(USER));
+            const result = await gameService.startRandomGame();
+            expect(result).toBeTrue();
+            expect(mockRouter.navigate).toHaveBeenCalledWith(['/loading']);
+        });
+
+        it('should handle game fetch failure', async () => {
+            mockWebSocketService.startRandom.and.returnValue(Promise.resolve(undefined as unknown as User));
+            const result = await gameService.startRandomGame();
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+    });
+
+    describe('testGame', () => {
+        it('should test a game successfully', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.testGame.and.returnValue(Promise.resolve(USER));
+            const result = await gameService.testGame(GAME_PLACEHOLDER);
+            expect(result).toBeTrue();
+            expect(mockRouter.navigate).toHaveBeenCalledWith(['/game']);
+        });
+
+        it('should handle game fetch failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: false } as Result<Game>));
+            const result = await gameService.testGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+
+        it('should handle game test failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.testGame.and.returnValue(Promise.reject());
+            const result = await gameService.testGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+
+        it('should handle game test failure', async () => {
+            mockCommunicationService.getGameByID.and.returnValue(of({ ok: true, value: GAME_PLACEHOLDER }));
+            mockWebSocketService.testGame.and.returnValue(Promise.resolve(undefined as unknown as User));
+            const result = await gameService.testGame(GAME_PLACEHOLDER);
+            expect(result).toBeFalse();
+            expect(mockSnackBar.open).toHaveBeenCalled();
+        });
+    });
+
+    describe('isResponseGood', () => {
+        beforeEach(() => {
+            mockGameSubscriptionService.question = {
+                text: 'Question text',
+                choices: [
+                    { text: 'Choice 1', isCorrect: true },
+                    { text: 'Choice 2', isCorrect: false },
+                    { text: 'Choice 3', isCorrect: false },
+                    { text: 'Choice 4', isCorrect: false },
+                ],
+            } as Question;
+        });
+
+        it('should return false if response is undefined', () => {
+            mockGameSubscriptionService.question = undefined;
+            expect(gameService['isResponseGood']()).toBeFalse();
+        });
+
+        it('should return false if response is not good', () => {
+            mockGameSubscriptionService.choicesSelected = [false, false, false, false];
+            expect(gameService['isResponseGood']()).toBeFalse();
+        });
+
+        it('should return true if response is good', () => {
+            mockGameSubscriptionService.choicesSelected = [true, false, false, false];
+            expect(gameService['isResponseGood']()).toBeTrue();
+        });
     });
 });

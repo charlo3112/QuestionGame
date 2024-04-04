@@ -35,18 +35,16 @@ import { Subscription } from 'rxjs';
 })
 export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();
-    username: string;
     chat: Message[] = [];
     chatInput: string = '';
     maxLength = MAX_MESSAGE_LENGTH;
     private messagesSubscription: Subscription;
 
     constructor(
-        private webSocketService: WebSocketService,
-        private gameService: GameService,
+        private readonly webSocketService: WebSocketService,
+        readonly gameService: GameService,
     ) {
         this.subscribeToRealTimeMessages();
-        this.username = this.gameService.usernameValue;
     }
 
     @HostListener('keydown', ['$event'])
@@ -60,7 +58,6 @@ export class ChatComponent implements OnDestroy, OnInit {
     async ngOnInit() {
         this.chat = await this.webSocketService.getMessages();
         this.sortMessages();
-        this.username = this.gameService.usernameValue;
     }
 
     chatSubmit() {

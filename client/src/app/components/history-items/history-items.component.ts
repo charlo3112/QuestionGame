@@ -96,18 +96,12 @@ export class HistoryItemsComponent implements OnInit {
 
     sortItems(value: string, order: string) {
         this.historyItems.sort((a, b) => {
-            const aTemp = value === 'name' ? a.name : a.date.getTime();
-            const bTemp = value === 'name' ? b.name : b.date.getTime();
-
-            if (order === 'az' || order === 'old') {
-                // -1 is used to sort in ascending order
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                return aTemp < bTemp ? -1 : aTemp > bTemp ? 1 : 0;
-            } else {
-                // -1 is used to sort in descending order
-                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-                return aTemp > bTemp ? -1 : aTemp < bTemp ? 1 : 0;
+            if (value === 'name') {
+                if (order === 'az') return a.name.localeCompare(b.name);
+                return b.name.localeCompare(a.name);
             }
+            if (order === 'old') return b.date.getTime() - a.date.getTime();
+            return a.date.getTime() - b.date.getTime();
         });
     }
 }
