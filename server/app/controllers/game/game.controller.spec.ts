@@ -277,7 +277,20 @@ describe('GameController', () => {
             return res;
         };
 
-        await questionService.getAllQCMQuestions();
+        await controller.getRandomGame(res);
+    });
+
+    it('getAllQCMQuestions() should return BAD_REQUEST when error occurs', async () => {
+        questionService.getAllQCMQuestions.rejects();
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.BAD_REQUEST);
+            return res;
+        };
+        res.send = () => res;
+
+        await controller.verifyTitle({ title: '' }, res);
     });
 });
 
