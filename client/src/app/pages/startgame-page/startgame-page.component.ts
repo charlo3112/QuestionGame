@@ -10,13 +10,14 @@ import { GameService } from '@app/services/game/game.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { Game } from '@common/interfaces/game';
 import { firstValueFrom } from 'rxjs';
+import { RouterLink } from '@angular/router';
 
 @Component({
     selector: 'app-start-game-page',
     templateUrl: './startgame-page.component.html',
     styleUrls: ['./startgame-page.component.scss'],
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
+    imports: [RouterLink, CommonModule, MatButtonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];

@@ -12,6 +12,7 @@ import { Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
 import { StartGamePageComponent } from './startgame-page.component';
+import { RouterLink } from '@angular/router';
 
 describe('StartGamePageComponent', () => {
     let component: StartGamePageComponent;
@@ -36,6 +37,7 @@ describe('StartGamePageComponent', () => {
                 MatToolbarModule,
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
+                RouterLink,
             ],
             providers: [
                 MatSnackBar,
