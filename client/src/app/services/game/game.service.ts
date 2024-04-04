@@ -15,6 +15,8 @@ import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
 import { Observable, firstValueFrom } from 'rxjs';
+import { PanicService } from '@app/services/panic/panic.service';
+
 @Injectable()
 export class GameService {
     // eslint-disable-next-line max-params
@@ -23,9 +25,12 @@ export class GameService {
         private readonly communicationService: CommunicationService,
         private readonly sessionStorageService: SessionStorageService,
         private readonly gameSubscriptionService: GameSubscriptionService,
+        private readonly panicService: PanicService,
         private readonly snackBar: MatSnackBar,
         private readonly router: Router,
-    ) {}
+    ) {
+        this.panicService.setAudio();
+    }
 
     get gameTitle(): string {
         return this.gameSubscriptionService.title;

@@ -207,9 +207,9 @@ export class ActiveGame {
 
     startPanicking(): void {
         if (
-            this.state !== GameState.AskingQuestion &&
-            ((this.currentQuestionWithAnswer.type === 'QCM' && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
-                (this.currentQuestionWithAnswer.type === 'QRL' && this.timer.seconds <= MIN_TIME_PANIC_QRL_S))
+            this.state !== GameState.AskingQuestion ||
+            (this.currentQuestionWithAnswer.type === 'QCM' && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
+            (this.currentQuestionWithAnswer.type === 'QRL' && this.timer.seconds <= MIN_TIME_PANIC_QRL_S)
         ) {
             return;
         }
