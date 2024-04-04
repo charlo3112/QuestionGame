@@ -184,7 +184,7 @@ describe('ActiveGame', () => {
         expect(validationResult).toBeUndefined();
     });
 
-    it('advance() should not start the game if the room in unlocked', async () => {
+    it('advance() should not start the game if the room is unlocked', async () => {
         game.isLocked = false;
         jest.spyOn(game, 'launchGame');
         await game.advance();
@@ -229,4 +229,18 @@ describe('ActiveGame', () => {
     //     await game.testGame();
     //     expect(game.currentState).toBe(GameState.Starting);
     // });
+
+    it('questionIndexCurrent() should return the current question index', () => {
+        expect(game.questionIndexCurrent).toBe(0);
+    });
+
+    it('setChat() should return undefined if the user is not in the game', () => {
+        const result = game.setChat('hostId', 'username', true);
+        expect(result).toBeUndefined();
+    });
+
+    it('canChat() should return false if the user is not in the game', () => {
+        const result = game.canChat('userId');
+        expect(result).toBeFalsy();
+    });
 });
