@@ -1,4 +1,6 @@
+/* eslint-disable max-lines */
 import { GameData } from '@app/model/database/game';
+import { QuestionData } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
@@ -260,6 +262,23 @@ describe('GameController', () => {
 
         await controller.deleteGameById('', res);
     });
+
+    it('getAllQCMQuestions() should return all QCM questions', async () => {
+        const fakeQuestions = getFakeQuestionData();
+        questionService.getAllQCMQuestions.resolves(fakeQuestions);
+
+        const res = {} as unknown as Response;
+        res.status = (code) => {
+            expect(code).toEqual(HttpStatus.OK);
+            return res;
+        };
+        res.json = (questions) => {
+            expect(questions).toEqual(fakeQuestions);
+            return res;
+        };
+
+        await questionService.getAllQCMQuestions();
+    });
 });
 
 const getFakeGame = (): GameData => {
@@ -314,6 +333,27 @@ const getFakeUpdateGameDto = (): UpdateGameDto => {
         questions: getFakeQuestions(),
     };
     return gameData;
+};
+
+const getFakeQuestionDto = (): CreateQuestionDto => {
+    const questionData: CreateQuestionDto = {
+        type: QuestionType.QCM,
+        text: getRandomString(),
+        points: 40,
+        choices: getFakeChoices(),
+    };
+
+    return questionData;
+};
+
+const getFakeQuestionData = (): QuestionData[] => {
+    const questions: QuestionData[] = [];
+    for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
+        const questionData = new QuestionData(getFakeQuestionDto());
+        questions.push(questionData);
+    }
+
+    return questions;
 };
 
 const BASE_36 = 36;
