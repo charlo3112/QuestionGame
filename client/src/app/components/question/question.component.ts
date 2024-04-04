@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
@@ -26,6 +29,9 @@ import { Question } from '@common/interfaces/question';
         AnswersComponent,
         MatButtonModule,
         MatToolbarModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
     ],
 })
 export class QuestionComponent {
@@ -34,6 +40,7 @@ export class QuestionComponent {
     isTextLocked: boolean = false;
     buttonDisabled: boolean = false;
     changesCounter: number = 0;
+    answer: string = '';
 
     constructor(readonly gameService: GameService) {}
 
@@ -55,7 +62,11 @@ export class QuestionComponent {
 
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
-            this.gameService.confirmQuestion();
+            if (this.gameService.currentQuestion?.type === 'QCM') {
+                this.gameService.confirmQuestion();
+            } else if (this.gameService.currentQuestion?.type === 'QRL') {
+                this.gameService.sendQrlAnswer(this.answer);
+            }
             this.isTextLocked = true;
         }
     }

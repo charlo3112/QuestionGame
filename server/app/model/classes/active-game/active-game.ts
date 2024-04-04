@@ -144,6 +144,18 @@ export class ActiveGame {
         this.qrlAnswers = answers;
     }
 
+    handleQrlAnswer(userId: string, answer: QrlAnswer): void {
+        if (this.state !== GameState.AskingQuestion) {
+            return;
+        }
+        for (let qrlAnswer of this.qrlAnswers) {
+            if (qrlAnswer.player === answer.player) {
+                qrlAnswer = answer;
+            }
+        }
+        ////////ICI
+    }
+
     isValidate(userId: string): boolean {
         return this.users.isValidate(userId);
     }

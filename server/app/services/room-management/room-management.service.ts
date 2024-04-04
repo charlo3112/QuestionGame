@@ -53,6 +53,14 @@ export class RoomManagementService {
         game.handleAnswers(userId, answers);
     }
 
+    handleQrlAnswer(userId: string, answer: QrlAnswer) {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.handleQrlAnswer(userId, answer);
+    }
+
     validateChoice(userId: string): void {
         const game = this.getActiveGame(userId);
         if (!game) {

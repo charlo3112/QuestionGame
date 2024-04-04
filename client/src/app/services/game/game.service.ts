@@ -8,6 +8,7 @@ import { SessionStorageService } from '@app/services/session-storage/session-sto
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -180,6 +181,15 @@ export class GameService {
         if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
             this.websocketService.validateChoice();
         }
+    }
+
+    sendQrlAnswer(answer: string) {
+        const qrlAnswer: QrlAnswer = {
+            text: answer,
+            player: this.sessionStorageService.username,
+            grade: Grade.Ungraded,
+        };
+        this.websocketService.sendQrlAnswer(qrlAnswer);
     }
 
     nextQuestion() {

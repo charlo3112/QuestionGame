@@ -5,9 +5,22 @@
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
             <section *ngIf="question.type === 'QRL'" id="answer-container">
-                <app-text-answer [isTextLocked]="this.isTextLocked"></app-text-answer>
+                <div class="text-area-container">
+                    <textarea
+                        matInput
+                        [(ngModel)]="answer"
+                        maxlength="200"
+                        class="text-area"
+                        [disabled]="this.isTextLocked"
+                        (keydown.enter)="$event.preventDefault()"
+                    >
+                    </textarea>
+                    <mat-hint class="char-count" align="end">{{ 200 - answer.length }} </mat-hint>
+                </div>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary"[disabled]="gameService.isValidationDisabled">Confirmer</button>
+            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary" [disabled]="gameService.isValidationDisabled">
+                Confirmer
+            </button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
