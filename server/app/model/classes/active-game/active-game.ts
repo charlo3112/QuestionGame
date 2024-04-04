@@ -5,7 +5,7 @@ import { Users } from '@app/model/classes/users/users';
 import { GameData } from '@app/model/database/game';
 import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -205,6 +205,24 @@ export class ActiveGame {
         this.timer.stop();
     }
 
+    startPanicking(): void {
+        if (
+            this.state !== GameState.AskingQuestion ||
+            (this.currentQuestionWithAnswer.type === 'QCM' && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
+            (this.currentQuestionWithAnswer.type === 'QRL' && this.timer.seconds <= MIN_TIME_PANIC_QRL_S)
+        ) {
+            return;
+        }
+        this.timer.panic = true;
+    }
+
+    togglePause(): void {
+        if (this.state !== GameState.AskingQuestion) {
+            return;
+        }
+        this.timer.toggle();
+    }
+
     async advance(): Promise<void> {
         switch (this.state) {
             case GameState.Wait:
@@ -235,6 +253,7 @@ export class ActiveGame {
         this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
         await this.timer.start(this.game.duration);
+        this.timer.panic = false;
         if (!this.isActive) return;
 
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
