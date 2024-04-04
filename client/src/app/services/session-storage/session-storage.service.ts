@@ -10,7 +10,7 @@ import { User } from '@common/interfaces/user';
 @Injectable()
 export class SessionStorageService {
     constructor(
-        readonly routerService: Router,
+        private readonly routerService: Router,
         private readonly websocketService: WebSocketService,
         private readonly snackBarService: MatSnackBar,
     ) {}

@@ -453,4 +453,43 @@ describe('CommunicationService', () => {
         expect(req.request.method).toBe('DELETE');
         req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
+
+    it('should return true for canCreateRandom when succes', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush(true, { status: 200, statusText: 'OK' });
+    });
+
+    it('should return false for canCreateRandom when failed', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush(false, { status: 200, statusText: 'OK' });
+    });
+
+    it('should return false for canCreateRandom when error', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
 });
