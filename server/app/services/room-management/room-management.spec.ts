@@ -1,33 +1,34 @@
 /* eslint-disable no-unused-vars */
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { GameData } from '@app/model/database/game';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { HistoryService } from '@app/services/history/history.service';
+import { QuestionService } from '@app/services/question/question.service';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { RoomManagementService } from './room-management.service';
-import { HistoryService } from '@app/services/history/history.service';
-import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
-import { QuestionService } from '@app/services/question/question.service';
 
 describe('RoomManagementService', () => {
     let service: RoomManagementService;
-    let mockGateway: GameGatewaySend;
+    let mockGateway: SinonStubbedInstance<GameGatewaySend>;
     let mockHistoryService: HistoryService;
     let mockQuestionService: QuestionService;
 
+    let mockSystemMessage = jest.fn();
+
     beforeEach(() => {
-        mockGateway = {
-            sendUpdateUser: jest.fn(),
-            sendUserRemoval: jest.fn(),
-            sendStateUpdate: jest.fn(),
-            sendUsersStatUpdate: jest.fn(),
-        } as unknown as GameGatewaySend;
+        mockGateway = createStubInstance<GameGatewaySend>(GameGatewaySend);
         mockHistoryService = {} as unknown as HistoryService;
         mockQuestionService = { getAllQCMQuestions: jest.fn() } as unknown as QuestionService;
         service = new RoomManagementService(mockGateway, mockHistoryService, mockQuestionService);
 
+        mockSystemMessage = jest.fn();
+
         service.setGatewayCallback(jest.fn());
+        service.setSystemMessageCallback(mockSystemMessage);
     });
 
     it('should create a game room and return user details', async () => {
