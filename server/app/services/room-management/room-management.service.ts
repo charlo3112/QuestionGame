@@ -126,17 +126,17 @@ export class RoomManagementService {
         return { name: HOST_NAME, roomId, userId, play: true };
     }
 
-    async startPanicking(userId: string) {
+    startPanicking(userId: string) {
         const activeGame = this.getActiveGame(userId);
         if (activeGame.isHost(userId)) {
             this.getActiveGame(userId).startPanicking();
         }
     }
 
-    async togglePause(userId: string) {
+    togglePause(userId: string) {
         const activeGame = this.getActiveGame(userId);
         if (activeGame.isHost(userId)) {
-            await this.getActiveGame(userId).togglePause();
+            this.getActiveGame(userId).togglePause();
         }
     }
 

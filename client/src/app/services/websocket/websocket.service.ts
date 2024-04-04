@@ -177,6 +177,14 @@ export class WebSocketService {
         return this.userGameInfoSubject.asObservable();
     }
 
+    startPanicking(): void {
+        this.socket.emit('game:panic');
+    }
+
+    togglePause(): void {
+        this.socket.emit('game:pause');
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {

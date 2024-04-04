@@ -140,12 +140,12 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.setChat(client.id, payload.username, payload.value);
     }
 
-    @SubscribeMessage('game:time-toggle')
+    @SubscribeMessage('game:pause')
     async togglePause(client: Socket) {
         await this.roomService.togglePause(client.id);
     }
 
-    @SubscribeMessage('game:time-panic')
+    @SubscribeMessage('game:panic')
     startPanicking(client: Socket) {
         this.roomService.startPanicking(client.id);
     }
