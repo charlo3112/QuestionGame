@@ -14,6 +14,7 @@ import { CommunicationService } from '@app/services/communication/communication.
 import { ValidationService } from '@app/services/validation/validation.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
+import { AdminQrlComponent } from './components/admin-qrl/admin-qrl.component';
 import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
@@ -65,6 +66,7 @@ import { SessionStorageService } from './services/session-storage/session-storag
         ReactiveFormsModule,
         ResultPageComponent,
         TextAnswerComponent,
+        AdminQrlComponent,
     ],
     providers: [CommunicationService, GameService, ValidationService, WebSocketService, SessionStorageService, GameSubscriptionService],
     bootstrap: [AppComponent],
