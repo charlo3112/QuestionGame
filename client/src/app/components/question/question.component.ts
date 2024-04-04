@@ -56,6 +56,7 @@ export class QuestionComponent {
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
+            this.isTextLocked = true;
         }
     }
 

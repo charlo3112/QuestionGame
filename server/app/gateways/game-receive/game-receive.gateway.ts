@@ -2,6 +2,7 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
@@ -70,6 +71,11 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:choice')
     handleChoice(client: Socket, choice: boolean[]) {
         this.roomService.handleChoice(client.id, choice);
+    }
+
+    @SubscribeMessage('game:answer')
+    handleAnswers(client: Socket, answers: QrlAnswer[]) {
+        this.roomService.handleAnswers(client.id, answers);
     }
 
     @SubscribeMessage('game:validate')

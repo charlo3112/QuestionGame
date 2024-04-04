@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { GameService } from '@app/services/game/game.service';
 import { Grade } from '@common/enums/grade';
-import { QuestionType } from '@common/enums/question-type';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 
@@ -17,15 +17,28 @@ import { Question } from '@common/interfaces/question';
     imports: [MatCardModule, MatFormFieldModule, MatSelectModule, CommonModule, MatButtonModule],
 })
 export class AdminQrlComponent implements OnInit {
-    Grade = Grade;
-    answers: QrlAnswer[] = [];
-    question: Question = {
-        type: QuestionType.QRL,
-        text: 'Quelle est la couleur des pommes?',
-        points: 69,
-        choices: [],
-    };
+    @Output() answersCorrected: EventEmitter<void> = new EventEmitter<void>();
+    gradeSent: boolean = false;
+    question: Question;
+    answers: QrlAnswer[] = [
+        {
+            player: 'BOUCHE',
+            text: 'ALLONS ENFANTS DE LA PATRIE',
+            grade: Grade.Ungraded,
+        },
+        {
+            player: 'ABRICOT',
+            text: 'LE JOUR DE GLOIRE EST ARRIVÉ',
+            grade: Grade.Ungraded,
+        },
+        {
+            player: 'CERISE',
+            text: 'CONTRE NOUS DE LA TYRANNIE',
+            grade: Grade.Ungraded,
+        },
+    ];
 
+    Grade = Grade;
     gradeOptions = [
         { value: Grade.Ungraded, viewValue: 'Non noté' },
         { value: Grade.Zero, viewValue: '0' },
@@ -33,16 +46,13 @@ export class AdminQrlComponent implements OnInit {
         { value: Grade.One, viewValue: '1' },
     ];
 
-    constructor() {
-        this.answers = [
-            { player: 'biscotte', text: 'les pommes sont rouges', grade: Grade.Ungraded },
-            { player: 'abricot', text: 'pommes rouges', grade: Grade.Ungraded },
-            { player: 'celeri', text: 'pommes sont bleues evidemment', grade: Grade.Ungraded },
-        ];
-    }
+    constructor(readonly gameService: GameService) {}
 
     ngOnInit() {
         this.sortAnswers();
+        if (this.gameService.currentQuestion) {
+            this.question = this.gameService.currentQuestion;
+        }
     }
 
     sortAnswers() {
@@ -55,5 +65,11 @@ export class AdminQrlComponent implements OnInit {
 
     allGraded(): boolean {
         return this.answers.every((answer) => answer.grade !== Grade.Ungraded);
+    }
+
+    sendGrades() {
+        this.gameService.sendGrades(this.answers);
+        this.gradeSent = true;
+        this.answersCorrected.emit();
     }
 }

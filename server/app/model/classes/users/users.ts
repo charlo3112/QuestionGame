@@ -3,6 +3,7 @@ import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
 import { BONUS_TIME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
 
@@ -217,6 +218,22 @@ export class Users {
             return;
         }
         user.newChoice = choice;
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
+    }
+
+    handleAnswers(userId: string, answers: QrlAnswer[]) {
+        const user = this.users.get(userId);
+        if (!user || user.validate !== undefined) {
+            return;
+        }
+        this.users.forEach((user) => {
+            for (let i = 0; i < answers.length; i++) {
+                if (user.username === answers[i].player) {
+                    user.newAnswer = answers[i];
+                }
+            }
+        });
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }

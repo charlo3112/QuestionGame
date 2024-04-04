@@ -41,7 +41,7 @@ import { Question } from '@common/interfaces/question';
 })
 export class GamePageComponent implements OnInit, OnDestroy {
     buttonText: string = 'Prochaine Question';
-
+    qrlCorrected: boolean = false;
     // eslint-disable-next-line max-params
     constructor(
         private readonly sessionStorageService: SessionStorageService,
@@ -54,12 +54,18 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
 
     showButton(): boolean {
-        return (
-            ((this.gameService.currentState === GameState.ShowResults && !this.gameService.isPlaying) ||
-                this.gameService.currentState === GameState.LastQuestion) &&
-            this.gameService.isHost &&
-            (!this.gameService.isPlaying || this.sessionStorageService.test)
-        );
+        const isResultsShownAndNotPlaying = this.gameService.currentState === GameState.ShowResults && !this.gameService.isPlaying;
+        const isLastQuestion = this.gameService.currentState === GameState.LastQuestion;
+        const isHost = this.gameService.isHost;
+        const isNotPlayingOrTestSession = !this.gameService.isPlaying || this.sessionStorageService.test;
+        if (this.question?.type === 'QRL') {
+            if (this.qrlCorrected) {
+                return (isResultsShownAndNotPlaying || isLastQuestion) && isHost && isNotPlayingOrTestSession;
+            } else {
+                return false;
+            }
+        }
+        return (isResultsShownAndNotPlaying || isLastQuestion) && isHost && isNotPlayingOrTestSession;
     }
 
     isStartingGame(): boolean {

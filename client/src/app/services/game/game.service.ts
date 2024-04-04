@@ -11,10 +11,11 @@ import { GameState } from '@common/enums/game-state';
 import { Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
-import { Observable, firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 @Injectable()
 export class GameService {
     // eslint-disable-next-line max-params
@@ -128,6 +129,10 @@ export class GameService {
     onKickPlayer(player: string) {
         this.gameSubscriptionService.players.delete(player);
         this.websocketService.banUser(player);
+    }
+
+    sendGrades(answers: QrlAnswer[]) {
+        this.websocketService.sendAnswers(answers);
     }
 
     leaveRoom() {

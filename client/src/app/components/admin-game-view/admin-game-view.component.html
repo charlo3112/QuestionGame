@@ -1,7 +1,10 @@
 <div class="main-container">
-    <div class="flex column stat-container">
+    <div class="flex column stat-container" *ngIf="!(currentQuestion.type === 'QRL' && gameService.currentState === 4)">
         <app-leaderboard></app-leaderboard>
         <app-histogram class="histogram" [showArrows]="false"></app-histogram>
+    </div>
+    <div class="qrl-correction" *ngIf="currentQuestion.type === 'QRL' && gameService.currentState === 4">
+        <app-admin-qrl (answersCorrected)="qrlCorrected()"> </app-admin-qrl>
     </div>
     <div class="flex column">
         <app-chat></app-chat>

@@ -4,6 +4,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
@@ -12,7 +13,7 @@ import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { Socket, io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -66,6 +67,10 @@ export class WebSocketService {
 
     sendChoice(choice: boolean[]): void {
         this.socket.emit('game:choice', choice);
+    }
+
+    sendAnswers(answers: QrlAnswer[]) {
+        this.socket.emit('game:answer', answers);
     }
 
     validateChoice(): void {
