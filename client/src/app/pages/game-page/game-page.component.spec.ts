@@ -8,6 +8,7 @@ import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game/game.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
+import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { of } from 'rxjs';
 import { GamePageComponent } from './game-page.component';
@@ -21,6 +22,10 @@ describe('GamePageComponent', () => {
 
     let mockTest: boolean;
     let mockGameData: string | undefined;
+    let mockCurrentState: GameState;
+    let mockIsHost: boolean;
+    let mockIsPlaying: boolean;
+    let mockHistogram: HistogramData;
 
     beforeEach(async () => {
         sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test', 'gameData']);
@@ -54,6 +59,7 @@ describe('GamePageComponent', () => {
                 'isChoiceSelected',
                 'isChoiceCorrect',
                 'isChoiceIncorrect',
+                'histogram',
             ],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
@@ -63,6 +69,15 @@ describe('GamePageComponent', () => {
         );
         mockGameService.init.and.returnValue(Promise.resolve());
         mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
+        Object.defineProperty(mockGameService, 'isHost', { get: () => mockIsHost });
+        Object.defineProperty(mockGameService, 'currentState', { get: () => mockCurrentState });
+        Object.defineProperty(mockGameService, 'isPlaying', { get: () => mockIsPlaying });
+        Object.defineProperty(mockGameService, 'histogram', { get: () => mockHistogram });
+
+        mockCurrentState = GameState.Starting;
+        mockIsHost = false;
+        mockIsPlaying = false;
+        mockHistogram = HISTOGRAM_DATA;
 
         mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
         await TestBed.configureTestingModule({
@@ -143,5 +158,22 @@ describe('GamePageComponent', () => {
         mockGameData = 'Prochaine Question';
         await component.ngOnInit();
         expect(component.buttonText).toEqual(mockGameData);
+    });
+
+    describe('showButton', () => {
+        it('should return true if game state is ShowResults and isHost is true', () => {
+            mockCurrentState = GameState.ShowResults;
+            mockIsHost = true;
+            mockIsPlaying = false;
+            expect(component.showButton()).toBeTrue();
+        });
+
+        it('should return true if game state is ShowResults and isHost is true', () => {
+            mockCurrentState = GameState.LastQuestion;
+            mockIsHost = true;
+            mockIsPlaying = true;
+            mockTest = true;
+            expect(component.showButton()).toBeTrue();
+        });
     });
 });
