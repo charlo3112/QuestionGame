@@ -18,6 +18,7 @@ import { USER, User } from '@common/interfaces/user';
 import { USERS } from '@common/interfaces/user-stat';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
+import { PanicService } from '@app/services/panic/panic.service';
 
 describe('GameService', () => {
     let gameService: GameService;
@@ -26,6 +27,7 @@ describe('GameService', () => {
     let mockSessionStorageService: jasmine.SpyObj<SessionStorageService>;
     let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
     let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
+    let mockPanic: jasmine.SpyObj<PanicService>;
     let mockRouter: jasmine.SpyObj<Router>;
 
     let mockUsername: string;
@@ -49,6 +51,7 @@ describe('GameService', () => {
             'showFinalResults',
         ]);
         mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGameByID']);
+        mockPanic = jasmine.createSpyObj('PanicService', ['setAudio']);
         mockSessionStorageService = jasmine.createSpyObj('SessionStorageService', ['initUser', 'removeUser', 'username', 'roomId', 'play']);
         Object.defineProperty(mockSessionStorageService, 'username', {
             get: jasmine.createSpy('username.get').and.callFake(() => mockUsername),
@@ -80,6 +83,7 @@ describe('GameService', () => {
                 { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
                 { provide: MatSnackBar, useValue: mockSnackBar },
                 { provide: Router, useValue: mockRouter },
+                { provide: PanicService, useValue: mockPanic },
             ],
         });
 
