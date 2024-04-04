@@ -7,7 +7,7 @@
         <span *ngIf="question" id="points" class="big-text">{{ question.points }} points</span>
     </mat-toolbar-row>
     <mat-toolbar-row *ngIf="!isStartingGame()" class="row-container">
-        <p *ngIf="!gameService.isHost || this.gameService.test" class="big-text">Score total : {{ gameService.score }}</p>
+        <p *ngIf="!gameService.isHost || this.gameService.isPlaying" class="big-text">Score total : {{ gameService.score }}</p>
         <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
         <p class="big-text">Temps restant : {{ gameService.time }}</p>
         <button mat-raised-button id="abandon-button" (click)="openAbandonDialog()">Abandonner</button>
@@ -15,9 +15,9 @@
 </mat-toolbar>
 
 <app-countdown *ngIf="isStartingGame()"></app-countdown>
-<app-question *ngIf="question && (!gameService.isHost || this.gameService.test)" [question]="question!" tabindex="0"></app-question>
-<app-admin-game-view *ngIf="question && gameService.isHost && !this.gameService.test" class="admin-view"></app-admin-game-view>
+<app-question *ngIf="question && this.gameService.isPlaying" [question]="question!" tabindex="0"></app-question>
+<app-admin-game-view *ngIf="question && !gameService.isPlaying" class="admin-view"></app-admin-game-view>
 
-<div *ngIf="showButton() && gameService.isHost" class="center">
+<div *ngIf="showButton()" class="center">
     <button mat-raised-button (click)="nextStep()" color="primary">{{ buttonText }}</button>
 </div>

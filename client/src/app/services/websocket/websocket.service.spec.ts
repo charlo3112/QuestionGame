@@ -4,12 +4,13 @@ import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { LISTEN_HISTOGRAM_DATA, LISTEN_SCORE_UPDATE, LISTEN_TIME_UPDATE, LISTEN_USERS_STAT } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { USER_GAME_INFO, UserGameInfo } from '@common/interfaces/user-game-info';
 import { USERS, UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Socket } from 'socket.io-client';
@@ -65,7 +66,7 @@ describe('WebSocketService', () => {
     });
 
     it('rejoinRoom should emit the correct payload', () => {
-        const testUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        const testUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
         service.rejoinRoom(testUser);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:rejoin', testUser, jasmine.any(Function));
     });
@@ -191,7 +192,7 @@ describe('WebSocketService', () => {
 
     it('should emit game:create event and resolve with the user', async () => {
         const testGameId = 'game123';
-        const expectedUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        const expectedUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
         mockSocket.emit.and.callFake((eventName: string, gameId: string, callback: (user: User) => void) => {
             if (eventName === 'game:create' && gameId === testGameId) {
                 callback(expectedUser);
@@ -299,7 +300,7 @@ describe('WebSocketService', () => {
     }));
 
     it('rejoinRoom should resolve with the expected result', fakeAsync(() => {
-        const mockUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123' };
+        const mockUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
         const mockGameStatePayload: GameStatePayload = {
             state: GameState.Wait,
             payload: 'room123',
@@ -354,7 +355,7 @@ describe('WebSocketService', () => {
 
     it('should call testGame and resolve with a User object', async () => {
         const gameId = 'someGameId';
-        const expectedUser: User = { name: 'Test User', roomId: 'someRoomId', userId: 'someUserId' };
+        const expectedUser: User = { name: 'Test User', roomId: 'someRoomId', userId: 'someUserId', play: true };
         mockSocket.emit.and.callFake((event, id, callback) => {
             if (event === 'game:test' && id === gameId) {
                 callback(expectedUser);
@@ -364,5 +365,57 @@ describe('WebSocketService', () => {
         const result = await service.testGame(gameId);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:test', gameId, jasmine.any(Function));
         expect(result).toEqual(expectedUser);
+    });
+
+    it('should setChat with the correct payload', () => {
+        const username = 'John Doe';
+        const value = true;
+        service.setChat(username, value);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:set-chat', { username, value });
+    });
+
+    it('should emit game:start-test event', () => {
+        service.startTest();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:start-test');
+    });
+
+    it('should startRandom', async () => {
+        const expectedUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
+        mockSocket.emit.and.callFake((event, callback) => {
+            if (event === 'game:create-random') {
+                callback(expectedUser);
+            }
+            return mockSocket;
+        });
+        const result = await service.startRandom();
+        expect(result).toEqual(expectedUser);
+    });
+
+    it('should getAlert and resolve with the correct message', () => {
+        const expectedMessage = 'Hello, world!';
+
+        let message: string | undefined;
+        service.getAlert().subscribe((msg) => {
+            message = msg;
+        });
+
+        const LISTEN_ALERT = 8;
+
+        mockSocket.on.calls.argsFor(LISTEN_ALERT)[1](expectedMessage);
+        expect(message).toEqual(expectedMessage);
+    });
+
+    it('should get UserGameInfo ', () => {
+        const expectedUserGameInfo: UserGameInfo = USER_GAME_INFO;
+
+        let userGameInfo: UserGameInfo | undefined;
+        service.getUserGameInfo().subscribe((info) => {
+            userGameInfo = info;
+        });
+
+        const LISTEN_USER_GAME_INFO = 9;
+
+        mockSocket.on.calls.argsFor(LISTEN_USER_GAME_INFO)[1](expectedUserGameInfo);
+        expect(userGameInfo).toEqual(expectedUserGameInfo);
     });
 });

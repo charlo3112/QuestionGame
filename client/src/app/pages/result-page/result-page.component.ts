@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -9,7 +9,6 @@ import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { GameService } from '@app/services/game/game.service';
-import { UserStat } from '@common/interfaces/user-stat';
 
 @Component({
     selector: 'app-result-page',
@@ -28,10 +27,12 @@ import { UserStat } from '@common/interfaces/user-stat';
         MatButtonModule,
     ],
 })
-export class ResultPageComponent implements OnDestroy {
-    leaderboard: UserStat[] = [];
-    showStats: boolean;
-    constructor(readonly gameService: GameService) {}
+export class ResultPageComponent implements OnDestroy, OnInit {
+    constructor(private readonly gameService: GameService) {}
+
+    async ngOnInit() {
+        await this.gameService.init();
+    }
 
     ngOnDestroy() {
         this.gameService.leaveRoom();

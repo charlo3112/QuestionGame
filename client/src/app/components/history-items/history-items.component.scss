@@ -1,0 +1,50 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.old-game {
+    background-color: map.get(constant.$green-palette, 1000);
+    color: white;
+    margin: 1%;
+}
+
+.bottom-row {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.old-game-name {
+    font-size: 25px;
+    font-style: bold;
+}
+
+.top-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.sort {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.history-list {
+    height: 71%;
+    overflow: auto;
+}
+
+.option,
+.order {
+    margin: 2%;
+}
+
+#sort-button {
+    margin: 4%;
+}
+
+#empty-button {
+    margin: 1.5%;
+}

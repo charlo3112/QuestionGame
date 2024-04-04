@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Game } from '@common/interfaces/game';
+import { History } from '@common/interfaces/history';
 import { Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { Observable, catchError, map, of } from 'rxjs';
@@ -41,6 +42,17 @@ export class CommunicationService {
         );
     }
 
+    canCreateRandom(): Observable<boolean> {
+        return this.http.get<boolean>(`${this.baseUrl}/game/random`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<boolean>) => {
+                return response.body as boolean;
+            }),
+            catchError(() => {
+                return of(false);
+            }),
+        );
+    }
+
     getGames(): Observable<Result<Game[]>> {
         return this.http.get<Game[]>(`${this.baseUrl}/game`, { observe: 'response', responseType: 'json' }).pipe(
             map((response: HttpResponse<Game[]>) => {
@@ -76,17 +88,6 @@ export class CommunicationService {
                 return of(false);
             }),
         );
-    }
-
-    verifyLogin(login: boolean): boolean {
-        const storedLogin = sessionStorage.getItem('login');
-        if (storedLogin !== null) {
-            login = JSON.parse(storedLogin);
-        } else {
-            login = false;
-            sessionStorage.setItem('login', JSON.stringify(login));
-        }
-        return login;
     }
 
     addQuestion(question: Question): Observable<HttpResponse<Question>> {
@@ -138,5 +139,28 @@ export class CommunicationService {
         return this.http
             .get<boolean[]>(`${this.baseUrl}/question`, { params, observe: 'response' })
             .pipe(map((response: HttpResponse<boolean[]>) => response.body as boolean[]));
+    }
+
+    getHistories(): Observable<Result<History[]>> {
+        return this.http.get<History[]>(`${this.baseUrl}/history`, { observe: 'response', responseType: 'json' }).pipe(
+            map((response: HttpResponse<History[]>) => {
+                const histories = response.body as History[];
+                return { ok: true, value: histories } as Result<History[]>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching game' } as Result<History[]>);
+            }),
+        );
+    }
+
+    deleteHistories(): Observable<Result<string>> {
+        return this.http.delete<void>(`${this.baseUrl}/history`, { observe: 'response' }).pipe(
+            map(() => {
+                return { ok: true, value: 'Histories deleted' } as Result<string>;
+            }),
+            catchError(() => {
+                return of({ ok: false, error: 'Error fetching game' } as Result<string>);
+            }),
+        );
     }
 }

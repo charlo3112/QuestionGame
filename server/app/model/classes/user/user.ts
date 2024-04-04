@@ -1,5 +1,7 @@
 import { HOST_NAME } from '@common/constants';
+import { UserState } from '@common/enums/user-state';
 import { Score } from '@common/interfaces/score';
+import { UserGameInfo } from '@common/interfaces/user-game-info';
 
 export class UserData {
     private userId: string;
@@ -10,6 +12,8 @@ export class UserData {
     private choice: boolean[] | undefined;
     private timeValidate: number | undefined;
     private isBonus: boolean;
+    private state: UserState;
+    private canChat: boolean;
 
     constructor(userId: string, roomId: string, username: string) {
         this.userId = userId;
@@ -20,6 +24,8 @@ export class UserData {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
+        this.state = UserState.NoInteraction;
+        this.canChat = true;
     }
 
     get username() {
@@ -34,11 +40,24 @@ export class UserData {
         return this.timeValidate;
     }
 
+    get userCanChat() {
+        return this.canChat;
+    }
+
+    get userState() {
+        return this.state;
+    }
+
     get uid() {
         return this.userId;
     }
     get userScore() {
         return { score: this.score, bonus: this.isBonus } as Score;
+    }
+
+    get userGameInfo() {
+        const choice: boolean[] = this.choice === undefined ? [false, false, false, false] : this.choice;
+        return { choice, validate: this.validate !== undefined } as UserGameInfo;
     }
 
     get userBonus() {
@@ -53,18 +72,29 @@ export class UserData {
         this.userId = uid;
     }
 
+    set userCanChat(canChat: boolean) {
+        this.canChat = canChat;
+    }
+
+    set userState(state: UserState) {
+        this.state = state;
+    }
+
     set newChoice(choice: boolean[]) {
         this.choice = choice;
+        this.state = UserState.FirstInteraction;
     }
 
     set validate(time: number) {
         this.timeValidate = time;
+        this.state = UserState.AnswerConfirmed;
     }
 
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
+        this.state = UserState.NoInteraction;
     }
 
     isHost(): boolean {
@@ -97,5 +127,9 @@ export class UserData {
         ++this.bonus;
         this.isBonus = true;
         this.addScore(score * bonusMultiplier);
+    }
+
+    resetFinalResults() {
+        this.state = UserState.FinalResults;
     }
 }

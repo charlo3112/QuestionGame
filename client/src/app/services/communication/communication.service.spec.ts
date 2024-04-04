@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { RESPONSE_OK } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
-import { Game, GAME_PLACEHOLDER } from '@common/interfaces/game';
+import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { QUESTIONS_PLACEHOLDER, QuestionWithModificationDate } from '@common/interfaces/question';
 describe('CommunicationService', () => {
     let httpMock: HttpTestingController;
@@ -185,19 +185,6 @@ describe('CommunicationService', () => {
         const req = httpMock.expectOne(`${baseUrl}/admin`);
         expect(req.request.method).toBe('POST');
         req.flush('');
-    });
-
-    it('should return the stored login value when login is true and there is a stored login in sessionStorage', () => {
-        const storedLogin = true;
-        spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify(storedLogin));
-        const result = service.verifyLogin(true);
-        expect(result).toBe(storedLogin);
-    });
-
-    it('should return false when login is true and there is no stored login in sessionStorage', () => {
-        spyOn(sessionStorage, 'getItem').and.returnValue(null);
-        const result = service.verifyLogin(true);
-        expect(result).toBeFalse();
     });
 
     it('should throw an error when logging in', () => {
@@ -413,5 +400,96 @@ describe('CommunicationService', () => {
         expect(req.request.method).toBe('PATCH');
         expect(req.request.body).toEqual(updatedQuestionData);
         req.flush(updatedQuestionData);
+    });
+
+    it('should get histories', () => {
+        service.getHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('GET');
+        req.flush([]);
+    });
+
+    it('should throw an error when getting histories', () => {
+        service.getHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should delete histories', () => {
+        service.deleteHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('');
+    });
+
+    it('should throw an error when deleting histories', () => {
+        service.deleteHistories().subscribe({
+            next: (response) => {
+                expect(response.ok).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/history`);
+        expect(req.request.method).toBe('DELETE');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
+    });
+
+    it('should return true for canCreateRandom when succes', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeTrue();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush(true, { status: 200, statusText: 'OK' });
+    });
+
+    it('should return false for canCreateRandom when failed', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush(false, { status: 200, statusText: 'OK' });
+    });
+
+    it('should return false for canCreateRandom when error', () => {
+        service.canCreateRandom().subscribe({
+            next: (response) => {
+                expect(response).toBeFalse();
+            },
+            error: fail,
+        });
+
+        const req = httpMock.expectOne(`${baseUrl}/game/random`);
+        expect(req.request.method).toBe('GET');
+        req.flush('', { status: 500, statusText: 'Internal Server Error' });
     });
 });

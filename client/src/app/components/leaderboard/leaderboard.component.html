@@ -1,4 +1,19 @@
 <h2 class="title">Tableau des résultats</h2>
+
+<mat-form-field class="option">
+    <mat-label id="sort-option-label">Trier par:</mat-label>
+    <mat-select class="sort-option" [(ngModel)]="selectedSort" (ngModelChange)="onSortOptionChange($event)">
+        <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
+<mat-form-field class="order">
+    <mat-label id="sort-order-label">Trier par:</mat-label>
+    <mat-select class="sort-order" [(ngModel)]="selectedSortOrder" (ngModelChange)="onSortOrderChange($event)">
+        <mat-option *ngFor="let order of sortOrder" [value]="order.value">{{ order.label }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
 <div class="table-wrapper">
     <table class="leaderboard-table">
         <thead>
@@ -6,14 +21,20 @@
                 <th>Nom</th>
                 <th>Pointage</th>
                 <th class="bonus-column">Bonus</th>
+                <th>Mute</th>
             </tr>
         </thead>
 
         <tbody>
-            <tr *ngFor="let player of gameService.usersStatValue">
-                <td [ngClass]="{ 'disconnected': !player.isConnected }">{{ player.username }}</td>
+            <tr *ngFor="let player of gameService.usersStat">
+                <td [ngClass]="getClassState(player.state)">{{ player.username }}</td>
                 <td>{{ player.score }}</td>
                 <td>{{ player.bonus }}</td>
+                <td>
+                    <button mat-icon-button (click)="gameService.setChat(player.username, !player.canChat)">
+                        <mat-icon>{{ player.canChat ? 'speaker_notes' : 'speaker_notes_off' }}</mat-icon>
+                    </button>
+                </td>
             </tr>
         </tbody>
     </table>

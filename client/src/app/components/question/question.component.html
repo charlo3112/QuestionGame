@@ -7,7 +7,7 @@
             <section *ngIf="question.type === 'QRL'" id="answer-container">
                 <app-text-answer [isTextLocked]="this.isTextLocked"></app-text-answer>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary">Confirmer</button>
+            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary"[disabled]="gameService.isValidationDisabled">Confirmer</button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>

@@ -2,6 +2,7 @@ import { HttpResponse, HttpStatusCode } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { Choice } from '@common/interfaces/choice';
 import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
@@ -11,11 +12,27 @@ import SpyObj = jasmine.SpyObj;
 describe('AdminService', () => {
     let adminService: AdminService;
     let communicationServiceSpy: SpyObj<CommunicationService>;
+    let sessionStorageServiceSpy: SpyObj<SessionStorageService>;
+
+    let mockLogin: boolean;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['deleteGame', 'exportGame', 'toggleGameVisibility']);
+        sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['login']);
+        Object.defineProperty(sessionStorageServiceSpy, 'login', {
+            get: jasmine.createSpy('login.get').and.callFake(() => mockLogin),
+            set: jasmine.createSpy('login.set').and.callFake((value) => {
+                mockLogin = value;
+            }),
+        });
+
+        mockLogin = false;
+
         TestBed.configureTestingModule({
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
+            providers: [
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: SessionStorageService, useValue: sessionStorageServiceSpy },
+            ],
         });
         adminService = TestBed.inject(AdminService);
     });
@@ -104,12 +121,13 @@ describe('AdminService', () => {
         const success = true;
         adminService.handleLogin(success);
 
-        const storedValue = sessionStorage.getItem('login');
-        expect(storedValue).toBeDefined();
-        if (storedValue) {
-            expect(JSON.parse(storedValue)).toBe(success);
-        } else {
-            fail('Value not found in sessionStorage');
-        }
+        expect(sessionStorageServiceSpy.login).toBeTrue();
+    });
+
+    it('should get the login value from sessionStorage', () => {
+        mockLogin = true;
+        expect(adminService.login).toBeTrue();
+        mockLogin = false;
+        expect(adminService.login).toBeFalse();
     });
 });

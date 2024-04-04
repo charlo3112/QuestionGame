@@ -1,11 +1,9 @@
 export enum GameState {
-    Wait,
+    NotStarted,
     Starting,
+    Wait,
     AskingQuestion,
-    WaitingResults,
     ShowResults,
     LastQuestion,
     ShowFinalResults,
-    GameOver,
-    NotStarted,
 }

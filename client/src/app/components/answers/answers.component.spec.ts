@@ -11,11 +11,17 @@ describe('AnswerComponent', () => {
     const snackBarMock = {
         open: jasmine.createSpy('open'),
     };
+    let gameService: jasmine.SpyObj<GameService>;
 
     beforeEach(() => {
+        gameService = jasmine.createSpyObj('GameService', ['isChoiceCorrect', 'isChoiceIncorrect', 'isChoiceSelected', 'selectChoice']);
+
         TestBed.configureTestingModule({
             imports: [HttpClientModule],
-            providers: [GameService, { provide: MatSnackBar, useValue: snackBarMock }],
+            providers: [
+                { provide: MatSnackBar, useValue: snackBarMock },
+                { provide: GameService, useValue: gameService },
+            ],
         });
         fixture = TestBed.createComponent(AnswersComponent);
         component = fixture.componentInstance;
