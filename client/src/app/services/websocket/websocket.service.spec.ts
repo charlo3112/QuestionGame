@@ -10,6 +10,7 @@ import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
+import { USER_GAME_INFO, UserGameInfo } from '@common/interfaces/user-game-info';
 import { USERS, UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Socket } from 'socket.io-client';
@@ -364,5 +365,57 @@ describe('WebSocketService', () => {
         const result = await service.testGame(gameId);
         expect(mockSocket.emit).toHaveBeenCalledWith('game:test', gameId, jasmine.any(Function));
         expect(result).toEqual(expectedUser);
+    });
+
+    it('should setChat with the correct payload', () => {
+        const username = 'John Doe';
+        const value = true;
+        service.setChat(username, value);
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:set-chat', { username, value });
+    });
+
+    it('should emit game:start-test event', () => {
+        service.startTest();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:start-test');
+    });
+
+    it('should startRandom', async () => {
+        const expectedUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
+        mockSocket.emit.and.callFake((event, callback) => {
+            if (event === 'game:create-random') {
+                callback(expectedUser);
+            }
+            return mockSocket;
+        });
+        const result = await service.startRandom();
+        expect(result).toEqual(expectedUser);
+    });
+
+    it('should getAlert and resolve with the correct message', () => {
+        const expectedMessage = 'Hello, world!';
+
+        let message: string | undefined;
+        service.getAlert().subscribe((msg) => {
+            message = msg;
+        });
+
+        const LISTEN_ALERT = 8;
+
+        mockSocket.on.calls.argsFor(LISTEN_ALERT)[1](expectedMessage);
+        expect(message).toEqual(expectedMessage);
+    });
+
+    it('should get UserGameInfo ', () => {
+        const expectedUserGameInfo: UserGameInfo = USER_GAME_INFO;
+
+        let userGameInfo: UserGameInfo | undefined;
+        service.getUserGameInfo().subscribe((info) => {
+            userGameInfo = info;
+        });
+
+        const LISTEN_USER_GAME_INFO = 9;
+
+        mockSocket.on.calls.argsFor(LISTEN_USER_GAME_INFO)[1](expectedUserGameInfo);
+        expect(userGameInfo).toEqual(expectedUserGameInfo);
     });
 });
