@@ -51,6 +51,7 @@ describe('ChatGateway', () => {
         } as BroadcastOperator<unknown, unknown>);
         roomManagementService.getRoomId.returns('X');
         roomManagementService.getUsername.returns('test');
+        roomManagementService.canChat.returns(true);
         gateway.handleMessage(socket, 'X');
         expect(server.to.calledWith('X')).toBeTruthy();
         expect(gateway['roomMessages'].get('X')?.length).toBe(1);

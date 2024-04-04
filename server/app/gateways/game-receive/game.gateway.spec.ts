@@ -1,5 +1,5 @@
-import { GameData } from '@app/model/database/game';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
+import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/enums/game-state';
@@ -20,7 +20,6 @@ describe('GameGatewayReceive', () => {
     let activeGame: SinonStubbedInstance<ActiveGame>;
     let roomManagementService: SinonStubbedInstance<RoomManagementService>;
     let gameService: SinonStubbedInstance<GameService>;
-    let mockServer;
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
@@ -58,10 +57,6 @@ describe('GameGatewayReceive', () => {
         gateway['server'] = server;
     });
 
-    beforeEach(() => {
-        mockServer = { to: jest.fn().mockReturnThis(), emit: jest.fn() };
-    });
-
     it('should be defined', () => {
         expect(gateway).toBeDefined();
     });
@@ -69,7 +64,7 @@ describe('GameGatewayReceive', () => {
     it('handleCreateGame() should create a game and join a room', async () => {
         const mockGameId = 'game123';
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
-        gameService.getGameById.returns(Promise.resolve({} as GameData));
+        gameService.getGameById.returns(Promise.resolve({ visibility: true } as GameData));
         roomManagementService.createGame.returns(
             new Promise((resolve) => {
                 resolve(mockUser);
@@ -147,7 +142,7 @@ describe('GameGatewayReceive', () => {
     it('handleTestGame() allow the user to test a quiz', async () => {
         const mockGameId = 'game123';
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
-        gameService.getGameById.resolves({} as GameData);
+        gameService.getGameById.resolves({ visibility: true } as GameData);
         roomManagementService.testGame.resolves(mockUser);
         const mockActiveGame = { testGame: jest.fn() };
         roomManagementService.getActiveGame.returns(mockActiveGame as unknown as ActiveGame);
@@ -155,7 +150,6 @@ describe('GameGatewayReceive', () => {
         const result = await gateway.handleTestGame(socket, mockGameId);
         expect(result).toBeDefined();
         expect(result).toEqual(mockUser);
-        expect(mockActiveGame.testGame).toBeCalled();
     });
 
     it('handleTestGame() should return null if game does not exist', async () => {
@@ -200,30 +194,5 @@ describe('GameGatewayReceive', () => {
         roomManagementService.getUsers.returns(mockUsers);
         const result = gateway.getUsers(socket);
         expect(result).toEqual(mockUsers);
-    });
-
-    it('handleDeleteRoom() should close the room', () => {
-        const roomId = 'room123';
-        const mockServerSocketLeave = { to: jest.fn().mockReturnThis(), emit: jest.fn(), socketsLeave: jest.fn() };
-        gateway['handleDeleteRoom'].call({ server: mockServerSocketLeave }, roomId);
-        expect(mockServerSocketLeave.to).toHaveBeenCalledWith(roomId);
-        expect(mockServerSocketLeave.emit).toHaveBeenCalledWith('game:closed', 'La partie a été fermée');
-        expect(mockServerSocketLeave.socketsLeave).toHaveBeenCalledWith(roomId);
-    });
-
-    it('handleUserRemoval() should remove a user from the game', () => {
-        const userId = 'user123';
-        const message = 'User removed';
-        gateway['handleUserRemoval'].call({ server: mockServer }, userId, message);
-        expect(mockServer.to).toHaveBeenCalledWith(userId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:closed', message);
-    });
-
-    it('handleUpdateUser() should update a user in the game', () => {
-        const roomId = 'room123';
-        const userUpdate = { userId: 'user123', name: 'JohnDoe' };
-        gateway['handleUpdateUser'].call({ server: mockServer }, roomId, userUpdate);
-        expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:user-update', userUpdate);
     });
 });

@@ -1,3 +1,4 @@
+import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
 import { GameData } from '@app/model/database/game';
@@ -5,13 +6,20 @@ import { QuestionData } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
+import { HistoryService } from '@app/services/history/history.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
+import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { ActiveGame } from './active-game';
 
 describe('ActiveGame', () => {
     let mockGameData: GameData;
+    let mockRoomId: string;
     let game: ActiveGame;
+    let mockHostIsPlaying: boolean;
+
+    let mockGameGateway: SinonStubbedInstance<GameGatewaySend>;
+    let mockHistoryService: SinonStubbedInstance<HistoryService>;
 
     beforeEach(() => {
         const choiceDtoOne = new CreateChoiceDto();
@@ -38,6 +46,15 @@ describe('ActiveGame', () => {
         gameDto.questions = [expectedQuestionData];
         gameDto.visibility = true;
         mockGameData = new GameData(gameDto);
+
+        mockRoomId = 'roomId';
+
+        mockGameGateway = createStubInstance(GameGatewaySend);
+        mockHistoryService = createStubInstance(HistoryService);
+
+        mockHostIsPlaying = false;
+
+        game = new ActiveGame(mockGameData, mockRoomId, mockGameGateway, mockHistoryService, mockHostIsPlaying);
     });
     it('should be defined', () => {
         expect(ActiveGame).toBeDefined();
@@ -45,10 +62,9 @@ describe('ActiveGame', () => {
 
     it('currentQuestionWithAnswers() should return the current question with answers', () => {
         const expectedQuestion = mockGameData.questions[0];
-        const expectedQuestionWithCorrectAnswer = { ...expectedQuestion };
 
         const currentQuestionWithAnswers = game.currentQuestionWithAnswer;
-        expect(currentQuestionWithAnswers).toStrictEqual(expectedQuestionWithCorrectAnswer);
+        expect(currentQuestionWithAnswers).toStrictEqual(expectedQuestion);
     });
 
     it('currentQuestionWithoutAnswers() should return the current question with answers', () => {
@@ -170,7 +186,9 @@ describe('ActiveGame', () => {
 
     it('advance() should not start the game if the room in unlocked', async () => {
         game.isLocked = false;
-        expect(await game.advance()).toBeNull();
+        jest.spyOn(game, 'launchGame');
+        await game.advance();
+        expect(game.launchGame).not.toHaveBeenCalled();
     });
 
     // it('advance() should start the game if the room in locked', async () => {
