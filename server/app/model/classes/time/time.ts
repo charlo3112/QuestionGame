@@ -49,8 +49,10 @@ export class CountDownTimer {
         this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
     }
 
-    async stop() {
+    stop() {
         this.stopped = true;
+        this.pause = false;
+        this.panic = false;
     }
 
     toggle() {
