@@ -10,6 +10,7 @@ export class CountDownTimer {
     private gameGateway: GameGatewaySend;
     private panicMode: boolean = false;
     private pause: boolean = false;
+    private controller = new AbortController();
 
     constructor(roomId: string, gameGateway: GameGatewaySend) {
         this.roomId = roomId;
@@ -23,11 +24,13 @@ export class CountDownTimer {
             this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.PanicEnd);
         }
         this.panicMode = value;
+        this.controller.abort();
     }
 
     async start(seconds: number) {
         this.seconds = seconds;
         this.panicMode = false;
+        this.controller.abort();
         await this.restart();
     }
 
@@ -37,10 +40,18 @@ export class CountDownTimer {
             if (!this.pause) {
                 this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
             }
-            if (this.panicMode) {
-                await setTimeout(PANIC_DURATION);
-            } else {
-                await setTimeout(TIMEOUT_DURATION);
+            try {
+                if (this.panicMode || this.pause) {
+                    await setTimeout(PANIC_DURATION, undefined, { signal: this.controller.signal });
+                } else {
+                    await setTimeout(TIMEOUT_DURATION, undefined, { signal: this.controller.signal });
+                }
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    this.controller = new AbortController();
+                    continue;
+                }
+                throw error;
             }
             if (!this.pause) {
                 --this.seconds;
@@ -53,6 +64,7 @@ export class CountDownTimer {
         this.stopped = true;
         this.pause = false;
         this.panic = false;
+        this.controller.abort();
     }
 
     toggle() {
@@ -62,9 +74,11 @@ export class CountDownTimer {
             this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Pause);
         }
         this.pause = !this.pause;
+        this.controller.abort();
     }
 
     reset() {
         this.seconds = 0;
+        this.controller.abort();
     }
 }
