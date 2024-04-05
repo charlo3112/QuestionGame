@@ -16,6 +16,7 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { AbandonDialogComponent } from './components/abandon-dialog/abandon-dialog.component';
 import { AnswersComponent } from './components/answers/answers.component';
 import { CreateQuestionComponent } from './components/create-question/create-question.component';
+import { EraseHistoryDialogComponent } from './components/erase-history-dialog/erase-history-dialog.component';
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { HistoryItemsComponent } from './components/history-items/history-items.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
@@ -47,6 +48,7 @@ import { SessionStorageService } from './services/session-storage/session-storag
         CreateQuestionComponent,
         CreatePageComponent,
         CreateQuestionComponent,
+        EraseHistoryDialogComponent,
         FormsModule,
         HistogramComponent,
         HistoryItemsComponent,
