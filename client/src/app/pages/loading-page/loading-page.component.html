@@ -1,7 +1,8 @@
 <mat-toolbar color="primary" class="toolbar">
-    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <a><img src="assets/logo.png" /></a>
     <h1 class="title">Joindre une partie</h1>
     <span class="spacer"></span>
+    <button mat-raised-button id="abandon-button" routerLink="#">Abandonner</button>
 </mat-toolbar>
 
 <div class="loading-container">
@@ -31,7 +32,7 @@
             <button
                 class="start-game-button"
                 mat-raised-button
-                [disabled]="!roomLocked || ( gameService.playersList.size < 1 && !gameService.isPlaying)"
+                [disabled]="!roomLocked || (gameService.playersList.size < 1 && !gameService.isPlaying)"
                 matTooltip="La partie sera démarrée avec les joueurs dans la salle d'attente"
                 (click)="onStartGame()"
             >
