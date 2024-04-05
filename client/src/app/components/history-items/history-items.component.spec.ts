@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
@@ -13,6 +14,7 @@ describe('HistoryItemsComponent', () => {
     let fixture: ComponentFixture<HistoryItemsComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let historyItems: History[];
+    let mockMatDialog: jasmine.SpyObj<MatDialog>;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['deleteHistories', 'getHistories']);
@@ -21,10 +23,14 @@ describe('HistoryItemsComponent', () => {
             value: [],
         };
 
+        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
         communicationServiceSpy.getHistories.and.returnValue(of(mockHistoryResponse));
 
         TestBed.configureTestingModule({
-            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
+            providers: [
+                { provide: CommunicationService, useValue: communicationServiceSpy },
+                { provide: MatDialog, useValue: mockMatDialog },
+            ],
             imports: [HistoryItemsComponent, BrowserAnimationsModule, NoopAnimationsModule],
         });
         fixture = TestBed.createComponent(HistoryItemsComponent);
@@ -125,5 +131,17 @@ describe('HistoryItemsComponent', () => {
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'recent');
         expect(component.historyItems).toEqual(sortedItems);
+    });
+
+    it('should call emptyHistory openEraseDialog is called with true result', () => {
+        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+        dialogRefSpy.afterClosed.and.returnValue(of(true));
+        mockMatDialog.open.and.returnValue(dialogRefSpy);
+
+        spyOn(component, 'emptyHistory');
+
+        component.openEraseDialog();
+
+        expect(component.emptyHistory).toHaveBeenCalled();
     });
 });
