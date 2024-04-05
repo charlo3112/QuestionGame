@@ -37,7 +37,7 @@
         <div class="bottom-row">
             <mat-card-content class="old-game-score"> Meilleur score: {{ item.bestScore }} points</mat-card-content>
             <mat-card-content class="old-game-players"> Nombre de joueurs: {{ item.numberPlayers }}</mat-card-content>
-            <mat-card-content class="old-game-creation"> Date de création: {{ item.date | date: 'yyyy-MM-dd' }}</mat-card-content>
+            <mat-card-content class="old-game-creation"> Date de création: {{ item.date | date: 'yyyy-MM-dd HH:mm:ss' }}</mat-card-content>
         </div>
     </mat-card>
 </div>

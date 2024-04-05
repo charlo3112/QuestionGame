@@ -100,7 +100,7 @@ export class HistoryItemsComponent implements OnInit {
                 if (order === 'az') return a.name.localeCompare(b.name);
                 return b.name.localeCompare(a.name);
             }
-            if (order === 'old') return b.date.getTime() - a.date.getTime();
+            if (order === 'recent') return b.date.getTime() - a.date.getTime();
             return a.date.getTime() - b.date.getTime();
         });
     }
