@@ -3,9 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { EraseHistoryDialogComponent } from '@app/components/erase-history-dialog/erase-history-dialog.component';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { History } from '@common/interfaces/history';
@@ -39,6 +41,7 @@ export class HistoryItemsComponent implements OnInit {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly snackBar: MatSnackBar,
+        private readonly dialog: MatDialog,
     ) {}
 
     ngOnInit() {
@@ -69,6 +72,15 @@ export class HistoryItemsComponent implements OnInit {
                 this.sortItems(this.selectedSort, this.selectedSortOrder);
             } else {
                 this.openSnackBar(FETCH_ERROR);
+            }
+        });
+    }
+
+    openEraseDialog() {
+        const dialogRef = this.dialog.open(EraseHistoryDialogComponent);
+        dialogRef.afterClosed().subscribe((result) => {
+            if (result) {
+                this.emptyHistory();
             }
         });
     }
