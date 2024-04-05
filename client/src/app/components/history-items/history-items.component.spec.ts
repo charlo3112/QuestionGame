@@ -114,14 +114,14 @@ describe('HistoryItemsComponent', () => {
     });
 
     it('should sort items by date in from oldest to newest', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => b.date.getTime() - a.date.getTime());
+        const sortedItems = historyItems.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'old');
         expect(component.historyItems).toEqual(sortedItems);
     });
 
     it('should sort items by date in from newest to oldest', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+        const sortedItems = historyItems.slice().sort((a, b) => b.date.getTime() - a.date.getTime());
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'recent');
         expect(component.historyItems).toEqual(sortedItems);
