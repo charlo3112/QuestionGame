@@ -39,7 +39,7 @@ export class CreateQuestionService {
     // need to transmit every parameter
     // eslint-disable-next-line max-params
     async addToQuestionBank(questionName: string, questionPoints: number, choices: Choice[], questionType: QuestionType): Promise<Question> {
-        if (questionType === 'QCM') {
+        if (questionType === QuestionType.QCM) {
             if (this.choiceVerif(questionName, choices)) {
                 const newQuestion: Question = {
                     type: questionType,
@@ -60,7 +60,7 @@ export class CreateQuestionService {
                     });
                 });
             }
-        } else if (questionType === 'QRL') {
+        } else if (questionType === QuestionType.QRL) {
             const newQuestion: Question = {
                 type: questionType,
                 text: questionName,

@@ -5,8 +5,9 @@ import { Users } from '@app/model/classes/users/users';
 import { GameData } from '@app/model/database/game';
 import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
-import { TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { QRL_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
@@ -266,7 +267,11 @@ export class ActiveGame {
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
         this.users.resetAnswers();
         this.advanceState(GameState.AskingQuestion);
-        await this.timer.start(this.game.duration);
+        if (this.currentQuestionWithoutAnswer.type === QuestionType.QCM) {
+            await this.timer.start(this.game.duration);
+        } else if (this.currentQuestionWithoutAnswer.type === QuestionType.QRL) {
+            await this.timer.start(QRL_TIME);
+        }
         if (!this.isActive) return;
 
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);

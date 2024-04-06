@@ -59,10 +59,11 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const isLastQuestion = this.gameService.currentState === GameState.LastQuestion;
         const isHost = this.gameService.isHost;
         const isNotPlayingOrTestSession = !this.gameService.isPlaying || this.sessionStorageService.test;
-        if (this.alreadyClicked) {
+        if (this.buttonText === 'Résultats') {
+            return isHost;
+        } else if (this.alreadyClicked) {
             return false;
-        }
-        if (this.question?.type === 'QRL') {
+        } else if (this.question?.type === 'QRL') {
             if (this.qrlCorrected) {
                 return (isResultsShownAndNotPlaying || isLastQuestion) && isHost && isNotPlayingOrTestSession;
             } else {
