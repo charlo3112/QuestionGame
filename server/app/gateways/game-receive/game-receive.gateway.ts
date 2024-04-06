@@ -156,6 +156,16 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.setChat(client.id, payload.username, payload.value);
     }
 
+    @SubscribeMessage('game:pause')
+    togglePause(client: Socket) {
+        this.roomService.togglePause(client.id);
+    }
+
+    @SubscribeMessage('game:panic')
+    startPanicking(client: Socket) {
+        this.roomService.startPanicking(client.id);
+    }
+
     handleDisconnect(client: Socket): void {
         this.roomService.leaveUser(client.id);
     }

@@ -143,6 +143,20 @@ export class RoomManagementService {
         return { name: HOST_NAME, roomId, userId, play: true };
     }
 
+    startPanicking(userId: string) {
+        const activeGame = this.getActiveGame(userId);
+        if (activeGame.isHost(userId)) {
+            this.getActiveGame(userId).startPanicking();
+        }
+    }
+
+    togglePause(userId: string) {
+        const activeGame = this.getActiveGame(userId);
+        if (activeGame.isHost(userId)) {
+            this.getActiveGame(userId).togglePause();
+        }
+    }
+
     toggleGameClosed(userId: string, closed: boolean) {
         const game = this.getActiveGame(userId);
         if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait) {

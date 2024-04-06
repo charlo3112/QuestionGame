@@ -32,12 +32,15 @@ export const MIN_ROOM_NUMBER = 1000;
 export const MAX_ROOM_NUMBER = 9999;
 
 export const TIMEOUT_DURATION = 1000;
+export const PANIC_DURATION = 250;
 
 export const ROOM_CODE_LENGTH = 4;
 
 export const WAITING_TIME_S = 5;
 export const BONUS_MULTIPLIER = 1.2;
 export const TIME_CONFIRM_S = 3;
+export const MIN_TIME_PANIC_QCM_S = 10;
+export const MIN_TIME_PANIC_QRL_S = 20;
 
 export const HOST_NAME = 'Organisateur';
 

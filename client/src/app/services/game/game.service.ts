@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { SortOption } from '@app/enums/sort-option';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
+import { PanicService } from '@app/services/panic/panic.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
@@ -17,6 +18,7 @@ import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
 import { Observable, firstValueFrom } from 'rxjs';
+
 @Injectable()
 export class GameService {
     // eslint-disable-next-line max-params
@@ -25,9 +27,12 @@ export class GameService {
         private readonly communicationService: CommunicationService,
         private readonly sessionStorageService: SessionStorageService,
         private readonly gameSubscriptionService: GameSubscriptionService,
+        private readonly panicService: PanicService,
         private readonly snackBar: MatSnackBar,
         private readonly router: Router,
-    ) {}
+    ) {
+        this.panicService.setAudio();
+    }
 
     get gameTitle(): string {
         return this.gameSubscriptionService.title;

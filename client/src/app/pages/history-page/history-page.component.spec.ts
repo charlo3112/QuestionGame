@@ -1,5 +1,6 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatDialogModule } from '@angular/material/dialog'; // Import MatDialogModule
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -28,6 +29,7 @@ describe('HistoryPageComponent', () => {
                 BrowserAnimationsModule,
                 NoopAnimationsModule,
                 RouterModule.forRoot(routes),
+                MatDialogModule,
             ],
             providers: [{ provide: AdminService, useValue: adminServiceSpy }],
         });

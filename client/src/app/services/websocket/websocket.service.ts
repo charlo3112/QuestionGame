@@ -15,6 +15,7 @@ import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
+import { TimeEvent } from '@common/enums/time-event';
 
 @Injectable({
     providedIn: 'root',
@@ -31,6 +32,7 @@ export class WebSocketService {
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
     private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
+    private timeEventSubject: Subject<TimeEvent> = new Subject<TimeEvent>();
 
     constructor() {
         this.connect();
@@ -194,6 +196,18 @@ export class WebSocketService {
         return this.userGameInfoSubject.asObservable();
     }
 
+    getTimeEvent(): Observable<TimeEvent> {
+        return this.timeEventSubject.asObservable();
+    }
+
+    startPanicking(): void {
+        this.socket.emit('game:panic');
+    }
+
+    togglePause(): void {
+        this.socket.emit('game:pause');
+    }
+
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
             this.socket.emit('game:users', (users: string[]) => {
@@ -234,6 +248,7 @@ export class WebSocketService {
         this.listenForHistogramData(); // 7
         this.listenForAlert(); // 8
         this.listenForUserGameInfo(); // 9
+        this.listenForTimeEvent(); // 10
     }
 
     private listenForClosedConnection() {
@@ -293,6 +308,12 @@ export class WebSocketService {
     private listenForUserGameInfo() {
         this.socket.on('game:user-game-info', (userGameInfo: UserGameInfo) => {
             this.userGameInfoSubject.next(userGameInfo);
+        });
+    }
+
+    private listenForTimeEvent() {
+        this.socket.on('game:time-event', (timeEvent: TimeEvent) => {
+            this.timeEventSubject.next(timeEvent);
         });
     }
 }

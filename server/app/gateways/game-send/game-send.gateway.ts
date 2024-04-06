@@ -6,6 +6,7 @@ import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { TimeEvent } from '@common/enums/time-event';
 
 @WebSocketGateway()
 export class GameGatewaySend {
@@ -54,5 +55,9 @@ export class GameGatewaySend {
 
     sendUserGameInfo(userId: string, userGameInfo: UserGameInfo): void {
         this.server.to(userId).emit('game:user-game-info', userGameInfo);
+    }
+
+    sendTimeEvent(roomId: string, timeEvent: TimeEvent): void {
+        this.server.to(roomId).emit('game:time-event', timeEvent);
     }
 }
