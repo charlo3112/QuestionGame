@@ -16,7 +16,7 @@ import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable, firstValueFrom } from 'rxjs';
 @Injectable()
 export class GameService {
     // eslint-disable-next-line max-params
@@ -108,6 +108,10 @@ export class GameService {
     set sortOption(option: SortOption) {
         this.gameSubscriptionService.sortOption = option;
         this.gameSubscriptionService.sortUsers();
+    }
+
+    async getQrlAnswers(): Promise<QrlAnswer[]> {
+        return await this.websocketService.getQrlAnswers();
     }
 
     setChat(username: string, value: boolean): void {

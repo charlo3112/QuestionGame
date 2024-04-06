@@ -171,6 +171,14 @@ export class RoomManagementService {
         return game.getChoice(userId);
     }
 
+    getQrlAnswers(userId: string): QrlAnswer[] {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return [];
+        }
+        return game.getQrlAnswers();
+    }
+
     getScore(userId: string): Score {
         const game = this.getActiveGame(userId);
         if (!game) {

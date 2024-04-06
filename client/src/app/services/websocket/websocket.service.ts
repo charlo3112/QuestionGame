@@ -13,7 +13,7 @@ import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -105,6 +105,14 @@ export class WebSocketService {
         return new Promise<boolean[]>((resolve) => {
             this.socket.emit('game:getChoice', (choice: boolean[]) => {
                 resolve(choice);
+            });
+        });
+    }
+
+    async getQrlAnswers(): Promise<QrlAnswer[]> {
+        return new Promise<QrlAnswer[]>((resolve) => {
+            this.socket.emit('game:getQrlAnswers', (answers: QrlAnswer[]) => {
+                resolve(answers);
             });
         });
     }

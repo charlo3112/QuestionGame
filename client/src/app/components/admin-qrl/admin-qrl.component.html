@@ -5,9 +5,9 @@
             class="qrl-choice"
             *ngFor="let answer of answers; let i = index"
             [ngClass]="{
-                'grade-zero': answer.grade === Grade.Zero,
-                'grade-half': answer.grade === Grade.Half,
-                'grade-one': answer.grade === Grade.One
+                'grade-zero': answer.grade === grade.Zero,
+                'grade-half': answer.grade === grade.Half,
+                'grade-one': answer.grade === grade.One
             }"
         >
             <div class="content-wrapper">

@@ -117,6 +117,11 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return this.roomService.getChoice(client.id);
     }
 
+    @SubscribeMessage('game:getQrlAnswers')
+    getQrlAnswers(client: Socket): QrlAnswer[] {
+        return this.roomService.getQrlAnswers(client.id);
+    }
+
     @SubscribeMessage('game:rejoin')
     async handleRejoinGame(client: Socket, user: User): Promise<Result<GameStatePayload>> {
         const res = this.roomService.rejoinRoom(user, client.id);

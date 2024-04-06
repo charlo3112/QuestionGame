@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,27 +18,29 @@ import { Question } from '@common/interfaces/question';
 })
 export class AdminQrlComponent implements OnInit {
     @Output() answersCorrected: EventEmitter<void> = new EventEmitter<void>();
+    @Input() answers: QrlAnswer[];
     gradeSent: boolean = false;
     question: Question;
-    answers: QrlAnswer[] = [
-        {
-            player: 'BOUCHE',
-            text: 'ALLONS ENFANTS DE LA PATRIE',
-            grade: Grade.Ungraded,
-        },
-        {
-            player: 'ABRICOT',
-            text: 'LE JOUR DE GLOIRE EST ARRIVÉ',
-            grade: Grade.Ungraded,
-        },
-        {
-            player: 'CERISE',
-            text: 'CONTRE NOUS DE LA TYRANNIE',
-            grade: Grade.Ungraded,
-        },
-    ];
 
-    Grade = Grade;
+    // = [
+    //     {
+    //         player: 'BOUCHE',
+    //         text: 'ALLONS ENFANTS DE LA PATRIE',
+    //         grade: Grade.Ungraded,
+    //     },
+    //     {
+    //         player: 'ABRICOT',
+    //         text: 'LE JOUR DE GLOIRE EST ARRIVÉ',
+    //         grade: Grade.Ungraded,
+    //     },
+    //     {
+    //         player: 'CERISE',
+    //         text: 'CONTRE NOUS DE LA TYRANNIE',
+    //         grade: Grade.Ungraded,
+    //     },
+    // ];
+
+    grade = Grade;
     gradeOptions = [
         { value: Grade.Ungraded, viewValue: 'Non noté' },
         { value: Grade.Zero, viewValue: '0' },

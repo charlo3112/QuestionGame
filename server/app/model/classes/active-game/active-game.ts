@@ -25,7 +25,13 @@ export class ActiveGame {
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
-    private qrlAnswers: QrlAnswer[];
+    private qrlAnswers: QrlAnswer[] = [
+        {
+            player: 'lol',
+            text: 'lolo',
+            grade: 0,
+        },
+    ];
 
     // TODO: Justify the number of parameters for this constructor or reduce it
     // eslint-disable-next-line max-params
@@ -119,6 +125,10 @@ export class ActiveGame {
         return this.users.getChoice(userId);
     }
 
+    getQrlAnswers(): QrlAnswer[] {
+        return this.qrlAnswers;
+    }
+
     getScore(userId: string): Score {
         return this.users.getScore(userId);
     }
@@ -151,9 +161,9 @@ export class ActiveGame {
         for (let qrlAnswer of this.qrlAnswers) {
             if (qrlAnswer.player === answer.player) {
                 qrlAnswer = answer;
-            }
+            } else this.qrlAnswers.push(answer);
         }
-        ////////ICI
+        /// /////ICI
     }
 
     isValidate(userId: string): boolean {

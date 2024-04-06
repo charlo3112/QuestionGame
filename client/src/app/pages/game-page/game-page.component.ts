@@ -42,6 +42,7 @@ import { Question } from '@common/interfaces/question';
 export class GamePageComponent implements OnInit, OnDestroy {
     buttonText: string = 'Prochaine Question';
     qrlCorrected: boolean = false;
+    alreadyClicked: boolean = false;
     // eslint-disable-next-line max-params
     constructor(
         private readonly sessionStorageService: SessionStorageService,
@@ -58,6 +59,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const isLastQuestion = this.gameService.currentState === GameState.LastQuestion;
         const isHost = this.gameService.isHost;
         const isNotPlayingOrTestSession = !this.gameService.isPlaying || this.sessionStorageService.test;
+        if (this.alreadyClicked) return false;
         if (this.question?.type === 'QRL') {
             if (this.qrlCorrected) {
                 return (isResultsShownAndNotPlaying || isLastQuestion) && isHost && isNotPlayingOrTestSession;
@@ -81,6 +83,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') {
             this.gameService.nextQuestion();
+            this.alreadyClicked = false;
         }
     }
 
