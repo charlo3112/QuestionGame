@@ -59,7 +59,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
         const isLastQuestion = this.gameService.currentState === GameState.LastQuestion;
         const isHost = this.gameService.isHost;
         const isNotPlayingOrTestSession = !this.gameService.isPlaying || this.sessionStorageService.test;
-        if (this.alreadyClicked) return false;
+        if (this.alreadyClicked) {
+            return false;
+        }
         if (this.question?.type === 'QRL') {
             if (this.qrlCorrected) {
                 return (isResultsShownAndNotPlaying || isLastQuestion) && isHost && isNotPlayingOrTestSession;
@@ -82,8 +84,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
             }
             this.gameService.showFinalResults();
         } else if (this.buttonText === 'Prochaine Question') {
-            this.gameService.nextQuestion();
             this.alreadyClicked = false;
+            this.gameService.nextQuestion();
         }
     }
 
