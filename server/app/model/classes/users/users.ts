@@ -227,10 +227,10 @@ export class Users {
         if (!user || user.validate !== undefined) {
             return;
         }
-        this.users.forEach((user) => {
-            for (let i = 0; i < answers.length; i++) {
-                if (user.username === answers[i].player) {
-                    user.newAnswer = answers[i];
+        this.users.forEach((player) => {
+            for (const answer of answers) {
+                if (player.username === answer.player) {
+                    player.newAnswer = answer;
                 }
             }
         });
