@@ -167,7 +167,18 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     }
 
     save() {
-        if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+        if (this.questionType === QuestionType.QCM) {
+            if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+                const newQuestion: Question = {
+                    type: this.questionType,
+                    text: this.questionName,
+                    points: this.questionPoints,
+                    choices: this.choices,
+                };
+                this.questionCreated.emit(newQuestion);
+                this.resetForm();
+            }
+        } else if (this.questionType === QuestionType.QRL) {
             const newQuestion: Question = {
                 type: this.questionType,
                 text: this.questionName,
