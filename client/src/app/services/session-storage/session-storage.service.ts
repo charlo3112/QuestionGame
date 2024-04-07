@@ -44,21 +44,6 @@ export class SessionStorageService {
         return JSON.parse(sessionStorage.getItem('login') || 'false');
     }
 
-    get gameData(): string | undefined {
-        const data = sessionStorage.getItem('gameData');
-        if (!data) {
-            return undefined;
-        }
-        return data;
-    }
-
-    set gameData(buttonText: string | undefined) {
-        if (!buttonText) {
-            return;
-        }
-        sessionStorage.setItem('gameData', buttonText);
-    }
-
     set login(login: boolean) {
         sessionStorage.setItem('login', login ? 'true' : 'false');
     }
@@ -95,7 +80,6 @@ export class SessionStorageService {
 
     removeUser() {
         sessionStorage.removeItem('user');
-        sessionStorage.removeItem('gameData');
         sessionStorage.removeItem('test');
     }
 }
