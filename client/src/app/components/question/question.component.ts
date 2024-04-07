@@ -64,7 +64,7 @@ export class QuestionComponent {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
             if (this.gameService.currentQuestion?.type === 'QRL') {
-                // this.gameService.sendQrlAnswer(this.answer);
+                this.gameService.sendQrlAnswer(this.answer);
                 this.isTextLocked = true;
             }
         }

@@ -7,6 +7,7 @@ import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, QRL_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -30,7 +31,7 @@ export class ActiveGame {
         {
             player: 'lol',
             text: 'lolo',
-            grade: 0,
+            grade: Grade.Ungraded,
         },
     ];
 
