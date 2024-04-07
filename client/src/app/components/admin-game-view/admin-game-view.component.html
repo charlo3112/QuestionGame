@@ -6,7 +6,7 @@
     <div class="flex column">
         <app-chat></app-chat>
         <div class="flex">
-            <button mat-raised-button (click)="togglePause()" color="primary">Pause</button>
+            <button mat-raised-button (click)="togglePause()" color="primary">{{gameService.pause ? 'Play' : 'Pause'}}</button>
             <button mat-raised-button (click)="startPanicking()" color="warn" [disabled]="!canPanic()">ACTIVER LA PANIQUE!</button>
         </div>
     </div>

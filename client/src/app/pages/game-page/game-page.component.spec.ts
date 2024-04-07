@@ -21,23 +21,14 @@ describe('GamePageComponent', () => {
     let sessionStorageServiceSpy: jasmine.SpyObj<SessionStorageService>;
 
     let mockTest: boolean;
-    let mockGameData: string | undefined;
     let mockCurrentState: GameState;
     let mockIsHost: boolean;
     let mockIsPlaying: boolean;
     let mockHistogram: HistogramData;
 
     beforeEach(async () => {
-        sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test', 'gameData']);
+        sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test']);
         Object.defineProperty(sessionStorageServiceSpy, 'test', { get: () => mockTest });
-        Object.defineProperty(sessionStorageServiceSpy, 'gameData', {
-            get: () => mockGameData,
-            set: (value) => {
-                mockGameData = value;
-            },
-        });
-
-        mockGameData = undefined;
         mockTest = false;
 
         mockGameService = jasmine.createSpyObj(
@@ -68,7 +59,6 @@ describe('GamePageComponent', () => {
             },
         );
         mockGameService.init.and.returnValue(Promise.resolve());
-        mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
         Object.defineProperty(mockGameService, 'isHost', { get: () => mockIsHost });
         Object.defineProperty(mockGameService, 'currentState', { get: () => mockCurrentState });
         Object.defineProperty(mockGameService, 'isPlaying', { get: () => mockIsPlaying });
@@ -128,36 +118,28 @@ describe('GamePageComponent', () => {
     });
 
     it('should call showFinalResults and clear localStorage when buttonText is "Résultats"', () => {
-        spyOn(sessionStorage, 'clear');
-        component.buttonText = 'Résultats';
+        mockCurrentState = GameState.LastQuestion;
         component.nextStep();
         expect(mockGameService.showFinalResults).toHaveBeenCalled();
     });
 
     it('should navigate to /new when buttonText is "Résultats" and test is true', () => {
         mockTest = true;
-        component.buttonText = 'Résultats';
+        mockCurrentState = GameState.LastQuestion;
         component.nextStep();
         expect(mockGameService.showFinalResults).not.toHaveBeenCalled();
     });
 
     it('should call nextQuestion when buttonText is "Prochaine Question"', () => {
-        component.buttonText = 'Prochaine Question';
+        mockCurrentState = GameState.AskingQuestion;
         component.nextStep();
         expect(mockGameService.nextQuestion).toHaveBeenCalled();
     });
 
-    it('should set buttonText to value from localStorage', async () => {
-        mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.LastQuestion }));
-        const buttonText = 'Résultats';
+    it('should call init on gameService on ngOnInit', async () => {
+        mockGameService.init.calls.reset();
         await component.ngOnInit();
-        expect(mockGameData).toEqual(buttonText);
-    });
-
-    it('should set buttonText to gameData value when gameData is defined', async () => {
-        mockGameData = 'Prochaine Question';
-        await component.ngOnInit();
-        expect(component.buttonText).toEqual(mockGameData);
+        expect(mockGameService.init).toHaveBeenCalled();
     });
 
     describe('showButton', () => {
@@ -174,6 +156,18 @@ describe('GamePageComponent', () => {
             mockIsPlaying = true;
             mockTest = true;
             expect(component.showButton()).toBeTrue();
+        });
+    });
+
+    describe('buttonText', () => {
+        it('should return "Résultats" if game state is LastQuestion', () => {
+            mockCurrentState = GameState.LastQuestion;
+            expect(component.buttonText).toBe('Résultats');
+        });
+
+        it('should return "Prochaine Question" if game state is not LastQuestion', () => {
+            mockCurrentState = GameState.ShowResults;
+            expect(component.buttonText).toBe('Prochaine Question');
         });
     });
 });

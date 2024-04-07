@@ -73,21 +73,6 @@ describe('SessionStorageService', () => {
         });
     });
 
-    describe('gameData property', () => {
-        it('sets and gets gameData correctly', () => {
-            service.gameData = 'Next Question';
-            expect(service.gameData).toBe('Next Question');
-            expect(sessionStorage.getItem('gameData')).toBe('Next Question');
-            service.gameData = undefined;
-            expect(sessionStorage.getItem('gameData')).toBe('Next Question');
-        });
-
-        it('should return undefined when gameData is not set', () => {
-            sessionStorage.removeItem('gameData');
-            expect(service.gameData).toBeUndefined();
-        });
-    });
-
     describe('login property', () => {
         it('sets and gets the login state correctly', () => {
             service.login = true;
@@ -142,7 +127,6 @@ describe('SessionStorageService', () => {
         it('removes user, gameData, and test from sessionStorage', () => {
             service.removeUser();
             expect(sessionStorage.getItem('user')).toBeNull();
-            expect(sessionStorage.getItem('gameData')).toBeNull();
             expect(sessionStorage.getItem('test')).toBeNull();
         });
     });

@@ -17,7 +17,6 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
-    serverTime: number;
     showBonus: boolean;
     scoreValue: number = 0;
     players: Set<string> = new Set();
@@ -31,7 +30,6 @@ export class GameSubscriptionService implements OnDestroy {
     state: GameState = GameState.NotStarted;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
-    private timeSubscription: Subscription;
     private scoreSubscription: Subscription;
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
@@ -49,7 +47,6 @@ export class GameSubscriptionService implements OnDestroy {
     ) {
         this.subscribeToStateUpdate();
         this.subscribeToClosedConnection();
-        this.subscribeToTimeUpdate();
         this.subscribeToScoreUpdate();
         this.subscribeToUserUpdate();
         this.subscribeToUsersStatUpdate();
@@ -64,9 +61,6 @@ export class GameSubscriptionService implements OnDestroy {
         }
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
-        }
-        if (this.timeSubscription) {
-            this.timeSubscription.unsubscribe();
         }
         if (this.scoreSubscription) {
             this.scoreSubscription.unsubscribe();
@@ -142,14 +136,6 @@ export class GameSubscriptionService implements OnDestroy {
                     break;
             }
             return result;
-        });
-    }
-
-    private subscribeToTimeUpdate() {
-        this.timeSubscription = this.websocketService.getTime().subscribe({
-            next: (time: number) => {
-                this.serverTime = time;
-            },
         });
     }
 
@@ -236,29 +222,25 @@ export class GameSubscriptionService implements OnDestroy {
             return;
         }
         if (this.state === GameState.Wait) {
-            if (this.routerService.url !== '/loading') {
-                this.routerService.navigate(['/loading']);
-            }
+            this.setRoute('/loading');
             return;
         }
         if (this.state === GameState.ShowFinalResults) {
-            if (this.routerService.url !== '/results') {
-                this.routerService.navigate(['/results']);
-            }
+            this.setRoute('/results');
             return;
         }
-        if (this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-            this.choicesSelected = [false, false, false, false];
-        }
-        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
+        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion || this.state === GameState.AskingQuestion) {
             this.question = state.payload as Question;
         }
         if (this.state === GameState.Starting) {
             this.title = state.payload as string;
         }
-        if (this.routerService.url !== '/game') {
-            this.routerService.navigate(['/game']);
+        this.setRoute('/game');
+    }
+
+    private setRoute(route: string) {
+        if (this.routerService.url !== route) {
+            this.routerService.navigate([route]);
         }
     }
 }

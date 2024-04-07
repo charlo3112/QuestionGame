@@ -9,6 +9,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
+import { TIME_DATA } from '@common/interfaces/time-data';
 import { USER_GAME_INFO } from '@common/interfaces/user-game-info';
 import { USER_CONNECTION_UPDATE, USER_CONNECTION_UPDATE2 } from '@common/interfaces/user-update';
 import { of } from 'rxjs';
@@ -53,7 +54,7 @@ describe('GameSubscriptionService', () => {
         websocketServiceSpy.getAlert.and.returnValue(of(''));
         websocketServiceSpy.getUserGameInfo.and.returnValue(of(USER_GAME_INFO));
         websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NotStarted, payload: '' }));
-        websocketServiceSpy.getTime.and.returnValue(of(0));
+        websocketServiceSpy.getTime.and.returnValue(of(TIME_DATA));
         websocketServiceSpy.getClosedConnection.and.returnValue(of(''));
         websocketServiceSpy.getUserUpdate.and.returnValue(of(USER_CONNECTION_UPDATE));
         websocketServiceSpy.getScoreUpdate.and.returnValue(of({ score: 0, bonus: false }));
@@ -195,7 +196,6 @@ describe('GameSubscriptionService', () => {
             websocketServiceSpy.getState.and.returnValue(of(questionPayload));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
-            expect(service.choicesSelected).toEqual([false, false, false, false]);
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
         });
 
@@ -211,7 +211,6 @@ describe('GameSubscriptionService', () => {
         it('unsubscribes from all observables on ngOnDestroy', () => {
             spyOn(service['stateSubscription'], 'unsubscribe');
             spyOn(service['messagesSubscription'], 'unsubscribe');
-            spyOn(service['timeSubscription'], 'unsubscribe');
             spyOn(service['scoreSubscription'], 'unsubscribe');
             spyOn(service['userSubscription'], 'unsubscribe');
             spyOn(service['usersStatSubscription'], 'unsubscribe');
@@ -221,7 +220,6 @@ describe('GameSubscriptionService', () => {
             service.ngOnDestroy();
             expect(service['stateSubscription'].unsubscribe).toHaveBeenCalled();
             expect(service['messagesSubscription'].unsubscribe).toHaveBeenCalled();
-            expect(service['timeSubscription'].unsubscribe).toHaveBeenCalled();
             expect(service['scoreSubscription'].unsubscribe).toHaveBeenCalled();
             expect(service['userSubscription'].unsubscribe).toHaveBeenCalled();
             expect(service['usersStatSubscription'].unsubscribe).toHaveBeenCalled();
