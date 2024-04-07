@@ -222,15 +222,15 @@ export class Users {
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }
 
-    handleAnswers(userId: string, answers: QrlAnswer[]) {
+    handleAnswers(userId: string, answers: QrlAnswer[], points: number) {
         const user = this.users.get(userId);
-        if (!user || user.validate !== undefined) {
-            return;
-        }
         this.users.forEach((player) => {
             for (const answer of answers) {
                 if (player.username === answer.player) {
                     player.newAnswer = answer;
+                    if (answer.grade !== 'Ungraded') {
+                        player.addScore(points * answer.grade);
+                    }
                 }
             }
         });

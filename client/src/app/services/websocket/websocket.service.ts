@@ -72,7 +72,7 @@ export class WebSocketService {
     }
 
     sendAnswers(answers: QrlAnswer[]) {
-        this.socket.emit('game:answer', answers);
+        this.socket.emit('game:qrl-answers', answers);
     }
 
     validateChoice(): void {

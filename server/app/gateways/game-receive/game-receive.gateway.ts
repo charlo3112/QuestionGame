@@ -73,7 +73,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.handleChoice(client.id, choice);
     }
 
-    @SubscribeMessage('game:answer')
+    @SubscribeMessage('game:qrl-answers')
     handleAnswers(client: Socket, answers: QrlAnswer[]) {
         this.roomService.handleAnswers(client.id, answers);
     }

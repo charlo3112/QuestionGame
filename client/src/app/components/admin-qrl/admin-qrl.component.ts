@@ -22,24 +22,6 @@ export class AdminQrlComponent implements OnInit {
     gradeSent: boolean = false;
     question: Question;
 
-    // = [
-    //     {
-    //         player: 'BOUCHE',
-    //         text: 'ALLONS ENFANTS DE LA PATRIE',
-    //         grade: Grade.Ungraded,
-    //     },
-    //     {
-    //         player: 'ABRICOT',
-    //         text: 'LE JOUR DE GLOIRE EST ARRIVÉ',
-    //         grade: Grade.Ungraded,
-    //     },
-    //     {
-    //         player: 'CERISE',
-    //         text: 'CONTRE NOUS DE LA TYRANNIE',
-    //         grade: Grade.Ungraded,
-    //     },
-    // ];
-
     grade = Grade;
     gradeOptions = [
         { value: Grade.Ungraded, viewValue: 'Non noté' },

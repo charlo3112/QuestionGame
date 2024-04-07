@@ -26,7 +26,7 @@ export class ActiveGame {
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
-    private qrlAnswers: QrlAnswer[];
+    private qrlAnswers: QrlAnswer[] = [];
 
     // TODO: Justify the number of parameters for this constructor or reduce it
     // eslint-disable-next-line max-params
@@ -142,20 +142,20 @@ export class ActiveGame {
     }
 
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
-        if (this.state !== GameState.AskingQuestion) {
-            return;
-        }
-        this.users.handleAnswers(userId, answers);
+        this.users.handleAnswers(userId, answers, this.currentQuestionWithAnswer.points);
         this.qrlAnswers = answers;
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        for (let qrlAnswer of this.qrlAnswers) {
-            if (qrlAnswer.player === answer.player) {
-                qrlAnswer = answer;
-            } else this.qrlAnswers.push(answer);
+        if (this.qrlAnswers.length !== 0) {
+            for (let qrlAnswer of this.qrlAnswers) {
+                if (qrlAnswer.player === answer.player) {
+                    qrlAnswer = answer;
+                } else this.qrlAnswers.push(answer);
+            }
+        } else {
+            this.qrlAnswers.push(answer);
         }
-        /// /////ICI
     }
 
     isValidate(userId: string): boolean {
