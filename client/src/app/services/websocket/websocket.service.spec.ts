@@ -9,6 +9,7 @@ import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
+import { TIME_DATA, TimeData } from '@common/interfaces/time-data';
 import { User } from '@common/interfaces/user';
 import { USER_GAME_INFO, UserGameInfo } from '@common/interfaces/user-game-info';
 import { USERS, UserStat } from '@common/interfaces/user-stat';
@@ -145,9 +146,9 @@ describe('WebSocketService', () => {
     });
 
     it('getTime should listen for time updates and update timeSubject', () => {
-        const mockTime = 120;
+        const mockTime = TIME_DATA;
 
-        let timeReceived: number | undefined;
+        let timeReceived: TimeData | undefined;
         service.getTime().subscribe((time) => {
             timeReceived = time;
         });
@@ -417,5 +418,15 @@ describe('WebSocketService', () => {
 
         mockSocket.on.calls.argsFor(LISTEN_USER_GAME_INFO)[1](expectedUserGameInfo);
         expect(userGameInfo).toEqual(expectedUserGameInfo);
+    });
+
+    it('should emit game:panic', () => {
+        service.startPanicking();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:panic');
+    });
+
+    it('should emit game:pause', () => {
+        service.togglePause();
+        expect(mockSocket.emit).toHaveBeenCalledWith('game:pause');
     });
 });
