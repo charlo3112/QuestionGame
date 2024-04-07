@@ -7,7 +7,6 @@ import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, QRL_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
-import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -27,13 +26,7 @@ export class ActiveGame {
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
-    private qrlAnswers: QrlAnswer[] = [
-        {
-            player: 'lol',
-            text: 'lolo',
-            grade: Grade.Ungraded,
-        },
-    ];
+    private qrlAnswers: QrlAnswer[];
 
     // TODO: Justify the number of parameters for this constructor or reduce it
     // eslint-disable-next-line max-params
@@ -157,9 +150,6 @@ export class ActiveGame {
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        if (this.state !== GameState.AskingQuestion) {
-            return;
-        }
         for (let qrlAnswer of this.qrlAnswers) {
             if (qrlAnswer.player === answer.player) {
                 qrlAnswer = answer;

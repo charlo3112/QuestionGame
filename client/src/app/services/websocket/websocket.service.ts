@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '@common/enums/game-state';
+import { TimeEvent } from '@common/enums/time-event';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
@@ -15,7 +16,6 @@ import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
-import { TimeEvent } from '@common/enums/time-event';
 
 @Injectable({
     providedIn: 'root',

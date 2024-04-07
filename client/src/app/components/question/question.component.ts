@@ -51,8 +51,7 @@ export class QuestionComponent {
         }
         const key = event.key;
         if (key === 'Enter') {
-            this.isTextLocked = true;
-            this.gameService.confirmQuestion();
+            this.confirmAndDisable();
         }
         const value = parseInt(key, 10) - 1;
         if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
