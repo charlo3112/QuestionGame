@@ -5,9 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
 import { GameService } from '@app/services/game/game.service';
-import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
-import { of } from 'rxjs';
 
 const mockQuestion = {
     type: QuestionType.QCM,
@@ -33,9 +31,7 @@ describe('Question', () => {
             'isChoiceCorrect',
             'isChoiceIncorrect',
             'isChoiceSelected',
-            'stateSubscribe',
         ]);
-        gameServiceSpy.stateSubscribe.and.returnValue(of({ state: GameState.AskingQuestion, payload: mockQuestion }));
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [{ provide: GameService, useValue: gameServiceSpy }],
