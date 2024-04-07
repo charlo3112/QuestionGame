@@ -7,6 +7,7 @@ import { PayloadJoinGame } from '@common/interfaces/payload-game';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
+import { TimeData } from '@common/interfaces/time-data';
 import { User } from '@common/interfaces/user';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
@@ -14,7 +15,6 @@ import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
-import { TimeEvent } from '@common/enums/time-event';
 
 @Injectable({
     providedIn: 'root',
@@ -25,13 +25,12 @@ export class WebSocketService {
     private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
-    private timeSubject: Subject<number> = new Subject<number>();
+    private timeSubject: Subject<TimeData> = new Subject<TimeData>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
     private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
-    private timeEventSubject: Subject<TimeEvent> = new Subject<TimeEvent>();
 
     constructor() {
         this.connect();
@@ -159,7 +158,7 @@ export class WebSocketService {
         return this.userUpdateSubject.asObservable();
     }
 
-    getTime(): Observable<number> {
+    getTime(): Observable<TimeData> {
         return this.timeSubject.asObservable();
     }
 
@@ -177,10 +176,6 @@ export class WebSocketService {
 
     getUserGameInfo(): Observable<UserGameInfo> {
         return this.userGameInfoSubject.asObservable();
-    }
-
-    getTimeEvent(): Observable<TimeEvent> {
-        return this.timeEventSubject.asObservable();
     }
 
     startPanicking(): void {
@@ -231,7 +226,6 @@ export class WebSocketService {
         this.listenForHistogramData(); // 7
         this.listenForAlert(); // 8
         this.listenForUserGameInfo(); // 9
-        this.listenForTimeEvent(); // 10
     }
 
     private listenForClosedConnection() {
@@ -265,7 +259,7 @@ export class WebSocketService {
     }
 
     private listenForTimeUpdate() {
-        this.socket.on('game:time', (time: number) => {
+        this.socket.on('game:time', (time: TimeData) => {
             this.timeSubject.next(time);
         });
     }
@@ -291,12 +285,6 @@ export class WebSocketService {
     private listenForUserGameInfo() {
         this.socket.on('game:user-game-info', (userGameInfo: UserGameInfo) => {
             this.userGameInfoSubject.next(userGameInfo);
-        });
-    }
-
-    private listenForTimeEvent() {
-        this.socket.on('game:time-event', (timeEvent: TimeEvent) => {
-            this.timeEventSubject.next(timeEvent);
         });
     }
 }
