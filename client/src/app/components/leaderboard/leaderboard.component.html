@@ -1,14 +1,15 @@
 <h2 class="title">Tableau des résultats</h2>
 
-<p>Trier par:</p>
-
-<table matSort (matSortChange)="setOptionSort($event)">
-    <tr>
-        <th mat-sort-header="user">Nom</th>
-        <th mat-sort-header="score">Pointage</th>
-        <th mat-sort-header="state">État</th>
-    </tr>
-</table>
+<div class="sort">
+    <p class="sort-title">Trier par:</p>
+    <table matSort (matSortChange)="setOptionSort($event)" class="sort-table">
+        <tr>
+            <th mat-sort-header="user">Nom</th>
+            <th mat-sort-header="score">Pointage</th>
+            <th mat-sort-header="state">État</th>
+        </tr>
+    </table>
+</div>
 
 <div class="table-wrapper">
     <table class="leaderboard-table">
