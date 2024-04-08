@@ -1,7 +1,6 @@
 @use 'sass:map';
 @use '../../../constant.scss';
 
-
 .title {
     text-align: center;
 }
@@ -10,7 +9,7 @@
     text-decoration: line-through;
 }
 
-.no-interaction{
+.no-interaction {
     color: #ff0000;
 }
 
@@ -22,7 +21,7 @@
     color: #00ff00;
 }
 
-.bonus-column{
+.bonus-column {
     width: 50px;
 }
 
@@ -33,7 +32,7 @@
 }
 
 .leaderboard-table {
-    width:auto; 
+    width: auto;
     max-width: auto;
     border: 1px solid black;
     width: 60%;
@@ -46,14 +45,28 @@
     padding: 10px;
 }
 .leaderboard-table td {
-    background-color:map.get(constant.$blue-palette, 200);
+    background-color: map.get(constant.$blue-palette, 200);
     text-align: left;
 }
 
 .leaderboard-table th {
     text-align: center;
-    background-color:map.get(constant.$orange-palette, 100);
+    background-color: map.get(constant.$orange-palette, 100);
     color: #333;
     font-weight: bold;
+}
 
+.sort {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.sort-title {
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.sort-table :hover {
+    cursor: pointer;
 }
