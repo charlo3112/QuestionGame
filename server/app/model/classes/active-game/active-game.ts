@@ -25,7 +25,7 @@ export class ActiveGame {
     private historyService: HistoryService | undefined;
     private isActive: boolean;
 
-    // TODO: Justify the number of parameters for this constructor or reduce it
+    // Every line is needed
     // eslint-disable-next-line max-params
     constructor(
         game: GameData,
