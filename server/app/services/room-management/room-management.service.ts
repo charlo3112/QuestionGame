@@ -150,10 +150,7 @@ export class RoomManagementService {
 
     isValidate(userId: string): boolean {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return false;
-        }
-        return game.isValidate(userId);
+        return game ? game.isValidate(userId) : false;
     }
 
     showFinalResults(userId: string) {
@@ -162,18 +159,12 @@ export class RoomManagementService {
 
     getChoice(userId: string): boolean[] {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return [false, false, false, false];
-        }
-        return game.getChoice(userId);
+        return game ? game.getChoice(userId) : [false, false, false, false];
     }
 
     getScore(userId: string): Score {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return { score: 0, bonus: false };
-        }
-        return game.getScore(userId);
+        return game ? game.getScore(userId) : { score: 0, bonus: false };
     }
 
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
@@ -241,22 +232,12 @@ export class RoomManagementService {
 
     getUsers(userId: string): string[] {
         const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
-            return [];
-        }
-        const game = this.gameState.get(roomId);
-        if (!game) {
-            return [];
-        }
-        return game.usersArray;
+        return roomId ? (this.gameState.get(roomId) ? this.gameState.get(roomId).usersArray : []) : [];
     }
 
     getUsername(userId: string): string | undefined {
         const user = this.getUser(userId);
-        if (!user) {
-            return undefined;
-        }
-        return user.username;
+        return user ? user.username : undefined;
     }
 
     performUserRemoval(userId: string): void {
@@ -307,10 +288,7 @@ export class RoomManagementService {
 
     getActiveGame(userId: string): ActiveGame {
         const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
-            return undefined;
-        }
-        return this.gameState.get(roomId);
+        return roomId ? this.gameState.get(roomId) : undefined;
     }
 
     async confirmAction(userId: string) {
@@ -332,10 +310,7 @@ export class RoomManagementService {
 
     private getUser(userId: string): UserData {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return undefined;
-        }
-        return game.getUser(userId);
+        return game ? game.getUser(userId) : undefined;
     }
 
     private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {

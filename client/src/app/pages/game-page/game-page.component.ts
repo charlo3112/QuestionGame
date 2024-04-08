@@ -87,7 +87,7 @@ export class GamePageComponent implements OnInit {
         const dialogRef = this.dialog.open(AbandonDialogComponent);
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === true) {
+            if (result) {
                 this.gameService.leaveRoom();
             }
         });

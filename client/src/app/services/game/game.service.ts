@@ -131,9 +131,7 @@ export class GameService {
 
     async init() {
         const res = await this.sessionStorageService.initUser();
-        if (!res.ok) {
-            return;
-        }
+        if (!res.ok) return;
 
         await this.gameSubscriptionService.initSubscriptions(res.value);
     }
