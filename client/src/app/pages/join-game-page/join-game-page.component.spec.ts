@@ -7,7 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { routes } from '@app/modules/app-routing.module';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
-import { JoinGamePageComponent } from './joingame-page.component';
+import { JoinGamePageComponent } from './join-game-page.component';
 
 describe('JoinGamePageComponent', () => {
     let component: JoinGamePageComponent;

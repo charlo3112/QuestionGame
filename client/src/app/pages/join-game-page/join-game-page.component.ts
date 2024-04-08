@@ -12,9 +12,9 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
-    selector: 'app-joingame-page',
-    templateUrl: './joingame-page.component.html',
-    styleUrls: ['./joingame-page.component.scss'],
+    selector: 'app-join-game-page',
+    templateUrl: './join-game-page.component.html',
+    styleUrls: ['./join-game-page.component.scss'],
     standalone: true,
     imports: [MatToolbarModule, RouterModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
 })

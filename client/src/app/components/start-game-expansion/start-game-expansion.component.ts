@@ -6,9 +6,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { Game } from '@common/interfaces/game';
 
 @Component({
-    selector: 'app-startgame-expansion',
-    templateUrl: './startgame-expansion.component.html',
-    styleUrls: ['./startgame-expansion.component.scss'],
+    selector: 'app-start-game-expansion',
+    templateUrl: './start-game-expansion.component.html',
+    styleUrls: ['./start-game-expansion.component.scss'],
     standalone: true,
     imports: [MatButtonModule, MatExpansionModule, NgFor, NgIf, MatSnackBarModule],
 })
