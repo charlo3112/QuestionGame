@@ -5,17 +5,16 @@ import { SortOption } from '@app/enums/sort-option';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
+import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { Game } from '@common/interfaces/game';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
-import { Observable, firstValueFrom } from 'rxjs';
-import { PanicService } from '@app/services/panic/panic.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class GameService {
@@ -25,12 +24,10 @@ export class GameService {
         private readonly communicationService: CommunicationService,
         private readonly sessionStorageService: SessionStorageService,
         private readonly gameSubscriptionService: GameSubscriptionService,
-        private readonly panicService: PanicService,
+        private readonly timeService: TimeService,
         private readonly snackBar: MatSnackBar,
         private readonly router: Router,
-    ) {
-        this.panicService.setAudio();
-    }
+    ) {}
 
     get gameTitle(): string {
         return this.gameSubscriptionService.title;
@@ -45,16 +42,23 @@ export class GameService {
     }
 
     get time(): number {
-        return this.gameSubscriptionService.serverTime;
+        return this.timeService.serverTime;
     }
 
     get isValidationDisabled(): boolean {
         return this.gameSubscriptionService.isValidate;
     }
 
+    get panic(): boolean {
+        return this.timeService.panicMode;
+    }
+
+    get pause(): boolean {
+        return this.timeService.pause;
+    }
+
     get maxTime(): number {
-        const twenty = 20;
-        return twenty;
+        return this.timeService.maxTime;
     }
 
     get usersStat(): UserStat[] {
@@ -117,6 +121,14 @@ export class GameService {
         this.websocketService.setChat(username, value);
     }
 
+    togglePause(): void {
+        this.websocketService.togglePause();
+    }
+
+    startPanic(): void {
+        this.websocketService.startPanicking();
+    }
+
     async init() {
         const res = await this.sessionStorageService.initUser();
         if (!res.ok) {
@@ -128,6 +140,7 @@ export class GameService {
 
     reset() {
         this.gameSubscriptionService.reset();
+        this.timeService.reset();
     }
 
     onKickPlayer(player: string) {
@@ -188,14 +201,6 @@ export class GameService {
 
     showFinalResults() {
         this.websocketService.showFinalResults();
-    }
-
-    timerSubscribe(): Observable<number> {
-        return this.websocketService.getTime();
-    }
-
-    stateSubscribe(): Observable<GameStatePayload> {
-        return this.websocketService.getState();
     }
 
     async startGame(game: Game): Promise<boolean> {

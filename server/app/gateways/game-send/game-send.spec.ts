@@ -2,6 +2,7 @@ import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { Score } from '@common/interfaces/score';
+import { TIME_DATA } from '@common/interfaces/time-data';
 import { USER_GAME_INFO } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
@@ -43,7 +44,7 @@ describe('GameGatewaySend', () => {
 
     it('sendTimeUpdate should emit time update', () => {
         const roomId = 'testRoom';
-        const time = 120;
+        const time = TIME_DATA;
         gateway.sendTimeUpdate(roomId, time);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
         expect(mockServer.emit).toHaveBeenCalledWith('game:time', time);

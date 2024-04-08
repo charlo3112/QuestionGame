@@ -1,12 +1,12 @@
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Score } from '@common/interfaces/score';
+import { TimeData } from '@common/interfaces/time-data';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'socket.io';
-import { TimeEvent } from '@common/enums/time-event';
 
 @WebSocketGateway()
 export class GameGatewaySend {
@@ -16,7 +16,7 @@ export class GameGatewaySend {
         this.server.to(roomId).emit('game:questionsCounter', questionsCounter);
     }
 
-    sendTimeUpdate(roomId: string, time: number): void {
+    sendTimeUpdate(roomId: string, time: TimeData): void {
         this.server.to(roomId).emit('game:time', time);
     }
 
@@ -55,9 +55,5 @@ export class GameGatewaySend {
 
     sendUserGameInfo(userId: string, userGameInfo: UserGameInfo): void {
         this.server.to(userId).emit('game:user-game-info', userGameInfo);
-    }
-
-    sendTimeEvent(roomId: string, timeEvent: TimeEvent): void {
-        this.server.to(roomId).emit('game:time-event', timeEvent);
     }
 }
