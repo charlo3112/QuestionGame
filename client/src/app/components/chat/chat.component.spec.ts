@@ -44,7 +44,6 @@ describe('ChatComponent', () => {
         mockWebSocketService.getMessage.and.returnValue(of({} as Message));
         mockWebSocketService.getState.and.returnValue(of({} as GameStatePayload));
         mockWebSocketService.getClosedConnection.and.returnValue(of({} as string));
-        mockWebSocketService.getTime.and.returnValue(of({} as number));
         mockWebSocketService.getScoreUpdate.and.returnValue(of({} as Score));
         mockWebSocketService.getUserUpdate.and.returnValue(of({} as UserConnectionUpdate));
         mockWebSocketService.getUsersStat.and.returnValue(of({} as UserStat[]));

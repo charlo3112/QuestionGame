@@ -1,10 +1,11 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { PANIC_DURATION, TIMEOUT_DURATION } from '@common/constants';
-import { TimeEvent } from '@common/enums/time-event';
+import { TimeData } from '@common/interfaces/time-data';
 import { setTimeout } from 'timers/promises';
 
 export class CountDownTimer {
     seconds: number = 0;
+    private timeInit: number = 0;
     private roomId: string;
     private stopped: boolean = false;
     private gameGateway: GameGatewaySend;
@@ -17,29 +18,32 @@ export class CountDownTimer {
         this.gameGateway = gameGateway;
     }
 
+    get timeData(): TimeData {
+        return { seconds: this.seconds, timeInit: this.timeInit, panicMode: this.panicMode, pause: this.pause };
+    }
+
     set panic(value: boolean) {
-        if (value && !this.pause) {
-            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Panic);
-        } else if (!this.pause) {
-            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.PanicEnd);
-        }
         this.panicMode = value;
+        this.gameGateway.sendTimeUpdate(this.roomId, this.timeData);
         this.controller.abort();
     }
 
+    init(userId) {
+        this.gameGateway.sendTimeUpdate(userId, this.timeData);
+    }
+
     async start(seconds: number) {
+        this.reset();
         this.seconds = seconds;
-        this.panicMode = false;
-        this.controller.abort();
+        this.timeInit = seconds;
         await this.restart();
     }
 
     async restart() {
         this.stopped = false;
+        this.controller = new AbortController();
         while (this.seconds > 0 && !this.stopped) {
-            if (!this.pause) {
-                this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
-            }
+            this.gameGateway.sendTimeUpdate(this.roomId, this.timeData);
             try {
                 if (this.panicMode || this.pause) {
                     await setTimeout(PANIC_DURATION, undefined, { signal: this.controller.signal });
@@ -57,7 +61,9 @@ export class CountDownTimer {
                 --this.seconds;
             }
         }
-        this.gameGateway.sendTimeUpdate(this.roomId, this.seconds);
+        this.pause = false;
+        this.panic = false;
+        this.gameGateway.sendTimeUpdate(this.roomId, this.timeData);
     }
 
     stop() {
@@ -68,17 +74,16 @@ export class CountDownTimer {
     }
 
     toggle() {
-        if (this.pause && this.panicMode) {
-            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Resume);
-        } else if (!this.pause && this.panicMode) {
-            this.gameGateway.sendTimeEvent(this.roomId, TimeEvent.Pause);
-        }
         this.pause = !this.pause;
+        this.gameGateway.sendTimeUpdate(this.roomId, this.timeData);
         this.controller.abort();
     }
 
     reset() {
         this.seconds = 0;
+        this.timeInit = 0;
         this.controller.abort();
+        this.panic = false;
+        this.pause = false;
     }
 }
