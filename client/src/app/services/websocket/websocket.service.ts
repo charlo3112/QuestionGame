@@ -216,16 +216,16 @@ export class WebSocketService {
 
     private connect() {
         this.socket = this.createSocket();
-        this.listenForMessage(); // 0
-        this.listenForState(); // 1
-        this.listenForClosedConnection(); // 2
-        this.listenForUserUpdate(); // 3
-        this.listenForTimeUpdate(); // 4
-        this.listenForScoreUpdate(); // 5
-        this.listenForUsersStat(); // 6
-        this.listenForHistogramData(); // 7
-        this.listenForAlert(); // 8
-        this.listenForUserGameInfo(); // 9
+        this.listenForMessage();
+        this.listenForState();
+        this.listenForClosedConnection();
+        this.listenForUserUpdate();
+        this.listenForTimeUpdate();
+        this.listenForScoreUpdate();
+        this.listenForUsersStat();
+        this.listenForHistogramData();
+        this.listenForAlert();
+        this.listenForUserGameInfo();
     }
 
     private listenForClosedConnection() {
