@@ -56,31 +56,21 @@ export class GameSubscriptionService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.stateSubscription) {
-            this.stateSubscription.unsubscribe();
-        }
-        if (this.messagesSubscription) {
-            this.messagesSubscription.unsubscribe();
-        }
-        if (this.scoreSubscription) {
-            this.scoreSubscription.unsubscribe();
-        }
-        if (this.userSubscription) {
-            this.userSubscription.unsubscribe();
-        }
-        if (this.usersStatSubscription) {
-            this.usersStatSubscription.unsubscribe();
-        }
-        if (this.histogramDataSubscription) {
-            this.histogramDataSubscription.unsubscribe();
-        }
-        if (this.alertSubscription) {
-            this.alertSubscription.unsubscribe();
-        }
-
-        if (this.userGameInfoSubscription) {
-            this.userGameInfoSubscription.unsubscribe();
-        }
+        const subscriptionsToUnsubscribe = [
+            this.stateSubscription,
+            this.messagesSubscription,
+            this.scoreSubscription,
+            this.userSubscription,
+            this.usersStatSubscription,
+            this.histogramDataSubscription,
+            this.alertSubscription,
+            this.userGameInfoSubscription,
+        ];
+        subscriptionsToUnsubscribe.forEach((subscription) => {
+            if (subscription) {
+                subscription.unsubscribe();
+            }
+        });
     }
 
     async initSubscriptions(state: GameStatePayload) {
@@ -217,25 +207,31 @@ export class GameSubscriptionService implements OnDestroy {
 
     private setState(state: GameStatePayload) {
         this.state = state.state;
-        if (this.state === GameState.NotStarted) {
-            this.reset();
-            return;
+
+        switch (this.state) {
+            case GameState.NotStarted:
+                this.reset();
+                break;
+            case GameState.Wait:
+                this.setRoute('/loading');
+                break;
+            case GameState.ShowFinalResults:
+                this.setRoute('/results');
+                break;
+            case GameState.ShowResults:
+            case GameState.LastQuestion:
+            case GameState.AskingQuestion:
+                this.question = state.payload as Question;
+                this.setRoute('/game');
+                break;
+            case GameState.Starting:
+                this.title = state.payload as string;
+                this.setRoute('/game');
+                break;
+            default:
+                this.setRoute('/game');
+                break;
         }
-        if (this.state === GameState.Wait) {
-            this.setRoute('/loading');
-            return;
-        }
-        if (this.state === GameState.ShowFinalResults) {
-            this.setRoute('/results');
-            return;
-        }
-        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion || this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-        }
-        if (this.state === GameState.Starting) {
-            this.title = state.payload as string;
-        }
-        this.setRoute('/game');
     }
 
     private setRoute(route: string) {
