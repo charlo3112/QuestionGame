@@ -32,6 +32,11 @@ export class AdminGameViewComponent implements OnInit {
         readonly gameService: GameService,
     ) {}
 
+    alert(): boolean {
+        console.log(this.gameService.currentState);
+        return true;
+    }
+
     canPanic(): boolean {
         return (
             !this.gameService.panic &&

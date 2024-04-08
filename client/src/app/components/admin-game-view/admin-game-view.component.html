@@ -1,5 +1,5 @@
 <div class="main-container">
-    <div class="flex column stat-container" *ngIf="!(currentQuestion.type === 'QRL' && gameService.currentState === 4)">
+    <div class="flex column stat-container" *ngIf="((currentQuestion.type === 'QRL' && gameService.currentState === 3 ) || (currentQuestion.type === 'QCM')) && alert()">
         <app-leaderboard></app-leaderboard>
         <app-histogram class="histogram" [showArrows]="false"></app-histogram>
     </div>
