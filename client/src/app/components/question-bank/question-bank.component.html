@@ -1,11 +1,19 @@
-<div class="question-bank" *ngIf="questionsWithModificationDate && questionsWithModificationDate.length > 0 && !showChildren">
+<div class="question-bank" *ngIf="questions && questions.length > 0 && !showChildren">
+    <div class="sort">
+        <mat-form-field class="option">
+          <mat-label id="sort-option-label">Afficher :</mat-label>
+          <mat-select class="sort-option" [(ngModel)]="selectedSort" (ngModelChange)="filterQuestionsByType()">
+            <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     <mat-card
         class="question"
-        *ngFor="let question of questionsWithModificationDate; let i = index"
+        *ngFor="let question of displayedQuestions; let i = index"
         [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
         (click)="!adminMode && toggleHighlight(question)"
     >
-        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }}</mat-card-content>
+        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }} - [{{question.type}}]</mat-card-content>
         <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
         <button
             mat-icon-button
