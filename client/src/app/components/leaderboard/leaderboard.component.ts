@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { SortOption } from '@app/enums/sort-option';
 import { GameService } from '@app/services/game/game.service';
 import { UserState } from '@common/enums/user-state';
@@ -13,7 +14,7 @@ import { UserState } from '@common/enums/user-state';
     selector: 'app-leaderboard',
     templateUrl: './leaderboard.component.html',
     styleUrls: ['./leaderboard.component.scss'],
-    imports: [CommonModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatSelectModule, FormsModule],
+    imports: [CommonModule, MatIconModule, MatButtonModule, MatFormFieldModule, MatSelectModule, FormsModule, MatSortModule],
     standalone: true,
 })
 export class LeaderboardComponent {
@@ -46,27 +47,20 @@ export class LeaderboardComponent {
         }
     }
 
-    onSortOptionChange(value: string): void {
-        this.setOptionSort(value, this.selectedSortOrder);
-    }
-
-    onSortOrderChange(value: string): void {
-        this.setOptionSort(this.selectedSort, value);
-    }
-
-    setOptionSort(sortOption: string, sortOrder: string): void {
-        this.selectedSort = sortOption;
-        this.selectedSortOrder = sortOrder;
-        const ascending = sortOrder === 'asc';
-        switch (sortOption) {
+    setOptionSort(sort: Sort): void {
+        const isAscending = sort.direction === 'asc';
+        if (!sort.active || sort.direction === '') {
+            return;
+        }
+        switch (sort.active) {
             case 'user':
-                this.gameService.sortOption = ascending ? SortOption.UsernameAscending : SortOption.UsernameDescending;
+                this.gameService.sortOption = isAscending ? SortOption.UsernameAscending : SortOption.UsernameDescending;
                 break;
             case 'score':
-                this.gameService.sortOption = ascending ? SortOption.ScoreAscending : SortOption.ScoreDescending;
+                this.gameService.sortOption = isAscending ? SortOption.ScoreAscending : SortOption.ScoreDescending;
                 break;
             case 'state':
-                this.gameService.sortOption = ascending ? SortOption.StateAscending : SortOption.StateDescending;
+                this.gameService.sortOption = isAscending ? SortOption.StateAscending : SortOption.StateDescending;
                 break;
         }
     }
