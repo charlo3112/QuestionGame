@@ -9,7 +9,7 @@
             <p class="item-title">Temps alloué:</p>
             <p class="item-content">{{ gameDetails.duration }} secondes</p>
             <p class="item-title">Questions:</p>
-            <p class="item-content" *ngFor="let question of gameDetails.questions; index as i">- {{ question.text }}</p>
+            <p class="item-content" *ngFor="let question of gameDetails.questions; index as i">- {{ question.text }} [{{ question.type }}]</p>
             <div class="row-container">
                 <button mat-raised-button color="primary" class="game-button" (click)="onStartGame()">Commencer</button>
                 <button mat-raised-button color="warn" class="game-button" (click)="onTestGame()">Tester</button>

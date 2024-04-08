@@ -13,7 +13,7 @@
         [ngClass]="{ highlighted: !adminMode && question === highlightedQuestion }"
         (click)="!adminMode && toggleHighlight(question)"
     >
-        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }} - [{{question.type}}]</mat-card-content>
+        <mat-card-content class="question-content">{{ i + 1 }}. {{ question.text }} - [{{ question.type }}]</mat-card-content>
         <mat-card-content class="admin-mode-time" *ngIf="adminMode">{{ calculateTime(question.lastModification) }}</mat-card-content>
         <button
             mat-icon-button
