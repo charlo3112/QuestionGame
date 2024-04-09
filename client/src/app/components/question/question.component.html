@@ -4,21 +4,31 @@
             <section *ngIf="question.type === 'QCM'" id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <section *ngIf="question.type === 'QRL'" id="answer-container">
+            <section *ngIf="question.type === 'QRL' && !(gameService.currentState === gameState.ShowResults)" id="answer-container">
                 <div class="text-area-container">
                     <textarea
                         matInput
-                        [(ngModel)]="answer"
+                        [(ngModel)]="gameSubscriptionService.answer"
                         maxlength="200"
                         class="text-area"
-                        [disabled]="this.isTextLocked"
+                        [disabled]="gameSubscriptionService.isTextLocked"
                         (keydown.enter)="$event.preventDefault()"
                     >
                     </textarea>
-                    <mat-hint class="char-count" align="end">{{ 200 - answer.length }} </mat-hint>
+                    <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
                 </div>
             </section>
-            <button mat-raised-button id="confirm-button" (click)="confirmAndDisable()" color="primary" [disabled]="gameService.isValidationDisabled">
+            <section *ngIf="question.type === 'QRL' && gameService.currentState === gameState.ShowResults">
+                <app-player-qrl></app-player-qrl>
+            </section>
+            <button
+                *ngIf="!(question.type === 'QRL' && gameService.currentState === gameState.ShowResults)"
+                mat-raised-button
+                id="confirm-button"
+                (click)="confirmAndDisable()"
+                color="primary"
+                [disabled]="gameService.isValidationDisabled"
+            >
                 Confirmer
             </button>
         </div>

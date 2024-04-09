@@ -17,6 +17,8 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
+    isTextLocked: boolean = false;
+    answer: string = '';
     showBonus: boolean;
     scoreValue: number = 0;
     players: Set<string> = new Set();
@@ -156,6 +158,10 @@ export class GameSubscriptionService implements OnDestroy {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
                 this.setState(state);
+                if (this.state === GameState.ShowResults) {
+                    this.isTextLocked = false;
+                    this.answer = '';
+                }
             },
         });
     }

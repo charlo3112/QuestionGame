@@ -22,6 +22,7 @@ import { EraseHistoryDialogComponent } from './components/erase-history-dialog/e
 import { HistogramComponent } from './components/histogram/histogram.component';
 import { HistoryItemsComponent } from './components/history-items/history-items.component';
 import { LeaderboardComponent } from './components/leaderboard/leaderboard.component';
+import { PlayerQRLComponent } from './components/player-qrl/player-qrl.component';
 import { QuestionBankComponent } from './components/question-bank/question-bank.component';
 import { TextAnswerComponent } from './components/text-answer/text-answer.component';
 import { CreatePageComponent } from './pages/create-page/create-page.component';
@@ -71,6 +72,7 @@ import { SessionStorageService } from './services/session-storage/session-storag
         TextAnswerComponent,
         AdminQrlComponent,
         AdminGameViewComponent,
+        PlayerQRLComponent,
     ],
     providers: [CommunicationService, GameService, ValidationService, WebSocketService, SessionStorageService, GameSubscriptionService],
     bootstrap: [AppComponent],

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,10 +14,16 @@ import { GameService } from '@app/services/game/game.service';
     standalone: true,
     imports: [CommonModule, MatIconModule, MatButtonModule, FormsModule, MatInputModule, MatFormFieldModule],
 })
-export class TextAnswerComponent {
+export class TextAnswerComponent implements OnInit {
     @Input() isTextLocked: boolean;
+
     answer: string = '';
     constructor(readonly gameService: GameService) {}
+
+    ngOnInit(): void {
+        this.answer = '';
+        this.isTextLocked = false;
+    }
 
     getAnswerClass() {
         return `answers-${this.answer}`;

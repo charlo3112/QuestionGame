@@ -10,9 +10,13 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { PlayerQRLComponent } from '@app/components/player-qrl/player-qrl.component';
 import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
+import { GameState } from '@common/enums/game-state';
 import { Question } from '@common/interfaces/question';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-question',
@@ -32,17 +36,21 @@ import { Question } from '@common/interfaces/question';
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
+        PlayerQRLComponent,
     ],
 })
 export class QuestionComponent {
     @Input() question: Question;
+    gameStateSubscription: Subscription;
     isChatFocused: boolean = false;
-    isTextLocked: boolean = false;
     buttonDisabled: boolean = false;
+    gameState = GameState;
     changesCounter: number = 0;
-    answer: string = '';
 
-    constructor(readonly gameService: GameService) {}
+    constructor(
+        readonly gameService: GameService,
+        public gameSubscriptionService: GameSubscriptionService,
+    ) {}
 
     @HostListener('keydown', ['$event'])
     buttonDetect(event: KeyboardEvent) {
@@ -63,8 +71,8 @@ export class QuestionComponent {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
             if (this.gameService.currentQuestion?.type === 'QRL') {
-                this.gameService.sendQrlAnswer(this.answer);
-                this.isTextLocked = true;
+                this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
+                this.gameSubscriptionService.isTextLocked = true;
             }
         }
     }
