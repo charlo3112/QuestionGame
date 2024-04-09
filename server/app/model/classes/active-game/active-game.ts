@@ -147,15 +147,7 @@ export class ActiveGame {
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        if (this.qrlAnswers.length !== 0) {
-            for (let qrlAnswer of this.qrlAnswers) {
-                if (qrlAnswer.player === answer.player) {
-                    qrlAnswer = answer;
-                } else this.qrlAnswers.push(answer);
-            }
-        } else {
-            this.qrlAnswers.push(answer);
-        }
+        this.qrlAnswers.push(answer);
     }
 
     isValidate(userId: string): boolean {
@@ -271,6 +263,7 @@ export class ActiveGame {
     }
 
     async askQuestion(): Promise<void> {
+        this.qrlAnswers = [];
         if (!this.isActive) return;
         this.histogramData.indexCurrentQuestion = this.questionIndex;
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
