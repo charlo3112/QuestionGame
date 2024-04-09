@@ -230,6 +230,7 @@ export class Users {
                     player.newAnswer = answer;
                     if (answer.grade !== 'Ungraded') {
                         player.addScore(points * answer.grade);
+                        this.gameGateway.sendScoreUpdate(player.uid, player.userScore);
                     }
                 }
             }
