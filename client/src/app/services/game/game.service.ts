@@ -95,6 +95,16 @@ export class GameService {
         return this.sessionStorageService.username;
     }
 
+    get grade(): Grade {
+        console.log(this.gameSubscriptionService.qrlGradedAnswers.length);
+        if (this.gameSubscriptionService.qrlGradedAnswers.length > 0) {
+            console.log('dans if');
+            return this.gameSubscriptionService.qrlGradedAnswers.filter((qrlAnswer) => this.usernameValue === qrlAnswer.player)[0].grade;
+        } else {
+            return Grade.Ungraded;
+        }
+    }
+
     get roomCodeValue(): string {
         return this.sessionStorageService.roomId;
     }

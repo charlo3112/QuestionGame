@@ -8,6 +8,7 @@ import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
@@ -24,6 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     players: Set<string> = new Set();
     histogramData: HistogramData;
     usersStat: UserStat[] = [];
+    qrlGradedAnswers: QrlAnswer[] = [];
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
@@ -35,6 +37,7 @@ export class GameSubscriptionService implements OnDestroy {
     private scoreSubscription: Subscription;
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
+    private qrlGradedAnswersSubscription: Subscription;
     private histogramDataSubscription: Subscription;
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
@@ -55,6 +58,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToHistogramData();
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
+        this.subscribeToQrlGradedAnswers();
     }
 
     ngOnDestroy() {
@@ -72,6 +76,9 @@ export class GameSubscriptionService implements OnDestroy {
         }
         if (this.usersStatSubscription) {
             this.usersStatSubscription.unsubscribe();
+        }
+        if (this.qrlGradedAnswersSubscription) {
+            this.qrlGradedAnswersSubscription.unsubscribe();
         }
         if (this.histogramDataSubscription) {
             this.histogramDataSubscription.unsubscribe();
@@ -192,6 +199,15 @@ export class GameSubscriptionService implements OnDestroy {
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
                 this.sortUsers();
+            },
+        });
+    }
+
+    private subscribeToQrlGradedAnswers() {
+        this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
+            next: (qrlAnswers: QrlAnswer[]) => {
+                this.qrlGradedAnswers = qrlAnswers;
+                window.alert(this.qrlGradedAnswers.length);
             },
         });
     }

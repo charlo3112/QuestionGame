@@ -235,6 +235,7 @@ export class Users {
                 }
             }
         });
+        this.gameGateway.sendQrlGradedAnswers(this.hostId, answers);
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }

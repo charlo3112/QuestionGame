@@ -1,5 +1,6 @@
 import { CommonModule, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { Grade } from '@common/enums/grade';
 
 @Component({
     selector: 'app-player-qrl',
@@ -9,8 +10,8 @@ import { Component, Input } from '@angular/core';
     standalone: true,
 })
 export class PlayerQRLComponent {
-    @Input() showGrade: boolean;
-    @Input() grade: number;
+    @Input() grade: Grade = Grade.Ungraded;
+    gradeValue = Grade;
     titleWithoutGrade: string = "Veuillez patienter, votre réponse est en cours d'évaluation";
     titleWithGrade: string = 'Voici votre note';
 }
