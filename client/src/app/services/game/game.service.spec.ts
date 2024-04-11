@@ -6,6 +6,7 @@ import { SortOption } from '@app/enums/sort-option';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
+import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
@@ -18,7 +19,6 @@ import { USER, User } from '@common/interfaces/user';
 import { USERS } from '@common/interfaces/user-stat';
 import { of } from 'rxjs';
 import { GameService } from './game.service';
-import { PanicService } from '@app/services/panic/panic.service';
 
 describe('GameService', () => {
     let gameService: GameService;
@@ -27,7 +27,7 @@ describe('GameService', () => {
     let mockSessionStorageService: jasmine.SpyObj<SessionStorageService>;
     let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
     let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
-    let mockPanic: jasmine.SpyObj<PanicService>;
+    let mockTime: jasmine.SpyObj<TimeService>;
     let mockRouter: jasmine.SpyObj<Router>;
 
     let mockUsername: string;
@@ -49,9 +49,11 @@ describe('GameService', () => {
             'validateChoice',
             'hostConfirm',
             'showFinalResults',
+            'togglePause',
+            'startPanicking',
         ]);
         mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGameByID']);
-        mockPanic = jasmine.createSpyObj('PanicService', ['setAudio']);
+        mockTime = jasmine.createSpyObj('TimeService', ['reset']);
         mockSessionStorageService = jasmine.createSpyObj('SessionStorageService', ['initUser', 'removeUser', 'username', 'roomId', 'play']);
         Object.defineProperty(mockSessionStorageService, 'username', {
             get: jasmine.createSpy('username.get').and.callFake(() => mockUsername),
@@ -71,6 +73,8 @@ describe('GameService', () => {
         mockGameSubscriptionService.choicesSelected = [false, false, false, false];
         mockGameSubscriptionService.players = new Set();
 
+        mockTime.maxTime = 20;
+
         mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
         mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -83,7 +87,7 @@ describe('GameService', () => {
                 { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
                 { provide: MatSnackBar, useValue: mockSnackBar },
                 { provide: Router, useValue: mockRouter },
-                { provide: PanicService, useValue: mockPanic },
+                { provide: TimeService, useValue: mockTime },
             ],
         });
 
@@ -109,9 +113,23 @@ describe('GameService', () => {
             expect(gameService.isPlaying).toBeFalse();
         });
 
+        it('should get pause', () => {
+            mockTime.pause = true;
+            expect(gameService.pause).toBeTrue();
+            mockTime.pause = false;
+            expect(gameService.pause).toBeFalse();
+        });
+
+        it('should get panic', () => {
+            mockTime.panicMode = true;
+            expect(gameService.panic).toBeTrue();
+            mockTime.panicMode = false;
+            expect(gameService.panic).toBeFalse();
+        });
+
         it('should get time', () => {
             const time = 10;
-            mockGameSubscriptionService.serverTime = time;
+            mockTime.serverTime = time;
             expect(gameService.time).toEqual(time);
         });
 
@@ -121,8 +139,7 @@ describe('GameService', () => {
         });
 
         it('should get the max time', () => {
-            const twenty = 20;
-            expect(gameService.maxTime).toEqual(twenty);
+            expect(gameService.maxTime).toEqual(mockTime.maxTime);
         });
 
         it('should get users stat', () => {
@@ -206,6 +223,20 @@ describe('GameService', () => {
             gameService.sortOption = SortOption.ScoreAscending;
             expect(mockGameSubscriptionService.sortOption).toBe(SortOption.ScoreAscending);
             expect(mockGameSubscriptionService.sortUsers).toHaveBeenCalled();
+        });
+    });
+
+    describe('togglePause', () => {
+        it('should toggle pause', () => {
+            gameService.togglePause();
+            expect(mockWebSocketService.togglePause).toHaveBeenCalled();
+        });
+    });
+
+    describe('startPanicking', () => {
+        it('should start panicking', () => {
+            gameService.startPanic();
+            expect(mockWebSocketService.startPanicking).toHaveBeenCalled();
         });
     });
 
@@ -411,27 +442,6 @@ describe('GameService', () => {
         it('should show the final results', () => {
             gameService.showFinalResults();
             expect(mockWebSocketService.showFinalResults).toHaveBeenCalled();
-        });
-    });
-
-    describe('Subscription Handlers', () => {
-        it('should subscribe to timer updates', () => {
-            const mockTime = 10;
-            mockWebSocketService.getTime.and.returnValue(of(mockTime));
-            gameService.timerSubscribe().subscribe((time) => {
-                expect(time).toBe(mockTime);
-            });
-            expect(mockWebSocketService.getTime).toHaveBeenCalled();
-        });
-
-        it('should subscribe to game state updates', () => {
-            const gameStatePayload: GameStatePayload = { state: GameState.AskingQuestion };
-            const observable = of(gameStatePayload);
-            mockWebSocketService.getState.and.returnValue(observable);
-            gameService.stateSubscribe().subscribe((state) => {
-                expect(state).toEqual(gameStatePayload);
-            });
-            expect(mockWebSocketService.getState).toHaveBeenCalled();
         });
     });
 

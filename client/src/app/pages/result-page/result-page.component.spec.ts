@@ -4,8 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
-import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
-import { of } from 'rxjs';
+import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
 import { ResultPageComponent } from './result-page.component';
 
 describe('ResultPageComponent', () => {
@@ -15,7 +14,7 @@ describe('ResultPageComponent', () => {
 
     beforeEach(async () => {
         const mockHistogramData: HistogramData = HISTOGRAM_DATA;
-        mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram', 'leaveRoom', 'stateSubscribe'], {
+        mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram', 'leaveRoom'], {
             currentQuestion: {
                 type: QuestionType.QCM,
                 text: "Pourquoi le jus de lichi n'est pas bon?",
@@ -33,7 +32,6 @@ describe('ResultPageComponent', () => {
         Object.defineProperty(mockGameService, 'histogram', {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
         });
-        mockGameService.stateSubscribe.and.returnValue(of({ state: GameState.AskingQuestion, payload: undefined }));
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule, BrowserAnimationsModule, NoopAnimationsModule],
             providers: [{ provide: GameService, useValue: mockGameService }],

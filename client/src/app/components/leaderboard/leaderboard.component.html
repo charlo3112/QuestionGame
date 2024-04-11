@@ -1,18 +1,15 @@
 <h2 class="title">Tableau des résultats</h2>
 
-<mat-form-field class="option">
-    <mat-label id="sort-option-label">Trier par:</mat-label>
-    <mat-select class="sort-option" [(ngModel)]="selectedSort" (ngModelChange)="onSortOptionChange($event)">
-        <mat-option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</mat-option>
-    </mat-select>
-</mat-form-field>
-
-<mat-form-field class="order">
-    <mat-label id="sort-order-label">Trier par:</mat-label>
-    <mat-select class="sort-order" [(ngModel)]="selectedSortOrder" (ngModelChange)="onSortOrderChange($event)">
-        <mat-option *ngFor="let order of sortOrder" [value]="order.value">{{ order.label }}</mat-option>
-    </mat-select>
-</mat-form-field>
+<div class="sort">
+    <p class="sort-title">Trier par:</p>
+    <table matSort (matSortChange)="setOptionSort($event)" class="sort-table">
+        <tr>
+            <th mat-sort-header="user">Nom</th>
+            <th mat-sort-header="score">Pointage</th>
+            <th mat-sort-header="state">État</th>
+        </tr>
+    </table>
+</div>
 
 <div class="table-wrapper">
     <table class="leaderboard-table">
@@ -21,7 +18,7 @@
                 <th>Nom</th>
                 <th>Pointage</th>
                 <th class="bonus-column">Bonus</th>
-                <th>Mute</th>
+                <th *ngIf="!gameService.isPlaying">Mute</th>
             </tr>
         </thead>
 
@@ -30,7 +27,7 @@
                 <td [ngClass]="getClassState(player.state)">{{ player.username }}</td>
                 <td>{{ player.score }}</td>
                 <td>{{ player.bonus }}</td>
-                <td>
+                <td *ngIf="!gameService.isPlaying">
                     <button mat-icon-button (click)="gameService.setChat(player.username, !player.canChat)">
                         <mat-icon>{{ player.canChat ? 'speaker_notes' : 'speaker_notes_off' }}</mat-icon>
                     </button>

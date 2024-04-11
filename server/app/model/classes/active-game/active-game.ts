@@ -180,6 +180,7 @@ export class ActiveGame {
 
     update(userId: string, newId: string): void {
         const isHost = this.users.update(userId, newId);
+        this.timer.init(newId);
         if (isHost || this.currentState === GameState.ShowFinalResults) {
             this.gameGateway.sendUsersStatUpdate(newId, this.users.usersStat);
             this.gameGateway.sendHistogramDataUpdate(newId, this.histogramData);
