@@ -1,5 +1,6 @@
 import { ChatGateway } from '@app/gateways/chat/chat.gateway';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
+import { WebsocketMessage } from '@common/enums/websocket-message';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
@@ -46,7 +47,7 @@ describe('ChatGateway', () => {
         stub(socket, 'rooms').value(new Set(['X']));
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual('message:receive');
+                expect(event).toEqual(WebsocketMessage.MessageReceive);
             },
         } as BroadcastOperator<unknown, unknown>);
         roomManagementService.getRoomId.returns('X');
