@@ -1,9 +1,7 @@
 import { NgIf } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services//communication/communication.service';
 import { lastValueFrom } from 'rxjs';
 
@@ -12,7 +10,7 @@ import { lastValueFrom } from 'rxjs';
     templateUrl: './admin-login.component.html',
     styleUrls: ['./admin-login.component.scss'],
     standalone: true,
-    imports: [MatButtonModule, MatInputModule, MatIconModule, FormsModule, ReactiveFormsModule, NgIf],
+    imports: [AppMaterialModule, FormsModule, ReactiveFormsModule, NgIf],
 })
 export class AdminLoginComponent {
     @Output() loginSuccess = new EventEmitter<boolean>();

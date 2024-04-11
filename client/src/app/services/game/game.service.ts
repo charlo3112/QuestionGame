@@ -71,16 +71,16 @@ export class GameService {
 
     get currentQuestion(): Question | undefined {
         if (
-            this.gameSubscriptionService.state !== GameState.AskingQuestion &&
-            this.gameSubscriptionService.state !== GameState.ShowResults &&
-            this.gameSubscriptionService.state !== GameState.LastQuestion
+            this.gameSubscriptionService.state !== GameState.ASKING_QUESTION &&
+            this.gameSubscriptionService.state !== GameState.SHOW_RESULTS &&
+            this.gameSubscriptionService.state !== GameState.LAST_QUESTION
         )
             return undefined;
         return this.gameSubscriptionService.question;
     }
 
     get message(): string | undefined {
-        return this.gameSubscriptionService.state !== GameState.ShowResults || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
+        return this.gameSubscriptionService.state !== GameState.SHOW_RESULTS || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
             ? undefined
             : 'Vous avez un bonus!';
     }
@@ -144,7 +144,7 @@ export class GameService {
     }
 
     leaveRoom() {
-        if (this.gameSubscriptionService.state !== GameState.Starting) {
+        if (this.gameSubscriptionService.state !== GameState.STARTING) {
             this.websocketService.leaveRoom();
             this.sessionStorageService.removeUser();
             this.gameSubscriptionService.reset();
@@ -156,7 +156,7 @@ export class GameService {
     }
 
     isChoiceCorrect(index: number): boolean {
-        if (this.gameSubscriptionService.state !== GameState.ShowResults && this.gameSubscriptionService.state !== GameState.LastQuestion) {
+        if (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) {
             return false;
         }
         if (this.gameSubscriptionService.question === undefined) {
@@ -167,7 +167,7 @@ export class GameService {
     }
 
     isChoiceIncorrect(index: number): boolean {
-        if (this.gameSubscriptionService.state !== GameState.ShowResults && this.gameSubscriptionService.state !== GameState.LastQuestion) {
+        if (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) {
             return false;
         }
         if (this.gameSubscriptionService.question === undefined) {
@@ -178,14 +178,14 @@ export class GameService {
     }
 
     selectChoice(index: number) {
-        if (this.gameSubscriptionService.state === GameState.AskingQuestion && !this.isValidationDisabled) {
+        if (this.gameSubscriptionService.state === GameState.ASKING_QUESTION && !this.isValidationDisabled) {
             this.gameSubscriptionService.choicesSelected[index] = !this.gameSubscriptionService.choicesSelected[index];
             this.websocketService.sendChoice(this.gameSubscriptionService.choicesSelected);
         }
     }
 
     confirmQuestion() {
-        if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
+        if (this.gameSubscriptionService.state === GameState.ASKING_QUESTION) {
             this.websocketService.validateChoice();
         }
     }

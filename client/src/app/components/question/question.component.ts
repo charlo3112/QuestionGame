@@ -1,12 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { Question } from '@common/interfaces/question';
 
@@ -15,7 +12,7 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
     standalone: true,
-    imports: [CommonModule, RouterLink, ChatComponent, MatSlideToggleModule, MatIconModule, AnswersComponent, MatButtonModule, MatToolbarModule],
+    imports: [AppMaterialModule, CommonModule, RouterLink, ChatComponent, AnswersComponent],
 })
 export class QuestionComponent {
     @Input() question: Question;

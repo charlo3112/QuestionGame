@@ -27,7 +27,7 @@ describe('AdminGameViewComponent', () => {
         mockCurrentQuestion = undefined;
         mockTime = 0;
         mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram', 'startPanic', 'togglePause'], {
-            currentState: GameState.Starting,
+            currentState: GameState.STARTING,
         });
         Object.defineProperty(mockGameService, 'histogram', {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),

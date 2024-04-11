@@ -16,7 +16,7 @@ export class ActiveGame {
     isLocked: boolean;
     private users: Users;
     private game: GameData;
-    private state: GameState = GameState.Wait;
+    private state: GameState = GameState.WAIT;
     private roomId: string;
     private questionIndex: number;
     private histogramData: HistogramData;
@@ -39,7 +39,7 @@ export class ActiveGame {
         this.roomId = roomId;
         this.timer = new CountDownTimer(roomId, gameWebsocket);
         this.isLocked = false;
-        this.state = GameState.Wait;
+        this.state = GameState.WAIT;
         this.users = new Users(gameWebsocket, hostIsPlaying);
         this.historyService = historyService;
         this.histogramData = {
@@ -79,13 +79,13 @@ export class ActiveGame {
     }
 
     get gameStatePayload(): GameStatePayload {
-        if (this.state === GameState.Starting) {
+        if (this.state === GameState.STARTING) {
             return { state: this.state, payload: this.game.title };
         }
-        if (this.state === GameState.AskingQuestion) {
+        if (this.state === GameState.ASKING_QUESTION) {
             return { state: this.state, payload: this.currentQuestionWithoutAnswer };
         }
-        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion) {
+        if (this.state === GameState.SHOW_RESULTS || this.state === GameState.LAST_QUESTION) {
             return { state: this.state, payload: this.currentQuestionWithAnswer };
         }
         return { state: this.state };
@@ -104,7 +104,7 @@ export class ActiveGame {
     }
 
     banUser(name: string): string {
-        if (this.currentState !== GameState.Wait) {
+        if (this.currentState !== GameState.WAIT) {
             return undefined;
         }
         return this.users.banUser(name);
@@ -127,7 +127,7 @@ export class ActiveGame {
     }
 
     handleChoice(userId: string, choice: boolean[]): void {
-        if (this.state !== GameState.AskingQuestion) {
+        if (this.state !== GameState.ASKING_QUESTION) {
             return;
         }
         this.users.handleChoice(userId, choice);
@@ -153,7 +153,7 @@ export class ActiveGame {
 
     removeUser(userId: string): void {
         this.users.removeActiveUser(userId);
-        if (this.state === GameState.Wait) {
+        if (this.state === GameState.WAIT) {
             this.users.removeUser(userId);
         }
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
@@ -165,7 +165,7 @@ export class ActiveGame {
     }
 
     showFinalResults(): void {
-        this.advanceState(GameState.ShowFinalResults);
+        this.advanceState(GameState.SHOW_FINAL_RESULTS);
         this.users.resetFinalResults();
         this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
@@ -182,7 +182,7 @@ export class ActiveGame {
     update(userId: string, newId: string): void {
         const isHost = this.users.update(userId, newId);
         this.timer.init(newId);
-        if (isHost || this.currentState === GameState.ShowFinalResults) {
+        if (isHost || this.currentState === GameState.SHOW_FINAL_RESULTS) {
             this.gameGateway.sendUsersStatUpdate(newId, this.users.usersStat);
             this.gameGateway.sendHistogramDataUpdate(newId, this.histogramData);
         }
@@ -209,7 +209,7 @@ export class ActiveGame {
 
     startPanicking(): void {
         if (
-            this.state !== GameState.AskingQuestion ||
+            this.state !== GameState.ASKING_QUESTION ||
             (this.currentQuestionWithAnswer.type === 'QCM' && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
             (this.currentQuestionWithAnswer.type === 'QRL' && this.timer.seconds <= MIN_TIME_PANIC_QRL_S)
         ) {
@@ -219,7 +219,7 @@ export class ActiveGame {
     }
 
     togglePause(): void {
-        if (this.state !== GameState.AskingQuestion) {
+        if (this.state !== GameState.ASKING_QUESTION) {
             return;
         }
         this.timer.toggle();
@@ -227,19 +227,19 @@ export class ActiveGame {
 
     async advance(): Promise<void> {
         switch (this.state) {
-            case GameState.Wait:
+            case GameState.WAIT:
                 if (!this.isLocked) {
                     return;
                 }
                 await this.launchGame();
                 break;
-            case GameState.ShowResults:
+            case GameState.SHOW_RESULTS:
                 if (this.questionIndex < this.game.questions.length) {
                     await this.timer.start(TIME_CONFIRM_S);
                     ++this.questionIndex;
                     await this.askQuestion();
                 } else {
-                    this.advanceState(GameState.ShowFinalResults);
+                    this.advanceState(GameState.SHOW_FINAL_RESULTS);
                 }
                 break;
             default:
@@ -253,18 +253,18 @@ export class ActiveGame {
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
         this.users.resetAnswers();
-        this.advanceState(GameState.AskingQuestion);
+        this.advanceState(GameState.ASKING_QUESTION);
         await this.timer.start(this.game.duration);
         this.timer.panic = false;
         if (!this.isActive) return;
 
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
-        this.advanceState(GameState.ShowResults);
+        this.advanceState(GameState.SHOW_RESULTS);
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
 
         if (this.questionIndex + 1 === this.game.questions.length) {
-            this.advanceState(GameState.LastQuestion);
+            this.advanceState(GameState.LAST_QUESTION);
             if (this.historyService) {
                 const history: CreateHistoryDto = {
                     name: this.game.title,
@@ -287,7 +287,7 @@ export class ActiveGame {
     }
 
     async launchGame(): Promise<void> {
-        this.advanceState(GameState.Starting);
+        this.advanceState(GameState.STARTING);
         await this.timer.start(WAITING_TIME_S);
         await this.askQuestion();
     }

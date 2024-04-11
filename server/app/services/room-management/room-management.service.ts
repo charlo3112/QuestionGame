@@ -142,7 +142,7 @@ export class RoomManagementService {
 
     toggleGameClosed(userId: string, closed: boolean) {
         const game = this.getActiveGame(userId);
-        if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait) {
+        if (!game || !game.isHost(userId) || game.currentState !== GameState.WAIT) {
             return;
         }
         game.isLocked = closed;
@@ -257,7 +257,7 @@ export class RoomManagementService {
             return;
         }
         game.removeUser(userId);
-        if (game.needToClosed() && game.currentState !== GameState.Wait) {
+        if (game.needToClosed() && game.currentState !== GameState.WAIT) {
             this.deleteRoomChatGateway(roomId);
             this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);

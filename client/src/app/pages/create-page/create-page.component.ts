@@ -2,19 +2,11 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
 import { QuestionBankComponent } from '@app/components/question-bank/question-bank.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameCreationService } from '@app/services/game-creation/game-creation.service';
@@ -29,23 +21,15 @@ import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
     styleUrls: ['./create-page.component.scss'],
     standalone: true,
     imports: [
+        AppMaterialModule,
         CommonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSliderModule,
-        MatListModule,
-        MatButtonModule,
-        MatIconModule,
-        RouterModule,
-        DragDropModule,
         CreatePageComponent,
         CreateQuestionComponent,
+        DragDropModule,
         FormsModule,
-        RouterLink,
-        MatToolbarModule,
-        MatCardModule,
         QuestionBankComponent,
+        RouterLink,
+        RouterModule,
     ],
 })
 export class CreatePageComponent implements OnInit {

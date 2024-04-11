@@ -27,7 +27,7 @@ export class GameSubscriptionService implements OnDestroy {
     title: string;
     sortOption: SortOption = SortOption.UsernameAscending;
     isValidate: boolean = false;
-    state: GameState = GameState.NotStarted;
+    state: GameState = GameState.NOT_STARTED;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
     private scoreSubscription: Subscription;
@@ -85,7 +85,7 @@ export class GameSubscriptionService implements OnDestroy {
 
     reset() {
         this.question = undefined;
-        this.state = GameState.NotStarted;
+        this.state = GameState.NOT_STARTED;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
     }
@@ -209,22 +209,22 @@ export class GameSubscriptionService implements OnDestroy {
         this.state = state.state;
 
         switch (this.state) {
-            case GameState.NotStarted:
+            case GameState.NOT_STARTED:
                 this.reset();
                 break;
-            case GameState.Wait:
+            case GameState.WAIT:
                 this.setRoute('/loading');
                 break;
-            case GameState.ShowFinalResults:
+            case GameState.SHOW_FINAL_RESULTS:
                 this.setRoute('/results');
                 break;
-            case GameState.ShowResults:
-            case GameState.LastQuestion:
-            case GameState.AskingQuestion:
+            case GameState.SHOW_RESULTS:
+            case GameState.LAST_QUESTION:
+            case GameState.ASKING_QUESTION:
                 this.question = state.payload as Question;
                 this.setRoute('/game');
                 break;
-            case GameState.Starting:
+            case GameState.STARTING:
                 this.title = state.payload as string;
                 this.setRoute('/game');
                 break;

@@ -115,7 +115,7 @@ describe('WebSocketService', () => {
     });
 
     it('getState should return an observable and subscribe message', () => {
-        const statePayload = { state: GameState.Wait };
+        const statePayload = { state: GameState.WAIT };
 
         service.getState().subscribe((state) => {
             expect(state).toEqual(statePayload);
@@ -285,7 +285,7 @@ describe('WebSocketService', () => {
         const username = 'John Doe';
         const mockResult: Result<GameState> = {
             ok: true,
-            value: GameState.Wait,
+            value: GameState.WAIT,
         };
         // We need to use Function to avoid using any as the type
         // eslint-disable-next-line @typescript-eslint/ban-types
@@ -304,7 +304,7 @@ describe('WebSocketService', () => {
     it('rejoinRoom should resolve with the expected result', fakeAsync(() => {
         const mockUser: User = { name: 'John Doe', roomId: 'room123', userId: 'user123', play: true };
         const mockGameStatePayload: GameStatePayload = {
-            state: GameState.Wait,
+            state: GameState.WAIT,
             payload: 'room123',
         };
         const mockResult: Result<GameStatePayload> = {

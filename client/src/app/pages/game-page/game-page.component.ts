@@ -1,18 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
 import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
@@ -24,16 +20,12 @@ import { Question } from '@common/interfaces/question';
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
     imports: [
+        AppMaterialModule,
         AdminGameViewComponent,
         CommonModule,
         QuestionComponent,
-        MatIconModule,
-        MatFormFieldModule,
         FormsModule,
         AnswersComponent,
-        MatButtonModule,
-        MatToolbarModule,
-        MatDividerModule,
         CountdownComponent,
         RouterModule,
     ],
@@ -51,24 +43,24 @@ export class GamePageComponent implements OnInit {
     }
 
     get buttonText(): string {
-        return this.gameService.currentState === GameState.LastQuestion ? 'Résultats' : 'Prochaine Question';
+        return this.gameService.currentState === GameState.LAST_QUESTION ? 'Résultats' : 'Prochaine Question';
     }
 
     showButton(): boolean {
         return (
-            ((this.gameService.currentState === GameState.ShowResults && !this.gameService.isPlaying) ||
-                this.gameService.currentState === GameState.LastQuestion) &&
+            ((this.gameService.currentState === GameState.SHOW_RESULTS && !this.gameService.isPlaying) ||
+                this.gameService.currentState === GameState.LAST_QUESTION) &&
             this.gameService.isHost &&
             (!this.gameService.isPlaying || this.sessionStorageService.test)
         );
     }
 
     isStartingGame(): boolean {
-        return this.gameService.currentState === GameState.Starting;
+        return this.gameService.currentState === GameState.STARTING;
     }
 
     nextStep(): void {
-        if (this.gameService.currentState === GameState.LastQuestion) {
+        if (this.gameService.currentState === GameState.LAST_QUESTION) {
             if (this.sessionStorageService.test) {
                 this.router.navigate(['/new']);
                 return;

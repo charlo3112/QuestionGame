@@ -1,11 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterLink } from '@angular/router';
 import { StartGameExpansionComponent } from '@app/components/start-game-expansion/start-game-expansion.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
 import { SNACKBAR_DURATION } from '@common/constants';
@@ -17,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './start-game-page.component.html',
     styleUrls: ['./start-game-page.component.scss'],
     standalone: true,
-    imports: [RouterLink, CommonModule, MatButtonModule, MatExpansionModule, StartGameExpansionComponent, MatToolbarModule],
+    imports: [AppMaterialModule, RouterLink, CommonModule, StartGameExpansionComponent],
 })
 export class StartGamePageComponent implements OnInit {
     games: Game[] = [];

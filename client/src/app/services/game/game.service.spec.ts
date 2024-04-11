@@ -148,34 +148,34 @@ describe('GameService', () => {
         });
 
         it('should get the correct game state', () => {
-            mockGameSubscriptionService.state = GameState.NotStarted;
-            expect(gameService.currentState).toEqual(GameState.NotStarted);
+            mockGameSubscriptionService.state = GameState.NOT_STARTED;
+            expect(gameService.currentState).toEqual(GameState.NOT_STARTED);
         });
 
         describe('currentQuestion', () => {
-            it('should return undefined if the state is not AskingQuestion or ShowResults or LastQuestion', () => {
-                mockGameSubscriptionService.state = GameState.NotStarted;
+            it('should return undefined if the state is not ASKING_QUESTION or SHOW_RESULTS or LAST_QUESTION', () => {
+                mockGameSubscriptionService.state = GameState.NOT_STARTED;
                 expect(gameService.currentQuestion).toBeUndefined();
 
-                mockGameSubscriptionService.state = GameState.Starting;
+                mockGameSubscriptionService.state = GameState.STARTING;
                 expect(gameService.currentQuestion).toBeUndefined();
             });
 
-            it('should return the current question if the state is AskingQuestion', () => {
-                mockGameSubscriptionService.state = GameState.AskingQuestion;
+            it('should return the current question if the state is ASKING_QUESTION', () => {
+                mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
                 mockGameSubscriptionService.question = QUESTION_PLACEHOLDER;
                 expect(gameService.currentQuestion).toEqual(QUESTION_PLACEHOLDER);
             });
         });
 
         describe('message', () => {
-            it('should return undefined if state is not ShowResults', () => {
-                mockGameSubscriptionService.state = GameState.AskingQuestion;
+            it('should return undefined if state is not SHOW_RESULTS', () => {
+                mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
                 expect(gameService.message).toBeUndefined();
             });
 
-            it('should return "Vous avez un bonus!" if state is ShowResults, isResponseGood returns true, and showBonus is true', () => {
-                mockGameSubscriptionService.state = GameState.ShowResults;
+            it('should return "Vous avez un bonus!" if state is SHOW_RESULTS, isResponseGood returns true, and showBonus is true', () => {
+                mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
                 mockGameSubscriptionService.question = {
                     text: 'Question text',
                     choices: [
@@ -249,7 +249,7 @@ describe('GameService', () => {
 
     describe('init', () => {
         it('should initialize if sessionStorageService response is ok', async () => {
-            const payload: GameStatePayload = { state: GameState.NotStarted, payload: '' };
+            const payload: GameStatePayload = { state: GameState.NOT_STARTED, payload: '' };
             mockSessionStorageService.initUser.and.returnValue(Promise.resolve({ ok: true, value: payload } as Result<GameStatePayload>));
             await gameService.init();
             expect(mockGameSubscriptionService.initSubscriptions).toHaveBeenCalled();
@@ -281,7 +281,7 @@ describe('GameService', () => {
 
     describe('leaveRoom', () => {
         it('should leave room if state is not Starting', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             gameService.leaveRoom();
             expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
             expect(mockSessionStorageService.removeUser).toHaveBeenCalled();
@@ -289,7 +289,7 @@ describe('GameService', () => {
         });
 
         it('should not leave room if state is Starting', () => {
-            mockGameSubscriptionService.state = GameState.Starting;
+            mockGameSubscriptionService.state = GameState.STARTING;
             gameService.leaveRoom();
             expect(mockWebSocketService.leaveRoom).not.toHaveBeenCalled();
         });
@@ -309,7 +309,7 @@ describe('GameService', () => {
 
     describe('isChoiceCorrect', () => {
         it('should return true if choice is correct', () => {
-            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -322,7 +322,7 @@ describe('GameService', () => {
         });
 
         it('should return false if choice is not correct', () => {
-            mockGameSubscriptionService.state = GameState.LastQuestion;
+            mockGameSubscriptionService.state = GameState.LAST_QUESTION;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -334,8 +334,8 @@ describe('GameService', () => {
             expect(gameService.isChoiceCorrect(1)).toBeFalse();
         });
 
-        it('should return false if state is not ShowResults or LastQuestion', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+        it('should return false if state is not SHOW_RESULTS or LAST_QUESTION', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -348,7 +348,7 @@ describe('GameService', () => {
         });
 
         it('should return false if question is undefined', () => {
-            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = undefined;
             expect(gameService.isChoiceCorrect(0)).toBeFalse();
         });
@@ -356,7 +356,7 @@ describe('GameService', () => {
 
     describe('isChoiceIncorrect', () => {
         it('should return true if choice is incorrect', () => {
-            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -369,7 +369,7 @@ describe('GameService', () => {
         });
 
         it('should return false if choice is correct', () => {
-            mockGameSubscriptionService.state = GameState.LastQuestion;
+            mockGameSubscriptionService.state = GameState.LAST_QUESTION;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -381,8 +381,8 @@ describe('GameService', () => {
             expect(gameService.isChoiceIncorrect(0)).toBeFalse();
         });
 
-        it('should return false if state is not ShowResults or LastQuestion', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+        it('should return false if state is not SHOW_RESULTS or LAST_QUESTION', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -395,22 +395,22 @@ describe('GameService', () => {
         });
 
         it('should return false if question is undefined', () => {
-            mockGameSubscriptionService.state = GameState.ShowResults;
+            mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = undefined;
             expect(gameService.isChoiceIncorrect(0)).toBeFalse();
         });
     });
 
     describe('selectChoice', () => {
-        it('should select a choice if in the AskingQuestion state and validation is not disabled', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+        it('should select a choice if in the ASKING_QUESTION state and validation is not disabled', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             mockGameSubscriptionService.isValidate = false;
             gameService.selectChoice(0);
             expect(mockWebSocketService.sendChoice).toHaveBeenCalled();
         });
 
         it('should not select a choice if validation is disabled', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             mockGameSubscriptionService.isValidate = true;
             gameService.selectChoice(0);
             expect(mockWebSocketService.sendChoice).not.toHaveBeenCalled();
@@ -418,14 +418,14 @@ describe('GameService', () => {
     });
 
     describe('confirmQuestion', () => {
-        it('should confirm a question if in the AskingQuestion state', () => {
-            mockGameSubscriptionService.state = GameState.AskingQuestion;
+        it('should confirm a question if in the ASKING_QUESTION state', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
             gameService.confirmQuestion();
             expect(mockWebSocketService.validateChoice).toHaveBeenCalled();
         });
 
-        it('should not confirm a question if not in the AskingQuestion state', () => {
-            mockGameSubscriptionService.state = GameState.ShowResults;
+        it('should not confirm a question if not in the ASKING_QUESTION state', () => {
+            mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             gameService.confirmQuestion();
             expect(mockWebSocketService.validateChoice).not.toHaveBeenCalled();
         });

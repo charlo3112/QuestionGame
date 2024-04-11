@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
@@ -12,7 +12,7 @@ import { QuestionType } from '@common/enums/question-type';
     templateUrl: './admin-game-view.component.html',
     styleUrls: ['./admin-game-view.component.scss'],
     standalone: true,
-    imports: [LeaderboardComponent, MatButtonModule, HistogramComponent, ChatComponent],
+    imports: [AppMaterialModule, LeaderboardComponent, HistogramComponent, ChatComponent],
 })
 export class AdminGameViewComponent {
     constructor(readonly gameService: GameService) {}

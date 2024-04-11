@@ -54,7 +54,7 @@ describe('GamePageComponent', () => {
             ],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
-                currentState: GameState.Starting,
+                currentState: GameState.STARTING,
                 roomCodeValue: 'someRoomCode',
             },
         );
@@ -64,7 +64,7 @@ describe('GamePageComponent', () => {
         Object.defineProperty(mockGameService, 'isPlaying', { get: () => mockIsPlaying });
         Object.defineProperty(mockGameService, 'histogram', { get: () => mockHistogram });
 
-        mockCurrentState = GameState.Starting;
+        mockCurrentState = GameState.STARTING;
         mockIsHost = false;
         mockIsPlaying = false;
         mockHistogram = HISTOGRAM_DATA;
@@ -118,20 +118,20 @@ describe('GamePageComponent', () => {
     });
 
     it('should call showFinalResults and clear localStorage when buttonText is "Résultats"', () => {
-        mockCurrentState = GameState.LastQuestion;
+        mockCurrentState = GameState.LAST_QUESTION;
         component.nextStep();
         expect(mockGameService.showFinalResults).toHaveBeenCalled();
     });
 
     it('should navigate to /new when buttonText is "Résultats" and test is true', () => {
         mockTest = true;
-        mockCurrentState = GameState.LastQuestion;
+        mockCurrentState = GameState.LAST_QUESTION;
         component.nextStep();
         expect(mockGameService.showFinalResults).not.toHaveBeenCalled();
     });
 
     it('should call nextQuestion when buttonText is "Prochaine Question"', () => {
-        mockCurrentState = GameState.AskingQuestion;
+        mockCurrentState = GameState.ASKING_QUESTION;
         component.nextStep();
         expect(mockGameService.nextQuestion).toHaveBeenCalled();
     });
@@ -143,15 +143,15 @@ describe('GamePageComponent', () => {
     });
 
     describe('showButton', () => {
-        it('should return true if game state is ShowResults and isHost is true', () => {
-            mockCurrentState = GameState.ShowResults;
+        it('should return true if game state is SHOW_RESULTS and isHost is true', () => {
+            mockCurrentState = GameState.SHOW_RESULTS;
             mockIsHost = true;
             mockIsPlaying = false;
             expect(component.showButton()).toBeTrue();
         });
 
-        it('should return true if game state is ShowResults and isHost is true', () => {
-            mockCurrentState = GameState.LastQuestion;
+        it('should return true if game state is SHOW_RESULTS and isHost is true', () => {
+            mockCurrentState = GameState.LAST_QUESTION;
             mockIsHost = true;
             mockIsPlaying = true;
             mockTest = true;
@@ -160,13 +160,13 @@ describe('GamePageComponent', () => {
     });
 
     describe('buttonText', () => {
-        it('should return "Résultats" if game state is LastQuestion', () => {
-            mockCurrentState = GameState.LastQuestion;
+        it('should return "Résultats" if game state is LAST_QUESTION', () => {
+            mockCurrentState = GameState.LAST_QUESTION;
             expect(component.buttonText).toBe('Résultats');
         });
 
-        it('should return "Prochaine Question" if game state is not LastQuestion', () => {
-            mockCurrentState = GameState.ShowResults;
+        it('should return "Prochaine Question" if game state is not LAST_QUESTION', () => {
+            mockCurrentState = GameState.SHOW_RESULTS;
             expect(component.buttonText).toBe('Prochaine Question');
         });
     });

@@ -1,8 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { Game } from '@common/interfaces/game';
 
 @Component({
@@ -10,7 +8,7 @@ import { Game } from '@common/interfaces/game';
     templateUrl: './start-game-expansion.component.html',
     styleUrls: ['./start-game-expansion.component.scss'],
     standalone: true,
-    imports: [MatButtonModule, MatExpansionModule, NgFor, NgIf, MatSnackBarModule],
+    imports: [AppMaterialModule, NgFor, NgIf],
 })
 export class StartGameExpansionComponent {
     @Input() gameDetails: Game;

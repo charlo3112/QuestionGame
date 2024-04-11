@@ -53,7 +53,7 @@ describe('GameSubscriptionService', () => {
         websocketServiceSpy.getHistogramData.and.returnValue(of(HISTOGRAM_DATA));
         websocketServiceSpy.getAlert.and.returnValue(of(''));
         websocketServiceSpy.getUserGameInfo.and.returnValue(of(USER_GAME_INFO));
-        websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NotStarted, payload: '' }));
+        websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NOT_STARTED, payload: '' }));
         websocketServiceSpy.getTime.and.returnValue(of(TIME_DATA));
         websocketServiceSpy.getClosedConnection.and.returnValue(of(''));
         websocketServiceSpy.getUserUpdate.and.returnValue(of(USER_CONNECTION_UPDATE));
@@ -76,7 +76,7 @@ describe('GameSubscriptionService', () => {
 
     describe('Subscriptions Initialization', () => {
         it('initializes with correct game state payload', async () => {
-            const mockState: GameStatePayload = { state: GameState.Starting, payload: 'Game Title' };
+            const mockState: GameStatePayload = { state: GameState.STARTING, payload: 'Game Title' };
             const mockScore: Score = { score: 5, bonus: false };
             websocketServiceSpy.getScore.and.returnValue(Promise.resolve(mockScore));
             websocketServiceSpy.getUsers.and.returnValue(Promise.resolve(['user1']));
@@ -177,20 +177,20 @@ describe('GameSubscriptionService', () => {
 
     describe('state subscription', () => {
         it('should navigate to /loading when game state is Wait', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.Wait, payload: '' }));
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.WAIT, payload: '' }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/loading']);
         });
 
-        it('should navigate to /results when game state is ShowFinalResults', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.ShowFinalResults, payload: '' }));
+        it('should navigate to /results when game state is SHOW_FINAL_RESULTS', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.SHOW_FINAL_RESULTS, payload: '' }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/results']);
         });
 
-        it('should navigate to /game when game state is AskingQuestion', () => {
+        it('should navigate to /game when game state is ASKING_QUESTION', () => {
             const questionPayload: GameStatePayload = {
-                state: GameState.AskingQuestion,
+                state: GameState.ASKING_QUESTION,
                 payload: QUESTION_PLACEHOLDER,
             };
             websocketServiceSpy.getState.and.returnValue(of(questionPayload));
@@ -199,8 +199,8 @@ describe('GameSubscriptionService', () => {
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
         });
 
-        it('should navigate to /game when game state is LastQuestion', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.LastQuestion, payload: QUESTION_PLACEHOLDER }));
+        it('should navigate to /game when game state is LAST_QUESTION', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.LAST_QUESTION, payload: QUESTION_PLACEHOLDER }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
