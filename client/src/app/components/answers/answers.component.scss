@@ -5,11 +5,11 @@
     display: grid;
     gap: 0.69em;
     .good {
-        background-color: map.get(constant.$green-palette, 500);
+        background-color: map.get(constant.$green-palette, 600);
     }
     
     .bad {
-        background-color: map.get(constant.$orange-palette, 700);
+        background-color: map.get(constant.$red-palette, 500);
     }
 }
 
@@ -33,7 +33,7 @@
 
 .answer {
     &:hover {
-        background-color: map.get(constant.$blue-palette, 300);
+        background-color: map.get(constant.$orange-palette, 400);
     }
     font-size: 2em;
     font-weight: 500;
@@ -45,7 +45,7 @@
 }
 
 .selected {
-    border: 0.2em solid map.get(constant.$blue-palette, 300);
+    border: 0.2em solid map.get(constant.$orange-palette, 300);
 }
 
 .selected.good {
@@ -53,7 +53,7 @@
 }
 
 .selected.bad {
-    border-color: map.get(constant.$orange-palette, 300);
+    border-color: map.get(constant.$red-palette, 300);
 }
 
 .solution {

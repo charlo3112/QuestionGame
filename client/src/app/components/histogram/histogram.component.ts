@@ -27,7 +27,7 @@ export class HistogramComponent {
         if (this.showArrows) {
             return this.indexQuestionDisplayed;
         }
-        return this.gameService.histogram.indexCurrentQuestion;
+        return Math.min(this.gameService.histogram.indexCurrentQuestion, this.gameService.histogram.question.length - 1);
     }
 
     previousQuestion() {
