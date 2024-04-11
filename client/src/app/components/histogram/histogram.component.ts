@@ -4,6 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { GameService } from '@app/services/game/game.service';
+import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { Choice } from '@common/interfaces/choice';
 
@@ -59,5 +61,54 @@ export class HistogramComponent {
     }
     getCounter(choice: Choice): number {
         return this.gameService.histogram.choicesCounters[this.indexQuestion][this.getChoiceIndex(choice)];
+    }
+    getActive(): number {
+        return 4;
+    }
+    getInactive(): number {
+        return 2;
+    }
+    getMaxQRL(): number {
+        return Math.max(this.getActive(), this.getInactive());
+    }
+
+    getZeroGrade(): number {
+        if (!this.isFinalQrlResult()) {
+            return 0;
+        } else {
+            if (this.gameService.qrlResultData[this.indexQuestionDisplayed] !== undefined) {
+                console.log('rentre dans le if');
+                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.Zero).length;
+            }
+            return 0;
+        }
+    }
+    getHalfGrade(): number {
+        if (!this.isFinalQrlResult()) {
+            return 0;
+        } else {
+            if (this.gameService.qrlResultData[this.indexQuestionDisplayed]) {
+                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.Half).length;
+            }
+
+            return 0;
+        }
+    }
+    getPerfectGrade(): number {
+        if (!this.isFinalQrlResult()) {
+            return 0;
+        } else {
+            if (this.gameService.qrlResultData[this.indexQuestionDisplayed]) {
+                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.One).length;
+            }
+
+            return 0;
+        }
+    }
+    getMaxQRLResult(): number {
+        return Math.max(this.getZeroGrade(), this.getHalfGrade(), this.getPerfectGrade());
+    }
+    isFinalQrlResult(): boolean {
+        return !(this.gameService.currentQuestion?.type === QuestionType.QRL || this.gameService.currentState !== GameState.ShowFinalResults);
     }
 }

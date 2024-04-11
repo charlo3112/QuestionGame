@@ -14,7 +14,7 @@ import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { Socket, io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -33,6 +33,7 @@ export class WebSocketService {
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
     private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
+    private qrlResultDataSubject: Subject<Record<number, QrlAnswer[]>> = new Subject<Record<number, QrlAnswer[]>>();
 
     constructor() {
         this.connect();
@@ -192,6 +193,10 @@ export class WebSocketService {
         return this.histogramDataSubject.asObservable();
     }
 
+    getQrlResultData(): Observable<Record<number, QrlAnswer[]>> {
+        return this.qrlResultDataSubject.asObservable();
+    }
+
     getAlert(): Observable<string> {
         return this.alertSubject.asObservable();
     }
@@ -249,6 +254,7 @@ export class WebSocketService {
         this.listenForAlert(); // 8
         this.listenForUserGameInfo(); // 9
         this.listenForQrlGradedAnswer(); // 10
+        this.listenForQrlResultData(); // 11
     }
 
     private listenForClosedConnection() {
@@ -302,6 +308,12 @@ export class WebSocketService {
     private listenForHistogramData() {
         this.socket.on('game:histogramData', (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
+        });
+    }
+
+    private listenForQrlResultData() {
+        this.socket.on('game:qrl-result-data', (qrlResultData: Record<number, QrlAnswer[]>) => {
+            this.qrlResultDataSubject.next(qrlResultData);
         });
     }
 

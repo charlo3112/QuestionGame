@@ -185,6 +185,14 @@ export class RoomManagementService {
         return game.getChoice(userId);
     }
 
+    getQrlResultData(userId: string): Record<number, QrlAnswer[]> {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return [];
+        }
+        return game.getQRLResultData();
+    }
+
     getQrlAnswers(userId: string): QrlAnswer[] {
         const game = this.getActiveGame(userId);
         if (!game) {

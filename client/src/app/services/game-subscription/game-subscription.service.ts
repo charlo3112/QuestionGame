@@ -25,6 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     scoreValue: number = 0;
     players: Set<string> = new Set();
     histogramData: HistogramData;
+    qrlResultData: Record<number, QrlAnswer[]>;
     usersStat: UserStat[] = [];
     qrlGradedAnswer: QrlAnswer;
     question: Question | undefined = undefined;
@@ -42,6 +43,7 @@ export class GameSubscriptionService implements OnDestroy {
     private histogramDataSubscription: Subscription;
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
+    private qrlResultDataSubscription: Subscription;
 
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
@@ -60,6 +62,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
         this.subscribeToQrlGradedAnswer();
+        this.subscribeToQrlResultData();
     }
 
     ngOnDestroy() {
@@ -87,9 +90,11 @@ export class GameSubscriptionService implements OnDestroy {
         if (this.alertSubscription) {
             this.alertSubscription.unsubscribe();
         }
-
         if (this.userGameInfoSubscription) {
             this.userGameInfoSubscription.unsubscribe();
+        }
+        if (this.qrlResultDataSubscription) {
+            this.qrlResultDataSubscription.unsubscribe();
         }
     }
 
@@ -210,6 +215,14 @@ export class GameSubscriptionService implements OnDestroy {
         this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
             next: (qrlAnswer: QrlAnswer) => {
                 this.qrlGradedAnswer = qrlAnswer;
+            },
+        });
+    }
+
+    private subscribeToQrlResultData() {
+        this.qrlResultDataSubscription = this.websocketService.getQrlResultData().subscribe({
+            next: (qrlResultData: Record<number, QrlAnswer[]>) => {
+                this.qrlResultData = qrlResultData;
             },
         });
     }

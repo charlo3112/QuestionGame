@@ -27,6 +27,7 @@ export class ActiveGame {
     private historyService: HistoryService | undefined;
     private isActive: boolean;
     private qrlAnswers: QrlAnswer[] = [];
+    private qrlResultData: Record<number, QrlAnswer[]> = {};
 
     // TODO: Justify the number of parameters for this constructor or reduce it
     // eslint-disable-next-line max-params
@@ -132,6 +133,10 @@ export class ActiveGame {
         return this.users.getUser(userId);
     }
 
+    getQRLResultData(): Record<number, QrlAnswer[]> {
+        return this.qrlResultData;
+    }
+
     handleChoice(userId: string, choice: boolean[]): void {
         if (this.state !== GameState.AskingQuestion) {
             return;
@@ -144,6 +149,8 @@ export class ActiveGame {
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
         this.users.handleAnswers(userId, answers, this.currentQuestionWithAnswer.points);
         this.qrlAnswers = answers;
+        this.qrlResultData[this.questionIndex] = answers;
+        this.gameGateway.sendQrlResultData(this.roomId, this.qrlResultData);
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {

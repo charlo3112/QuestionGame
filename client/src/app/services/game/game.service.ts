@@ -86,6 +86,10 @@ export class GameService {
         return 'Vous avez un bonus!';
     }
 
+    get qrlResultData(): Record<number, QrlAnswer[]> {
+        return this.gameSubscriptionService.qrlResultData;
+    }
+
     get histogram(): HistogramData {
         return this.gameSubscriptionService.histogramData;
     }
