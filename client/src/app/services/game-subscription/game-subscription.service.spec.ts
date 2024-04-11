@@ -205,6 +205,21 @@ describe('GameSubscriptionService', () => {
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
         });
+
+        it('should navigate to /game when game state is SHOW_RESULTS', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.SHOW_RESULTS, payload: QUESTION_PLACEHOLDER }));
+            service['subscribeToStateUpdate']();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
+            expect(service.question).toEqual(QUESTION_PLACEHOLDER);
+        });
+
+        it('should navigate to / when game state is NOT_STARTED', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NOT_STARTED, payload: '' }));
+            spyOn(service, 'reset');
+            service['subscribeToStateUpdate']();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+            expect(service.reset).toHaveBeenCalled();
+        });
     });
 
     describe('Destruction and Cleanup', () => {

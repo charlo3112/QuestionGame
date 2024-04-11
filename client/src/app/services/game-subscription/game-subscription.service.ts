@@ -209,9 +209,6 @@ export class GameSubscriptionService implements OnDestroy {
         this.state = state.state;
 
         switch (this.state) {
-            case GameState.NOT_STARTED:
-                this.reset();
-                break;
             case GameState.WAIT:
                 this.setRoute('/loading');
                 break;
@@ -228,8 +225,10 @@ export class GameSubscriptionService implements OnDestroy {
                 this.title = state.payload as string;
                 this.setRoute('/game');
                 break;
+            case GameState.NOT_STARTED:
             default:
-                this.setRoute('/game');
+                this.reset();
+                this.setRoute('/');
                 break;
         }
     }
