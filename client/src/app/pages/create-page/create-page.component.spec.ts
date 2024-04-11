@@ -131,14 +131,13 @@ describe('CreatePageComponent', () => {
 
     it('should have default values', () => {
         expect(component.showChildren).toBeFalse();
-        expect(component.isEditing).toBeFalse();
+        expect(component['isEditing']).toBeFalse();
         expect(component.questions.length).toBe(0);
         expect(component.selectedQuestion).toBeNull();
     });
 
     // ngOnInit
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
-        component.login = true;
         const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
         paramMapSpy.get.and.returnValue(null);
 
@@ -230,7 +229,7 @@ describe('CreatePageComponent', () => {
     });
 
     it('should update an existing question', () => {
-        component.questionTitleToEdit = mockValidQuestion1.text;
+        component['questionTitleToEdit'] = mockValidQuestion1.text;
         component.questions = [mockValidQuestion1];
         const updatedQuestion: Question = {
             ...mockValidQuestion1,

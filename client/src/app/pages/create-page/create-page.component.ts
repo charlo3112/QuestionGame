@@ -51,18 +51,17 @@ import { EMPTY_QUESTION, Question } from '@common/interfaces/question';
 export class CreatePageComponent implements OnInit {
     description: string;
     duration: number;
-    id: string;
-    isEditing: boolean = false;
-    login: boolean;
+    isEditingQuestion: boolean = false;
     pageTitle: string;
     questions: Question[] = [];
-    questionTitleToEdit: string = '';
     selectedQuestion: Question | null = null;
     showChildren: boolean = false;
     showPage: boolean = true;
-    isEditingQuestion: boolean = false;
     title: string;
-    visibility: boolean;
+    private id: string;
+    private isEditing: boolean = false;
+    private questionTitleToEdit: string = '';
+    private visibility: boolean;
 
     // We had to disable the max-params rule because we need every parameter for the component to work
     // eslint-disable-next-line max-params
