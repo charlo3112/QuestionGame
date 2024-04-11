@@ -2,16 +2,8 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { CreateQuestionService } from '@app/services/create-question/create-question.service';
 import { MIN_NB_OF_POINTS, SNACKBAR_DURATION, WEIGHTS_QUESTIONS } from '@common/constants';
@@ -23,21 +15,7 @@ import { Question } from '@common/interfaces/question';
     selector: 'app-create-question',
     templateUrl: './create-question.component.html',
     styleUrls: ['./create-question.component.scss'],
-    imports: [
-        CommonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatIconModule,
-        FormsModule,
-        MatCheckboxModule,
-        ReactiveFormsModule,
-        DragDropModule,
-        MatCardModule,
-        MatListModule,
-        MatSlideToggleModule,
-    ],
+    imports: [AppMaterialModule, CommonModule, FormsModule, ReactiveFormsModule, DragDropModule],
     standalone: true,
 })
 export class CreateQuestionComponent implements OnChanges, OnInit {

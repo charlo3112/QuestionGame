@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { Choice } from '@common/interfaces/choice';
 
@@ -10,7 +9,7 @@ import { Choice } from '@common/interfaces/choice';
     templateUrl: './answers.component.html',
     styleUrls: ['./answers.component.scss'],
     standalone: true,
-    imports: [CommonModule, MatIconModule, MatButtonModule],
+    imports: [CommonModule, AppMaterialModule],
 })
 export class AnswersComponent {
     @Input() choices: Choice[] = [];

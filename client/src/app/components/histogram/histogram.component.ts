@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { Choice } from '@common/interfaces/choice';
 
@@ -10,7 +8,7 @@ import { Choice } from '@common/interfaces/choice';
     selector: 'app-histogram',
     templateUrl: './histogram.component.html',
     styleUrls: ['./histogram.component.scss'],
-    imports: [MatIconModule, CommonModule, MatButtonModule, MatCardModule],
+    imports: [AppMaterialModule, CommonModule],
     standalone: true,
 })
 export class HistogramComponent {
