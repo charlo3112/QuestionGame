@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '@common/enums/game-state';
+import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
@@ -41,17 +42,17 @@ export class WebSocketService {
     }
 
     sendMessage(message: string): void {
-        this.socket.emit('message:send', message);
+        this.socket.emit(WebsocketMessage.MessageSend, message);
     }
 
     setChat(username: string, value: boolean): void {
         const payload: SetChatPayload = { username, value };
-        this.socket.emit('game:set-chat', payload);
+        this.socket.emit(WebsocketMessage.SetChat, payload);
     }
 
     async createRoom(gameId: string): Promise<User> {
         return new Promise<User>((resolve) => {
-            this.socket.emit('game:create', gameId, (user: User) => {
+            this.socket.emit(WebsocketMessage.CreateGame, gameId, (user: User) => {
                 resolve(user);
             });
         });
@@ -59,35 +60,35 @@ export class WebSocketService {
 
     async testGame(gameId: string): Promise<User> {
         return new Promise<User>((resolve) => {
-            this.socket.emit('game:test', gameId, (user: User) => {
+            this.socket.emit(WebsocketMessage.CreateTest, gameId, (user: User) => {
                 resolve(user);
             });
         });
     }
 
     sendChoice(choice: boolean[]): void {
-        this.socket.emit('game:choice', choice);
+        this.socket.emit(WebsocketMessage.SendChoice, choice);
     }
 
     validateChoice(): void {
-        this.socket.emit('game:validate');
+        this.socket.emit(WebsocketMessage.ValidateChoice);
     }
 
     leaveRoom(): void {
-        this.socket.emit('game:leave');
+        this.socket.emit(WebsocketMessage.LeaveGame);
     }
 
     startTest(): void {
-        this.socket.emit('game:start-test');
+        this.socket.emit(WebsocketMessage.StartTest);
     }
 
     showFinalResults() {
-        this.socket.emit('game:results');
+        this.socket.emit(WebsocketMessage.Results);
     }
 
     async isValidate(): Promise<boolean> {
         return new Promise<boolean>((resolve) => {
-            this.socket.emit('game:isValidate', (isValidate: boolean) => {
+            this.socket.emit(WebsocketMessage.IsValidate, (isValidate: boolean) => {
                 resolve(isValidate);
             });
         });
@@ -95,7 +96,7 @@ export class WebSocketService {
 
     async getChoice(): Promise<boolean[]> {
         return new Promise<boolean[]>((resolve) => {
-            this.socket.emit('game:getChoice', (choice: boolean[]) => {
+            this.socket.emit(WebsocketMessage.GetChoice, (choice: boolean[]) => {
                 resolve(choice);
             });
         });
@@ -104,7 +105,7 @@ export class WebSocketService {
     async joinRoom(gameCode: string, username: string): Promise<Result<GameState>> {
         const payloadJoin: PayloadJoinGame = { gameCode, username };
         return new Promise<Result<GameState>>((resolve) => {
-            this.socket.emit('game:join', payloadJoin, (res: Result<GameState>) => {
+            this.socket.emit(WebsocketMessage.JoinGame, payloadJoin, (res: Result<GameState>) => {
                 resolve(res);
             });
         });
@@ -112,7 +113,7 @@ export class WebSocketService {
 
     async startRandom(): Promise<User> {
         return new Promise<User>((resolve) => {
-            this.socket.emit('game:create-random', (res: User) => {
+            this.socket.emit(WebsocketMessage.CreateGameRandom, (res: User) => {
                 resolve(res);
             });
         });
@@ -120,22 +121,22 @@ export class WebSocketService {
 
     async rejoinRoom(user: User): Promise<Result<GameStatePayload>> {
         return new Promise<Result<GameStatePayload>>((resolve) => {
-            this.socket.emit('game:rejoin', user, (data: Result<GameStatePayload>) => {
+            this.socket.emit(WebsocketMessage.Rejoin, user, (data: Result<GameStatePayload>) => {
                 resolve(data);
             });
         });
     }
 
     toggleClosed(closed: boolean): void {
-        this.socket.emit('game:toggle', closed);
+        this.socket.emit(WebsocketMessage.ToggleGame, closed);
     }
 
     hostConfirm(): void {
-        this.socket.emit('game:confirm');
+        this.socket.emit(WebsocketMessage.Confirm);
     }
 
     banUser(userId: string): void {
-        this.socket.emit('game:ban', userId);
+        this.socket.emit(WebsocketMessage.Ban, userId);
     }
 
     getMessage(): Observable<Message> {
@@ -179,16 +180,16 @@ export class WebSocketService {
     }
 
     startPanicking(): void {
-        this.socket.emit('game:panic');
+        this.socket.emit(WebsocketMessage.Panic);
     }
 
     togglePause(): void {
-        this.socket.emit('game:pause');
+        this.socket.emit(WebsocketMessage.Pause);
     }
 
     async getUsers(): Promise<string[]> {
         return new Promise<string[]>((resolve) => {
-            this.socket.emit('game:users', (users: string[]) => {
+            this.socket.emit(WebsocketMessage.Users, (users: string[]) => {
                 resolve(users);
             });
         });
@@ -196,7 +197,7 @@ export class WebSocketService {
 
     async getMessages(): Promise<Message[]> {
         return new Promise<Message[]>((resolve) => {
-            this.socket.emit('messages:get', (messages: Message[]) => {
+            this.socket.emit(WebsocketMessage.MessagesGet, (messages: Message[]) => {
                 resolve(messages);
             });
         });
@@ -204,7 +205,7 @@ export class WebSocketService {
 
     async getScore(): Promise<Score> {
         return new Promise<Score>((resolve) => {
-            this.socket.emit('game:score', (score: Score) => {
+            this.socket.emit(WebsocketMessage.Score, (score: Score) => {
                 resolve(score);
             });
         });
@@ -229,61 +230,61 @@ export class WebSocketService {
     }
 
     private listenForClosedConnection() {
-        this.socket.on('game:closed', (message: string) => {
+        this.socket.on(WebsocketMessage.Closed, (message: string) => {
             this.closedSubject.next(message);
         });
     }
 
     private listenForScoreUpdate() {
-        this.socket.on('game:score', (score: Score) => {
+        this.socket.on(WebsocketMessage.Score, (score: Score) => {
             this.scoreSubject.next(score);
         });
     }
 
     private listenForMessage() {
-        this.socket.on('message:receive', (message: Message) => {
+        this.socket.on(WebsocketMessage.MessageReceive, (message: Message) => {
             this.messageSubject.next(message);
         });
     }
 
     private listenForState() {
-        this.socket.on('game:state', (state: GameStatePayload) => {
+        this.socket.on(WebsocketMessage.State, (state: GameStatePayload) => {
             this.stateSubject.next(state);
         });
     }
 
     private listenForUserUpdate() {
-        this.socket.on('game:user-update', (update: UserConnectionUpdate) => {
+        this.socket.on(WebsocketMessage.UserUpdate, (update: UserConnectionUpdate) => {
             this.userUpdateSubject.next(update);
         });
     }
 
     private listenForTimeUpdate() {
-        this.socket.on('game:time', (time: TimeData) => {
+        this.socket.on(WebsocketMessage.Time, (time: TimeData) => {
             this.timeSubject.next(time);
         });
     }
 
     private listenForUsersStat() {
-        this.socket.on('game:users-stat', (usersStat: UserStat[]) => {
+        this.socket.on(WebsocketMessage.UsersStat, (usersStat: UserStat[]) => {
             this.usersStatSubject.next(usersStat);
         });
     }
 
     private listenForHistogramData() {
-        this.socket.on('game:histogramData', (histogramData: HistogramData) => {
+        this.socket.on(WebsocketMessage.HistogramData, (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
         });
     }
 
     private listenForAlert() {
-        this.socket.on('game:alert', (message: string) => {
+        this.socket.on(WebsocketMessage.Alert, (message: string) => {
             this.alertSubject.next(message);
         });
     }
 
     private listenForUserGameInfo() {
-        this.socket.on('game:user-game-info', (userGameInfo: UserGameInfo) => {
+        this.socket.on(WebsocketMessage.UserGameInfo, (userGameInfo: UserGameInfo) => {
             this.userGameInfoSubject.next(userGameInfo);
         });
     }

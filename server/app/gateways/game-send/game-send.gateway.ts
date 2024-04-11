@@ -1,3 +1,4 @@
+import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Score } from '@common/interfaces/score';
@@ -13,47 +14,47 @@ export class GameGatewaySend {
     @WebSocketServer() server: Server;
 
     updateQuestionsCounter(roomId: string, questionsCounter: number[]) {
-        this.server.to(roomId).emit('game:questionsCounter', questionsCounter);
+        this.server.to(roomId).emit(WebsocketMessage.QuestionsCounter, questionsCounter);
     }
 
     sendTimeUpdate(roomId: string, time: TimeData): void {
-        this.server.to(roomId).emit('game:time', time);
+        this.server.to(roomId).emit(WebsocketMessage.Time, time);
     }
 
     sendDeleteRoom(roomId: string): void {
-        this.server.to(roomId).emit('game:closed', 'La partie a été fermée');
+        this.server.to(roomId).emit(WebsocketMessage.Closed, 'La partie a été fermée');
         this.server.socketsLeave(roomId);
     }
 
     sendUserRemoval(userId: string, message: string): void {
-        this.server.to(userId).emit('game:closed', message);
+        this.server.to(userId).emit(WebsocketMessage.Closed, message);
     }
 
     sendUpdateUser(roomId: string, userUpdate: UserConnectionUpdate): void {
-        this.server.to(roomId).emit('game:user-update', userUpdate);
+        this.server.to(roomId).emit(WebsocketMessage.UserUpdate, userUpdate);
     }
 
     sendStateUpdate(roomId: string, state: GameStatePayload): void {
-        this.server.to(roomId).emit('game:state', state);
+        this.server.to(roomId).emit(WebsocketMessage.State, state);
     }
 
     sendScoreUpdate(userId: string, score: Score): void {
-        this.server.to(userId).emit('game:score', score);
+        this.server.to(userId).emit(WebsocketMessage.Score, score);
     }
 
     sendUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
-        this.server.to(userId).emit('game:users-stat', usersStat);
+        this.server.to(userId).emit(WebsocketMessage.UsersStat, usersStat);
     }
 
     sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
-        this.server.to(roomId).emit('game:histogramData', histogramData);
+        this.server.to(roomId).emit(WebsocketMessage.HistogramData, histogramData);
     }
 
     sendAlert(roomId: string, message: string): void {
-        this.server.to(roomId).emit('game:alert', message);
+        this.server.to(roomId).emit(WebsocketMessage.Alert, message);
     }
 
     sendUserGameInfo(userId: string, userGameInfo: UserGameInfo): void {
-        this.server.to(userId).emit('game:user-game-info', userGameInfo);
+        this.server.to(userId).emit(WebsocketMessage.UserGameInfo, userGameInfo);
     }
 }
