@@ -18,7 +18,7 @@ export class ActiveGame {
     private game: GameData;
     private state: GameState = GameState.Wait;
     private roomId: string;
-    private questionIndex: number = 0;
+    private questionIndex: number;
     private histogramData: HistogramData;
     private timer: CountDownTimer;
     private gameGateway: GameGatewaySend;
@@ -48,6 +48,7 @@ export class ActiveGame {
             indexCurrentQuestion: 0,
         };
         this.isActive = true;
+        this.questionIndex = 0;
     }
 
     get currentState(): GameState {
