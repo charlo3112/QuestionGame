@@ -13,22 +13,20 @@ describe('JoinGamePageComponent', () => {
     let component: JoinGamePageComponent;
     let fixture: ComponentFixture<JoinGamePageComponent>;
     let mockWebSocketService: jasmine.SpyObj<WebSocketService>;
-    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let router: Router;
     let location: Location;
     let sessionStorageServiceSpy: jasmine.SpyObj<SessionStorageService>;
 
     beforeEach(() => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['joinRoom']);
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
         sessionStorageServiceSpy = jasmine.createSpyObj('LocalStorageService', ['user']);
 
         TestBed.configureTestingModule({
             imports: [JoinGamePageComponent, RouterModule.forRoot(routes), BrowserAnimationsModule, NoopAnimationsModule, RouterTestingModule],
             providers: [
+                MatSnackBar,
                 { provide: WebSocketService, useValue: mockWebSocketService },
-                { provide: MatSnackBar, useValue: snackBarSpy },
                 { provide: SessionStorageService, useValue: sessionStorageServiceSpy },
             ],
         });
@@ -77,12 +75,13 @@ describe('JoinGamePageComponent', () => {
     });
 
     it('should display an error snackbar when joinRoom fails', async () => {
+        spyOn(component['snackBar'], 'open');
         mockWebSocketService.joinRoom = jasmine.createSpy().and.returnValue(Promise.resolve({ ok: false, error: 'Error' }));
 
         component.connectForm.controls['code'].setValue('1234');
         component.connectForm.controls['name'].setValue('TestUser');
         await component.onSubmit();
 
-        expect(snackBarSpy.open).toHaveBeenCalled();
+        expect(component['snackBar'].open).toHaveBeenCalled();
     });
 });
