@@ -84,7 +84,7 @@ describe('QuestionBankComponent', () => {
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
         tick();
-        expect(component.questionsWithModificationDate).toEqual(mockQuestions);
+        expect(component.questions).toEqual(mockQuestions);
     }));
 
     it('should throw error when getAllQuestionsWithModificationDates return error', fakeAsync(() => {
@@ -109,7 +109,7 @@ describe('QuestionBankComponent', () => {
         spyOn(communicationService, 'getAllQuestionsWithModificationDates').and.returnValue(of(mockResponse));
         component.loadQuestions();
         tick();
-        expect(component.questionsWithModificationDate).toEqual(mockQuestions);
+        expect(component.questions).toEqual(mockQuestions);
     }));
 
     it('should calculate time correctly for recent modification', () => {
@@ -135,15 +135,15 @@ describe('QuestionBankComponent', () => {
     });
 
     it('deleteQuestion should delete the selected question', fakeAsync(() => {
-        component.questionsWithModificationDate = [mockQuestion];
+        component.questions = [mockQuestion];
         spyOn(communicationService, 'deleteQuestion').and.returnValue(of({} as HttpResponse<string>));
         component.deleteQuestion(mockQuestion.mongoId);
         tick();
-        expect(component.questionsWithModificationDate).toEqual([]);
+        expect(component.questions).toEqual([]);
     }));
 
     it('should throw error when deleteQuestion fails', fakeAsync(() => {
-        component.questionsWithModificationDate = [];
+        component.questions = [];
         spyOn(communicationService, 'deleteQuestion').and.returnValue(throwError(() => 'errorResponse'));
         expect(() => {
             component.deleteQuestion(mockQuestion.mongoId);

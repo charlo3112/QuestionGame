@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { QuestionType } from '@common/enums/question-type';
 
@@ -23,6 +24,7 @@ describe('Question', () => {
     let fixture: ComponentFixture<QuestionComponent>;
     let router: Router;
     let gameServiceSpy: jasmine.SpyObj<GameService>;
+    let gameSubscriptionServiceSpy: jasmine.SpyObj<GameSubscriptionService>;
 
     beforeEach(async () => {
         gameServiceSpy = jasmine.createSpyObj('GameService', [
@@ -32,9 +34,13 @@ describe('Question', () => {
             'isChoiceIncorrect',
             'isChoiceSelected',
         ]);
+        gameSubscriptionServiceSpy = jasmine.createSpyObj('GameSubscriptionService', ['getGame', 'isTextLocked']);
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
-            providers: [{ provide: GameService, useValue: gameServiceSpy }],
+            providers: [
+                { provide: GameService, useValue: gameServiceSpy },
+                { provide: GameSubscriptionService, useValue: gameSubscriptionServiceSpy },
+            ],
         }).compileComponents();
     });
 
