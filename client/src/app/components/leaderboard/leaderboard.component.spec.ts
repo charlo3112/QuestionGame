@@ -63,46 +63,46 @@ describe('LeaderboardComponent', () => {
     });
 
     describe('getClassState', () => {
-        it('should return correct class for NoInteraction', () => {
-            expect(component.getClassState(UserState.NoInteraction)).toEqual('no-interaction');
+        it('should return correct class for NO_INTERACTION', () => {
+            expect(component.getClassState(UserState.NO_INTERACTION)).toEqual('no-interaction');
         });
 
-        it('should return correct class for FirstInteraction', () => {
-            expect(component.getClassState(UserState.FirstInteraction)).toEqual('first-interaction');
+        it('should return correct class for FIRST_INTERACTION', () => {
+            expect(component.getClassState(UserState.FIRST_INTERACTION)).toEqual('first-interaction');
         });
 
-        it('should return correct class for AnswerConfirmed', () => {
-            expect(component.getClassState(UserState.AnswerConfirmed)).toEqual('answer-confirmed');
+        it('should return correct class for ANSWER_CONFIRMED', () => {
+            expect(component.getClassState(UserState.ANSWER_CONFIRMED)).toEqual('answer-confirmed');
         });
 
-        it('should return correct class for Disconnect', () => {
-            expect(component.getClassState(UserState.Disconnect)).toEqual('disconnect');
+        it('should return correct class for DISCONNECT', () => {
+            expect(component.getClassState(UserState.DISCONNECT)).toEqual('disconnect');
         });
 
         it('should return empty string for undefined state', () => {
-            expect(component.getClassState(UserState.FinalResults)).toEqual('');
+            expect(component.getClassState(UserState.FINAL_RESULTS)).toEqual('');
         });
     });
 
     describe('getTextState', () => {
-        it('should return correct class for NoInteraction', () => {
-            expect(component.getTextState(UserState.NoInteraction)).toEqual('Aucune interaction');
+        it('should return correct class for NO_INTERACTION', () => {
+            expect(component.getTextState(UserState.NO_INTERACTION)).toEqual('Aucune interaction');
         });
 
-        it('should return correct class for FirstInteraction', () => {
-            expect(component.getTextState(UserState.FirstInteraction)).toEqual('Réponse choisie');
+        it('should return correct class for FIRST_INTERACTION', () => {
+            expect(component.getTextState(UserState.FIRST_INTERACTION)).toEqual('Réponse choisie');
         });
 
-        it('should return correct class for AnswerConfirmed', () => {
-            expect(component.getTextState(UserState.AnswerConfirmed)).toEqual('Réponse confirmée');
+        it('should return correct class for ANSWER_CONFIRMED', () => {
+            expect(component.getTextState(UserState.ANSWER_CONFIRMED)).toEqual('Réponse confirmée');
         });
 
-        it('should return correct class for FinalResults', () => {
-            expect(component.getTextState(UserState.FinalResults)).toEqual('Résultats finaux');
+        it('should return correct class for FINAL_RESULTS', () => {
+            expect(component.getTextState(UserState.FINAL_RESULTS)).toEqual('Résultats finaux');
         });
 
-        it('should return correct class for Disconnect', () => {
-            expect(component.getTextState(UserState.Disconnect)).toEqual('Déconnecté');
+        it('should return correct class for DISCONNECT', () => {
+            expect(component.getTextState(UserState.DISCONNECT)).toEqual('Déconnecté');
         });
     });
 

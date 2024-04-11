@@ -1,7 +1,7 @@
 export enum UserState {
-    NoInteraction,
-    FirstInteraction,
-    AnswerConfirmed,
-    FinalResults,
-    Disconnect,
+    NO_INTERACTION,
+    FIRST_INTERACTION,
+    ANSWER_CONFIRMED,
+    FINAL_RESULTS,
+    DISCONNECT,
 }

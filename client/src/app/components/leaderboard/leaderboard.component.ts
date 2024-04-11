@@ -43,13 +43,13 @@ export class LeaderboardComponent {
 
     getClassState(state: UserState): string {
         switch (state) {
-            case UserState.NoInteraction:
+            case UserState.NO_INTERACTION:
                 return 'no-interaction';
-            case UserState.FirstInteraction:
+            case UserState.FIRST_INTERACTION:
                 return 'first-interaction';
-            case UserState.AnswerConfirmed:
+            case UserState.ANSWER_CONFIRMED:
                 return 'answer-confirmed';
-            case UserState.Disconnect:
+            case UserState.DISCONNECT:
                 return 'disconnect';
             default:
                 return '';
@@ -58,15 +58,15 @@ export class LeaderboardComponent {
 
     getTextState(state: UserState): string {
         switch (state) {
-            case UserState.NoInteraction:
+            case UserState.NO_INTERACTION:
                 return 'Aucune interaction';
-            case UserState.FirstInteraction:
+            case UserState.FIRST_INTERACTION:
                 return 'Réponse choisie';
-            case UserState.AnswerConfirmed:
+            case UserState.ANSWER_CONFIRMED:
                 return 'Réponse confirmée';
-            case UserState.FinalResults:
+            case UserState.FINAL_RESULTS:
                 return 'Résultats finaux';
-            case UserState.Disconnect:
+            case UserState.DISCONNECT:
                 return 'Déconnecté';
         }
     }
