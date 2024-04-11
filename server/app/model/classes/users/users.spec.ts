@@ -84,4 +84,45 @@ describe('Users', () => {
         users.resetFinalResults();
         expect(users.getChoice('123')).toEqual([true, false, true, false]);
     });
+
+    it('should reset final results', () => {
+        users.addUser(user);
+        users.handleChoice('123', [true, false, true, false]);
+        users.resetAnswers();
+        expect(users.getChoice('123')).toEqual([false, false, false, false]);
+    });
+
+    it('should return the correct user statistics', () => {
+        const TEST_SCORE = 100;
+        const user1 = new UserData('123', 'Room123', 'John');
+        const user2 = new UserData('456', 'Room123', 'Alice');
+        user1['score'] = TEST_SCORE;
+        user1.userCanChat = true;
+        user2.userCanChat = false;
+        users.addUser(user1);
+        users.addUser(user2);
+
+        users.hostIsPlaying = true;
+
+        const usersStat = users.usersStat;
+
+        expect(usersStat).toHaveLength(2);
+        expect(usersStat[0].username).toBe('John');
+        expect(usersStat[0].score).toBe(TEST_SCORE);
+        expect(usersStat[0].bonus).toBeFalsy();
+        expect(usersStat[0].canChat).toBe(true);
+    });
+
+    it('setChat() should return undefined if no user is found', () => {
+        users.addUser(user);
+        const result = users.setChat(users.hostId, 'Albert', false);
+        expect(result).toBeUndefined();
+    });
+    it('setChat() should update chat setting and return user ID if user is found', () => {
+        users.addUser(user);
+        const result = users.setChat(users.hostId, 'John', false);
+        expect(result).toBe(user.uid);
+        const updatedUser = users.getUser(user.uid);
+        expect(updatedUser.userCanChat).toBe(false);
+    });
 });
