@@ -46,8 +46,8 @@ export class GameGatewaySend {
         this.server.to(userId).emit('game:users-stat', usersStat);
     }
 
-    sendQrlGradedAnswers(userId: string, qrlAnswers: QrlAnswer[]): void {
-        this.server.to(userId).emit('game:qrl-graded-answers', qrlAnswers);
+    sendQrlGradedAnswer(userId: string, qrlAnswer: QrlAnswer): void {
+        this.server.to(userId).emit('game:qrl-graded-answer', qrlAnswer);
     }
 
     sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {

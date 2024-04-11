@@ -96,10 +96,9 @@ export class GameService {
     }
 
     get grade(): Grade {
-        console.log(this.gameSubscriptionService.qrlGradedAnswers.length);
-        return this.gameSubscriptionService.qrlGradedAnswers.length > 0
-            ? this.gameSubscriptionService.qrlGradedAnswers.filter((qrlAnswer) => this.usernameValue === qrlAnswer.player)[0].grade
-            : Grade.Ungraded;
+        if (this.gameSubscriptionService.qrlGradedAnswer !== undefined) {
+            return this.gameSubscriptionService.qrlGradedAnswer.grade;
+        } else return Grade.Ungraded;
     }
 
     get roomCodeValue(): string {

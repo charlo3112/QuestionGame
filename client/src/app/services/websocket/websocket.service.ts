@@ -26,7 +26,7 @@ export class WebSocketService {
     private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
-    private qrlGradedAnswersSubject: Subject<QrlAnswer[]> = new Subject<QrlAnswer[]>();
+    private qrlGradedAnswersSubject: Subject<QrlAnswer> = new Subject<QrlAnswer>();
     private timeSubject: Subject<TimeData> = new Subject<TimeData>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
@@ -176,7 +176,7 @@ export class WebSocketService {
         return this.userUpdateSubject.asObservable();
     }
 
-    getQrlGradedAnswers(): Observable<QrlAnswer[]> {
+    getQrlGradedAnswers(): Observable<QrlAnswer> {
         return this.qrlGradedAnswersSubject.asObservable();
     }
 
@@ -248,7 +248,7 @@ export class WebSocketService {
         this.listenForHistogramData(); // 7
         this.listenForAlert(); // 8
         this.listenForUserGameInfo(); // 9
-        this.listenForQrlGradedAnswers(); // 10
+        this.listenForQrlGradedAnswer(); // 10
     }
 
     private listenForClosedConnection() {
@@ -293,9 +293,9 @@ export class WebSocketService {
         });
     }
 
-    private listenForQrlGradedAnswers() {
-        this.socket.on('game:qrl-graded-answers', (qrlAnswers: QrlAnswer[]) => {
-            this.qrlGradedAnswersSubject.next(qrlAnswers);
+    private listenForQrlGradedAnswer() {
+        this.socket.on('game:qrl-graded-answer', (qrlAnswer: QrlAnswer) => {
+            this.qrlGradedAnswersSubject.next(qrlAnswer);
         });
     }
 

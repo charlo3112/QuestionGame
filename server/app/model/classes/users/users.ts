@@ -231,11 +231,11 @@ export class Users {
                     if (answer.grade !== 'Ungraded') {
                         player.addScore(points * answer.grade);
                         this.gameGateway.sendScoreUpdate(player.uid, player.userScore);
+                        this.gameGateway.sendQrlGradedAnswer(player.uid, answer);
                     }
                 }
             }
         });
-        this.gameGateway.sendQrlGradedAnswers(this.hostId, answers);
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }

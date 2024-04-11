@@ -25,7 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     players: Set<string> = new Set();
     histogramData: HistogramData;
     usersStat: UserStat[] = [];
-    qrlGradedAnswers: QrlAnswer[] = [];
+    qrlGradedAnswer: QrlAnswer;
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
@@ -58,7 +58,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToHistogramData();
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
-        this.subscribeToQrlGradedAnswers();
+        this.subscribeToQrlGradedAnswer();
     }
 
     ngOnDestroy() {
@@ -203,11 +203,10 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToQrlGradedAnswers() {
+    private subscribeToQrlGradedAnswer() {
         this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
-            next: (qrlAnswers: QrlAnswer[]) => {
-                this.qrlGradedAnswers = qrlAnswers;
-                console.log(this.qrlGradedAnswers.length);
+            next: (qrlAnswer: QrlAnswer) => {
+                this.qrlGradedAnswer = qrlAnswer;
             },
         });
     }
