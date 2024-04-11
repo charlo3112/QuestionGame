@@ -14,7 +14,6 @@ describe('HistoryItemsComponent', () => {
     let fixture: ComponentFixture<HistoryItemsComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let historyItems: History[];
-    let mockMatDialog: jasmine.SpyObj<MatDialog>;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['deleteHistories', 'getHistories']);
@@ -23,14 +22,18 @@ describe('HistoryItemsComponent', () => {
             value: [],
         };
 
-        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
         communicationServiceSpy.getHistories.and.returnValue(of(mockHistoryResponse));
 
+        TestBed.overrideProvider(MatDialog, {
+            useValue: {
+                open: () => ({
+                    afterClosed: () => of(true),
+                }),
+            },
+        });
+
         TestBed.configureTestingModule({
-            providers: [
-                { provide: CommunicationService, useValue: communicationServiceSpy },
-                { provide: MatDialog, useValue: mockMatDialog },
-            ],
+            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
             imports: [HistoryItemsComponent, BrowserAnimationsModule, NoopAnimationsModule],
         });
         fixture = TestBed.createComponent(HistoryItemsComponent);
@@ -134,9 +137,7 @@ describe('HistoryItemsComponent', () => {
     });
 
     it('should call emptyHistory openEraseDialog is called with true result', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(true));
-        mockMatDialog.open.and.returnValue(dialogRefSpy);
+        spyOn(component, 'openEraseDialog').and.callThrough();
 
         spyOn(component, 'emptyHistory');
 
