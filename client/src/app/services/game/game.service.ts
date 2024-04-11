@@ -80,9 +80,9 @@ export class GameService {
     }
 
     get message(): string | undefined {
-        if (this.gameSubscriptionService.state !== GameState.ShowResults || !this.isResponseGood() || !this.gameSubscriptionService.showBonus)
-            return undefined;
-        return 'Vous avez un bonus!';
+        return this.gameSubscriptionService.state !== GameState.ShowResults || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
+            ? undefined
+            : 'Vous avez un bonus!';
     }
 
     get histogram(): HistogramData {
@@ -98,10 +98,7 @@ export class GameService {
     }
 
     get isHost(): boolean {
-        if (this.sessionStorageService.username === HOST_NAME) {
-            return true;
-        }
-        return false;
+        return this.sessionStorageService.username === HOST_NAME;
     }
 
     get playersList(): Set<string> {
