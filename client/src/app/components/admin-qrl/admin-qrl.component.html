@@ -16,7 +16,7 @@
                 </div>
                 <mat-form-field class="qrl-grade">
                     <mat-label>Note</mat-label>
-                    <mat-select [(value)]="answer.grade" (valueChange)="onGradeChange(i, $event)">
+                    <mat-select [(value)]="answer.grade" (valueChange)="onGradeChange(i, $event)" [disabled]="gradeSent">
                         <mat-option *ngFor="let grade of gradeOptions" [value]="grade.value">{{ grade.viewValue }}</mat-option>
                     </mat-select>
                 </mat-form-field>

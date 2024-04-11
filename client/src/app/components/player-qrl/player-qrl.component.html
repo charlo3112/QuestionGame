@@ -1,5 +1,5 @@
 <div>
-    <h1 *ngIf="grade === gradeValue.Ungraded; else withGrade">{{ titleWithoutGrade }}</h1>
+    <h1 *ngIf="gameService.grade === gradeValue.Ungraded; else withGrade">{{ titleWithoutGrade }}</h1>
     <ng-template #withGrade>
         <h1>{{ titleWithGrade }}</h1>
         <h2>Vous avez obtenu {{ grade }} points</h2>

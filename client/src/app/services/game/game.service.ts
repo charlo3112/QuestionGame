@@ -97,12 +97,9 @@ export class GameService {
 
     get grade(): Grade {
         console.log(this.gameSubscriptionService.qrlGradedAnswers.length);
-        if (this.gameSubscriptionService.qrlGradedAnswers.length > 0) {
-            console.log('dans if');
-            return this.gameSubscriptionService.qrlGradedAnswers.filter((qrlAnswer) => this.usernameValue === qrlAnswer.player)[0].grade;
-        } else {
-            return Grade.Ungraded;
-        }
+        return this.gameSubscriptionService.qrlGradedAnswers.length > 0
+            ? this.gameSubscriptionService.qrlGradedAnswers.filter((qrlAnswer) => this.usernameValue === qrlAnswer.player)[0].grade
+            : Grade.Ungraded;
     }
 
     get roomCodeValue(): string {

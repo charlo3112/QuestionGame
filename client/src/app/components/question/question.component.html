@@ -19,7 +19,7 @@
                 </div>
             </section>
             <section *ngIf="question.type === 'QRL' && gameService.currentState === gameState.ShowResults">
-                <app-player-qrl [grade]="gameService.grade"></app-player-qrl>
+                <app-player-qrl></app-player-qrl>
             </section>
             <button
                 *ngIf="!(question.type === 'QRL' && gameService.currentState === gameState.ShowResults)"

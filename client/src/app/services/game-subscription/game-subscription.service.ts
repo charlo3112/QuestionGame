@@ -207,7 +207,7 @@ export class GameSubscriptionService implements OnDestroy {
         this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
             next: (qrlAnswers: QrlAnswer[]) => {
                 this.qrlGradedAnswers = qrlAnswers;
-                window.alert(this.qrlGradedAnswers.length);
+                console.log(this.qrlGradedAnswers.length);
             },
         });
     }

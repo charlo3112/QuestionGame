@@ -1,5 +1,7 @@
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
+import { GameService } from '@app/services/game/game.service';
 import { Grade } from '@common/enums/grade';
 
 @Component({
@@ -10,8 +12,13 @@ import { Grade } from '@common/enums/grade';
     standalone: true,
 })
 export class PlayerQRLComponent {
-    @Input() grade: Grade = Grade.Ungraded;
+    grade: Grade = Grade.Ungraded;
     gradeValue = Grade;
     titleWithoutGrade: string = "Veuillez patienter, votre réponse est en cours d'évaluation";
     titleWithGrade: string = 'Voici votre note';
+
+    constructor(
+        readonly gameService: GameService,
+        public gameSubscriptionService: GameSubscriptionService,
+    ) {}
 }
