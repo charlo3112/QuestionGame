@@ -62,3 +62,4 @@ export const LISTEN_HISTOGRAM_DATA = 7;
 export const NUMBER_QUESTIONS_RANDOM = 5;
 
 export const BONUS_TIME = 1000;
+export const SORT_DELAY_MS = 10;
