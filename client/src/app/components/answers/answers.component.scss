@@ -7,7 +7,7 @@
     .good {
         background-color: map.get(constant.$green-palette, 600);
     }
-    
+
     .bad {
         background-color: map.get(constant.$red-palette, 500);
     }
@@ -38,7 +38,7 @@
     font-size: 2em;
     font-weight: 500;
     width: 30vw;
-    height: 8em;
+    height: 30vh;
     button {
         display: flex;
     }
