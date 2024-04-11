@@ -47,7 +47,6 @@ import { SessionStorageService } from './services/session-storage/session-storag
         ResultPageComponent,
         CreateQuestionComponent,
         CreatePageComponent,
-        CreateQuestionComponent,
         EraseHistoryDialogComponent,
         FormsModule,
         HistogramComponent,
