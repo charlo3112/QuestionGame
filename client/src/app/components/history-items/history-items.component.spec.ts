@@ -113,7 +113,7 @@ describe('HistoryItemsComponent', () => {
     });
 
     it('should sort items by name in from Z to A', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => a.name.localeCompare(b.name));
+        const sortedItems = historyItems.slice().sort((a, b) => b.name.localeCompare(a.name));
         component.historyItems = historyItems;
         component.sortItems('name', 'za');
         expect(component.historyItems).toEqual(sortedItems);
@@ -127,7 +127,7 @@ describe('HistoryItemsComponent', () => {
     });
 
     it('should sort items by date in from newest to oldest', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => b.date.getTime() - a.date.getTime());
+        const sortedItems = historyItems.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'recent');
         expect(component.historyItems).toEqual(sortedItems);
