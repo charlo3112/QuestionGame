@@ -1,6 +1,6 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
-import { CountDownTimer } from './time';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import { CountDownTimer } from './time';
 
 describe('Time', () => {
     let mockGameGatewaySend: SinonStubbedInstance<GameGatewaySend>;
@@ -36,8 +36,22 @@ describe('Time', () => {
     });
 
     it('should reset', () => {
-        const timer = new CountDownTimer('roomId', { sendTimeUpdate: jest.fn() } as unknown as GameGatewaySend);
-        timer.reset();
-        expect(timer).toBeDefined();
+        const newTimer = new CountDownTimer('roomId', { sendTimeUpdate: jest.fn() } as unknown as GameGatewaySend);
+        newTimer.reset();
+        expect(newTimer).toBeDefined();
+    });
+
+    // Mock setTimeout function to throw an AbortError
+    jest.useFakeTimers();
+
+    it('should catch AbortError and reset controller', async () => {
+        const TIME_VALUE = 4;
+        await timer.start(TIME_VALUE);
+        const restartPromise = timer.restart();
+        jest.advanceTimersByTime(1);
+        timer['controller'].abort();
+
+        await restartPromise;
+        expect(timer['controller']).toBeDefined();
     });
 });

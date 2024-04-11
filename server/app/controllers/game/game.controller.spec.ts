@@ -266,6 +266,7 @@ describe('GameController', () => {
     // it('getRandomGame() should return all QCM questions', async () => {
     //     const fakeQuestions = getFakeQuestionData();
     //     questionService.getAllQCMQuestions.resolves(fakeQuestions);
+    //     console.log(fakeQuestions);
 
     //     const res = {} as unknown as Response;
     //     res.status = (code) => {
