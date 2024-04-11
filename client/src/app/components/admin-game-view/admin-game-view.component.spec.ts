@@ -18,6 +18,7 @@ describe('AdminGameViewComponent', () => {
 
     let mockPanic: boolean;
     let mockCurrentQuestion: Question | undefined;
+    let mockCurrentState: GameState;
     let mockTime: number;
 
     beforeEach(() => {
@@ -26,9 +27,13 @@ describe('AdminGameViewComponent', () => {
         mockPanic = false;
         mockCurrentQuestion = undefined;
         mockTime = 0;
-        mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram', 'startPanic', 'togglePause'], {
-            currentState: GameState.Starting,
-        });
+        mockGameService = jasmine.createSpyObj(
+            'GameService',
+            ['init', 'histogram', 'startPanic', 'togglePause', 'nextQuestion', 'showFinalResults'],
+            {
+                currentState: GameState.Starting,
+            },
+        );
         Object.defineProperty(mockGameService, 'histogram', {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
         });
@@ -41,6 +46,10 @@ describe('AdminGameViewComponent', () => {
         Object.defineProperty(mockGameService, 'time', {
             get: jasmine.createSpy('time.get').and.callFake(() => mockTime),
         });
+        Object.defineProperty(mockGameService, 'currentState', {
+            get: jasmine.createSpy('currentState.get').and.callFake(() => mockCurrentState),
+        });
+        mockCurrentState = GameState.AskingQuestion;
         TestBed.configureTestingModule({
             imports: [AdminGameViewComponent, BrowserAnimationsModule, NoopAnimationsModule, LeaderboardComponent, HistogramComponent, ChatComponent],
             providers: [{ provide: GameService, useValue: mockGameService }],
@@ -99,6 +108,32 @@ describe('AdminGameViewComponent', () => {
             spyOn(component, 'canPanic').and.returnValue(true);
             component.startPanicking();
             expect(mockGameService.startPanic).toHaveBeenCalled();
+        });
+    });
+
+    describe('nextStep', () => {
+        it('should call showFinalResults on gameService if currentState is LastQuestion', () => {
+            mockCurrentState = GameState.LastQuestion;
+            component.nextStep();
+            expect(mockGameService.showFinalResults).toHaveBeenCalled();
+        });
+
+        it('should call nextQuestion on gameService if currentState is not LastQuestion', () => {
+            mockCurrentState = GameState.AskingQuestion;
+            component.nextStep();
+            expect(mockGameService.nextQuestion).toHaveBeenCalled();
+        });
+    });
+
+    describe('buttonText', () => {
+        it('should return "Résultats" if currentState is LastQuestion', () => {
+            mockCurrentState = GameState.LastQuestion;
+            expect(component.buttonText).toBe('Résultats');
+        });
+
+        it('should return "Prochaine Question" if currentState is not LastQuestion', () => {
+            mockCurrentState = GameState.AskingQuestion;
+            expect(component.buttonText).toBe('Prochaine Question');
         });
     });
 });
