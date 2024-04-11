@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/enums/game-state';
+import { SortOption } from '@common/enums/sort-option';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
@@ -95,7 +95,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.UsernameAscending;
+            service.sortOption = SortOption.USERNAME_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -106,7 +106,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.UsernameDescending;
+            service.sortOption = SortOption.USERNAME_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('ken');
         });
@@ -117,7 +117,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.ScoreAscending;
+            service.sortOption = SortOption.SCORE_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -128,7 +128,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.ScoreDescending;
+            service.sortOption = SortOption.SCORE_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Bob');
         });
@@ -139,7 +139,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.StateAscending;
+            service.sortOption = SortOption.STATE_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -150,7 +150,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.StateDescending;
+            service.sortOption = SortOption.STATE_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Bob');
         });

@@ -3,10 +3,10 @@ import { Component, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Sort } from '@angular/material/sort';
 import { MatTable } from '@angular/material/table';
-import { SortOption } from '@app/enums/sort-option';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
+import { SortOption } from '@common/enums/sort-option';
 import { UserState } from '@common/enums/user-state';
 
 @Component({
@@ -78,13 +78,13 @@ export class LeaderboardComponent {
         }
         switch (sort.active) {
             case 'username':
-                this.gameService.sortOption = isAscending ? SortOption.UsernameAscending : SortOption.UsernameDescending;
+                this.gameService.sortOption = isAscending ? SortOption.USERNAME_ASCENDING : SortOption.USERNAME_DESCENDING;
                 break;
             case 'score':
-                this.gameService.sortOption = isAscending ? SortOption.ScoreAscending : SortOption.ScoreDescending;
+                this.gameService.sortOption = isAscending ? SortOption.SCORE_ASCENDING : SortOption.SCORE_DESCENDING;
                 break;
             case 'state':
-                this.gameService.sortOption = isAscending ? SortOption.StateAscending : SortOption.StateDescending;
+                this.gameService.sortOption = isAscending ? SortOption.STATE_ASCENDING : SortOption.STATE_DESCENDING;
                 break;
         }
         this.table.renderRows();

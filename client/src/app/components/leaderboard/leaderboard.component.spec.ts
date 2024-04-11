@@ -5,8 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { SortOption } from '@app/enums/sort-option';
 import { GameService } from '@app/services/game/game.service';
+import { SortOption } from '@common/enums/sort-option';
 import { UserState } from '@common/enums/user-state';
 import { UserStat } from '@common/interfaces/user-stat';
 import { LeaderboardComponent } from './leaderboard.component';
@@ -36,7 +36,7 @@ describe('LeaderboardComponent', () => {
         });
 
         mockUsersStat = [];
-        mockSortOption = SortOption.ScoreAscending;
+        mockSortOption = SortOption.SCORE_ASCENDING;
 
         TestBed.configureTestingModule({
             imports: [
@@ -109,37 +109,37 @@ describe('LeaderboardComponent', () => {
     describe('setOptionSort', () => {
         it('should set game service sort option correctly for user ascending', () => {
             component.setOptionSort({ active: 'username', direction: 'asc' });
-            expect(gameService.sortOption).toEqual(SortOption.UsernameAscending);
+            expect(gameService.sortOption).toEqual(SortOption.USERNAME_ASCENDING);
         });
 
         it('should set game service sort option correctly for user descending', () => {
             component.setOptionSort({ active: 'username', direction: 'desc' });
-            expect(gameService.sortOption).toEqual(SortOption.UsernameDescending);
+            expect(gameService.sortOption).toEqual(SortOption.USERNAME_DESCENDING);
         });
 
         it('should set game service sort option correctly for score ascending', () => {
             component.setOptionSort({ active: 'score', direction: 'asc' });
-            expect(gameService.sortOption).toEqual(SortOption.ScoreAscending);
+            expect(gameService.sortOption).toEqual(SortOption.SCORE_ASCENDING);
         });
 
         it('should set game service sort option correctly for score descending', () => {
             component.setOptionSort({ active: 'score', direction: 'desc' });
-            expect(gameService.sortOption).toEqual(SortOption.ScoreDescending);
+            expect(gameService.sortOption).toEqual(SortOption.SCORE_DESCENDING);
         });
 
         it('should set game service sort option correctly for state ascending', () => {
             component.setOptionSort({ active: 'state', direction: 'asc' });
-            expect(gameService.sortOption).toEqual(SortOption.StateAscending);
+            expect(gameService.sortOption).toEqual(SortOption.STATE_ASCENDING);
         });
 
         it('should set game service sort option correctly for state descending', () => {
             component.setOptionSort({ active: 'state', direction: 'desc' });
-            expect(gameService.sortOption).toEqual(SortOption.StateDescending);
+            expect(gameService.sortOption).toEqual(SortOption.STATE_DESCENDING);
         });
 
         it('should not set game service sort option if sort is not active', () => {
             component.setOptionSort({ active: '', direction: 'asc' });
-            expect(gameService.sortOption).toEqual(SortOption.ScoreAscending);
+            expect(gameService.sortOption).toEqual(SortOption.SCORE_ASCENDING);
         });
     });
 });

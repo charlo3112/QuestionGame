@@ -2,7 +2,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { SortOption } from '@app/enums/sort-option';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
@@ -10,6 +9,7 @@ import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { SortOption } from '@common/enums/sort-option';
 import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
@@ -69,7 +69,7 @@ describe('GameService', () => {
         mockPlay = true;
 
         mockGameSubscriptionService = jasmine.createSpyObj('GameSubscriptionService', ['initSubscriptions', 'reset', 'sortUsers']);
-        mockGameSubscriptionService.sortOption = SortOption.UsernameAscending;
+        mockGameSubscriptionService.sortOption = SortOption.USERNAME_ASCENDING;
         mockGameSubscriptionService.choicesSelected = [false, false, false, false];
         mockGameSubscriptionService.players = new Set();
 
@@ -219,9 +219,9 @@ describe('GameService', () => {
         });
 
         it('should set and get the correct sort option', () => {
-            expect(gameService.sortOption).toBe(SortOption.UsernameAscending);
-            gameService.sortOption = SortOption.ScoreAscending;
-            expect(mockGameSubscriptionService.sortOption).toBe(SortOption.ScoreAscending);
+            expect(gameService.sortOption).toBe(SortOption.USERNAME_ASCENDING);
+            gameService.sortOption = SortOption.SCORE_ASCENDING;
+            expect(mockGameSubscriptionService.sortOption).toBe(SortOption.SCORE_ASCENDING);
             expect(mockGameSubscriptionService.sortUsers).toHaveBeenCalled();
         });
     });

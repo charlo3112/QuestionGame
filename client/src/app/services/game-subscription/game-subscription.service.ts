@@ -1,11 +1,11 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { SortOption } from '@common/enums/sort-option';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Question } from '@common/interfaces/question';
@@ -25,7 +25,7 @@ export class GameSubscriptionService implements OnDestroy {
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
-    sortOption: SortOption = SortOption.UsernameAscending;
+    sortOption: SortOption = SortOption.USERNAME_ASCENDING;
     isValidate: boolean = false;
     state: GameState = GameState.NOT_STARTED;
     private stateSubscription: Subscription;
@@ -94,31 +94,31 @@ export class GameSubscriptionService implements OnDestroy {
         this.usersStat.sort((a, b) => {
             let result = 0;
             switch (this.sortOption) {
-                case SortOption.UsernameAscending:
+                case SortOption.USERNAME_ASCENDING:
                     result = a.username.localeCompare(b.username);
                     break;
-                case SortOption.UsernameDescending:
+                case SortOption.USERNAME_DESCENDING:
                     result = b.username.localeCompare(a.username);
                     break;
-                case SortOption.ScoreAscending:
+                case SortOption.SCORE_ASCENDING:
                     result = a.score - b.score;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.ScoreDescending:
+                case SortOption.SCORE_DESCENDING:
                     result = b.score - a.score;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.StateAscending:
+                case SortOption.STATE_ASCENDING:
                     result = a.state - b.state;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.StateDescending:
+                case SortOption.STATE_DESCENDING:
                     result = b.state - a.state;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
