@@ -15,6 +15,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
@@ -44,10 +46,10 @@ const modules = [
     MatSliderModule,
     MatSlideToggleModule,
     MatSnackBarModule,
-    // MatSortModule,
+    MatSortModule,
     // MatStepperModule,
     // MatTableModule,
-    // MatTabsModule,
+    MatTabsModule,
     MatToolbarModule,
     MatTooltipModule,
 ];
