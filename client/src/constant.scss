@@ -74,4 +74,29 @@ $green-palette: (
     ),
 );
 
+$red-palette: (
+    50: #fce8e6,
+    100: #f8c1c3,
+    200: #f2999b,
+    300: #eb706a,
+    400: #e6453f,
+    500: #d13024,
+    600: #ba1b0e,
+    700: #a3140c,
+    800: #8c0d0a,
+    900: #750700,
+    contrast: (
+        50: rgba(black, 0.87),
+        100: rgba(black, 0.87),
+        200: rgba(black, 0.87),
+        300: white,
+        400: white,
+        500: white,
+        600: white,
+        700: white,
+        800: white,
+        900: white,
+    ),
+);
+
 $wave-color: #0693e3;
