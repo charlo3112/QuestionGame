@@ -47,7 +47,7 @@ describe('ChatGateway', () => {
         stub(socket, 'rooms').value(new Set(['X']));
         server.to.returns({
             emit: (event: string) => {
-                expect(event).toEqual(WebsocketMessage.MessageReceive);
+                expect(event).toEqual(WebsocketMessage.MESSAGE_RECEIVED);
             },
         } as BroadcastOperator<unknown, unknown>);
         roomManagementService.getRoomId.returns('X');

@@ -21,7 +21,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         private readonly logger: Logger,
     ) {}
 
-    @SubscribeMessage(WebsocketMessage.CreateGame)
+    @SubscribeMessage(WebsocketMessage.CREATE_GAME)
     async handleCreateGame(client: Socket, id: string): Promise<User> {
         const game = await this.gamesService.getGameById(id);
         if (!game || !game.visibility) {
@@ -34,7 +34,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return user;
     }
 
-    @SubscribeMessage(WebsocketMessage.CreateGameRandom)
+    @SubscribeMessage(WebsocketMessage.CREATE_GAME_RANDOM)
     async handleCreateGameRandom(client: Socket): Promise<User> {
         const user = await this.roomService.createRandomGame(client.id);
         if (!user.ok) {
@@ -46,7 +46,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return user.value;
     }
 
-    @SubscribeMessage(WebsocketMessage.CreateTest)
+    @SubscribeMessage(WebsocketMessage.CREATE_TEST)
     async handleTestGame(client: Socket, id: string) {
         const game = await this.gamesService.getGameById(id);
         if (!game || !game.visibility) {
@@ -57,38 +57,38 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return user;
     }
 
-    @SubscribeMessage(WebsocketMessage.StartTest)
+    @SubscribeMessage(WebsocketMessage.START_TEST)
     handleStartTest(client: Socket) {
         const activeGame = this.roomService.getActiveGame(client.id);
         activeGame.launchGame();
     }
 
-    @SubscribeMessage(WebsocketMessage.LeaveGame)
+    @SubscribeMessage(WebsocketMessage.LEAVE_GAME)
     handleLeaveGame(client: Socket) {
         this.roomService.performUserRemoval(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.SetChat)
+    @SubscribeMessage(WebsocketMessage.SET_CHAT)
     handleChoice(client: Socket, choice: boolean[]) {
         this.roomService.handleChoice(client.id, choice);
     }
 
-    @SubscribeMessage(WebsocketMessage.ValidateChoice)
+    @SubscribeMessage(WebsocketMessage.VALIDATE_CHOICE)
     handleValidate(client: Socket) {
         this.roomService.validateChoice(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.ToggleGame)
+    @SubscribeMessage(WebsocketMessage.TOGGLE_GAME)
     handleToggleGame(client: Socket, closed: boolean) {
         this.roomService.toggleGameClosed(client.id, closed);
     }
 
-    @SubscribeMessage(WebsocketMessage.Score)
+    @SubscribeMessage(WebsocketMessage.SCORE)
     handleScore(client: Socket): Score {
         return this.roomService.getScore(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.JoinGame)
+    @SubscribeMessage(WebsocketMessage.JOIN_GAME)
     async handleJoinGame(client: Socket, payload: PayloadJoinGame): Promise<Result<GameStatePayload>> {
         const res = this.roomService.joinRoom(client.id, payload.gameCode, payload.username);
         if (res.ok) {
@@ -97,17 +97,17 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return res;
     }
 
-    @SubscribeMessage(WebsocketMessage.IsValidate)
+    @SubscribeMessage(WebsocketMessage.IS_VALIDATE)
     isValidate(client: Socket): boolean {
         return this.roomService.isValidate(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.GetChoice)
+    @SubscribeMessage(WebsocketMessage.GET_CHOICE)
     getChoice(client: Socket): boolean[] {
         return this.roomService.getChoice(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.Rejoin)
+    @SubscribeMessage(WebsocketMessage.REJOIN)
     async handleRejoinGame(client: Socket, user: User): Promise<Result<GameStatePayload>> {
         const res = this.roomService.rejoinRoom(user, client.id);
         if (res.ok) {
@@ -116,37 +116,37 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return res;
     }
 
-    @SubscribeMessage(WebsocketMessage.Confirm)
+    @SubscribeMessage(WebsocketMessage.CONFIRM)
     async launchGame(client: Socket) {
         await this.roomService.confirmAction(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.Ban)
+    @SubscribeMessage(WebsocketMessage.BAN)
     banUser(client: Socket, username: string) {
         this.roomService.banUser(client.id, username);
     }
 
-    @SubscribeMessage(WebsocketMessage.Users)
+    @SubscribeMessage(WebsocketMessage.USERS)
     getUsers(client: Socket): string[] {
         return this.roomService.getUsers(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.Results)
+    @SubscribeMessage(WebsocketMessage.RESULTS)
     showResults(client: Socket) {
         this.roomService.showFinalResults(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.SetChat)
+    @SubscribeMessage(WebsocketMessage.SET_CHAT)
     setChat(client: Socket, payload: SetChatPayload) {
         this.roomService.setChat(client.id, payload.username, payload.value);
     }
 
-    @SubscribeMessage(WebsocketMessage.Pause)
+    @SubscribeMessage(WebsocketMessage.PAUSE)
     togglePause(client: Socket) {
         this.roomService.togglePause(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.Panic)
+    @SubscribeMessage(WebsocketMessage.PANIC)
     startPanicking(client: Socket) {
         this.roomService.startPanicking(client.id);
     }

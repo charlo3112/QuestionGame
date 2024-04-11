@@ -19,7 +19,7 @@ export class ChatGateway {
         this.roomManager.setSystemMessageCallback(this.sendSystemMessage.bind(this));
     }
 
-    @SubscribeMessage(WebsocketMessage.MessageSend)
+    @SubscribeMessage(WebsocketMessage.MESSAGE_SEND)
     handleMessage(client: Socket, message: string): void {
         const roomId = this.roomManager.getRoomId(client.id);
         const name = this.roomManager.getUsername(client.id);
@@ -44,10 +44,10 @@ export class ChatGateway {
         }
         this.roomMessages.get(roomId)?.push(messageToSend);
 
-        this.server.to(roomId).emit(WebsocketMessage.MessageReceive, messageToSend);
+        this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);
     }
 
-    @SubscribeMessage(WebsocketMessage.MessagesGet)
+    @SubscribeMessage(WebsocketMessage.MESSAGES_GET)
     async handleGetMessages(client: Socket): Promise<Message[]> {
         const roomId = this.roomManager.getRoomId(client.id);
         const messages = this.roomMessages.get(roomId) || [];
@@ -66,7 +66,7 @@ export class ChatGateway {
             this.roomMessages.get(roomId)?.push(messageToSend);
         }
 
-        this.server.to(roomId).emit(WebsocketMessage.MessageReceive, messageToSend);
+        this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);
     }
 
     private handleDeleteRoom(roomID: string): void {
