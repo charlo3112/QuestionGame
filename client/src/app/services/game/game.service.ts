@@ -34,7 +34,6 @@ export class GameService {
     get gameTitle(): string {
         return this.gameSubscriptionService.title;
     }
-
     get score(): number {
         return this.gameSubscriptionService.scoreValue;
     }

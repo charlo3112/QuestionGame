@@ -15,7 +15,6 @@ export class PlayerQRLComponent {
     grade: Grade = Grade.Ungraded;
     gradeValue = Grade;
     titleWithoutGrade: string = "Veuillez patienter, votre réponse est en cours d'évaluation";
-    titleWithGrade: string = 'Voici votre note';
 
     constructor(
         readonly gameService: GameService,

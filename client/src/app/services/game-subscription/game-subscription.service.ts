@@ -6,6 +6,7 @@ import { SessionStorageService } from '@app/services/session-storage/session-sto
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
@@ -168,6 +169,8 @@ export class GameSubscriptionService implements OnDestroy {
                 if (this.state === GameState.ShowResults) {
                     this.isTextLocked = false;
                     this.answer = '';
+                } else if (this.state === GameState.AskingQuestion && this.qrlGradedAnswer !== undefined) {
+                    this.qrlGradedAnswer.grade = Grade.Ungraded;
                 }
             },
         });

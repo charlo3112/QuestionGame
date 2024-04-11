@@ -4,7 +4,7 @@
             <section *ngIf="question.type === 'QCM'" id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <section *ngIf="question.type === 'QRL' && !(gameService.currentState === gameState.ShowResults)" id="answer-container">
+            <section *ngIf="question.type === 'QRL' && (gameService.currentState !== gameState.ShowResults && gameService.currentState !== gameState.LastQuestion)" id="answer-container">
                 <div class="text-area-container">
                     <textarea
                         matInput
@@ -18,11 +18,11 @@
                     <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
                 </div>
             </section>
-            <section *ngIf="question.type === 'QRL' && gameService.currentState === gameState.ShowResults">
+            <section *ngIf="(question.type === 'QRL' && (gameService.currentState === gameState.LastQuestion || gameService.currentState === gameState.ShowResults))">
                 <app-player-qrl></app-player-qrl>
             </section>
             <button
-                *ngIf="!(question.type === 'QRL' && gameService.currentState === gameState.ShowResults)"
+                *ngIf="(question.type !== 'QRL' || gameService.currentState === gameState.AskingQuestion)"
                 mat-raised-button
                 id="confirm-button"
                 (click)="confirmAndDisable()"
