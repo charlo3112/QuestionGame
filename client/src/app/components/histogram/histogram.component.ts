@@ -63,7 +63,7 @@ export class HistogramComponent {
         return this.gameService.histogram.choicesCounters[this.indexQuestion][this.getChoiceIndex(choice)];
     }
     getActive(): number {
-        return 4;
+        return 2;
     }
     getInactive(): number {
         return 2;
@@ -77,7 +77,6 @@ export class HistogramComponent {
             return 0;
         } else {
             if (this.gameService.qrlResultData[this.indexQuestionDisplayed] !== undefined) {
-                console.log('rentre dans le if');
                 return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.Zero).length;
             }
             return 0;
