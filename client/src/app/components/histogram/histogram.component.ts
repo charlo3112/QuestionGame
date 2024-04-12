@@ -18,7 +18,6 @@ export class HistogramComponent {
     @Input() showArrows: boolean = true;
     indexQuestionDisplayed: number = 0;
     questionType = QuestionType;
-    questionType = QuestionType;
 
     constructor(readonly gameService: GameService) {}
 
