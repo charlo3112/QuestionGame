@@ -16,8 +16,8 @@ import { GameSubscriptionService } from '@app/services/game-subscription/game-su
 import { GameService } from '@app/services/game/game.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
+import { QuestionType } from '@common/enums/question-type';
 import { Question } from '@common/interfaces/question';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'app-question',
@@ -42,11 +42,8 @@ import { Subscription } from 'rxjs';
 })
 export class QuestionComponent {
     @Input() question: Question;
-    gameStateSubscription: Subscription;
     isChatFocused: boolean = false;
-    buttonDisabled: boolean = false;
     gameState = GameState;
-    changesCounter: number = 0;
 
     // we need all 4 parameters
     // eslint-disable-next-line max-params
@@ -79,7 +76,7 @@ export class QuestionComponent {
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
-            if (this.gameService.currentQuestion?.type === 'QRL') {
+            if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
                 this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
                 this.gameSubscriptionService.isTextLocked = true;
             }

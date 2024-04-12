@@ -78,7 +78,7 @@ export class AdminGameViewComponent implements OnInit {
             this.currentQuestion = this.gameService.currentQuestion;
         }
         this.websocketService.getState().subscribe(async (statePayload: GameStatePayload) => {
-            if (statePayload.state === GameState.ShowResults && this.gameService.currentQuestion?.type === 'QRL') {
+            if (statePayload.state === GameState.ShowResults && this.gameService.currentQuestion?.type === QuestionType.QRL) {
                 this.qrlAnswers = await this.gameService.getQrlAnswers();
                 this.readyForGrading = true;
             } else this.readyForGrading = false;

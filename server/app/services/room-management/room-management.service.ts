@@ -1,5 +1,3 @@
-// We need every lines in this class for the service to work
-/* eslint-disable max-lines */
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';

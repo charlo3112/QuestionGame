@@ -66,7 +66,7 @@ export class ValidationService {
             errors.push('La question doit avoir un type valide.');
         }
 
-        if (question.type === 'QCM') this.checkQCM(question, errors);
+        if (question.type === QuestionType.QCM) this.checkQCM(question, errors);
 
         return errors;
     }

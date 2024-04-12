@@ -10,7 +10,7 @@
         <app-chat></app-chat>
         <div class="flex">
             <button mat-raised-button (click)="nextStep()" color="primary" [disabled]="!this.enableNextStepButton()">{{ buttonText }}</button>
-            <button mat-raised-button (click)="togglePause()" color="primary">{{gameService.pause ? 'Play' : 'Pause'}}</button>
+            <button mat-raised-button (click)="togglePause()" color="primary" [disabled]="!canPause()">{{gameService.pause ? 'Play' : 'Pause'}}</button>
             <button mat-raised-button (click)="startPanicking()" color="warn" [disabled]="!canPanic()">ACTIVER LA PANIQUE!</button>
         </div>
     </div>

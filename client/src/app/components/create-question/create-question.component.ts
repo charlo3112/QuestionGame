@@ -91,7 +91,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
 
     addToQuestionBank() {
         const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
-        if (this.questionType === 'QRL') this.choices = [];
+        if (this.questionType === QuestionType.QRL) this.choices = [];
         this.createQuestionService
             .addToQuestionBank(this.questionName, this.questionPoints, this.choices, this.questionType)
             .then((newQuestion) => {
