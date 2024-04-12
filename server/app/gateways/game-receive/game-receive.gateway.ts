@@ -68,7 +68,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.performUserRemoval(client.id);
     }
 
-    @SubscribeMessage(WebsocketMessage.SET_CHAT)
+    @SubscribeMessage(WebsocketMessage.SEND_CHOICE)
     handleChoice(client: Socket, choice: boolean[]) {
         this.roomService.handleChoice(client.id, choice);
     }

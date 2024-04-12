@@ -282,7 +282,7 @@ export class ActiveGame {
         } else if (this.users.hostIsPlaying) {
             await this.timer.start(TIME_CONFIRM_S);
             ++this.questionIndex;
-            await this.askQuestion();
+            this.askQuestion();
         }
     }
 
