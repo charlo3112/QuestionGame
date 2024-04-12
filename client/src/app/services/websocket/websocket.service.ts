@@ -181,7 +181,6 @@ export class WebSocketService {
     getQrlGradedAnswers(): Observable<QrlAnswer> {
         return this.qrlGradedAnswersSubject.asObservable();
     }
-
     getTime(): Observable<TimeData> {
         return this.timeSubject.asObservable();
     }

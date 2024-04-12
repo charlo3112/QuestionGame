@@ -1,4 +1,5 @@
 /*
+/*
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
@@ -56,6 +57,10 @@ describe('AdminGameViewComponent', () => {
         Object.defineProperty(mockGameService, 'time', {
             get: jasmine.createSpy('time.get').and.callFake(() => mockTime),
         });
+        Object.defineProperty(mockGameService, 'currentState', {
+            get: jasmine.createSpy('currentState.get').and.callFake(() => mockCurrentState),
+        });
+        mockCurrentState = GameState.ASKING_QUESTION;
         mockWebSocketService.getMessage.and.returnValue(of(mockMessage));
         mockWebSocketService.getState.and.returnValue(of(mockGameStatePayloadString));
         TestBed.configureTestingModule({

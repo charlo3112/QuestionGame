@@ -2,6 +2,7 @@
     <div id="bottom-container">
         <div id="left-container">
             <section *ngIf="question.type === 'QCM'" id="answer-container">
+            <section *ngIf="question.type === 'QCM'" id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
             <section

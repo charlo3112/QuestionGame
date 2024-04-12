@@ -44,7 +44,6 @@ export class GameSubscriptionService implements OnDestroy {
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
     private qrlResultDataSubscription: Subscription;
-
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
     constructor(
@@ -61,6 +60,8 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToHistogramData();
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
+        this.subscribeToQrlGradedAnswer();
+        this.subscribeToQrlResultData();
         this.subscribeToQrlGradedAnswer();
         this.subscribeToQrlResultData();
     }
