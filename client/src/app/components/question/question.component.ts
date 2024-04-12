@@ -25,7 +25,6 @@ export class QuestionComponent {
     @Input() question: Question;
     isChatFocused: boolean = false;
     gameState = GameState;
-    gameState = GameState;
 
     // we need all 4 parameters
     // eslint-disable-next-line max-params
@@ -33,7 +32,6 @@ export class QuestionComponent {
     // eslint-disable-next-line max-params
     constructor(
         readonly gameService: GameService,
-        public gameSubscriptionService: GameSubscriptionService,
         public gameSubscriptionService: GameSubscriptionService,
         private readonly router: Router,
         private readonly sessionStorageService: SessionStorageService,
