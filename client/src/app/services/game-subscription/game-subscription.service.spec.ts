@@ -32,6 +32,8 @@ describe('GameSubscriptionService', () => {
         grade: Grade.Ungraded,
     };
     const mockQrlResultData: Record<number, QrlAnswer[]> = {
+        // We need to have this value in the dictionary to make the test run
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         0: [mockQrlAnswer],
     };
 
