@@ -58,9 +58,12 @@ export class QuestionService {
                 if (!(await this.validateQuestion(questionData))) {
                     return Promise.reject('The question data is invalid');
                 }
-            } else if (await this.questionModel.findOne({ text: questionData.text })) {
+            }
+            const existingQuestion = await this.questionModel.findOne({ text: questionData.text });
+            if (existingQuestion) {
                 return Promise.reject('A similar question already exists');
             }
+
             const question = new QuestionData(questionData);
             await this.questionModel.create(question);
         } catch (error) {
