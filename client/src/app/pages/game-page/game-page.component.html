@@ -17,7 +17,3 @@
 <app-countdown *ngIf="isStartingGame()"></app-countdown>
 <app-question *ngIf="question && this.gameService.isPlaying" [question]="question!" tabindex="0"></app-question>
 <app-admin-game-view *ngIf="question && !gameService.isPlaying" class="admin-view" (answersCorrected)="qrlCorrected = true"></app-admin-game-view>
-
-<div *ngIf="showButton()" class="center">
-    <button mat-raised-button (click)="nextStep(); alreadyClicked = true" color="primary">{{ buttonText }}</button>
-</div>

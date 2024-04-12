@@ -27,13 +27,14 @@
                 id="confirm-button"
                 (click)="confirmAndDisable()"
                 color="primary"
-                [disabled]="gameService.isValidationDisabled"
+                [disabled]="!this.canValidate()"
             >
                 Confirmer
             </button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
+            <button *ngIf="this.showButtonResult()" mat-raised-button (click)="nextStep()" color="primary">Résultats</button>
         </div>
     </div>
     <div class="bottom" [ngStyle]="{ 'bottom.%': (-gameService.time / gameService.maxTime) * 85 - 15 }"></div>

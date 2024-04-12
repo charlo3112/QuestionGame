@@ -6,6 +6,8 @@ import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
+import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 
 const mockQuestion = {
@@ -26,20 +28,34 @@ describe('Question', () => {
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let gameSubscriptionServiceSpy: jasmine.SpyObj<GameSubscriptionService>;
 
+    let sessionServiceSpy: jasmine.SpyObj<SessionStorageService>;
+
+    let mockTest: boolean;
+    let mockState: GameState;
+    let mockHost: boolean;
+
     beforeEach(async () => {
+        sessionServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test']);
+        Object.defineProperty(sessionServiceSpy, 'test', { get: () => mockTest });
         gameServiceSpy = jasmine.createSpyObj('GameService', [
             'confirmQuestion',
             'selectChoice',
             'isChoiceCorrect',
             'isChoiceIncorrect',
             'isChoiceSelected',
+            'nextStep',
+            'nextQuestion',
+            'showFinalResults',
         ]);
+        Object.defineProperty(gameServiceSpy, 'currentState', { get: () => mockState });
+        Object.defineProperty(gameServiceSpy, 'isHost', { get: () => mockHost });
         gameSubscriptionServiceSpy = jasmine.createSpyObj('GameSubscriptionService', ['getGame', 'isTextLocked']);
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: GameSubscriptionService, useValue: gameSubscriptionServiceSpy },
+                { provide: SessionStorageService, useValue: sessionServiceSpy },
             ],
         }).compileComponents();
     });
@@ -51,6 +67,7 @@ describe('Question', () => {
         fixture.detectChanges();
         router = TestBed.inject(Router);
         router.initialNavigation();
+        spyOn(router, 'navigate');
     });
 
     it('should create', () => {
@@ -85,5 +102,39 @@ describe('Question', () => {
     it('should call confirmQuestion and disable the button when confirmAndDisable is called and buttonDisabled is false', () => {
         component.confirmAndDisable();
         expect(gameServiceSpy.confirmQuestion).toHaveBeenCalled();
+    });
+
+    it('should redirect to /new when nextStep is called and game is in LastQuestion state', () => {
+        mockTest = true;
+        mockState = GameState.LastQuestion;
+        component.nextStep();
+        expect(router.navigate).toHaveBeenCalledWith(['/new']);
+    });
+
+    describe('showButtonResult', () => {
+        it('should return false if game is not in LastQuestion state', () => {
+            mockState = GameState.AskingQuestion;
+            expect(component.showButtonResult()).toBeFalse();
+        });
+
+        it('should return false if user is not host', () => {
+            mockState = GameState.LastQuestion;
+            mockHost = false;
+            expect(component.showButtonResult()).toBeFalse();
+        });
+
+        it('should return false if test is false', () => {
+            mockState = GameState.LastQuestion;
+            mockHost = true;
+            mockTest = false;
+            expect(component.showButtonResult()).toBeFalse();
+        });
+
+        it('should return true', () => {
+            mockState = GameState.LastQuestion;
+            mockHost = true;
+            mockTest = true;
+            expect(component.showButtonResult()).toBeTrue();
+        });
     });
 });

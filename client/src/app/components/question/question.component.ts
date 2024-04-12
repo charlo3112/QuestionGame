@@ -7,13 +7,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { PlayerQRLComponent } from '@app/components/player-qrl/player-qrl.component';
 import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
+import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
 import { Question } from '@common/interfaces/question';
 import { Subscription } from 'rxjs';
@@ -47,9 +48,13 @@ export class QuestionComponent {
     gameState = GameState;
     changesCounter: number = 0;
 
+    // we need all 4 parameters
+    // eslint-disable-next-line max-params
     constructor(
         readonly gameService: GameService,
         public gameSubscriptionService: GameSubscriptionService,
+        private readonly router: Router,
+        private readonly sessionStorageService: SessionStorageService,
     ) {}
 
     @HostListener('keydown', ['$event'])
@@ -67,6 +72,10 @@ export class QuestionComponent {
         }
     }
 
+    showButtonResult() {
+        return this.gameService.currentState === GameState.LastQuestion && this.gameService.isHost && this.sessionStorageService.test;
+    }
+
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
@@ -74,6 +83,16 @@ export class QuestionComponent {
                 this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
                 this.gameSubscriptionService.isTextLocked = true;
             }
+        }
+    }
+
+    canValidate(): boolean {
+        return this.gameService.currentState === GameState.AskingQuestion && !this.gameService.isValidationDisabled;
+    }
+
+    nextStep(): void {
+        if (this.gameService.currentState === GameState.LastQuestion && this.sessionStorageService.test) {
+            this.router.navigate(['/new']);
         }
     }
 
