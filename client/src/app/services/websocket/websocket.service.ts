@@ -5,6 +5,7 @@ import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
@@ -26,12 +27,14 @@ export class WebSocketService {
     private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
+    private qrlGradedAnswersSubject: Subject<QrlAnswer> = new Subject<QrlAnswer>();
     private timeSubject: Subject<TimeData> = new Subject<TimeData>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
     private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
+    private qrlResultDataSubject: Subject<Record<number, QrlAnswer[]>> = new Subject<Record<number, QrlAnswer[]>>();
 
     constructor() {
         this.connect();
@@ -70,8 +73,16 @@ export class WebSocketService {
         this.socket.emit(WebsocketMessage.SEND_CHOICE, choice);
     }
 
+    sendAnswers(answers: QrlAnswer[]) {
+        this.socket.emit('game:qrl-answers', answers);
+    }
+
     validateChoice(): void {
         this.socket.emit(WebsocketMessage.VALIDATE_CHOICE);
+    }
+
+    sendQrlAnswer(answer: QrlAnswer): void {
+        this.socket.emit('game:qrl-answer', answer);
     }
 
     leaveRoom(): void {
@@ -98,6 +109,14 @@ export class WebSocketService {
         return new Promise<boolean[]>((resolve) => {
             this.socket.emit(WebsocketMessage.GET_CHOICE, (choice: boolean[]) => {
                 resolve(choice);
+            });
+        });
+    }
+
+    async getQrlAnswers(): Promise<QrlAnswer[]> {
+        return new Promise<QrlAnswer[]>((resolve) => {
+            this.socket.emit('game:getQrlAnswers', (answers: QrlAnswer[]) => {
+                resolve(answers);
             });
         });
     }
@@ -159,6 +178,10 @@ export class WebSocketService {
         return this.userUpdateSubject.asObservable();
     }
 
+    getQrlGradedAnswers(): Observable<QrlAnswer> {
+        return this.qrlGradedAnswersSubject.asObservable();
+    }
+
     getTime(): Observable<TimeData> {
         return this.timeSubject.asObservable();
     }
@@ -169,6 +192,10 @@ export class WebSocketService {
 
     getHistogramData(): Observable<HistogramData> {
         return this.histogramDataSubject.asObservable();
+    }
+
+    getQrlResultData(): Observable<Record<number, QrlAnswer[]>> {
+        return this.qrlResultDataSubject.asObservable();
     }
 
     getAlert(): Observable<string> {
@@ -227,6 +254,8 @@ export class WebSocketService {
         this.listenForHistogramData();
         this.listenForAlert();
         this.listenForUserGameInfo();
+        this.listenForQrlResultData();
+        this.listenForQrlGradedAnswer();
     }
 
     private listenForClosedConnection() {
@@ -271,9 +300,21 @@ export class WebSocketService {
         });
     }
 
+    private listenForQrlGradedAnswer() {
+        this.socket.on('game:qrl-graded-answer', (qrlAnswer: QrlAnswer) => {
+            this.qrlGradedAnswersSubject.next(qrlAnswer);
+        });
+    }
+
     private listenForHistogramData() {
         this.socket.on(WebsocketMessage.HISTOGRAM_DATA, (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
+        });
+    }
+
+    private listenForQrlResultData() {
+        this.socket.on('game:qrl-result-data', (qrlResultData: Record<number, QrlAnswer[]>) => {
+            this.qrlResultDataSubject.next(qrlResultData);
         });
     }
 

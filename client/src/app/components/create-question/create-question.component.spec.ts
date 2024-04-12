@@ -250,6 +250,7 @@ describe('CreateQuestionComponent', () => {
         component.questionName = mockValidQuestion.text;
         component.questionPoints = mockValidQuestion.points;
         component.choices = mockValidQuestion.choices;
+        component.questionType = QuestionType.QCM;
         createQuestionServiceSpy.choiceVerif.and.returnValue(true);
         component.save();
         expect(component.questionCreated.emit).toHaveBeenCalledWith({

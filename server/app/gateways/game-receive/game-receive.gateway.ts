@@ -3,6 +3,7 @@ import { RoomManagementService } from '@app/services/room-management/room-manage
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
@@ -77,6 +78,15 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     handleValidate(client: Socket) {
         this.roomService.validateChoice(client.id);
     }
+    @SubscribeMessage('game:qrl-answers')
+    handleAnswers(client: Socket, answers: QrlAnswer[]) {
+        this.roomService.handleAnswers(client.id, answers);
+    }
+
+    @SubscribeMessage('game:qrl-answer')
+    handleQrlAnswer(client: Socket, answer: QrlAnswer) {
+        this.roomService.handleQrlAnswer(client.id, answer);
+    }
 
     @SubscribeMessage(WebsocketMessage.TOGGLE_GAME)
     handleToggleGame(client: Socket, closed: boolean) {
@@ -114,6 +124,10 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
             client.join(user.roomId);
         }
         return res;
+    }
+    @SubscribeMessage('game:getQrlAnswers')
+    getQrlAnswers(client: Socket): QrlAnswer[] {
+        return this.roomService.getQrlAnswers(client.id);
     }
 
     @SubscribeMessage(WebsocketMessage.CONFIRM)
