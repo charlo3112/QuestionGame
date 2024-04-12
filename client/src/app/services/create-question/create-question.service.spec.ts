@@ -88,6 +88,7 @@ describe('CreateQuestionService', () => {
     it('should add a question to the bank if input is valid', async () => {
         const questionName = 'Test question';
         const questionPoints = 10;
+        const questionType = QuestionType.QCM;
         const choices: Choice[] = [
             { text: 'Choice 1', isCorrect: true },
             { text: 'Choice 2', isCorrect: false },
@@ -102,7 +103,7 @@ describe('CreateQuestionService', () => {
         const mockResponse = new HttpResponse({ body: question, status: RESPONSE_CREATED });
         communicationServiceSpy.addQuestion.and.returnValue(of(mockResponse));
 
-        const result = await createQuestionService.addToQuestionBank(questionName, questionPoints, choices);
+        const result = await createQuestionService.addToQuestionBank(questionName, questionPoints, choices, questionType);
 
         expect(result).not.toBeNull();
         expect(result?.text).toEqual(questionName);
@@ -113,9 +114,10 @@ describe('CreateQuestionService', () => {
     it('should return null if input is invalid', async () => {
         const questionName = '';
         const questionPoints = 10;
+        const questionType = QuestionType.QCM;
         const choices: Choice[] = [];
 
-        const result = await createQuestionService.addToQuestionBank(questionName, questionPoints, choices);
+        const result = await createQuestionService.addToQuestionBank(questionName, questionPoints, choices, questionType);
 
         expect(result).toBeNull();
     });
@@ -123,13 +125,14 @@ describe('CreateQuestionService', () => {
     it('should reject if communicationService.addQuestion fails', async () => {
         const questionName = 'Test question';
         const questionPoints = 10;
+        const questionType = QuestionType.QCM;
         const choices: Choice[] = [
             { text: 'Choice 1', isCorrect: true },
             { text: 'Choice 2', isCorrect: false },
         ];
 
         communicationServiceSpy.addQuestion.and.returnValue(throwError(() => new HttpResponse({ status: HttpStatusCode.Unauthorized })));
-        await expectAsync(createQuestionService.addToQuestionBank(questionName, questionPoints, choices)).toBeRejected();
+        await expectAsync(createQuestionService.addToQuestionBank(questionName, questionPoints, choices, questionType)).toBeRejected();
     });
 
     it('should return false and call openSnackBar with "Le champ Question ne peut pas être vide." if questionName is empty', () => {
@@ -171,6 +174,7 @@ describe('CreateQuestionService', () => {
     it('should resolve the promise when modification is successful', async () => {
         const questionName = 'Test question';
         const questionPoints = 10;
+        const questionType = QuestionType.QCM;
         const choices: Choice[] = [
             { text: 'Choice 1', isCorrect: false },
             { text: 'Choice 2', isCorrect: true },
@@ -178,12 +182,13 @@ describe('CreateQuestionService', () => {
         const questionMongoId = 'mongoId123';
         const mockResponse = new HttpResponse<QuestionWithModificationDate>({ status: HttpStatusCode.Ok });
         communicationServiceSpy.modifyQuestion.and.returnValue(of(mockResponse));
-        await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId)).toBeResolved();
+        await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId, questionType)).toBeResolved();
     });
 
     it('should reject if communicationService.modifyQuestion fails', async () => {
         const questionName = 'Test question';
         const questionPoints = 10;
+        const questionType = QuestionType.QCM;
         const choices: Choice[] = [
             { text: 'Choice 1', isCorrect: true },
             { text: 'Choice 2', isCorrect: false },
@@ -192,7 +197,7 @@ describe('CreateQuestionService', () => {
 
         const errorResponse = new HttpResponse({ status: HttpStatusCode.BadRequest });
         communicationServiceSpy.modifyQuestion.and.returnValue(throwError(() => errorResponse));
-        await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId)).toBeRejected();
+        await expectAsync(createQuestionService.editQuestion(questionName, questionPoints, choices, questionMongoId, questionType)).toBeRejected();
     });
 
     it('should return true if there are both correct and incorrect choices', () => {

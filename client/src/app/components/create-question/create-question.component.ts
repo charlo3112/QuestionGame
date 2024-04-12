@@ -33,6 +33,8 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     editArray: boolean[] = [];
     choiceValue: boolean[] = [];
     questionToDelete: string = '';
+    questionType: QuestionType;
+    questionTypeOptions: QuestionType[] = [QuestionType.QRL, QuestionType.QCM];
 
     weights = WEIGHTS_QUESTIONS;
 
@@ -67,8 +69,9 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
 
     addToQuestionBank() {
         const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
+        if (this.questionType === QuestionType.QRL) this.choices = [];
         this.createQuestionService
-            .addToQuestionBank(this.questionName, this.questionPoints, this.choices)
+            .addToQuestionBank(this.questionName, this.questionPoints, this.choices, this.questionType)
             .then((newQuestion) => {
                 if (newQuestion) {
                     this.questionCreated.emit(newQuestion);
@@ -100,7 +103,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         if (this.questionToDelete.length) {
             this.communicationService
                 .modifyQuestion({
-                    type: QuestionType.QCM,
+                    type: this.questionType,
                     text: this.questionName,
                     points: this.questionPoints,
                     choices: this.choices,
@@ -125,6 +128,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         this.questionName = question.text;
         this.questionPoints = question.points;
         this.choices = [...question.choices];
+        this.questionType = question.type;
         this.questionToDelete = question.text;
     }
 
@@ -141,9 +145,20 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     }
 
     save() {
-        if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+        if (this.questionType === QuestionType.QCM) {
+            if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+                const newQuestion: Question = {
+                    type: this.questionType,
+                    text: this.questionName,
+                    points: this.questionPoints,
+                    choices: this.choices,
+                };
+                this.questionCreated.emit(newQuestion);
+                this.resetForm();
+            }
+        } else if (this.questionType === QuestionType.QRL) {
             const newQuestion: Question = {
-                type: QuestionType.QCM,
+                type: this.questionType,
                 text: this.questionName,
                 points: this.questionPoints,
                 choices: this.choices,

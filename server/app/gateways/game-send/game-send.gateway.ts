@@ -1,6 +1,7 @@
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { TimeData } from '@common/interfaces/time-data';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
@@ -44,6 +45,14 @@ export class GameGatewaySend {
 
     sendUsersStatUpdate(userId: string, usersStat: UserStat[]): void {
         this.server.to(userId).emit(WebsocketMessage.USER_STAT, usersStat);
+    }
+
+    sendQrlResultData(roomId: string, qrlResultData: Record<number, QrlAnswer[]>): void {
+        this.server.to(roomId).emit('game:qrl-result-data', qrlResultData);
+    }
+
+    sendQrlGradedAnswer(userId: string, qrlAnswer: QrlAnswer): void {
+        this.server.to(userId).emit('game:qrl-graded-answer', qrlAnswer);
     }
 
     sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {

@@ -16,4 +16,4 @@
 
 <app-countdown *ngIf="isStartingGame()"></app-countdown>
 <app-question *ngIf="question && this.gameService.isPlaying" [question]="question!" tabindex="0"></app-question>
-<app-admin-game-view *ngIf="question && !gameService.isPlaying" class="admin-view"></app-admin-game-view>
+<app-admin-game-view *ngIf="question && !gameService.isPlaying" class="admin-view" (answersCorrected)="qrlCorrected = true"></app-admin-game-view>

@@ -1,5 +1,6 @@
 import { HOST_NAME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 
@@ -10,6 +11,7 @@ export class UserData {
     private bonus: number;
     private roomId: string;
     private choice: boolean[] | undefined;
+    private answerQrl: QrlAnswer | undefined;
     private timeValidate: number | undefined;
     private isBonus: boolean;
     private state: UserState;
@@ -83,6 +85,10 @@ export class UserData {
     set newChoice(choice: boolean[]) {
         this.choice = choice;
         this.state = UserState.FIRST_INTERACTION;
+    }
+
+    set newAnswer(answer: QrlAnswer) {
+        this.answerQrl = answer;
     }
 
     set validate(time: number) {

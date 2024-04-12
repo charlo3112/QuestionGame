@@ -5,10 +5,12 @@ import { Users } from '@app/model/classes/users/users';
 import { GameData } from '@app/model/database/game';
 import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
-import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, QRL_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 
@@ -24,6 +26,8 @@ export class ActiveGame {
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
+    private qrlAnswers: QrlAnswer[] = [];
+    private qrlResultData: Record<number, QrlAnswer[]> = {};
 
     // Every line is needed
     // eslint-disable-next-line max-params
@@ -118,12 +122,20 @@ export class ActiveGame {
         return this.users.getChoice(userId);
     }
 
+    getQrlAnswers(): QrlAnswer[] {
+        return this.qrlAnswers;
+    }
+
     getScore(userId: string): Score {
         return this.users.getScore(userId);
     }
 
     getUser(userId: string): UserData {
         return this.users.getUser(userId);
+    }
+
+    getQRLResultData(): Record<number, QrlAnswer[]> {
+        return this.qrlResultData;
     }
 
     handleChoice(userId: string, choice: boolean[]): void {
@@ -133,6 +145,17 @@ export class ActiveGame {
         this.users.handleChoice(userId, choice);
 
         this.sendUserSelectedChoice();
+    }
+
+    handleAnswers(userId: string, answers: QrlAnswer[]): void {
+        this.users.handleAnswers(userId, answers, this.currentQuestionWithAnswer.points);
+        this.qrlAnswers = answers;
+        this.qrlResultData[this.questionIndex] = answers;
+        this.gameGateway.sendQrlResultData(this.roomId, this.qrlResultData);
+    }
+
+    handleQrlAnswer(userId: string, answer: QrlAnswer): void {
+        this.qrlAnswers.push(answer);
     }
 
     isValidate(userId: string): boolean {
@@ -248,13 +271,18 @@ export class ActiveGame {
     }
 
     async askQuestion(): Promise<void> {
+        this.qrlAnswers = [];
         if (!this.isActive) return;
         this.histogramData.indexCurrentQuestion = this.questionIndex;
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
         this.users.resetAnswers();
         this.advanceState(GameState.ASKING_QUESTION);
-        await this.timer.start(this.game.duration);
+        if (this.currentQuestionWithoutAnswer.type === QuestionType.QCM) {
+            await this.timer.start(this.game.duration);
+        } else if (this.currentQuestionWithoutAnswer.type === QuestionType.QRL) {
+            await this.timer.start(QRL_TIME);
+        }
         this.timer.panic = false;
         if (!this.isActive) return;
 

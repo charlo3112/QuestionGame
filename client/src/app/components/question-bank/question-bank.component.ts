@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
@@ -13,7 +14,7 @@ import { Result } from '@common/interfaces/result';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [AppMaterialModule, CommonModule, RouterLink, CreateQuestionComponent],
+    imports: [CommonModule, RouterLink, FormsModule, CreateQuestionComponent, AppMaterialModule],
     standalone: true,
 })
 export class QuestionBankComponent implements OnInit {
@@ -23,9 +24,16 @@ export class QuestionBankComponent implements OnInit {
     @Output() formClosed: EventEmitter<void> = new EventEmitter<void>();
     @Output() sendQuestionSelected: EventEmitter<Question> = new EventEmitter<Question>();
 
-    questionsWithModificationDate: QuestionWithModificationDate[] = [];
+    questions: QuestionWithModificationDate[] = [];
+    displayedQuestions: QuestionWithModificationDate[] = [];
     highlightedQuestion: QuestionWithModificationDate | null;
     questionToAdd: Question = QUESTIONS_PLACEHOLDER[0];
+    sortOptions = [
+        { value: 'all', label: 'Tous' },
+        { value: 'QCM', label: 'QCM' },
+        { value: 'QRL', label: 'QRL' },
+    ];
+    selectedSort: string = 'all';
 
     constructor(
         private readonly communicationService: CommunicationService,
@@ -44,12 +52,13 @@ export class QuestionBankComponent implements OnInit {
                 if (!response.ok) {
                     throw new Error(ERROR_FETCHING_QUESTIONS);
                 }
-                this.questionsWithModificationDate = response.value;
-                this.questionsWithModificationDate.sort((a, b) => {
+                this.questions = response.value;
+                this.questions.sort((a, b) => {
                     const dateA = new Date(a.lastModification);
                     const dateB = new Date(b.lastModification);
                     return dateB.getTime() - dateA.getTime();
                 });
+                this.displayedQuestions = [...this.questions];
             },
             error: () => {
                 throw new Error(ERROR_FETCHING_QUESTIONS);
@@ -72,6 +81,12 @@ export class QuestionBankComponent implements OnInit {
             });
         }
     }
+    filterQuestionsByType() {
+        this.displayedQuestions = [...this.questions];
+        if (this.selectedSort !== 'all') {
+            this.displayedQuestions = this.displayedQuestions.filter((question) => question.type === this.selectedSort);
+        }
+    }
     calculateTime(lastModification: Date): string {
         const lastModificationDate = new Date(lastModification);
         const now = new Date();
@@ -92,7 +107,7 @@ export class QuestionBankComponent implements OnInit {
     deleteQuestion(questionMongoId: string) {
         this.communicationService.deleteQuestion(questionMongoId).subscribe({
             next: () => {
-                this.questionsWithModificationDate = this.questionsWithModificationDate.filter((question) => question.mongoId !== questionMongoId);
+                this.questions = this.questions.filter((question) => question.mongoId !== questionMongoId);
             },
             error: () => {
                 throw new Error('Error deleting question');
@@ -110,11 +125,11 @@ export class QuestionBankComponent implements OnInit {
     }
 
     insertQuestion(question: QuestionWithModificationDate) {
-        const index = this.questionsWithModificationDate.findIndex((q) => q.text === question.text);
+        const index = this.questions.findIndex((q) => q.text === question.text);
         if (index > NOT_FOUND) {
-            this.questionsWithModificationDate[index] = question;
+            this.questions[index] = question;
         } else {
-            this.questionsWithModificationDate.push(question);
+            this.questions.push(question);
         }
         this.showChildren = false;
     }
