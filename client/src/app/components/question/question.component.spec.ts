@@ -101,32 +101,32 @@ describe('Question', () => {
 
     it('should redirect to /new when nextStep is called and game is in LastQuestion state', () => {
         mockTest = true;
-        mockState = GameState.LastQuestion;
+        mockState = GameState.LAST_QUESTION;
         component.nextStep();
         expect(router.navigate).toHaveBeenCalledWith(['/new']);
     });
 
     describe('showButtonResult', () => {
         it('should return false if game is not in LastQuestion state', () => {
-            mockState = GameState.AskingQuestion;
+            mockState = GameState.ASKING_QUESTION;
             expect(component.showButtonResult()).toBeFalse();
         });
 
         it('should return false if user is not host', () => {
-            mockState = GameState.LastQuestion;
+            mockState = GameState.LAST_QUESTION;
             mockHost = false;
             expect(component.showButtonResult()).toBeFalse();
         });
 
         it('should return false if test is false', () => {
-            mockState = GameState.LastQuestion;
+            mockState = GameState.LAST_QUESTION;
             mockHost = true;
             mockTest = false;
             expect(component.showButtonResult()).toBeFalse();
         });
 
         it('should return true', () => {
-            mockState = GameState.LastQuestion;
+            mockState = GameState.LAST_QUESTION;
             mockHost = true;
             mockTest = true;
             expect(component.showButtonResult()).toBeTrue();
