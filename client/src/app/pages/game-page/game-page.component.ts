@@ -38,6 +38,7 @@ import { Question } from '@common/interfaces/question';
     ],
 })
 export class GamePageComponent implements OnInit {
+    qrlCorrected: boolean = false;
     constructor(
         private readonly dialog: MatDialog,
         readonly gameService: GameService,

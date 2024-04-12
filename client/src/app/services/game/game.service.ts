@@ -9,8 +9,10 @@ import { TimeService } from '@app/services/time/time.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { Game } from '@common/interfaces/game';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { UserStat } from '@common/interfaces/user-stat';
@@ -32,7 +34,6 @@ export class GameService {
     get gameTitle(): string {
         return this.gameSubscriptionService.title;
     }
-
     get score(): number {
         return this.gameSubscriptionService.scoreValue;
     }
@@ -85,12 +86,25 @@ export class GameService {
         return 'Vous avez un bonus!';
     }
 
+    get qrlResultData(): Record<number, QrlAnswer[]> {
+        return this.gameSubscriptionService.qrlResultData;
+    }
+
     get histogram(): HistogramData {
         return this.gameSubscriptionService.histogramData;
     }
 
     get usernameValue(): string {
         return this.sessionStorageService.username;
+    }
+
+    get grade(): Grade {
+        if (this.roomCodeValue.startsWith('test')) {
+            return Grade.One;
+        }
+        if (this.gameSubscriptionService.qrlGradedAnswer !== undefined) {
+            return this.gameSubscriptionService.qrlGradedAnswer.grade;
+        } else return Grade.Ungraded;
     }
 
     get roomCodeValue(): string {
@@ -115,6 +129,10 @@ export class GameService {
     set sortOption(option: SortOption) {
         this.gameSubscriptionService.sortOption = option;
         this.gameSubscriptionService.sortUsers();
+    }
+
+    async getQrlAnswers(): Promise<QrlAnswer[]> {
+        return await this.websocketService.getQrlAnswers();
     }
 
     setChat(username: string, value: boolean): void {
@@ -146,6 +164,10 @@ export class GameService {
     onKickPlayer(player: string) {
         this.gameSubscriptionService.players.delete(player);
         this.websocketService.banUser(player);
+    }
+
+    sendGrades(answers: QrlAnswer[]) {
+        this.websocketService.sendAnswers(answers);
     }
 
     leaveRoom() {
@@ -193,6 +215,15 @@ export class GameService {
         if (this.gameSubscriptionService.state === GameState.AskingQuestion) {
             this.websocketService.validateChoice();
         }
+    }
+
+    sendQrlAnswer(answer: string) {
+        const qrlAnswer: QrlAnswer = {
+            text: answer,
+            player: this.sessionStorageService.username,
+            grade: Grade.Ungraded,
+        };
+        this.websocketService.sendQrlAnswer(qrlAnswer);
     }
 
     nextQuestion() {

@@ -8,6 +8,7 @@ import { QuestionService } from '@app/services/question/question.service';
 import { HOST_NAME, MAX_ROOM_NUMBER, MIN_ROOM_NUMBER, NUMBER_QUESTIONS_RANDOM, TIMEOUT_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { User } from '@common/interfaces/user';
@@ -42,6 +43,22 @@ export class RoomManagementService {
             return;
         }
         game.handleChoice(userId, choice);
+    }
+
+    handleAnswers(userId: string, answers: QrlAnswer[]) {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.handleAnswers(userId, answers);
+    }
+
+    handleQrlAnswer(userId: string, answer: QrlAnswer) {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.handleQrlAnswer(userId, answer);
     }
 
     validateChoice(userId: string): void {
@@ -166,6 +183,22 @@ export class RoomManagementService {
             return [false, false, false, false];
         }
         return game.getChoice(userId);
+    }
+
+    getQrlResultData(userId: string): Record<number, QrlAnswer[]> {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return [];
+        }
+        return game.getQRLResultData();
+    }
+
+    getQrlAnswers(userId: string): QrlAnswer[] {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return [];
+        }
+        return game.getQrlAnswers();
     }
 
     getScore(userId: string): Score {

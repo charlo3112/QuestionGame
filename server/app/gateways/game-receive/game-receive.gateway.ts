@@ -2,6 +2,7 @@ import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { SetChatPayload } from '@common/interfaces/set-chat-payload';
@@ -72,6 +73,16 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.handleChoice(client.id, choice);
     }
 
+    @SubscribeMessage('game:qrl-answers')
+    handleAnswers(client: Socket, answers: QrlAnswer[]) {
+        this.roomService.handleAnswers(client.id, answers);
+    }
+
+    @SubscribeMessage('game:qrl-answer')
+    handleQrlAnswer(client: Socket, answer: QrlAnswer) {
+        this.roomService.handleQrlAnswer(client.id, answer);
+    }
+
     @SubscribeMessage('game:validate')
     handleValidate(client: Socket) {
         this.roomService.validateChoice(client.id);
@@ -104,6 +115,11 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     @SubscribeMessage('game:getChoice')
     getChoice(client: Socket): boolean[] {
         return this.roomService.getChoice(client.id);
+    }
+
+    @SubscribeMessage('game:getQrlAnswers')
+    getQrlAnswers(client: Socket): QrlAnswer[] {
+        return this.roomService.getQrlAnswers(client.id);
     }
 
     @SubscribeMessage('game:rejoin')

@@ -17,6 +17,12 @@
                 <input class="input-field" matInput name="title" [(ngModel)]="title" required />
             </mat-form-field>
             <mat-form-field class="information-field">
+                <mat-label class="input-label">Mode de jeu</mat-label>
+                <mat-select class="input-field" required>
+                    <mat-option value="one">Classique</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="information-field">
                 <mat-label class="input-label">Description du jeu</mat-label>
                 <textarea class="input-field" matInput [(ngModel)]="description" required=""></textarea>
             </mat-form-field>
@@ -41,7 +47,7 @@
             <div cdkDropList (cdkDropListDropped)="drop($event)">
                 <mat-card *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
                     <mat-card-header>
-                        <mat-card-title>{{ i + 1 }}. {{ question.text }}</mat-card-title>
+                        <mat-card-title>{{ i + 1 }}. {{ question.text }} - [{{ question.type }}]</mat-card-title>
                     </mat-card-header>
                     <mat-card-actions>
                         <button mat-icon-button aria-label="Modifier" color="accent" (click)="editQuestion(question)">

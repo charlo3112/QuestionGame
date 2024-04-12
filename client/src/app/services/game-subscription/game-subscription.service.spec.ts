@@ -5,8 +5,10 @@ import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { TIME_DATA } from '@common/interfaces/time-data';
@@ -23,6 +25,17 @@ describe('GameSubscriptionService', () => {
     let sessionStorageServiceSpy: jasmine.SpyObj<SessionStorageService>;
 
     let mockTest: boolean;
+
+    const mockQrlAnswer: QrlAnswer = {
+        player: 'testplayer',
+        text: 'Exemple de réponse',
+        grade: Grade.Ungraded,
+    };
+    const mockQrlResultData: Record<number, QrlAnswer[]> = {
+        // We need to have this value in the dictionary to make the test run
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        0: [mockQrlAnswer],
+    };
 
     beforeEach(() => {
         sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test']);
@@ -45,10 +58,13 @@ describe('GameSubscriptionService', () => {
             'getHistogramData',
             'getAlert',
             'getUserGameInfo',
+            'getQrlGradedAnswers',
+            'getQrlResultData',
         ]);
+        websocketServiceSpy.getQrlGradedAnswers.and.returnValue(of(mockQrlAnswer));
+        websocketServiceSpy.getQrlResultData.and.returnValue(of(mockQrlResultData));
         websocketServiceSpy.getScore.and.returnValue(Promise.resolve({ score: 0, bonus: false }));
         websocketServiceSpy.getUsers.and.returnValue(Promise.resolve([]));
-
         websocketServiceSpy.getUsersStat.and.returnValue(of([]));
         websocketServiceSpy.getHistogramData.and.returnValue(of(HISTOGRAM_DATA));
         websocketServiceSpy.getAlert.and.returnValue(of(''));

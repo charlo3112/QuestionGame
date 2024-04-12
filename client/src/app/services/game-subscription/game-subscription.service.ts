@@ -6,8 +6,10 @@ import { SessionStorageService } from '@app/services/session-storage/session-sto
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
@@ -17,11 +19,15 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
+    isTextLocked: boolean = false;
+    answer: string = '';
     showBonus: boolean;
     scoreValue: number = 0;
     players: Set<string> = new Set();
     histogramData: HistogramData;
+    qrlResultData: Record<number, QrlAnswer[]>;
     usersStat: UserStat[] = [];
+    qrlGradedAnswer: QrlAnswer;
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
@@ -33,9 +39,11 @@ export class GameSubscriptionService implements OnDestroy {
     private scoreSubscription: Subscription;
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
+    private qrlGradedAnswersSubscription: Subscription;
     private histogramDataSubscription: Subscription;
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
+    private qrlResultDataSubscription: Subscription;
 
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
@@ -53,6 +61,8 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToHistogramData();
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
+        this.subscribeToQrlGradedAnswer();
+        this.subscribeToQrlResultData();
     }
 
     ngOnDestroy() {
@@ -71,15 +81,20 @@ export class GameSubscriptionService implements OnDestroy {
         if (this.usersStatSubscription) {
             this.usersStatSubscription.unsubscribe();
         }
+        if (this.qrlGradedAnswersSubscription) {
+            this.qrlGradedAnswersSubscription.unsubscribe();
+        }
         if (this.histogramDataSubscription) {
             this.histogramDataSubscription.unsubscribe();
         }
         if (this.alertSubscription) {
             this.alertSubscription.unsubscribe();
         }
-
         if (this.userGameInfoSubscription) {
             this.userGameInfoSubscription.unsubscribe();
+        }
+        if (this.qrlResultDataSubscription) {
+            this.qrlResultDataSubscription.unsubscribe();
         }
     }
 
@@ -156,6 +171,12 @@ export class GameSubscriptionService implements OnDestroy {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
                 this.setState(state);
+                if (this.state === GameState.ShowResults) {
+                    this.isTextLocked = false;
+                    this.answer = '';
+                } else if (this.state === GameState.AskingQuestion && this.qrlGradedAnswer !== undefined) {
+                    this.qrlGradedAnswer.grade = Grade.Ungraded;
+                }
             },
         });
     }
@@ -186,6 +207,22 @@ export class GameSubscriptionService implements OnDestroy {
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
                 this.sortUsers();
+            },
+        });
+    }
+
+    private subscribeToQrlGradedAnswer() {
+        this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
+            next: (qrlAnswer: QrlAnswer) => {
+                this.qrlGradedAnswer = qrlAnswer;
+            },
+        });
+    }
+
+    private subscribeToQrlResultData() {
+        this.qrlResultDataSubscription = this.websocketService.getQrlResultData().subscribe({
+            next: (qrlResultData: Record<number, QrlAnswer[]>) => {
+                this.qrlResultData = qrlResultData;
             },
         });
     }
