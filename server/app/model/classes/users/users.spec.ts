@@ -1,5 +1,6 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
+import { ChoiceData } from '@app/model/database/choice';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Users } from './users';
 
@@ -158,12 +159,24 @@ describe('Users', () => {
         expect(users.getScore('456')).toEqual({ score: points, bonus: false });
     });
 
-    // it('getCurrentHistogramData should add data if user made a choice', () => {
-    //     const choice = [true, false, true, false];
-    //     users.addUser(user);
-    //     users.handleChoice('123', choice);
+    it('getCurrentHistogramData should add data if user made a choice', () => {
+        const choice = [true, false, true, false];
+        const choiceDataArray = choice.map((isCorrect, index) => {
+            const text = `Option ${index + 1}`;
+            return new ChoiceData({ isCorrect, text });
+        });
+        users.addUser(user);
+        users.handleChoice('123', choice);
+        const histogramData = users.getCurrentHistogramData(choiceDataArray);
+        expect(histogramData).toEqual([1, 0, 1, 0]);
+    });
 
-    //     const histogramData = users.getCurrentHistogramData();
-    //     expect(histogramData).toEqual([1, 0, 1, 0]);
+    // it('handleAnswers() should update the user score', () => {
+    //     const correctAnswers = [true, true, false, false];
+    //     const points = 100;
+    //     users.addUser(user);
+    //     user.goodAnswer = jest.fn().mockReturnValue(true);
+    //     users.handleAnswers('123', correctAnswers, points);
+    //     expect(users.getScore('123')).toEqual({ score: 120, bonus: true });
     // });
 });

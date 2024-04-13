@@ -23,7 +23,6 @@ describe('ActiveGame', () => {
     let mockHistoryService: SinonStubbedInstance<HistoryService>;
 
     beforeEach(() => {
-        jest.setTimeout(10000);
         const choiceDtoOne = new CreateChoiceDto();
         choiceDtoOne.text = 'Paris';
         choiceDtoOne.isCorrect = true;
@@ -193,44 +192,10 @@ describe('ActiveGame', () => {
         expect(game.launchGame).not.toHaveBeenCalled();
     });
 
-    // it('advance() should start the game if the room in locked', async () => {
-    //     game.isLocked = true;
-    //     const launchGameMock = jest.spyOn(game, 'launchGame');
-    //     await game.advance();
-    //     expect(launchGameMock).toHaveBeenCalled();
-    // });
-
-    // it('advance() should showQuestion if the game is in state Show Results', async () => {
-    //     game.isLocked = true;
-    //     game['advanceState'](GameState.SHOW_RESULTS);
-    //     const askQuestionMock = jest.spyOn(game, 'askQuestion');
-    //     await game.advance();
-    //     expect(askQuestionMock).toHaveBeenCalled();
-    // });
-
     it('advanceState() should modify the state of the Game', () => {
         game['advanceState'](GameState.ASKING_QUESTION);
         expect(game.currentState).toBe(GameState.ASKING_QUESTION);
     });
-
-    // it('askQuestion() should update the histogram, calculate the scores and advance state', async () => {
-    //     const initState = game.currentState;
-    //     await game.askQuestion();
-    //     const finalState = game.currentState;
-    //     expect(finalState).toBeGreaterThanOrEqual(initState);
-    // });
-
-    // it('launchGame() should change game state', async () => {
-    //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
-    //     await game.launchGame();
-    //     expect(game.currentState).toBe(GameState.STARTING);
-    // });
-
-    // it('testGame() should change game state', async () => {
-    //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
-    //     await game.testGame();
-    //     expect(game.currentState).toBe(GameState.STARTING);
-    // });
 
     it('questionIndexCurrent() should return the current question index', () => {
         expect(game.questionIndexCurrent).toBe(0);

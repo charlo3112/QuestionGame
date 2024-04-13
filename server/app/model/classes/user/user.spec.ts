@@ -1,3 +1,4 @@
+import { Grade } from '@common/enums/grade';
 import { UserData } from './user';
 
 describe('UserData', () => {
@@ -73,5 +74,11 @@ describe('UserData', () => {
     it('userState should set the user state', () => {
         userData.userState = 1;
         expect(userData.userState).toBe(1);
+    });
+
+    it('newAnswer should set the new answer', () => {
+        const mockAnswer = { player: 'John', text: 'Test', grade: Grade.One };
+        userData.newAnswer = mockAnswer;
+        expect(userData['answerQrl']).toBe(mockAnswer);
     });
 });
