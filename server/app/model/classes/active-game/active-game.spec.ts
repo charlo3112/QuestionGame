@@ -252,7 +252,7 @@ describe('ActiveGame', () => {
     });
 
     it('startPanicking() should set the panicking flag to true', () => {
-        game['advanceState'](GameState.AskingQuestion);
+        game['advanceState'](GameState.ASKING_QUESTION);
         game['currentQuestionWithAnswer'].type = QuestionType.QCM;
         game['timer'].seconds = MIN_TIME_PANIC_QCM_S + 1;
         game.startPanicking();
@@ -265,13 +265,13 @@ describe('ActiveGame', () => {
     });
 
     it('togglePause() should toggle the timer if the game state is AskingQuestion', () => {
-        game['advanceState'](GameState.AskingQuestion);
+        game['advanceState'](GameState.ASKING_QUESTION);
         game.togglePause();
         expect(game['timer']['timeData'].pause).toBeTruthy();
     });
 
     it('advance() should return undefined if game state is wait and game not locked', async () => {
-        game['advanceState'](GameState.Wait);
+        game['advanceState'](GameState.WAIT);
         game.isLocked = false;
         return game.advance().then((result) => {
             expect(result).toBeUndefined();

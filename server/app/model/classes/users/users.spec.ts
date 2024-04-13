@@ -43,13 +43,6 @@ describe('Users', () => {
         expect(users.getChoice('123')).toEqual([true, false, true, false]);
     });
 
-    // it('should update users score', () => {
-    //     const correctAnswers = [true, true, false, false];
-    //     users.addUser(user);
-    //     users.updateUsersScore(correctAnswers, 100);
-    //     expect(users.getScore('123')).toEqual({ score: 100, bonus: true });
-    // });
-
     it('should remove an active user', () => {
         users.addUser(user);
         users.removeActiveUser('123');
@@ -125,4 +118,52 @@ describe('Users', () => {
         const updatedUser = users.getUser(user.uid);
         expect(updatedUser.userCanChat).toBe(false);
     });
+
+    it('totalSize() should return the number of users', () => {
+        users.addUser(user);
+        users.hostIsPlaying = true;
+        expect(users.totalSize).toBe(1);
+    });
+
+    it('bestScore() should return the highest score', () => {
+        const BEST_SCORE = 200;
+        const WORST_SCORE = 100;
+        const user1 = new UserData('123', 'Room123', 'John');
+        const user2 = new UserData('456', 'Room123', 'Alice');
+        user1['score'] = BEST_SCORE;
+        user2['score'] = WORST_SCORE;
+        users.addUser(user1);
+        users.addUser(user2);
+        expect(users.bestScore).toBe(BEST_SCORE);
+    });
+
+    it('updateUsersScore() should update the users score', () => {
+        const correctAnswers = [true, true, false, false];
+        const points = 100;
+        users.addUser(user);
+        user.goodAnswer = jest.fn().mockReturnValue(true);
+        users.updateUsersScore(correctAnswers, points);
+        expect(users.getScore('123')).toEqual({ score: 120, bonus: true });
+    });
+
+    it('updateUsersScore() should not add bonus if user was not first to answer', () => {
+        const correctAnswers = [true, true, false, false];
+        const points = 100;
+        const user2 = new UserData('456', 'Room123', 'Alice');
+        users.addUser(user);
+        users.addUser(user2);
+        user.goodAnswer = jest.fn().mockReturnValue(true);
+        user2.goodAnswer = jest.fn().mockReturnValue(true);
+        users.updateUsersScore(correctAnswers, points);
+        expect(users.getScore('456')).toEqual({ score: points, bonus: false });
+    });
+
+    // it('getCurrentHistogramData should add data if user made a choice', () => {
+    //     const choice = [true, false, true, false];
+    //     users.addUser(user);
+    //     users.handleChoice('123', choice);
+
+    //     const histogramData = users.getCurrentHistogramData();
+    //     expect(histogramData).toEqual([1, 0, 1, 0]);
+    // });
 });
