@@ -4,7 +4,14 @@
             <section *ngIf="question.type === 'QCM'" id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <section *ngIf="question.type === 'QRL' && (gameService.currentState !== gameState.ShowResults && gameService.currentState !== gameState.LastQuestion)" id="answer-container">
+            <section
+                *ngIf="
+                    question.type === 'QRL' &&
+                    gameService.currentState !== gameState.SHOW_RESULTS &&
+                    gameService.currentState !== gameState.LAST_QUESTION
+                "
+                id="answer-container"
+            >
                 <div class="text-area-container">
                     <textarea
                         matInput
@@ -13,17 +20,22 @@
                         class="text-area"
                         [disabled]="gameSubscriptionService.isTextLocked"
                         (keydown.enter)="$event.preventDefault()"
-                        (ngModelChange)="saveAnswer()"
+                        (ngModelChange)="onAnswerChange()"
                     >
                     </textarea>
                     <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
                 </div>
             </section>
-            <section *ngIf="(question.type === 'QRL' && (gameService.currentState === gameState.LastQuestion || gameService.currentState === gameState.ShowResults))">
+            <section
+                *ngIf="
+                    question.type === 'QRL' &&
+                    (gameService.currentState === gameState.LAST_QUESTION || gameService.currentState === gameState.SHOW_RESULTS)
+                "
+            >
                 <app-player-qrl></app-player-qrl>
             </section>
             <button
-                *ngIf="(question.type !== 'QRL' || gameService.currentState === gameState.AskingQuestion)"
+                *ngIf="question.type !== 'QRL' || gameService.currentState === gameState.ASKING_QUESTION"
                 mat-raised-button
                 id="confirm-button"
                 (click)="confirmAndDisable()"

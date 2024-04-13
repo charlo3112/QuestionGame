@@ -16,6 +16,7 @@ export class QuestionService {
     async getAllQuestions(): Promise<QuestionData[]> {
         const questions = await this.questionModel.find<QuestionData>({});
         for (const question of questions) {
+            // _id is an MongoDB attribute
             // eslint-disable-next-line no-underscore-dangle
             question.mongoId = question._id;
         }

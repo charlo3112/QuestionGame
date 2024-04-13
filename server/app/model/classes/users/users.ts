@@ -1,7 +1,7 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
-import { BONUS_TIME } from '@common/constants';
+import { ACTIVE_TIME, BONUS_TIME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
@@ -34,8 +34,9 @@ export class Users {
                     username: user.username,
                     score: user.userScore.score,
                     bonus: user.userBonus,
-                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.Disconnect,
+                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.DISCONNECT,
                     canChat: user.userCanChat,
+                    isActive: user.isActive,
                 };
             });
     }
@@ -116,6 +117,12 @@ export class Users {
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
+    resetActivity(): void {
+        this.users.forEach((user) => {
+            user.isActive = false;
+        });
+    }
+
     updateUsersScore(correctAnswers: boolean[], points: number): void {
         const time = new Date().getTime();
         let users = Array.from(this.users.values());
@@ -181,6 +188,19 @@ export class Users {
 
     userExists(name: string): boolean {
         return Array.from(this.users.values()).some((user) => user.username.toLowerCase() === name.toLowerCase());
+    }
+
+    handleQrlActivityUpdate(userId: string) {
+        const user = this.users.get(userId);
+        if (!user) return;
+        if (user.timeout) {
+            clearTimeout(user.timeout);
+        }
+        user.isActive = true;
+        user.timeout = setTimeout(() => {
+            user.isActive = false;
+            this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        }, ACTIVE_TIME);
     }
 
     validateChoice(userId: string): void {

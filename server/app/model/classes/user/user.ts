@@ -5,6 +5,8 @@ import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 
 export class UserData {
+    timeout: NodeJS.Timeout | null = null;
+    private isQrlActive: boolean;
     private userId: string;
     private name: string;
     private score: number;
@@ -26,8 +28,9 @@ export class UserData {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
         this.canChat = true;
+        this.isQrlActive = false;
     }
 
     get username() {
@@ -40,6 +43,10 @@ export class UserData {
 
     get validate() {
         return this.timeValidate;
+    }
+
+    get isActive() {
+        return this.isQrlActive;
     }
 
     get userCanChat() {
@@ -74,6 +81,10 @@ export class UserData {
         return this.roomId;
     }
 
+    set isActive(active: boolean) {
+        this.isQrlActive = active;
+    }
+
     set uid(uid: string) {
         this.userId = uid;
     }
@@ -88,7 +99,7 @@ export class UserData {
 
     set newChoice(choice: boolean[]) {
         this.choice = choice;
-        this.state = UserState.FirstInteraction;
+        this.state = UserState.FIRST_INTERACTION;
     }
 
     set newAnswer(answer: QrlAnswer) {
@@ -97,14 +108,14 @@ export class UserData {
 
     set validate(time: number) {
         this.timeValidate = time;
-        this.state = UserState.AnswerConfirmed;
+        this.state = UserState.ANSWER_CONFIRMED;
     }
 
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
     }
 
     isHost(): boolean {
@@ -140,6 +151,6 @@ export class UserData {
     }
 
     resetFinalResults() {
-        this.state = UserState.FinalResults;
+        this.state = UserState.FINAL_RESULTS;
     }
 }

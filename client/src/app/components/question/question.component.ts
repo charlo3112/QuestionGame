@@ -1,17 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { PlayerQRLComponent } from '@app/components/player-qrl/player-qrl.component';
 import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
@@ -23,21 +18,7 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
     standalone: true,
-    imports: [
-        CommonModule,
-        TextAnswerComponent,
-        RouterLink,
-        ChatComponent,
-        MatSlideToggleModule,
-        MatIconModule,
-        AnswersComponent,
-        MatButtonModule,
-        MatToolbarModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        PlayerQRLComponent,
-    ],
+    imports: [CommonModule, TextAnswerComponent, RouterLink, ChatComponent, AnswersComponent, FormsModule, PlayerQRLComponent, AppMaterialModule],
 })
 export class QuestionComponent implements OnInit {
     @Input() question: Question;
@@ -73,7 +54,7 @@ export class QuestionComponent implements OnInit {
     }
 
     showButtonResult() {
-        return this.gameService.currentState === GameState.LastQuestion && this.gameService.isHost && this.gameService.isTest;
+        return this.gameService.currentState === GameState.LAST_QUESTION && this.gameService.isHost && this.gameService.isTest;
     }
 
     confirmAndDisable(): void {
@@ -86,22 +67,23 @@ export class QuestionComponent implements OnInit {
         }
     }
 
-    saveAnswer(): void {
-        this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
-        this.gameService.qrlAnswer = this.gameSubscriptionService.answer;
-    }
-
     canValidate(): boolean {
-        return this.gameService.currentState === GameState.AskingQuestion && !this.gameService.isValidationDisabled;
+        return this.gameService.currentState === GameState.ASKING_QUESTION && !this.gameService.isValidationDisabled;
     }
 
     nextStep(): void {
-        if (this.gameService.currentState === GameState.LastQuestion && this.gameService.isTest) {
+        if (this.gameService.currentState === GameState.LAST_QUESTION && this.gameService.isTest) {
             this.router.navigate(['/new']);
         }
     }
 
     chatFocused(focus: boolean) {
         this.isChatFocused = focus;
+    }
+
+    onAnswerChange() {
+        this.gameService.sendActivityUpdate();
+        this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
+        this.gameService.qrlAnswer = this.gameSubscriptionService.answer;
     }
 }

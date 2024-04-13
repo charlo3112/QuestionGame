@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { AdminQrlComponent } from '@app/components/admin-qrl/admin-qrl.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S } from '@common/constants';
@@ -19,7 +19,7 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './admin-game-view.component.html',
     styleUrls: ['./admin-game-view.component.scss'],
     standalone: true,
-    imports: [LeaderboardComponent, MatButtonModule, HistogramComponent, ChatComponent, CommonModule, AdminQrlComponent],
+    imports: [AppMaterialModule, LeaderboardComponent, HistogramComponent, ChatComponent, CommonModule, AdminQrlComponent],
 })
 export class AdminGameViewComponent implements OnInit {
     @Output() answersCorrected: EventEmitter<void> = new EventEmitter<void>();
@@ -34,25 +34,25 @@ export class AdminGameViewComponent implements OnInit {
     ) {}
 
     get buttonText(): string {
-        return this.gameService.currentState === GameState.LastQuestion ? 'Résultats' : 'Prochaine Question';
+        return this.gameService.currentState === GameState.LAST_QUESTION ? 'Résultats' : 'Prochaine Question';
     }
 
     enableNextStepButton(): boolean {
         return (
             (this.gradesSent || this.gameService.currentQuestion?.type !== QuestionType.QRL) &&
-            (this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion)
+            (this.gameService.currentState === GameState.SHOW_RESULTS || this.gameService.currentState === GameState.LAST_QUESTION)
         );
     }
 
     canPause(): boolean {
-        return this.gameService.currentState === GameState.AskingQuestion;
+        return this.gameService.currentState === GameState.ASKING_QUESTION;
     }
 
     canPanic(): boolean {
         return (
             !this.gameService.panic &&
             this.gameService.currentQuestion !== undefined &&
-            this.gameService.currentState === GameState.AskingQuestion &&
+            this.gameService.currentState === GameState.ASKING_QUESTION &&
             ((this.gameService.currentQuestion.type === QuestionType.QCM && this.gameService.time > MIN_TIME_PANIC_QCM_S) ||
                 (this.gameService.currentQuestion.type === QuestionType.QRL && this.gameService.time > MIN_TIME_PANIC_QRL_S))
         );
@@ -60,7 +60,7 @@ export class AdminGameViewComponent implements OnInit {
 
     nextStep(): void {
         this.gradesSent = false;
-        if (this.gameService.currentState === GameState.LastQuestion) {
+        if (this.gameService.currentState === GameState.LAST_QUESTION) {
             this.gameService.showFinalResults();
         } else {
             this.gameService.nextQuestion();
@@ -83,7 +83,7 @@ export class AdminGameViewComponent implements OnInit {
             this.currentQuestion = this.gameService.currentQuestion;
         }
         this.websocketService.getState().subscribe(async (statePayload: GameStatePayload) => {
-            if (statePayload.state === GameState.ShowResults && this.gameService.currentQuestion?.type === QuestionType.QRL) {
+            if (statePayload.state === GameState.SHOW_RESULTS && this.gameService.currentQuestion?.type === QuestionType.QRL) {
                 this.qrlAnswers = await this.gameService.getQrlAnswers();
                 this.readyForGrading = true;
             } else {

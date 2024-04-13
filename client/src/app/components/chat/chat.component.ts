@@ -1,14 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { AnswersComponent } from '@app/components/answers/answers.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
@@ -20,18 +14,7 @@ import { Subscription } from 'rxjs';
     templateUrl: './chat.component.html',
     styleUrls: ['./chat.component.scss'],
     standalone: true,
-    imports: [
-        CommonModule,
-        MatCardModule,
-        MatInputModule,
-        MatIconModule,
-        MatFormFieldModule,
-        FormsModule,
-        AnswersComponent,
-        MatButtonModule,
-        MatToolbarModule,
-        MatDividerModule,
-    ],
+    imports: [AppMaterialModule, CommonModule, FormsModule, AnswersComponent],
 })
 export class ChatComponent implements OnDestroy, OnInit {
     @Output() isChatFocused = new EventEmitter<boolean>();

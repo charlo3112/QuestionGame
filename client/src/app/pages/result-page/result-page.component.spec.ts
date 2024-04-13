@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
@@ -11,6 +12,7 @@ describe('ResultPageComponent', () => {
     let component: ResultPageComponent;
     let fixture: ComponentFixture<ResultPageComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
+    let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
 
     beforeEach(async () => {
         const mockHistogramData: HistogramData = HISTOGRAM_DATA;
@@ -26,7 +28,7 @@ describe('ResultPageComponent', () => {
                     { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
                 ],
             },
-            currentState: GameState.Starting,
+            currentState: GameState.STARTING,
             histogramData: mockHistogramData,
         });
         Object.defineProperty(mockGameService, 'histogram', {
@@ -34,7 +36,10 @@ describe('ResultPageComponent', () => {
         });
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule, BrowserAnimationsModule, NoopAnimationsModule],
-            providers: [{ provide: GameService, useValue: mockGameService }],
+            providers: [
+                { provide: GameService, useValue: mockGameService },
+                { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
+            ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(ResultPageComponent);

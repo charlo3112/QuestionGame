@@ -99,7 +99,6 @@ export class GameService implements OnModuleInit {
                     visibility: true,
                 };
                 await this.addGame(gameData);
-                return;
             }
         } catch (error) {
             return Promise.reject(`Failed to update document: ${error}`);

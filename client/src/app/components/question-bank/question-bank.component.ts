@@ -1,15 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
 import { CreateQuestionComponent } from '@app/components/create-question/create-question.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
 import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@common/interfaces/question';
@@ -19,18 +14,7 @@ import { Result } from '@common/interfaces/result';
     selector: 'app-question-bank',
     templateUrl: './question-bank.component.html',
     styleUrls: ['./question-bank.component.scss'],
-    imports: [
-        CommonModule,
-        RouterLink,
-        FormsModule,
-        MatSelectModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatCardModule,
-        CreateQuestionComponent,
-        MatTooltipModule,
-        MatButtonModule,
-    ],
+    imports: [CommonModule, RouterLink, FormsModule, CreateQuestionComponent, AppMaterialModule],
     standalone: true,
 })
 export class QuestionBankComponent implements OnInit {

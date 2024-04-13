@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { HistoryItemsComponent } from '@app/components/history-items/history-items.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { AdminService } from '@app/services/admin/admin.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { AdminService } from '@app/services/admin/admin.service';
     templateUrl: './history-page.component.html',
     styleUrls: ['./history-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, RouterLink, MatButtonModule, HistoryItemsComponent],
+    imports: [AppMaterialModule, RouterLink, MatButtonModule, HistoryItemsComponent],
 })
 export class HistoryPageComponent implements OnInit {
     constructor(

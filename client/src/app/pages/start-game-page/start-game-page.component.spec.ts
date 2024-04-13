@@ -5,16 +5,16 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { StartGameExpansionComponent } from '@app/components/startgame-expansion/startgame-expansion.component';
+import { RouterLink, RouterModule } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { StartGameExpansionComponent } from '@app/components/start-game-expansion/start-game-expansion.component';
+import { routes } from '@app/modules/app-routing.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { GameService } from '@app/services/game/game.service';
 import { Game } from '@common/interfaces/game';
 import { Result } from '@common/interfaces/result';
 import { of, throwError } from 'rxjs';
-import { StartGamePageComponent } from './startgame-page.component';
-import { RouterLink, RouterModule } from '@angular/router';
-import { RouterTestingModule } from '@angular/router/testing';
-import { routes } from '@app/modules/app-routing.module';
+import { StartGamePageComponent } from './start-game-page.component';
 
 describe('StartGamePageComponent', () => {
     let component: StartGamePageComponent;

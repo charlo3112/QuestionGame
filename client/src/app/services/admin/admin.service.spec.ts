@@ -108,7 +108,7 @@ describe('AdminService', () => {
         };
         const filename = 'test-file.json';
 
-        spyOn(URL, 'createObjectURL').and.callThrough();
+        spyOn(URL, 'createObjectURL').and.returnValue('mock-object-url');
         spyOn(URL, 'revokeObjectURL').and.callThrough();
 
         adminService.downloadFile(data, filename);

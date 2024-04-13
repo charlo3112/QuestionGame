@@ -6,10 +6,11 @@ export interface UserStat {
     bonus: number;
     state: UserState;
     canChat: boolean;
+    isActive: boolean;
 }
 
 export const USERS: UserStat[] = [
-    { username: 'Guilhem', score: 100, bonus: 1, state: UserState.NoInteraction, canChat: true },
-    { username: 'Charlo', score: 190, bonus: 0, state: UserState.FirstInteraction, canChat: true },
-    { username: 'Gaetan', score: 100, bonus: 2, state: UserState.Disconnect, canChat: false },
+    { username: 'Guilhem', score: 100, bonus: 1, state: UserState.NO_INTERACTION, canChat: true, isActive: false },
+    { username: 'Charlo', score: 190, bonus: 0, state: UserState.FIRST_INTERACTION, canChat: true, isActive: false },
+    { username: 'Gaetan', score: 100, bonus: 2, state: UserState.DISCONNECT, canChat: true, isActive: false },
 ];
