@@ -1,6 +1,7 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Users } from './users';
 
@@ -126,6 +127,23 @@ describe('Users', () => {
         expect(users.totalSize).toBe(1);
     });
 
+    it('totalSize() should return the number of users minus the host', () => {
+        users.addUser(user);
+        users.hostIsPlaying = false;
+        expect(users.totalSize).toBe(0);
+    });
+
+    it('banUser() should return the user ID', () => {
+        users.addUser(user);
+        const userId = users.banUser('John');
+        expect(userId).toBe(user.uid);
+    });
+
+    it('banUser() should return undefined if the user is not found', () => {
+        const userId = users.banUser('John');
+        expect(userId).toBeUndefined();
+    });
+
     it('bestScore() should return the highest score', () => {
         const BEST_SCORE = 200;
         const WORST_SCORE = 100;
@@ -171,12 +189,29 @@ describe('Users', () => {
         expect(histogramData).toEqual([1, 0, 1, 0]);
     });
 
-    // it('handleAnswers() should update the user score', () => {
-    //     const correctAnswers = [true, true, false, false];
-    //     const points = 100;
-    //     users.addUser(user);
-    //     user.goodAnswer = jest.fn().mockReturnValue(true);
-    //     users.handleAnswers('123', correctAnswers, points);
-    //     expect(users.getScore('123')).toEqual({ score: 120, bonus: true });
-    // });
+    it('handleAnswers() should update the user score', () => {
+        const choice = [true, true, false, false];
+        const qrlAnswersArray = choice.map((isCorrect, index) => {
+            const player = 'John';
+            const text = `Option ${index + 1}`;
+            const grade = isCorrect ? 1 : 0;
+
+            return { player, text, grade } as QrlAnswer;
+        });
+        const points = 100;
+        users.addUser(user);
+        user.goodAnswer = jest.fn().mockReturnValue(true);
+        users.handleAnswers('123', qrlAnswersArray, points);
+        expect(users.getScore('123')).toEqual({ score: 200, bonus: false });
+    });
+
+    it('isValidate() should return false if the user is not found', () => {
+        expect(users.isValidate('123')).toBe(false);
+    });
+
+    it('isValidate() should return true if the user is found and validated', () => {
+        users.addUser(user);
+        users.validateChoice('123');
+        expect(users.isValidate('123')).toBe(true);
+    });
 });
