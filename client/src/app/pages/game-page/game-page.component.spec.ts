@@ -5,6 +5,7 @@ import { RouterLink, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { routes } from '@app/modules/app-routing.module';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
@@ -16,6 +17,7 @@ describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
+    let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
 
     let mockCurrentState: GameState;
     let mockIsHost: boolean;
@@ -78,7 +80,10 @@ describe('GamePageComponent', () => {
                 GamePageComponent,
                 AbandonDialogComponent,
             ],
-            providers: [{ provide: GameService, useValue: mockGameService }],
+            providers: [
+                { provide: GameService, useValue: mockGameService },
+                { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
+            ],
         }).compileComponents();
     });
 

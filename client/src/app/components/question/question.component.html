@@ -7,7 +7,8 @@
             <section
                 *ngIf="
                     question.type === 'QRL' &&
-                    gameService.currentState !== gameState.SHOW_RESULTS && gameService.currentState !== gameState.LAST_QUESTION
+                    gameService.currentState !== gameState.SHOW_RESULTS &&
+                    gameService.currentState !== gameState.LAST_QUESTION
                 "
                 id="answer-container"
             >
@@ -25,12 +26,6 @@
                     <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
                 </div>
             </section>
-            <section
-                *ngIf="
-                    question.type === 'QRL' &&
-                    (gameService.currentState === gameState.LastQuestion || gameService.currentState === gameState.ShowResults)
-                "
-            >
             <section
                 *ngIf="
                     question.type === 'QRL' &&

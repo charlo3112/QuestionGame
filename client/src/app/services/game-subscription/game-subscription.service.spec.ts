@@ -107,9 +107,9 @@ describe('GameSubscriptionService', () => {
     describe('sort users', () => {
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.USERNAME_ASCENDING;
             service.sortUsers();
@@ -118,9 +118,9 @@ describe('GameSubscriptionService', () => {
 
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.USERNAME_DESCENDING;
             service.sortUsers();
@@ -129,9 +129,9 @@ describe('GameSubscriptionService', () => {
 
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.SCORE_ASCENDING;
             service.sortUsers();
@@ -140,9 +140,9 @@ describe('GameSubscriptionService', () => {
 
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.SCORE_DESCENDING;
             service.sortUsers();
@@ -151,9 +151,9 @@ describe('GameSubscriptionService', () => {
 
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.STATE_ASCENDING;
             service.sortUsers();
@@ -162,9 +162,9 @@ describe('GameSubscriptionService', () => {
 
         it('sorts users correctly', () => {
             service.usersStat = [
-                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0 },
-                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
-                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
+                { username: 'Alice', score: 100, state: 1, canChat: true, bonus: 0, isActive: false },
+                { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
+                { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0, isActive: false },
             ];
             service.sortOption = SortOption.STATE_DESCENDING;
             service.sortUsers();
