@@ -205,6 +205,39 @@ describe('GameServiceEndToEnd', () => {
         choice.setText = 'test text';
         expect(choice.getText()).toBe('test text');
     });
+
+    it('onModuleInit() should call start()', async () => {
+        const spyStart = jest.spyOn(service, 'start');
+        await service.onModuleInit();
+        expect(spyStart).toHaveBeenCalled();
+    });
+
+    it('populateDB() should reject if the file is not found', async () => {
+        jest.spyOn(service, 'addGame').mockRejectedValue('');
+        await expect(service.populateDB()).rejects.toBeTruthy();
+    });
+
+    it('addGame() should reject if the game is not added to the DB', async () => {
+        const gameDto = getFakeCreateGameDto();
+        gameModel.create = jest.fn().mockRejectedValue('error');
+        await expect(service.addGame(gameDto)).rejects.toMatch('Failed to insert game: error');
+    });
+
+    it('toggleVisibility() should reject if the game is not found', async () => {
+        gameModel.findOne = jest.fn().mockResolvedValue(null);
+        await expect(service.toggleVisibility('123')).rejects.toBeTruthy();
+    });
+
+    it('deleteGameById() should reject if the game is not found', async () => {
+        gameModel.deleteOne = jest.fn().mockResolvedValue(null);
+        await expect(service.deleteGameById('123')).rejects.toBeTruthy();
+    });
+
+    it('verifyTitle() should return true if the title is unique', async () => {
+        const game = getFakeGame();
+        await gameModel.create(game);
+        expect(await service.verifyTitle('test title')).toBe(true);
+    });
 });
 
 const getFakeCreateGameDto = (): CreateGameDto => {
