@@ -6,7 +6,6 @@ import { QuestionComponent } from '@app/components/question/question.component';
 import { routes } from '@app/modules/app-routing.module';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
-import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 
@@ -28,15 +27,11 @@ describe('Question', () => {
     let gameServiceSpy: jasmine.SpyObj<GameService>;
     let gameSubscriptionServiceSpy: jasmine.SpyObj<GameSubscriptionService>;
 
-    let sessionServiceSpy: jasmine.SpyObj<SessionStorageService>;
-
     let mockTest: boolean;
     let mockState: GameState;
     let mockHost: boolean;
 
     beforeEach(async () => {
-        sessionServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test']);
-        Object.defineProperty(sessionServiceSpy, 'test', { get: () => mockTest });
         gameServiceSpy = jasmine.createSpyObj('GameService', [
             'confirmQuestion',
             'selectChoice',
@@ -49,13 +44,13 @@ describe('Question', () => {
         ]);
         Object.defineProperty(gameServiceSpy, 'currentState', { get: () => mockState });
         Object.defineProperty(gameServiceSpy, 'isHost', { get: () => mockHost });
+        Object.defineProperty(gameServiceSpy, 'isTest', { get: () => mockTest });
         gameSubscriptionServiceSpy = jasmine.createSpyObj('GameSubscriptionService', ['getGame', 'isTextLocked']);
         await TestBed.configureTestingModule({
             imports: [RouterTestingModule.withRoutes(routes), BrowserAnimationsModule],
             providers: [
                 { provide: GameService, useValue: gameServiceSpy },
                 { provide: GameSubscriptionService, useValue: gameSubscriptionServiceSpy },
-                { provide: SessionStorageService, useValue: sessionServiceSpy },
             ],
         }).compileComponents();
     });
