@@ -26,6 +26,7 @@ export class AdminGameViewComponent implements OnInit {
     currentQuestion: Question;
     qrlAnswers: QrlAnswer[];
     readyForGrading: boolean = false;
+    gradesSent: boolean = false;
 
     constructor(
         private readonly websocketService: WebSocketService,
@@ -37,6 +38,12 @@ export class AdminGameViewComponent implements OnInit {
     }
 
     enableNextStepButton(): boolean {
+        if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
+            return (
+                this.gradesSent &&
+                (this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion)
+            );
+        }
         return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
     }
 
@@ -55,6 +62,7 @@ export class AdminGameViewComponent implements OnInit {
     }
 
     nextStep(): void {
+        this.gradesSent = false;
         if (this.gameService.currentState === GameState.LastQuestion) {
             this.gameService.showFinalResults();
         } else {
@@ -81,10 +89,15 @@ export class AdminGameViewComponent implements OnInit {
             if (statePayload.state === GameState.ShowResults && this.gameService.currentQuestion?.type === QuestionType.QRL) {
                 this.qrlAnswers = await this.gameService.getQrlAnswers();
                 this.readyForGrading = true;
-            } else this.readyForGrading = false;
+            } else {
+                this.readyForGrading = false;
+                this.gradesSent = false;
+            }
         });
     }
+
     qrlCorrected() {
         this.answersCorrected.emit();
+        this.gradesSent = true;
     }
 }
