@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+// We need every method and parameter in this file
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
@@ -351,7 +353,6 @@ export class RoomManagementService {
             const j = Math.floor(Math.random() * (i + 1));
             [questions[i], questions[j]] = [questions[j], questions[i]];
         }
-
         return questions.slice(0, number);
     }
 }
