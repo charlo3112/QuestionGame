@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { Game } from '@common/interfaces/game';
 
 @Component({
@@ -10,7 +8,7 @@ import { Game } from '@common/interfaces/game';
     templateUrl: './admin-game-preview.component.html',
     styleUrls: ['./admin-game-preview.component.scss'],
     standalone: true,
-    imports: [MatIconModule, MatCardModule, MatButtonModule, RouterLink],
+    imports: [AppMaterialModule, RouterLink],
 })
 export class AdminGamePreviewComponent {
     @Input() gameDetails: Game;

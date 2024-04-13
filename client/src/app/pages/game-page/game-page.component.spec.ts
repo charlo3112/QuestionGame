@@ -16,7 +16,6 @@ describe('GamePageComponent', () => {
     let component: GamePageComponent;
     let fixture: ComponentFixture<GamePageComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
-    let mockMatDialog: jasmine.SpyObj<MatDialog>;
 
     let mockCurrentState: GameState;
     let mockIsHost: boolean;
@@ -47,7 +46,7 @@ describe('GamePageComponent', () => {
             ],
             {
                 currentQuestion: QUESTION_PLACEHOLDER,
-                currentState: GameState.Starting,
+                currentState: GameState.STARTING,
                 roomCodeValue: 'someRoomCode',
             },
         );
@@ -57,12 +56,19 @@ describe('GamePageComponent', () => {
         Object.defineProperty(mockGameService, 'isPlaying', { get: () => mockIsPlaying });
         Object.defineProperty(mockGameService, 'histogram', { get: () => mockHistogram });
 
-        mockCurrentState = GameState.Starting;
+        mockCurrentState = GameState.STARTING;
         mockIsHost = false;
         mockIsPlaying = false;
         mockHistogram = HISTOGRAM_DATA;
 
-        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
+        TestBed.overrideProvider(MatDialog, {
+            useValue: {
+                open: () => ({
+                    afterClosed: () => of(true),
+                }),
+            },
+        });
+
         await TestBed.configureTestingModule({
             imports: [
                 RouterTestingModule,
@@ -72,10 +78,7 @@ describe('GamePageComponent', () => {
                 GamePageComponent,
                 AbandonDialogComponent,
             ],
-            providers: [
-                { provide: GameService, useValue: mockGameService },
-                { provide: MatDialog, useValue: mockMatDialog },
-            ],
+            providers: [{ provide: GameService, useValue: mockGameService }],
         }).compileComponents();
     });
 
@@ -101,9 +104,7 @@ describe('GamePageComponent', () => {
     });
 
     it('should call leaveRoom openAbandonDialog is called with true result', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(true));
-        mockMatDialog.open.and.returnValue(dialogRefSpy);
+        spyOn(component, 'openAbandonDialog').and.callThrough();
         component.openAbandonDialog();
 
         expect(component.gameService.leaveRoom).toHaveBeenCalled();

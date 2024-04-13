@@ -1,22 +1,19 @@
 import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterModule } from '@angular/router';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 
 @Component({
-    selector: 'app-joingame-page',
-    templateUrl: './joingame-page.component.html',
-    styleUrls: ['./joingame-page.component.scss'],
+    selector: 'app-join-game-page',
+    templateUrl: './join-game-page.component.html',
+    styleUrls: ['./join-game-page.component.scss'],
     standalone: true,
-    imports: [MatToolbarModule, RouterModule, MatFormFieldModule, MatInputModule, MatButtonModule, FormsModule, ReactiveFormsModule, NgIf],
+    imports: [AppMaterialModule, RouterModule, FormsModule, ReactiveFormsModule, NgIf],
 })
 export class JoinGamePageComponent {
     entryError = false;

@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+// We need every method and parameter in this file
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
@@ -167,7 +169,7 @@ export class RoomManagementService {
 
     toggleGameClosed(userId: string, closed: boolean) {
         const game = this.getActiveGame(userId);
-        if (!game || !game.isHost(userId) || game.currentState !== GameState.Wait) {
+        if (!game || !game.isHost(userId) || game.currentState !== GameState.WAIT) {
             return;
         }
         game.isLocked = closed;
@@ -175,10 +177,7 @@ export class RoomManagementService {
 
     isValidate(userId: string): boolean {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return false;
-        }
-        return game.isValidate(userId);
+        return game ? game.isValidate(userId) : false;
     }
 
     showFinalResults(userId: string) {
@@ -187,10 +186,7 @@ export class RoomManagementService {
 
     getChoice(userId: string): boolean[] {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return [false, false, false, false];
-        }
-        return game.getChoice(userId);
+        return game ? game.getChoice(userId) : [false, false, false, false];
     }
 
     getQrlResultData(userId: string): Record<number, QrlAnswer[]> {
@@ -211,10 +207,7 @@ export class RoomManagementService {
 
     getScore(userId: string): Score {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return { score: 0, bonus: false };
-        }
-        return game.getScore(userId);
+        return game ? game.getScore(userId) : { score: 0, bonus: false };
     }
 
     joinRoom(userId: string, roomId: string, username: string): Result<GameStatePayload> {
@@ -282,22 +275,12 @@ export class RoomManagementService {
 
     getUsers(userId: string): string[] {
         const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
-            return [];
-        }
-        const game = this.gameState.get(roomId);
-        if (!game) {
-            return [];
-        }
-        return game.usersArray;
+        return roomId ? (this.gameState.get(roomId) ? this.gameState.get(roomId).usersArray : []) : [];
     }
 
     getUsername(userId: string): string | undefined {
         const user = this.getUser(userId);
-        if (!user) {
-            return undefined;
-        }
-        return user.username;
+        return user ? user.username : undefined;
     }
 
     performUserRemoval(userId: string): void {
@@ -317,7 +300,7 @@ export class RoomManagementService {
             return;
         }
         game.removeUser(userId);
-        if (game.needToClosed() && game.currentState !== GameState.Wait) {
+        if (game.needToClosed() && game.currentState !== GameState.WAIT) {
             this.deleteRoomChatGateway(roomId);
             this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);
@@ -348,10 +331,7 @@ export class RoomManagementService {
 
     getActiveGame(userId: string): ActiveGame {
         const roomId = this.roomMembers.get(userId);
-        if (!roomId) {
-            return undefined;
-        }
-        return this.gameState.get(roomId);
+        return roomId ? this.gameState.get(roomId) : undefined;
     }
 
     async confirmAction(userId: string) {
@@ -373,10 +353,7 @@ export class RoomManagementService {
 
     private getUser(userId: string): UserData {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return undefined;
-        }
-        return game.getUser(userId);
+        return game ? game.getUser(userId) : undefined;
     }
 
     private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {
@@ -384,7 +361,6 @@ export class RoomManagementService {
             const j = Math.floor(Math.random() * (i + 1));
             [questions[i], questions[j]] = [questions[j], questions[i]];
         }
-
         return questions.slice(0, number);
     }
 }

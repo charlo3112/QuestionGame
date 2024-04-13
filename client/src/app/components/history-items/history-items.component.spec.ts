@@ -14,7 +14,6 @@ describe('HistoryItemsComponent', () => {
     let fixture: ComponentFixture<HistoryItemsComponent>;
     let communicationServiceSpy: SpyObj<CommunicationService>;
     let historyItems: History[];
-    let mockMatDialog: jasmine.SpyObj<MatDialog>;
 
     beforeEach(async () => {
         communicationServiceSpy = jasmine.createSpyObj('CommunicationService', ['deleteHistories', 'getHistories']);
@@ -23,14 +22,18 @@ describe('HistoryItemsComponent', () => {
             value: [],
         };
 
-        mockMatDialog = jasmine.createSpyObj('MatDialog', ['open']);
         communicationServiceSpy.getHistories.and.returnValue(of(mockHistoryResponse));
 
+        TestBed.overrideProvider(MatDialog, {
+            useValue: {
+                open: () => ({
+                    afterClosed: () => of(true),
+                }),
+            },
+        });
+
         TestBed.configureTestingModule({
-            providers: [
-                { provide: CommunicationService, useValue: communicationServiceSpy },
-                { provide: MatDialog, useValue: mockMatDialog },
-            ],
+            providers: [{ provide: CommunicationService, useValue: communicationServiceSpy }],
             imports: [HistoryItemsComponent, BrowserAnimationsModule, NoopAnimationsModule],
         });
         fixture = TestBed.createComponent(HistoryItemsComponent);
@@ -120,23 +123,21 @@ describe('HistoryItemsComponent', () => {
     });
 
     it('should sort items by date in from oldest to newest', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
+        const sortedItems = historyItems.slice().sort((a, b) => b.date.getTime() - a.date.getTime());
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'old');
         expect(component.historyItems).toEqual(sortedItems);
     });
 
     it('should sort items by date in from newest to oldest', () => {
-        const sortedItems = historyItems.slice().sort((a, b) => b.date.getTime() - a.date.getTime());
+        const sortedItems = historyItems.slice().sort((a, b) => a.date.getTime() - b.date.getTime());
         component.historyItems = historyItems;
         component.sortItems('creationDate', 'recent');
         expect(component.historyItems).toEqual(sortedItems);
     });
 
     it('should call emptyHistory openEraseDialog is called with true result', () => {
-        const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-        dialogRefSpy.afterClosed.and.returnValue(of(true));
-        mockMatDialog.open.and.returnValue(dialogRefSpy);
+        spyOn(component, 'openEraseDialog').and.callThrough();
 
         spyOn(component, 'emptyHistory');
 

@@ -34,7 +34,7 @@ export class Users {
                     username: user.username,
                     score: user.userScore.score,
                     bonus: user.userBonus,
-                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.Disconnect,
+                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.DISCONNECT,
                     canChat: user.userCanChat,
                     isActive: user.isActive,
                 };

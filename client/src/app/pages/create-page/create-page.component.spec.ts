@@ -36,7 +36,6 @@ describe('CreatePageComponent', () => {
     let communicationServiceSpy: jasmine.SpyObj<CommunicationService>;
     let router: Router;
     let mockValidGame: Game;
-    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
     let routeSpy: jasmine.SpyObj<ActivatedRoute>;
     let gameCreationServiceSpy: jasmine.SpyObj<GameCreationService>;
     let adminServiceSpy: jasmine.SpyObj<AdminService>;
@@ -44,8 +43,6 @@ describe('CreatePageComponent', () => {
     let mockLogin: boolean;
 
     beforeEach(async () => {
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
-
         adminServiceSpy = jasmine.createSpyObj('AdminService', ['login']);
         Object.defineProperty(adminServiceSpy, 'login', { get: () => mockLogin });
 
@@ -80,7 +77,7 @@ describe('CreatePageComponent', () => {
                 MatToolbarModule,
             ],
             providers: [
-                { provide: MatSnackBar, useValue: snackBarSpy },
+                MatSnackBar,
                 { provide: ActivatedRoute, useValue: routeSpy },
                 { provide: GameCreationService, useValue: gameCreationServiceSpy },
                 { provide: CommunicationService, useValue: communicationServiceSpy },
@@ -131,14 +128,13 @@ describe('CreatePageComponent', () => {
 
     it('should have default values', () => {
         expect(component.showChildren).toBeFalse();
-        expect(component.isEditing).toBeFalse();
+        expect(component['isEditing']).toBeFalse();
         expect(component.questions.length).toBe(0);
         expect(component.selectedQuestion).toBeNull();
     });
 
     // ngOnInit
     it('should resetForm if verifyLogin is true and create game if no game id', () => {
-        component.login = true;
         const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
         paramMapSpy.get.and.returnValue(null);
 
@@ -230,7 +226,7 @@ describe('CreatePageComponent', () => {
     });
 
     it('should update an existing question', () => {
-        component.questionTitleToEdit = mockValidQuestion1.text;
+        component['questionTitleToEdit'] = mockValidQuestion1.text;
         component.questions = [mockValidQuestion1];
         const updatedQuestion: Question = {
             ...mockValidQuestion1,
@@ -345,10 +341,11 @@ describe('CreatePageComponent', () => {
     });
 
     it('should not load the game data if the game id is invalid', () => {
+        spyOn(component['snackBar'], 'open');
         spyOn(window, 'alert');
         communicationServiceSpy.getGameById.and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.loadGameData('1');
-        expect(snackBarSpy.open).toHaveBeenCalled();
+        expect(component['snackBar'].open).toHaveBeenCalled();
     });
 
     // resetForm

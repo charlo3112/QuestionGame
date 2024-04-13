@@ -25,7 +25,7 @@ describe('ChatComponent', () => {
     beforeEach(async () => {
         mockGameService = jasmine.createSpyObj('GameService', ['init', 'usernameValue', 'stateSubscribe'], {
             currentQuestion: QUESTION_PLACEHOLDER,
-            currentState: GameState.Starting,
+            currentState: GameState.STARTING,
         });
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
             'sendMessage',

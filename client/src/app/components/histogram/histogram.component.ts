@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
@@ -14,7 +12,7 @@ import { Choice } from '@common/interfaces/choice';
     selector: 'app-histogram',
     templateUrl: './histogram.component.html',
     styleUrls: ['./histogram.component.scss'],
-    imports: [MatIconModule, CommonModule, MatButtonModule, MatCardModule],
+    imports: [AppMaterialModule, CommonModule],
     standalone: true,
 })
 export class HistogramComponent {
@@ -112,6 +110,6 @@ export class HistogramComponent {
         return Math.max(this.getZeroGrade(), this.getHalfGrade(), this.getPerfectGrade());
     }
     isFinalQrlResult(): boolean {
-        return !(this.gameService.currentQuestion?.type === QuestionType.QRL || this.gameService.currentState !== GameState.ShowFinalResults);
+        return !(this.gameService.currentQuestion?.type === QuestionType.QRL || this.gameService.currentState !== GameState.SHOW_FINAL_RESULTS);
     }
 }

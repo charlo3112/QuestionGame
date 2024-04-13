@@ -7,7 +7,7 @@
             <section
                 *ngIf="
                     question.type === 'QRL' &&
-                    gameService.currentState !== gameState.ShowResults && gameService.currentState !== gameState.LastQuestion
+                    gameService.currentState !== gameState.SHOW_RESULTS && gameService.currentState !== gameState.LAST_QUESTION
                 "
                 id="answer-container"
             >
@@ -31,10 +31,16 @@
                     (gameService.currentState === gameState.LastQuestion || gameService.currentState === gameState.ShowResults)
                 "
             >
+            <section
+                *ngIf="
+                    question.type === 'QRL' &&
+                    (gameService.currentState === gameState.LAST_QUESTION || gameService.currentState === gameState.SHOW_RESULTS)
+                "
+            >
                 <app-player-qrl></app-player-qrl>
             </section>
             <button
-                *ngIf="question.type !== 'QRL' || gameService.currentState === gameState.AskingQuestion"
+                *ngIf="question.type !== 'QRL' || gameService.currentState === gameState.ASKING_QUESTION"
                 mat-raised-button
                 id="confirm-button"
                 (click)="confirmAndDisable()"

@@ -1,8 +1,7 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
+import { MatDialogRef } from '@angular/material/dialog';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { ValidationService } from '@app/services/validation/validation.service';
 import { Game } from '@common/interfaces/game';
@@ -14,7 +13,7 @@ import { lastValueFrom } from 'rxjs';
     templateUrl: './import-dialog.component.html',
     styleUrls: ['./import-dialog.component.scss'],
     standalone: true,
-    imports: [MatDialogModule, MatButtonModule, NgIf, NgFor, MatInputModule],
+    imports: [AppMaterialModule, NgIf, NgFor],
 })
 export class ImportDialogComponent {
     validationErrors: string[] = [];

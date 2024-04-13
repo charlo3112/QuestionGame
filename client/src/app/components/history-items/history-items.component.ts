@@ -1,13 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { EraseHistoryDialogComponent } from '@app/components/erase-history-dialog/erase-history-dialog.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
 import { History } from '@common/interfaces/history';
@@ -17,7 +14,7 @@ import { History } from '@common/interfaces/history';
     templateUrl: './history-items.component.html',
     styleUrls: ['./history-items.component.scss'],
     standalone: true,
-    imports: [MatCardModule, CommonModule, FormsModule, MatButtonModule, MatSelectModule, MatGridListModule, MatButtonModule, MatSnackBarModule],
+    imports: [AppMaterialModule, CommonModule, FormsModule],
 })
 export class HistoryItemsComponent implements OnInit {
     selectedSort: string = 'name';
@@ -112,8 +109,8 @@ export class HistoryItemsComponent implements OnInit {
                 if (order === 'az') return a.name.localeCompare(b.name);
                 return b.name.localeCompare(a.name);
             }
-            if (order === 'recent') return b.date.getTime() - a.date.getTime();
-            return a.date.getTime() - b.date.getTime();
+            if (order === 'recent') return a.date.getTime() - b.date.getTime();
+            return b.date.getTime() - a.date.getTime();
         });
     }
 }
