@@ -88,15 +88,6 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
     handleValidate(client: Socket) {
         this.roomService.validateChoice(client.id);
     }
-    @SubscribeMessage('game:qrl-answers')
-    handleAnswers(client: Socket, answers: QrlAnswer[]) {
-        this.roomService.handleAnswers(client.id, answers);
-    }
-
-    @SubscribeMessage('game:qrl-answer')
-    handleQrlAnswer(client: Socket, answer: QrlAnswer) {
-        this.roomService.handleQrlAnswer(client.id, answer);
-    }
 
     @SubscribeMessage(WebsocketMessage.TOGGLE_GAME)
     handleToggleGame(client: Socket, closed: boolean) {
@@ -139,10 +130,6 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
             client.join(user.roomId);
         }
         return res;
-    }
-    @SubscribeMessage('game:getQrlAnswers')
-    getQrlAnswers(client: Socket): QrlAnswer[] {
-        return this.roomService.getQrlAnswers(client.id);
     }
 
     @SubscribeMessage(WebsocketMessage.CONFIRM)
