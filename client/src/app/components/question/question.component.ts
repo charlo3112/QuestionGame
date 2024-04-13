@@ -83,6 +83,10 @@ export class QuestionComponent {
         }
     }
 
+    saveAnswer(): void {
+        this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
+    }
+
     canValidate(): boolean {
         return this.gameService.currentState === GameState.AskingQuestion && !this.gameService.isValidationDisabled;
     }

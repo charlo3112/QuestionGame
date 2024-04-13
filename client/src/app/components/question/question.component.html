@@ -13,6 +13,7 @@
                         class="text-area"
                         [disabled]="gameSubscriptionService.isTextLocked"
                         (keydown.enter)="$event.preventDefault()"
+                        (ngModelChange)="saveAnswer()"
                     >
                     </textarea>
                     <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
