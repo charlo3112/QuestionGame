@@ -258,6 +258,21 @@ describe('CreateQuestionComponent', () => {
         });
     });
 
+    it('should emit questionCreated event with correct data on save when question type is QRL', () => {
+        spyOn(component.questionCreated, 'emit');
+        component.questionName = mockValidQuestion.text;
+        component.questionPoints = mockValidQuestion.points;
+        component.choices = mockValidQuestion.choices;
+        component.questionType = QuestionType.QRL;
+        component.save();
+        expect(component.questionCreated.emit).toHaveBeenCalledWith({
+            type: QuestionType.QRL,
+            text: mockValidQuestion.text,
+            points: mockValidQuestion.points,
+            choices: mockValidQuestion.choices,
+        });
+    });
+
     // test de la fonction startEdit et saveEdit()
     it('should toggle edit mode on and off', () => {
         component.choices = [{ text: 'Réponse 1', isCorrect: false }];
