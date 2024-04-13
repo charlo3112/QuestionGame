@@ -31,4 +31,7 @@ export enum WebsocketMessage {
     MESSAGE_SEND = 'message:send',
     MESSAGE_RECEIVED = 'message:receive',
     MESSAGES_GET = 'messages:get',
+    QRL_ANSWERS = 'game:qrl-answers',
+    QRL_ANSWER = 'game:qrl-answer',
+    QRL_RESULT_DATA = 'game:qrl-result-data',
 }
