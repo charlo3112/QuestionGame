@@ -7,7 +7,8 @@
             <section
                 *ngIf="
                     question.type === 'QRL' &&
-                    gameService.currentState !== gameState.SHOW_RESULTS && gameService.currentState !== gameState.LAST_QUESTION
+                    gameService.currentState !== gameState.SHOW_RESULTS &&
+                    gameService.currentState !== gameState.LAST_QUESTION
                 "
                 id="answer-container"
             >
@@ -19,6 +20,7 @@
                         class="text-area"
                         [disabled]="gameSubscriptionService.isTextLocked"
                         (keydown.enter)="$event.preventDefault()"
+                        (ngModelChange)="onAnswerChange()"
                     >
                     </textarea>
                     <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>

@@ -25,6 +25,11 @@ export class TextAnswerComponent implements OnInit {
         this.isTextLocked = false;
     }
 
+    onAnswerChange() {
+        window.alert('Answer changed');
+        this.gameService.sendActivityUpdate();
+    }
+
     getAnswerClass() {
         return `answers-${this.answer}`;
     }

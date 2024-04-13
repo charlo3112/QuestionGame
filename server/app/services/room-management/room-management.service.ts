@@ -55,6 +55,14 @@ export class RoomManagementService {
         game.handleAnswers(userId, answers);
     }
 
+    handleActivityUpdate(userId: string): void {
+        const game = this.getActiveGame(userId);
+        if (!game) {
+            return;
+        }
+        game.handleActivityUpdate(userId);
+    }
+
     handleQrlAnswer(userId: string, answer: QrlAnswer) {
         const game = this.getActiveGame(userId);
         if (!game) {
