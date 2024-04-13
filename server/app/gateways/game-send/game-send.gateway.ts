@@ -48,7 +48,7 @@ export class GameGatewaySend {
     }
 
     sendQrlResultData(roomId: string, qrlResultData: Record<number, QrlAnswer[]>): void {
-        this.server.to(roomId).emit('game:qrl-result-data', qrlResultData);
+        this.server.to(roomId).emit(WebsocketMessage.QRL_RESULT_DATA, qrlResultData);
     }
 
     sendQrlGradedAnswer(userId: string, qrlAnswer: QrlAnswer): void {

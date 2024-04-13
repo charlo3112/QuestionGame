@@ -74,7 +74,7 @@ export class WebSocketService {
     }
 
     sendAnswers(answers: QrlAnswer[]) {
-        this.socket.emit('game:qrl-answers', answers);
+        this.socket.emit(WebsocketMessage.QRL_ANSWERS, answers);
     }
 
     validateChoice(): void {
@@ -82,7 +82,7 @@ export class WebSocketService {
     }
 
     sendQrlAnswer(answer: QrlAnswer): void {
-        this.socket.emit('game:qrl-answer', answer);
+        this.socket.emit(WebsocketMessage.QRL_ANSWER, answer);
     }
 
     leaveRoom(): void {
@@ -312,7 +312,7 @@ export class WebSocketService {
     }
 
     private listenForQrlResultData() {
-        this.socket.on('game:qrl-result-data', (qrlResultData: Record<number, QrlAnswer[]>) => {
+        this.socket.on(WebsocketMessage.QRL_RESULT_DATA, (qrlResultData: Record<number, QrlAnswer[]>) => {
             this.qrlResultDataSubject.next(qrlResultData);
         });
     }
