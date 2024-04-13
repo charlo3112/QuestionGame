@@ -152,6 +152,12 @@ export class ActiveGame {
         this.qrlAnswers = answers;
         this.qrlResultData[this.questionIndex] = answers;
         this.gameGateway.sendQrlResultData(this.roomId, this.qrlResultData);
+        this.users.resetActivity();
+    }
+
+    handleActivityUpdate(userId: string): void {
+        this.users.handleQrlActivityUpdate(userId);
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {

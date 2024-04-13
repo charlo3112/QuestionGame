@@ -77,6 +77,10 @@ export class WebSocketService {
         this.socket.emit(WebsocketMessage.QRL_ANSWERS, answers);
     }
 
+    sendActivityUpdate(): void {
+        this.socket.emit('game:activity-update');
+    }
+
     validateChoice(): void {
         this.socket.emit(WebsocketMessage.VALIDATE_CHOICE);
     }

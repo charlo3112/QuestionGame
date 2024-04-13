@@ -79,6 +79,11 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.handleAnswers(client.id, answers);
     }
 
+    @SubscribeMessage('game:activity-update')
+    handleActivityUpdate(client: Socket) {
+        this.roomService.handleActivityUpdate(client.id);
+    }
+
     @SubscribeMessage(WebsocketMessage.QRL_ANSWER)
     handleQrlAnswer(client: Socket, answer: QrlAnswer) {
         this.roomService.handleQrlAnswer(client.id, answer);

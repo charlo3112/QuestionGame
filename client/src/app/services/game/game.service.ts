@@ -165,6 +165,10 @@ export class GameService {
         this.websocketService.sendAnswers(answers);
     }
 
+    sendActivityUpdate() {
+        this.websocketService.sendActivityUpdate();
+    }
+
     leaveRoom() {
         if (this.gameSubscriptionService.state !== GameState.STARTING) {
             this.websocketService.leaveRoom();

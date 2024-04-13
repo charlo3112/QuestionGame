@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AppMaterialModule } from '@app/modules/material.module';
+import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { Grade } from '@common/enums/grade';
@@ -19,7 +20,10 @@ export class HistogramComponent {
     indexQuestionDisplayed: number = 0;
     questionType = QuestionType;
 
-    constructor(readonly gameService: GameService) {}
+    constructor(
+        readonly gameService: GameService,
+        readonly gameSubscriptionService: GameSubscriptionService,
+    ) {}
 
     get indexQuestion(): number {
         if (this.showArrows) {
@@ -61,10 +65,10 @@ export class HistogramComponent {
         return this.gameService.histogram.choicesCounters[this.indexQuestion][this.getChoiceIndex(choice)];
     }
     getActive(): number {
-        return 2;
+        return this.gameSubscriptionService.usersStat.filter((user) => user.isActive).length;
     }
     getInactive(): number {
-        return 2;
+        return this.gameSubscriptionService.usersStat.filter((user) => !user.isActive).length;
     }
     getMaxQRL(): number {
         return Math.max(this.getActive(), this.getInactive());
