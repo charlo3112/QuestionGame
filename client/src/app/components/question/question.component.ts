@@ -96,4 +96,8 @@ export class QuestionComponent {
     chatFocused(focus: boolean) {
         this.isChatFocused = focus;
     }
+
+    onAnswerChange() {
+        this.gameService.sendActivityUpdate();
+    }
 }

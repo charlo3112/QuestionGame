@@ -5,6 +5,8 @@ import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 
 export class UserData {
+    timeout: NodeJS.Timeout | null = null;
+    private isQrlActive: boolean;
     private userId: string;
     private name: string;
     private score: number;
@@ -28,6 +30,7 @@ export class UserData {
         this.isBonus = false;
         this.state = UserState.NoInteraction;
         this.canChat = true;
+        this.isQrlActive = false;
     }
 
     get username() {
@@ -40,6 +43,10 @@ export class UserData {
 
     get validate() {
         return this.timeValidate;
+    }
+
+    get isActive() {
+        return this.isQrlActive;
     }
 
     get userCanChat() {
@@ -68,6 +75,10 @@ export class UserData {
 
     get userRoomId() {
         return this.roomId;
+    }
+
+    set isActive(active: boolean) {
+        this.isQrlActive = active;
     }
 
     set uid(uid: string) {

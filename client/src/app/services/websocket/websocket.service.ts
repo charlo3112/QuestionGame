@@ -14,7 +14,7 @@ import { UserGameInfo } from '@common/interfaces/user-game-info';
 import { UserStat } from '@common/interfaces/user-stat';
 import { UserConnectionUpdate } from '@common/interfaces/user-update';
 import { Observable, Subject } from 'rxjs';
-import { io, Socket } from 'socket.io-client';
+import { Socket, io } from 'socket.io-client';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -74,6 +74,10 @@ export class WebSocketService {
 
     sendAnswers(answers: QrlAnswer[]) {
         this.socket.emit('game:qrl-answers', answers);
+    }
+
+    sendActivityUpdate(): void {
+        this.socket.emit('game:activity-update');
     }
 
     validateChoice(): void {
