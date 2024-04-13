@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -40,7 +40,7 @@ import { Question } from '@common/interfaces/question';
         PlayerQRLComponent,
     ],
 })
-export class QuestionComponent {
+export class QuestionComponent implements OnInit {
     @Input() question: Question;
     isChatFocused: boolean = false;
     gameState = GameState;
@@ -69,6 +69,13 @@ export class QuestionComponent {
         }
     }
 
+    ngOnInit(): void {
+        const savedAnswer = this.sessionStorageService.qrlAnswer;
+        if (savedAnswer) {
+            this.gameSubscriptionService.answer = savedAnswer;
+        }
+    }
+
     showButtonResult() {
         return this.gameService.currentState === GameState.LastQuestion && this.gameService.isHost && this.sessionStorageService.test;
     }
@@ -85,6 +92,7 @@ export class QuestionComponent {
 
     saveAnswer(): void {
         this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
+        this.sessionStorageService.qrlAnswer = this.gameSubscriptionService.answer;
     }
 
     canValidate(): boolean {
