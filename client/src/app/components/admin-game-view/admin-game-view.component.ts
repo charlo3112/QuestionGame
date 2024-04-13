@@ -38,13 +38,10 @@ export class AdminGameViewComponent implements OnInit {
     }
 
     enableNextStepButton(): boolean {
-        if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
-            return (
-                this.gradesSent &&
-                (this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion)
-            );
-        }
-        return this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion;
+        return (
+            (this.gradesSent || this.gameService.currentQuestion?.type !== QuestionType.QRL) &&
+            (this.gameService.currentState === GameState.ShowResults || this.gameService.currentState === GameState.LastQuestion)
+        );
     }
 
     canPause(): boolean {
