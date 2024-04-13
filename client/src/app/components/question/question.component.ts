@@ -28,8 +28,6 @@ export class QuestionComponent {
 
     // we need all 4 parameters
     // eslint-disable-next-line max-params
-    // we need all 4 parameters
-    // eslint-disable-next-line max-params
     constructor(
         readonly gameService: GameService,
         public gameSubscriptionService: GameSubscriptionService,
@@ -45,7 +43,6 @@ export class QuestionComponent {
         const key = event.key;
         if (key === 'Enter') {
             this.confirmAndDisable();
-            this.confirmAndDisable();
         }
         const value = parseInt(key, 10) - 1;
         if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
@@ -60,10 +57,6 @@ export class QuestionComponent {
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
             this.gameService.confirmQuestion();
-            if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
-                this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
-                this.gameSubscriptionService.isTextLocked = true;
-            }
             if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
                 this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
                 this.gameSubscriptionService.isTextLocked = true;
