@@ -42,6 +42,10 @@ export class GameService {
         return this.sessionStorageService.play;
     }
 
+    get isTest(): boolean {
+        return this.sessionStorageService.test;
+    }
+
     get time(): number {
         return this.timeService.serverTime;
     }
@@ -98,6 +102,10 @@ export class GameService {
         return this.sessionStorageService.username;
     }
 
+    get qrlAnswer(): string {
+        return this.sessionStorageService.qrlAnswer;
+    }
+
     get grade(): Grade {
         if (this.roomCodeValue.startsWith('test')) {
             return Grade.One;
@@ -124,6 +132,10 @@ export class GameService {
 
     get sortOption(): SortOption {
         return this.gameSubscriptionService.sortOption;
+    }
+
+    set qrlAnswer(qrlAnswer: string) {
+        this.sessionStorageService.qrlAnswer = qrlAnswer;
     }
 
     set sortOption(option: SortOption) {
@@ -172,6 +184,7 @@ export class GameService {
 
     leaveRoom() {
         if (this.gameSubscriptionService.state !== GameState.Starting) {
+            this.sessionStorageService.qrlAnswer = '';
             this.websocketService.leaveRoom();
             this.sessionStorageService.removeUser();
             this.gameSubscriptionService.reset();
@@ -223,6 +236,7 @@ export class GameService {
             player: this.sessionStorageService.username,
             grade: Grade.Ungraded,
         };
+        this.sessionStorageService.qrlAnswer = '';
         this.websocketService.sendQrlAnswer(qrlAnswer);
     }
 

@@ -14,7 +14,6 @@ import { PlayerQRLComponent } from '@app/components/player-qrl/player-qrl.compon
 import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
 import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
-import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { Question } from '@common/interfaces/question';
@@ -45,13 +44,10 @@ export class QuestionComponent implements OnInit {
     isChatFocused: boolean = false;
     gameState = GameState;
 
-    // we need all 4 parameters
-    // eslint-disable-next-line max-params
     constructor(
         readonly gameService: GameService,
         public gameSubscriptionService: GameSubscriptionService,
         private readonly router: Router,
-        private readonly sessionStorageService: SessionStorageService,
     ) {}
 
     @HostListener('keydown', ['$event'])
@@ -70,14 +66,14 @@ export class QuestionComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const savedAnswer = this.sessionStorageService.qrlAnswer;
+        const savedAnswer = this.gameService.qrlAnswer;
         if (savedAnswer) {
             this.gameSubscriptionService.answer = savedAnswer;
         }
     }
 
     showButtonResult() {
-        return this.gameService.currentState === GameState.LastQuestion && this.gameService.isHost && this.sessionStorageService.test;
+        return this.gameService.currentState === GameState.LastQuestion && this.gameService.isHost && this.gameService.isTest;
     }
 
     confirmAndDisable(): void {
@@ -92,7 +88,7 @@ export class QuestionComponent implements OnInit {
 
     saveAnswer(): void {
         this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
-        this.sessionStorageService.qrlAnswer = this.gameSubscriptionService.answer;
+        this.gameService.qrlAnswer = this.gameSubscriptionService.answer;
     }
 
     canValidate(): boolean {
@@ -100,7 +96,7 @@ export class QuestionComponent implements OnInit {
     }
 
     nextStep(): void {
-        if (this.gameService.currentState === GameState.LastQuestion && this.sessionStorageService.test) {
+        if (this.gameService.currentState === GameState.LastQuestion && this.gameService.isTest) {
             this.router.navigate(['/new']);
         }
     }
