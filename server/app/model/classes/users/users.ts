@@ -203,6 +203,15 @@ export class Users {
         }, ACTIVE_TIME);
     }
 
+    handleTestAnswer(userId: string, points: number) {
+        this.users.forEach((player) => {
+            if (player.uid === userId) {
+                player.addScore(points);
+                this.gameGateway.sendScoreUpdate(player.uid, player.userScore);
+            }
+        });
+    }
+
     validateChoice(userId: string): void {
         const user = this.users.get(userId);
         if (!user) {
