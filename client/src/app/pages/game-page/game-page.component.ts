@@ -1,18 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { AbandonDialogComponent } from '@app/components/abandon-dialog/abandon-dialog.component';
 import { AdminGameViewComponent } from '@app/components/admin-game-view/admin-game-view.component';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { CountdownComponent } from '@app/components/countdown/countdown.component';
 import { QuestionComponent } from '@app/components/question/question.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { Question } from '@common/interfaces/question';
@@ -23,16 +19,12 @@ import { Question } from '@common/interfaces/question';
     styleUrls: ['./game-page.component.scss'],
     standalone: true,
     imports: [
+        AppMaterialModule,
         AdminGameViewComponent,
         CommonModule,
         QuestionComponent,
-        MatIconModule,
-        MatFormFieldModule,
         FormsModule,
         AnswersComponent,
-        MatButtonModule,
-        MatToolbarModule,
-        MatDividerModule,
         CountdownComponent,
         RouterModule,
     ],
@@ -48,7 +40,7 @@ export class GamePageComponent implements OnInit {
     }
 
     isStartingGame(): boolean {
-        return this.gameService.currentState === GameState.Starting;
+        return this.gameService.currentState === GameState.STARTING;
     }
 
     async ngOnInit(): Promise<void> {
@@ -59,7 +51,7 @@ export class GamePageComponent implements OnInit {
         const dialogRef = this.dialog.open(AbandonDialogComponent);
 
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === true) {
+            if (result) {
                 this.gameService.leaveRoom();
             }
         });

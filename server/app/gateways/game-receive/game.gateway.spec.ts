@@ -86,7 +86,7 @@ describe('GameGatewayReceive', () => {
 
     it('handleJoinGame() should let a user join a game', async () => {
         const mockPayload = { gameCode: 'game123', username: 'JaneDoe' };
-        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.Wait, payload: undefined } };
+        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.WAIT, payload: undefined } };
         roomManagementService.joinRoom.returns(mockResult);
         const result = await gateway.handleJoinGame(socket, mockPayload);
         expect(result).toEqual(mockResult);
@@ -167,7 +167,7 @@ describe('GameGatewayReceive', () => {
 
     it('handleRejoinGame() should let a user rejoin a game', async () => {
         const mockUser = { userId: 'user1', name: 'John Doe', roomId: 'room123' } as User;
-        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.Wait, payload: undefined } };
+        const mockResult: Result<GameStatePayload> = { ok: true, value: { state: GameState.WAIT, payload: undefined } };
         roomManagementService.rejoinRoom.returns(mockResult);
         const result = await gateway.handleRejoinGame(socket, mockUser);
         expect(result).toEqual(mockResult);

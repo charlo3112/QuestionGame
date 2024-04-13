@@ -3,7 +3,6 @@
     <h1 class="title">Liste de jeux</h1>
 </mat-toolbar>
 <div class="content">
-    
     <div class="accordion-container">
         <mat-accordion>
             <mat-expansion-panel *ngIf="canCreateRandom">
@@ -22,8 +21,14 @@
                     </div>
                 </ng-template>
             </mat-expansion-panel>
-            
-            <app-startgame-expansion *ngFor="let game of games; index as i" [gameDetails]="game" (startGame)="startGame(game)" (testGame)="testGame(game)"> </app-startgame-expansion>
+
+            <app-start-game-expansion
+                *ngFor="let game of games; index as i"
+                [gameDetails]="game"
+                (startGame)="startGame(game)"
+                (testGame)="testGame(game)"
+            >
+            </app-start-game-expansion>
         </mat-accordion>
     </div>
 </div>

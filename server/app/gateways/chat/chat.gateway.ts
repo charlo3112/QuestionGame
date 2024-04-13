@@ -1,5 +1,6 @@
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { MAX_MESSAGE_LENGTH } from '@common/constants';
+import { WebsocketMessage } from '@common/enums/websocket-message';
 import { Message } from '@common/interfaces/message';
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
@@ -18,7 +19,7 @@ export class ChatGateway {
         this.roomManager.setSystemMessageCallback(this.sendSystemMessage.bind(this));
     }
 
-    @SubscribeMessage('message:send')
+    @SubscribeMessage(WebsocketMessage.MESSAGE_SEND)
     handleMessage(client: Socket, message: string): void {
         const roomId = this.roomManager.getRoomId(client.id);
         const name = this.roomManager.getUsername(client.id);
@@ -43,10 +44,10 @@ export class ChatGateway {
         }
         this.roomMessages.get(roomId)?.push(messageToSend);
 
-        this.server.to(roomId).emit('message:receive', messageToSend);
+        this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);
     }
 
-    @SubscribeMessage('messages:get')
+    @SubscribeMessage(WebsocketMessage.MESSAGES_GET)
     async handleGetMessages(client: Socket): Promise<Message[]> {
         const roomId = this.roomManager.getRoomId(client.id);
         const messages = this.roomMessages.get(roomId) || [];
@@ -65,7 +66,7 @@ export class ChatGateway {
             this.roomMessages.get(roomId)?.push(messageToSend);
         }
 
-        this.server.to(roomId).emit('message:receive', messageToSend);
+        this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);
     }
 
     private handleDeleteRoom(roomID: string): void {

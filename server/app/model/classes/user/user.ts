@@ -26,7 +26,7 @@ export class UserData {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
         this.canChat = true;
     }
 
@@ -84,7 +84,7 @@ export class UserData {
 
     set newChoice(choice: boolean[]) {
         this.choice = choice;
-        this.state = UserState.FirstInteraction;
+        this.state = UserState.FIRST_INTERACTION;
     }
 
     set newAnswer(answer: QrlAnswer) {
@@ -93,14 +93,14 @@ export class UserData {
 
     set validate(time: number) {
         this.timeValidate = time;
-        this.state = UserState.AnswerConfirmed;
+        this.state = UserState.ANSWER_CONFIRMED;
     }
 
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
     }
 
     isHost(): boolean {
@@ -136,6 +136,6 @@ export class UserData {
     }
 
     resetFinalResults() {
-        this.state = UserState.FinalResults;
+        this.state = UserState.FINAL_RESULTS;
     }
 }

@@ -1,4 +1,5 @@
 import { GameState } from '@common/enums/game-state';
+import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
 import { Score } from '@common/interfaces/score';
@@ -39,7 +40,7 @@ describe('GameGatewaySend', () => {
         const questionsCounter = [1, 2, 3];
         gateway.updateQuestionsCounter(roomId, questionsCounter);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:questionsCounter', questionsCounter);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.QUESTION_COUNTER, questionsCounter);
     });
 
     it('sendTimeUpdate should emit time update', () => {
@@ -47,14 +48,14 @@ describe('GameGatewaySend', () => {
         const time = TIME_DATA;
         gateway.sendTimeUpdate(roomId, time);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:time', time);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.TIME, time);
     });
 
     it('sendDeleteRoom should emit room closure and leave room', () => {
         const roomId = 'testRoom';
         gateway.sendDeleteRoom(roomId);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:closed', 'La partie a été fermée');
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.CLOSED, 'La partie a été fermée');
         expect(mockServer.socketsLeave).toHaveBeenCalledWith(roomId);
     });
 
@@ -63,7 +64,7 @@ describe('GameGatewaySend', () => {
         const message = 'User removed';
         gateway.sendUserRemoval(userId, message);
         expect(mockServer.to).toHaveBeenCalledWith(userId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:closed', message);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.CLOSED, message);
     });
 
     it('sendUpdateUser should emit user update', () => {
@@ -71,15 +72,15 @@ describe('GameGatewaySend', () => {
         const userUpdate = { username: 'testUser', isConnected: true } as UserConnectionUpdate;
         gateway.sendUpdateUser(roomId, userUpdate);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:user-update', userUpdate);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.USER_UPDATE, userUpdate);
     });
 
     it('sendStateUpdate should emit state update', () => {
         const roomId = 'testRoom';
-        const state = { state: GameState.AskingQuestion } as GameStatePayload;
+        const state = { state: GameState.ASKING_QUESTION } as GameStatePayload;
         gateway.sendStateUpdate(roomId, state);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:state', state);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.STATE, state);
     });
 
     it('sendScoreUpdate should emit score update', () => {
@@ -87,7 +88,7 @@ describe('GameGatewaySend', () => {
         const score = { score: 10 } as Score;
         gateway.sendScoreUpdate(userId, score);
         expect(mockServer.to).toHaveBeenCalledWith(userId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:score', score);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.SCORE, score);
     });
 
     it('sendUsersStatUpdate should emit users stat update', () => {
@@ -95,7 +96,7 @@ describe('GameGatewaySend', () => {
         const usersStat = [] as UserStat[];
         gateway.sendUsersStatUpdate(userId, usersStat);
         expect(mockServer.to).toHaveBeenCalledWith(userId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:users-stat', usersStat);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.USER_STAT, usersStat);
     });
 
     it('sendHistogramDataUpdate should emit histogram data update', () => {
@@ -103,7 +104,7 @@ describe('GameGatewaySend', () => {
         const histogramData = HISTOGRAM_DATA;
         gateway.sendHistogramDataUpdate(roomId, histogramData);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:histogramData', histogramData);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.HISTOGRAM_DATA, histogramData);
     });
 
     it('sendAlert should emit an alert message', () => {
@@ -111,7 +112,7 @@ describe('GameGatewaySend', () => {
         const message = 'Test Alert';
         gateway.sendAlert(roomId, message);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:alert', message);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.ALERT, message);
     });
 
     it('sendUserGameInfo should emit user game info', () => {
@@ -119,6 +120,6 @@ describe('GameGatewaySend', () => {
         const userGameInfo = USER_GAME_INFO;
         gateway.sendUserGameInfo(userId, userGameInfo);
         expect(mockServer.to).toHaveBeenCalledWith(userId);
-        expect(mockServer.emit).toHaveBeenCalledWith('game:user-game-info', userGameInfo);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.USER_GAME_INFO, userGameInfo);
     });
 });

@@ -1,12 +1,8 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 
@@ -15,7 +11,7 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
     templateUrl: './loading-page.component.html',
     styleUrls: ['./loading-page.component.scss'],
     standalone: true,
-    imports: [NgFor, NgIf, MatIconModule, MatButtonModule, MatCardModule, MatTooltipModule, ChatComponent, MatToolbarModule, RouterModule],
+    imports: [AppMaterialModule, NgFor, NgIf, ChatComponent, RouterModule],
 })
 export class LoadingPageComponent implements OnInit, OnDestroy {
     roomLocked = false;
