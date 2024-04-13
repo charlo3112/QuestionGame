@@ -190,7 +190,13 @@ describe('QuestionServiceEndToEnd', () => {
         const question = getFakeQuestion();
         await questionModel.create(question);
         await expect(
-            service.addQuestion({ ...question, type: QuestionType.QCM, text: question.getText(), points: 10, choices: getFakeChoicesDto() }),
+            service.addQuestion({
+                ...question,
+                type: question.type,
+                text: question.getText(),
+                points: question.points,
+                choices: question.choices,
+            }),
         ).rejects.toBeTruthy();
     });
 

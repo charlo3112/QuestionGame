@@ -1,16 +1,13 @@
 import { NgFor, NgIf } from '@angular/common';
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { AdminGamePreviewComponent } from '@app/components/admin-game-preview/admin-game-preview.component';
 import { AdminLoginComponent } from '@app/components/admin-login/admin-login.component';
 import { ImportDialogComponent } from '@app/components/import-dialog/import-dialog.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SNACKBAR_DURATION } from '@common/constants';
@@ -22,19 +19,7 @@ import { firstValueFrom } from 'rxjs';
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.scss'],
     standalone: true,
-    imports: [
-        NgIf,
-        NgFor,
-        AdminGamePreviewComponent,
-        AdminLoginComponent,
-        RouterLink,
-        MatButtonModule,
-        MatIconModule,
-        MatGridListModule,
-        MatToolbarModule,
-        MatSnackBarModule,
-        MatDialogModule,
-    ],
+    imports: [AppMaterialModule, NgIf, NgFor, AdminGamePreviewComponent, AdminLoginComponent, RouterLink],
 })
 export class AdminPageComponent implements OnInit {
     games: Game[] = [];

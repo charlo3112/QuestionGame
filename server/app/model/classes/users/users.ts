@@ -3,6 +3,7 @@ import { UserData } from '@app/model/classes/user/user';
 import { ChoiceData } from '@app/model/database/choice';
 import { BONUS_TIME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { UserStat } from '@common/interfaces/user-stat';
 
@@ -33,7 +34,7 @@ export class Users {
                     username: user.username,
                     score: user.userScore.score,
                     bonus: user.userBonus,
-                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.Disconnect,
+                    state: this.activeUsers.has(user.uid) ? user.userState : UserState.DISCONNECT,
                     canChat: user.userCanChat,
                 };
             });
@@ -217,6 +218,24 @@ export class Users {
             return;
         }
         user.newChoice = choice;
+        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
+        this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
+    }
+
+    handleAnswers(userId: string, answers: QrlAnswer[], points: number) {
+        const user = this.users.get(userId);
+        this.users.forEach((player) => {
+            for (const answer of answers) {
+                if (player.username === answer.player) {
+                    player.newAnswer = answer;
+                    if (answer.grade !== 'Ungraded') {
+                        player.addScore(points * answer.grade);
+                        this.gameGateway.sendScoreUpdate(player.uid, player.userScore);
+                        this.gameGateway.sendQrlGradedAnswer(player.uid, answer);
+                    }
+                }
+            }
+        });
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
     }

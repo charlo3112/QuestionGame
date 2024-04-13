@@ -47,7 +47,7 @@
             <div cdkDropList (cdkDropListDropped)="drop($event)">
                 <mat-card *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
                     <mat-card-header>
-                        <mat-card-title>{{ i + 1 }}. {{ question.text }}</mat-card-title>
+                        <mat-card-title>{{ i + 1 }}. {{ question.text }} - [{{ question.type }}]</mat-card-title>
                     </mat-card-header>
                     <mat-card-actions>
                         <button mat-icon-button aria-label="Modifier" color="accent" (click)="editQuestion(question)">

@@ -1,13 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { RouterModule } from '@angular/router';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
 
 @Component({
@@ -15,17 +12,7 @@ import { GameService } from '@app/services/game/game.service';
     templateUrl: './result-page.component.html',
     styleUrls: ['./result-page.component.scss'],
     standalone: true,
-    imports: [
-        MatToolbarModule,
-        ChatComponent,
-        MatCardModule,
-        RouterModule,
-        HistogramComponent,
-        CommonModule,
-        LeaderboardComponent,
-        MatTabsModule,
-        MatButtonModule,
-    ],
+    imports: [AppMaterialModule, ChatComponent, RouterModule, HistogramComponent, CommonModule, LeaderboardComponent],
 })
 export class ResultPageComponent implements OnDestroy, OnInit {
     constructor(private readonly gameService: GameService) {}

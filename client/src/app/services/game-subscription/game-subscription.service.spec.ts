@@ -1,12 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
+import { SortOption } from '@common/enums/sort-option';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { QUESTION_PLACEHOLDER } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { TIME_DATA } from '@common/interfaces/time-data';
@@ -23,6 +25,17 @@ describe('GameSubscriptionService', () => {
     let sessionStorageServiceSpy: jasmine.SpyObj<SessionStorageService>;
 
     let mockTest: boolean;
+
+    const mockQrlAnswer: QrlAnswer = {
+        player: 'testplayer',
+        text: 'Exemple de réponse',
+        grade: Grade.Ungraded,
+    };
+    const mockQrlResultData: Record<number, QrlAnswer[]> = {
+        // We need to have this value in the dictionary to make the test run
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        0: [mockQrlAnswer],
+    };
 
     beforeEach(() => {
         sessionStorageServiceSpy = jasmine.createSpyObj('SessionStorageService', ['test']);
@@ -45,15 +58,18 @@ describe('GameSubscriptionService', () => {
             'getHistogramData',
             'getAlert',
             'getUserGameInfo',
+            'getQrlGradedAnswers',
+            'getQrlResultData',
         ]);
+        websocketServiceSpy.getQrlGradedAnswers.and.returnValue(of(mockQrlAnswer));
+        websocketServiceSpy.getQrlResultData.and.returnValue(of(mockQrlResultData));
         websocketServiceSpy.getScore.and.returnValue(Promise.resolve({ score: 0, bonus: false }));
         websocketServiceSpy.getUsers.and.returnValue(Promise.resolve([]));
-
         websocketServiceSpy.getUsersStat.and.returnValue(of([]));
         websocketServiceSpy.getHistogramData.and.returnValue(of(HISTOGRAM_DATA));
         websocketServiceSpy.getAlert.and.returnValue(of(''));
         websocketServiceSpy.getUserGameInfo.and.returnValue(of(USER_GAME_INFO));
-        websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NotStarted, payload: '' }));
+        websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NOT_STARTED, payload: '' }));
         websocketServiceSpy.getTime.and.returnValue(of(TIME_DATA));
         websocketServiceSpy.getClosedConnection.and.returnValue(of(''));
         websocketServiceSpy.getUserUpdate.and.returnValue(of(USER_CONNECTION_UPDATE));
@@ -76,7 +92,7 @@ describe('GameSubscriptionService', () => {
 
     describe('Subscriptions Initialization', () => {
         it('initializes with correct game state payload', async () => {
-            const mockState: GameStatePayload = { state: GameState.Starting, payload: 'Game Title' };
+            const mockState: GameStatePayload = { state: GameState.STARTING, payload: 'Game Title' };
             const mockScore: Score = { score: 5, bonus: false };
             websocketServiceSpy.getScore.and.returnValue(Promise.resolve(mockScore));
             websocketServiceSpy.getUsers.and.returnValue(Promise.resolve(['user1']));
@@ -95,7 +111,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.UsernameAscending;
+            service.sortOption = SortOption.USERNAME_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -106,7 +122,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.UsernameDescending;
+            service.sortOption = SortOption.USERNAME_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('ken');
         });
@@ -117,7 +133,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.ScoreAscending;
+            service.sortOption = SortOption.SCORE_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -128,7 +144,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.ScoreDescending;
+            service.sortOption = SortOption.SCORE_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Bob');
         });
@@ -139,7 +155,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.StateAscending;
+            service.sortOption = SortOption.STATE_ASCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Alice');
         });
@@ -150,7 +166,7 @@ describe('GameSubscriptionService', () => {
                 { username: 'Bob', score: 200, state: 2, canChat: true, bonus: 0 },
                 { username: 'ken', score: 200, state: 2, canChat: true, bonus: 0 },
             ];
-            service.sortOption = SortOption.StateDescending;
+            service.sortOption = SortOption.STATE_DESCENDING;
             service.sortUsers();
             expect(service.usersStat[0].username).toBe('Bob');
         });
@@ -177,20 +193,20 @@ describe('GameSubscriptionService', () => {
 
     describe('state subscription', () => {
         it('should navigate to /loading when game state is Wait', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.Wait, payload: '' }));
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.WAIT, payload: '' }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/loading']);
         });
 
-        it('should navigate to /results when game state is ShowFinalResults', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.ShowFinalResults, payload: '' }));
+        it('should navigate to /results when game state is SHOW_FINAL_RESULTS', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.SHOW_FINAL_RESULTS, payload: '' }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/results']);
         });
 
-        it('should navigate to /game when game state is AskingQuestion', () => {
+        it('should navigate to /game when game state is ASKING_QUESTION', () => {
             const questionPayload: GameStatePayload = {
-                state: GameState.AskingQuestion,
+                state: GameState.ASKING_QUESTION,
                 payload: QUESTION_PLACEHOLDER,
             };
             websocketServiceSpy.getState.and.returnValue(of(questionPayload));
@@ -199,11 +215,26 @@ describe('GameSubscriptionService', () => {
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
         });
 
-        it('should navigate to /game when game state is LastQuestion', () => {
-            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.LastQuestion, payload: QUESTION_PLACEHOLDER }));
+        it('should navigate to /game when game state is LAST_QUESTION', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.LAST_QUESTION, payload: QUESTION_PLACEHOLDER }));
             service['subscribeToStateUpdate']();
             expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
             expect(service.question).toEqual(QUESTION_PLACEHOLDER);
+        });
+
+        it('should navigate to /game when game state is SHOW_RESULTS', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.SHOW_RESULTS, payload: QUESTION_PLACEHOLDER }));
+            service['subscribeToStateUpdate']();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/game']);
+            expect(service.question).toEqual(QUESTION_PLACEHOLDER);
+        });
+
+        it('should navigate to / when game state is NOT_STARTED', () => {
+            websocketServiceSpy.getState.and.returnValue(of({ state: GameState.NOT_STARTED, payload: '' }));
+            spyOn(service, 'reset');
+            service['subscribeToStateUpdate']();
+            expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
+            expect(service.reset).toHaveBeenCalled();
         });
     });
 

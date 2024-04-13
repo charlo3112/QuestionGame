@@ -1,5 +1,6 @@
 import { HOST_NAME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 
@@ -10,6 +11,7 @@ export class UserData {
     private bonus: number;
     private roomId: string;
     private choice: boolean[] | undefined;
+    private answerQrl: QrlAnswer | undefined;
     private timeValidate: number | undefined;
     private isBonus: boolean;
     private state: UserState;
@@ -24,7 +26,7 @@ export class UserData {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
         this.canChat = true;
     }
 
@@ -82,19 +84,23 @@ export class UserData {
 
     set newChoice(choice: boolean[]) {
         this.choice = choice;
-        this.state = UserState.FirstInteraction;
+        this.state = UserState.FIRST_INTERACTION;
+    }
+
+    set newAnswer(answer: QrlAnswer) {
+        this.answerQrl = answer;
     }
 
     set validate(time: number) {
         this.timeValidate = time;
-        this.state = UserState.AnswerConfirmed;
+        this.state = UserState.ANSWER_CONFIRMED;
     }
 
     resetChoice() {
         this.choice = undefined;
         this.timeValidate = undefined;
         this.isBonus = false;
-        this.state = UserState.NoInteraction;
+        this.state = UserState.NO_INTERACTION;
     }
 
     isHost(): boolean {
@@ -130,6 +136,6 @@ export class UserData {
     }
 
     resetFinalResults() {
-        this.state = UserState.FinalResults;
+        this.state = UserState.FINAL_RESULTS;
     }
 }

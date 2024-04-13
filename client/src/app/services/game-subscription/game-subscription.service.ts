@@ -1,13 +1,15 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { SortOption } from '@app/enums/sort-option';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
 import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
+import { SortOption } from '@common/enums/sort-option';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
@@ -17,26 +19,31 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
+    isTextLocked: boolean = false;
+    answer: string = '';
     showBonus: boolean;
     scoreValue: number = 0;
     players: Set<string> = new Set();
     histogramData: HistogramData;
+    qrlResultData: Record<number, QrlAnswer[]>;
     usersStat: UserStat[] = [];
+    qrlGradedAnswer: QrlAnswer;
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
-    sortOption: SortOption = SortOption.UsernameAscending;
+    sortOption: SortOption = SortOption.USERNAME_ASCENDING;
     isValidate: boolean = false;
-    state: GameState = GameState.NotStarted;
+    state: GameState = GameState.NOT_STARTED;
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
     private scoreSubscription: Subscription;
     private userSubscription: Subscription;
     private usersStatSubscription: Subscription;
+    private qrlGradedAnswersSubscription: Subscription;
     private histogramDataSubscription: Subscription;
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
-
+    private qrlResultDataSubscription: Subscription;
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
     constructor(
@@ -53,34 +60,30 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToHistogramData();
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
+        this.subscribeToQrlGradedAnswer();
+        this.subscribeToQrlResultData();
+        this.subscribeToQrlGradedAnswer();
+        this.subscribeToQrlResultData();
     }
 
     ngOnDestroy() {
-        if (this.stateSubscription) {
-            this.stateSubscription.unsubscribe();
-        }
-        if (this.messagesSubscription) {
-            this.messagesSubscription.unsubscribe();
-        }
-        if (this.scoreSubscription) {
-            this.scoreSubscription.unsubscribe();
-        }
-        if (this.userSubscription) {
-            this.userSubscription.unsubscribe();
-        }
-        if (this.usersStatSubscription) {
-            this.usersStatSubscription.unsubscribe();
-        }
-        if (this.histogramDataSubscription) {
-            this.histogramDataSubscription.unsubscribe();
-        }
-        if (this.alertSubscription) {
-            this.alertSubscription.unsubscribe();
-        }
-
-        if (this.userGameInfoSubscription) {
-            this.userGameInfoSubscription.unsubscribe();
-        }
+        const subscriptionsToUnsubscribe = [
+            this.stateSubscription,
+            this.messagesSubscription,
+            this.scoreSubscription,
+            this.userSubscription,
+            this.usersStatSubscription,
+            this.histogramDataSubscription,
+            this.alertSubscription,
+            this.userGameInfoSubscription,
+            this.qrlGradedAnswersSubscription,
+            this.qrlResultDataSubscription,
+        ];
+        subscriptionsToUnsubscribe.forEach((subscription) => {
+            if (subscription) {
+                subscription.unsubscribe();
+            }
+        });
     }
 
     async initSubscriptions(state: GameStatePayload) {
@@ -95,7 +98,7 @@ export class GameSubscriptionService implements OnDestroy {
 
     reset() {
         this.question = undefined;
-        this.state = GameState.NotStarted;
+        this.state = GameState.NOT_STARTED;
         this.scoreValue = 0;
         this.choicesSelected = [false, false, false, false];
     }
@@ -104,31 +107,31 @@ export class GameSubscriptionService implements OnDestroy {
         this.usersStat.sort((a, b) => {
             let result = 0;
             switch (this.sortOption) {
-                case SortOption.UsernameAscending:
+                case SortOption.USERNAME_ASCENDING:
                     result = a.username.localeCompare(b.username);
                     break;
-                case SortOption.UsernameDescending:
+                case SortOption.USERNAME_DESCENDING:
                     result = b.username.localeCompare(a.username);
                     break;
-                case SortOption.ScoreAscending:
+                case SortOption.SCORE_ASCENDING:
                     result = a.score - b.score;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.ScoreDescending:
+                case SortOption.SCORE_DESCENDING:
                     result = b.score - a.score;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.StateAscending:
+                case SortOption.STATE_ASCENDING:
                     result = a.state - b.state;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
                     }
                     break;
-                case SortOption.StateDescending:
+                case SortOption.STATE_DESCENDING:
                     result = b.state - a.state;
                     if (result === 0) {
                         result = a.username.localeCompare(b.username);
@@ -156,6 +159,12 @@ export class GameSubscriptionService implements OnDestroy {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
                 this.setState(state);
+                if (this.state === GameState.SHOW_RESULTS) {
+                    this.isTextLocked = false;
+                    this.answer = '';
+                } else if (this.state === GameState.ASKING_QUESTION && this.qrlGradedAnswer !== undefined) {
+                    this.qrlGradedAnswer.grade = Grade.Ungraded;
+                }
             },
         });
     }
@@ -190,6 +199,22 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
+    private subscribeToQrlGradedAnswer() {
+        this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
+            next: (qrlAnswer: QrlAnswer) => {
+                this.qrlGradedAnswer = qrlAnswer;
+            },
+        });
+    }
+
+    private subscribeToQrlResultData() {
+        this.qrlResultDataSubscription = this.websocketService.getQrlResultData().subscribe({
+            next: (qrlResultData: Record<number, QrlAnswer[]>) => {
+                this.qrlResultData = qrlResultData;
+            },
+        });
+    }
+
     private subscribeToHistogramData() {
         this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
             next: (histogramData: HistogramData) => {
@@ -217,25 +242,30 @@ export class GameSubscriptionService implements OnDestroy {
 
     private setState(state: GameStatePayload) {
         this.state = state.state;
-        if (this.state === GameState.NotStarted) {
-            this.reset();
-            return;
+
+        switch (this.state) {
+            case GameState.WAIT:
+                this.setRoute('/loading');
+                break;
+            case GameState.SHOW_FINAL_RESULTS:
+                this.setRoute('/results');
+                break;
+            case GameState.SHOW_RESULTS:
+            case GameState.LAST_QUESTION:
+            case GameState.ASKING_QUESTION:
+                this.question = state.payload as Question;
+                this.setRoute('/game');
+                break;
+            case GameState.STARTING:
+                this.title = state.payload as string;
+                this.setRoute('/game');
+                break;
+            case GameState.NOT_STARTED:
+            default:
+                this.reset();
+                this.setRoute('/');
+                break;
         }
-        if (this.state === GameState.Wait) {
-            this.setRoute('/loading');
-            return;
-        }
-        if (this.state === GameState.ShowFinalResults) {
-            this.setRoute('/results');
-            return;
-        }
-        if (this.state === GameState.ShowResults || this.state === GameState.LastQuestion || this.state === GameState.AskingQuestion) {
-            this.question = state.payload as Question;
-        }
-        if (this.state === GameState.Starting) {
-            this.title = state.payload as string;
-        }
-        this.setRoute('/game');
     }
 
     private setRoute(route: string) {

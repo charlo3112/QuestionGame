@@ -1,12 +1,16 @@
 <div class="main-container">
-    <div class="flex column stat-container">
+    <div class="flex column stat-container" *ngIf="(currentQuestion.type === 'QRL' && gameService.currentState === 3 ) || (currentQuestion.type === 'QCM')">
         <app-leaderboard></app-leaderboard>
         <app-histogram class="histogram" [showArrows]="false"></app-histogram>
+    </div>
+    <div class="qrl-correction" *ngIf="currentQuestion.type === 'QRL' && readyForGrading">
+        <app-admin-qrl (answersCorrected)="qrlCorrected()" [answers]="this.qrlAnswers"> </app-admin-qrl>
     </div>
     <div class="flex column">
         <app-chat></app-chat>
         <div class="flex">
-            <button mat-raised-button (click)="togglePause()" color="primary">{{gameService.pause ? 'Play' : 'Pause'}}</button>
+            <button mat-raised-button (click)="nextStep()" color="primary" [disabled]="!this.enableNextStepButton()">{{ buttonText }}</button>
+            <button mat-raised-button (click)="togglePause()" color="primary" [disabled]="!canPause()">{{gameService.pause ? 'Play' : 'Pause'}}</button>
             <button mat-raised-button (click)="startPanicking()" color="warn" [disabled]="!canPanic()">ACTIVER LA PANIQUE!</button>
         </div>
     </div>

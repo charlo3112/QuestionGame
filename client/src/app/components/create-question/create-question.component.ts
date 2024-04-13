@@ -2,16 +2,8 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { CreateQuestionService } from '@app/services/create-question/create-question.service';
 import { MIN_NB_OF_POINTS, SNACKBAR_DURATION, WEIGHTS_QUESTIONS } from '@common/constants';
@@ -23,21 +15,7 @@ import { Question } from '@common/interfaces/question';
     selector: 'app-create-question',
     templateUrl: './create-question.component.html',
     styleUrls: ['./create-question.component.scss'],
-    imports: [
-        CommonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatIconModule,
-        FormsModule,
-        MatCheckboxModule,
-        ReactiveFormsModule,
-        DragDropModule,
-        MatCardModule,
-        MatListModule,
-        MatSlideToggleModule,
-    ],
+    imports: [AppMaterialModule, CommonModule, FormsModule, ReactiveFormsModule, DragDropModule],
     standalone: true,
 })
 export class CreateQuestionComponent implements OnChanges, OnInit {
@@ -55,6 +33,8 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     editArray: boolean[] = [];
     choiceValue: boolean[] = [];
     questionToDelete: string = '';
+    questionType: QuestionType;
+    questionTypeOptions: QuestionType[] = [QuestionType.QRL, QuestionType.QCM];
 
     weights = WEIGHTS_QUESTIONS;
 
@@ -89,8 +69,9 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
 
     addToQuestionBank() {
         const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
+        if (this.questionType === QuestionType.QRL) this.choices = [];
         this.createQuestionService
-            .addToQuestionBank(this.questionName, this.questionPoints, this.choices)
+            .addToQuestionBank(this.questionName, this.questionPoints, this.choices, this.questionType)
             .then((newQuestion) => {
                 if (newQuestion) {
                     this.questionCreated.emit(newQuestion);
@@ -122,7 +103,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         if (this.questionToDelete.length) {
             this.communicationService
                 .modifyQuestion({
-                    type: QuestionType.QCM,
+                    type: this.questionType,
                     text: this.questionName,
                     points: this.questionPoints,
                     choices: this.choices,
@@ -147,6 +128,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         this.questionName = question.text;
         this.questionPoints = question.points;
         this.choices = [...question.choices];
+        this.questionType = question.type;
         this.questionToDelete = question.text;
     }
 
@@ -163,9 +145,20 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
     }
 
     save() {
-        if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+        if (this.questionType === QuestionType.QCM) {
+            if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
+                const newQuestion: Question = {
+                    type: this.questionType,
+                    text: this.questionName,
+                    points: this.questionPoints,
+                    choices: this.choices,
+                };
+                this.questionCreated.emit(newQuestion);
+                this.resetForm();
+            }
+        } else if (this.questionType === QuestionType.QRL) {
             const newQuestion: Question = {
-                type: QuestionType.QCM,
+                type: this.questionType,
                 text: this.questionName,
                 points: this.questionPoints,
                 choices: this.choices,

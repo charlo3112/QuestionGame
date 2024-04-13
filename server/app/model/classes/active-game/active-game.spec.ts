@@ -93,15 +93,15 @@ describe('ActiveGame', () => {
     });
 
     it('gameStatePayload() should return game title as payload when state is Starting', () => {
-        game['advanceState'](GameState.Starting);
-        const expectedPayload = { state: GameState.Starting, payload: mockGameData.title };
+        game['advanceState'](GameState.STARTING);
+        const expectedPayload = { state: GameState.STARTING, payload: mockGameData.title };
         const receivedPayload = game.gameStatePayload;
         expect(receivedPayload).toStrictEqual(expectedPayload);
     });
 
-    it('gameStatePayload() should return question with answers as payload when state is ShowResults', () => {
-        game['advanceState'](GameState.ShowResults);
-        const expectedPayload = { state: GameState.ShowResults, payload: game.currentQuestionWithAnswer };
+    it('gameStatePayload() should return question with answers as payload when state is SHOW_RESULTS', () => {
+        game['advanceState'](GameState.SHOW_RESULTS);
+        const expectedPayload = { state: GameState.SHOW_RESULTS, payload: game.currentQuestionWithAnswer };
         const receivedPayload = game.gameStatePayload;
         expect(receivedPayload).toStrictEqual(expectedPayload);
     });
@@ -111,8 +111,8 @@ describe('ActiveGame', () => {
         expect(game.isLocked).toBe(true);
     });
 
-    it('banUser() should return undefined when currentstate !== Wait', () => {
-        game['advanceState'](GameState.AskingQuestion);
+    it('banUser() should return undefined when currentstate !== WAIT', () => {
+        game['advanceState'](GameState.ASKING_QUESTION);
         const result = game.banUser('userId');
         expect(result).toBeUndefined();
     });
@@ -132,20 +132,20 @@ describe('ActiveGame', () => {
         expect(result).toBeUndefined();
     });
 
-    it('handleChoice() should return if currentState === AskingQuestion and user validate is not undefined', () => {
+    it('handleChoice() should return if currentState === ASKING_QUESTION and user validate is not undefined', () => {
         const mockUserData = new UserData('userId', 'roomId', 'username');
         mockUserData.validate = 2;
         game.addUser(mockUserData);
-        game['advanceState'](GameState.AskingQuestion);
+        game['advanceState'](GameState.ASKING_QUESTION);
         const result = game.handleChoice('userId', [false, false, false, false]);
         expect(result).toBeUndefined();
     });
 
-    it('handleChoice() should call sendUserSelectedChoice if currentState !== AskingQuestion', () => {
+    it('handleChoice() should call sendUserSelectedChoice if currentState !== ASKING_QUESTION', () => {
         const mockUserData = new UserData('userId', 'roomId', 'username');
         game.addUser(mockUserData);
         const sendUserSelectedChoiceMock = jest.spyOn(game, 'sendUserSelectedChoice');
-        game['advanceState'](GameState.AskingQuestion);
+        game['advanceState'](GameState.ASKING_QUESTION);
         game.handleChoice('userId', [false, false, false, false]);
         expect(sendUserSelectedChoiceMock).toHaveBeenCalled();
     });
@@ -173,7 +173,7 @@ describe('ActiveGame', () => {
 
     it('showFinalResults() should change game state', async () => {
         game.showFinalResults();
-        expect(game.currentState).toBe(GameState.ShowFinalResults);
+        expect(game.currentState).toBe(GameState.SHOW_FINAL_RESULTS);
     });
 
     it('userExist() should be false if the user is not in the game', async () => {
@@ -202,15 +202,15 @@ describe('ActiveGame', () => {
 
     // it('advance() should showQuestion if the game is in state Show Results', async () => {
     //     game.isLocked = true;
-    //     game['advanceState'](GameState.ShowResults);
+    //     game['advanceState'](GameState.SHOW_RESULTS);
     //     const askQuestionMock = jest.spyOn(game, 'askQuestion');
     //     await game.advance();
     //     expect(askQuestionMock).toHaveBeenCalled();
     // });
 
     it('advanceState() should modify the state of the Game', () => {
-        game['advanceState'](GameState.AskingQuestion);
-        expect(game.currentState).toBe(GameState.AskingQuestion);
+        game['advanceState'](GameState.ASKING_QUESTION);
+        expect(game.currentState).toBe(GameState.ASKING_QUESTION);
     });
 
     // it('askQuestion() should update the histogram, calculate the scores and advance state', async () => {
@@ -223,13 +223,13 @@ describe('ActiveGame', () => {
     // it('launchGame() should change game state', async () => {
     //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
     //     await game.launchGame();
-    //     expect(game.currentState).toBe(GameState.Starting);
+    //     expect(game.currentState).toBe(GameState.STARTING);
     // });
 
     // it('testGame() should change game state', async () => {
     //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
     //     await game.testGame();
-    //     expect(game.currentState).toBe(GameState.Starting);
+    //     expect(game.currentState).toBe(GameState.STARTING);
     // });
 
     it('questionIndexCurrent() should return the current question index', () => {

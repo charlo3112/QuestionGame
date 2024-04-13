@@ -26,10 +26,8 @@ describe('CreateQuestionComponent', () => {
     let mockValidQuestion: Question;
     let communicationService: CommunicationService;
     let createQuestionServiceSpy: jasmine.SpyObj<CreateQuestionService>;
-    let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
 
     beforeEach(async () => {
-        snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
         createQuestionServiceSpy = jasmine.createSpyObj('createQuestionServiceSpy', [
             'addQuestion',
             'modifyQuestion',
@@ -51,11 +49,7 @@ describe('CreateQuestionComponent', () => {
                 NoopAnimationsModule,
                 HttpClientModule,
             ],
-            providers: [
-                CommunicationService,
-                { provide: MatSnackBar, useValue: snackBarSpy },
-                { provide: CreateQuestionService, useValue: createQuestionServiceSpy },
-            ],
+            providers: [CommunicationService, MatSnackBar, { provide: CreateQuestionService, useValue: createQuestionServiceSpy }],
         }).compileComponents();
         fixture = TestBed.createComponent(CreateQuestionComponent);
         component = fixture.componentInstance;
@@ -158,9 +152,10 @@ describe('CreateQuestionComponent', () => {
 
     it('should call openSnackBar if addToQuestionBank fails', fakeAsync(() => {
         createQuestionServiceSpy.addToQuestionBank.and.returnValue(Promise.reject());
+        spyOn(component['snackBar'], 'open');
         component.addToQuestionBank();
         tick();
-        expect(snackBarSpy.open).toHaveBeenCalledWith('La question est déjà dans la banque de questions.', undefined, jasmine.any(Object));
+        expect(component['snackBar'].open).toHaveBeenCalledWith('La question est déjà dans la banque de questions.', undefined, jasmine.any(Object));
     }));
 
     // test de la fonction cancel()
@@ -226,11 +221,12 @@ describe('CreateQuestionComponent', () => {
     });
 
     it('should alert if there is an error during the edit', () => {
+        spyOn(component['snackBar'], 'open');
         component.questionToDelete = mockValidQuestion.text;
         component.fillForm(mockValidQuestion);
         spyOn(communicationService, 'modifyQuestion').and.returnValue(throwError(() => new Error('Internal Server Error')));
         component.editQuestion();
-        expect(snackBarSpy.open).toHaveBeenCalled();
+        expect(component['snackBar'].open).toHaveBeenCalled();
     });
 
     it('should not edit the question if there is no question to edit', () => {
@@ -254,6 +250,7 @@ describe('CreateQuestionComponent', () => {
         component.questionName = mockValidQuestion.text;
         component.questionPoints = mockValidQuestion.points;
         component.choices = mockValidQuestion.choices;
+        component.questionType = QuestionType.QCM;
         createQuestionServiceSpy.choiceVerif.and.returnValue(true);
         component.save();
         expect(component.questionCreated.emit).toHaveBeenCalledWith({

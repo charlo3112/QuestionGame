@@ -26,7 +26,7 @@ describe('ResultPageComponent', () => {
                     { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
                 ],
             },
-            currentState: GameState.Starting,
+            currentState: GameState.STARTING,
             histogramData: mockHistogramData,
         });
         Object.defineProperty(mockGameService, 'histogram', {
