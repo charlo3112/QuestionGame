@@ -122,7 +122,7 @@ export class ActiveGame {
     }
 
     getQrlAnswers(): QrlAnswer[] {
-        return this.qrlAnswers;
+        return this.users.getQrlAnswers();
     }
 
     getScore(userId: string): Score {
@@ -154,7 +154,8 @@ export class ActiveGame {
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        this.qrlAnswers.push(answer);
+        // this.qrlAnswers.push(answer);
+        this.users.handleAnswer(userId, answer);
     }
 
     isValidate(userId: string): boolean {
