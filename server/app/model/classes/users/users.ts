@@ -87,6 +87,16 @@ export class Users {
         return user.userChoice === undefined ? [false, false, false, false] : user.userChoice;
     }
 
+    getQrlAnswers(): QrlAnswer[] {
+        const qrlAnswers: QrlAnswer[] = [];
+        this.users.forEach((user) => {
+            if (user.uid !== this.hostId) {
+                qrlAnswers.push(user.qrlAnswer);
+            }
+        });
+        return qrlAnswers;
+    }
+
     getScore(userId: string): Score {
         const user = this.users.get(userId);
         if (!user) {
@@ -258,6 +268,14 @@ export class Users {
         });
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
+    }
+
+    handleAnswer(userId: string, answer: QrlAnswer) {
+        this.users.forEach((player) => {
+            if (player.username === answer.player) {
+                player.newAnswer = answer;
+            }
+        });
     }
 
     getCurrentHistogramData(choices: ChoiceData[]): number[] {

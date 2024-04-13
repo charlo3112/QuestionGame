@@ -73,6 +73,10 @@ export class UserData {
         return this.bonus;
     }
 
+    get qrlAnswer() {
+        return this.answerQrl;
+    }
+
     get userRoomId() {
         return this.roomId;
     }

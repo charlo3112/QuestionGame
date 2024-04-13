@@ -26,7 +26,6 @@ export class ActiveGame {
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
-    private qrlAnswers: QrlAnswer[] = [];
     private qrlResultData: Record<number, QrlAnswer[]> = {};
 
     // Every line is needed
@@ -123,7 +122,7 @@ export class ActiveGame {
     }
 
     getQrlAnswers(): QrlAnswer[] {
-        return this.qrlAnswers;
+        return this.users.getQrlAnswers();
     }
 
     getScore(userId: string): Score {
@@ -149,7 +148,6 @@ export class ActiveGame {
 
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
         this.users.handleAnswers(userId, answers, this.currentQuestionWithAnswer.points);
-        this.qrlAnswers = answers;
         this.qrlResultData[this.questionIndex] = answers;
         this.gameGateway.sendQrlResultData(this.roomId, this.qrlResultData);
         this.users.resetActivity();
@@ -161,7 +159,7 @@ export class ActiveGame {
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        this.qrlAnswers.push(answer);
+        this.users.handleAnswer(userId, answer);
     }
 
     isValidate(userId: string): boolean {
@@ -277,7 +275,6 @@ export class ActiveGame {
     }
 
     async askQuestion(): Promise<void> {
-        this.qrlAnswers = [];
         if (!this.isActive) return;
         this.histogramData.indexCurrentQuestion = this.questionIndex;
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
