@@ -84,6 +84,12 @@ export class GameService {
         return this.gameSubscriptionService.question;
     }
 
+    get firework(): boolean {
+        return this.gameSubscriptionService.state !== GameState.SHOW_RESULTS || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
+            ? false
+            : true;
+    }
+
     get message(): string | undefined {
         return this.gameSubscriptionService.state !== GameState.SHOW_RESULTS || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
             ? undefined
