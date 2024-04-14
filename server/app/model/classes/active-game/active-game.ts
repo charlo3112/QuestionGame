@@ -27,6 +27,7 @@ export class ActiveGame {
     private historyService: HistoryService | undefined;
     private isActive: boolean;
     private qrlResultData: Record<number, QrlAnswer[]> = {};
+    private alreadySub: boolean = true;
 
     // Every line is needed
     // eslint-disable-next-line max-params
@@ -159,6 +160,10 @@ export class ActiveGame {
     }
 
     handleQrlAnswer(userId: string, answer: QrlAnswer): void {
+        if (this.roomId.startsWith('test') && !this.alreadySub) {
+            this.users.handleTestAnswer(userId, this.currentQuestionWithoutAnswer.points);
+            this.alreadySub = true;
+        }
         this.users.handleAnswer(userId, answer);
     }
 
@@ -292,6 +297,7 @@ export class ActiveGame {
         const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
         this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
         this.advanceState(GameState.SHOW_RESULTS);
+        if (this.roomId.startsWith('test')) this.alreadySub = false;
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
 
         if (this.questionIndex + 1 === this.game.questions.length) {
