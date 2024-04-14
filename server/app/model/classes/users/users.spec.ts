@@ -214,4 +214,38 @@ describe('Users', () => {
         users.validateChoice('123');
         expect(users.isValidate('123')).toBe(true);
     });
+
+    it('resetActivity() should reset the user activity', () => {
+        users.addUser(user);
+        users.resetActivity();
+        expect(users['users'].get('123').isActive).toBeFalsy();
+    });
+
+    it('canChat() should return false if the user is banned', () => {
+        users.addUser(user);
+        users.banUser('John');
+        expect(users.canChat('123')).toBeFalsy();
+    });
+
+    it('getQrlAnswer() should return the user answer', () => {
+        users.addUser(user);
+        const answer = { player: 'John', text: 'Test', grade: 1 } as QrlAnswer;
+        users.handleAnswer('123', answer);
+        expect(users.getQrlAnswers()[0]).toEqual(answer);
+    });
+
+    it('handleQrlActivityUpdate() should update the user activity and set the timeout', () => {
+        users.addUser(user);
+        users.handleQrlActivityUpdate('123');
+        expect(users['users'].get('123').isActive).toBeTruthy();
+        expect(users['users'].get('123').timeout).not.toBeNull();
+    });
+
+    it('handleQrlActivityUpdate() should clear the timeout if the user is already active', () => {
+        users.addUser(user);
+        users.handleQrlActivityUpdate('123');
+        const timeout = users['users'].get('123').timeout;
+        users.handleQrlActivityUpdate('123');
+        expect(users['users'].get('123').timeout).not.toBe(timeout);
+    });
 });
