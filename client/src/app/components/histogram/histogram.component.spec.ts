@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
@@ -10,7 +9,6 @@ describe('HistogramComponent', () => {
     let component: HistogramComponent;
     let fixture: ComponentFixture<HistogramComponent>;
     let mockGameService: jasmine.SpyObj<GameService>;
-    let mockGameSubscriptionService: jasmine.SpyObj<GameSubscriptionService>;
 
     beforeEach(() => {
         const mockHistogramData: HistogramData = HISTOGRAM_DATA;
@@ -35,10 +33,7 @@ describe('HistogramComponent', () => {
 
         TestBed.configureTestingModule({
             imports: [],
-            providers: [
-                { provide: GameService, useValue: mockGameService },
-                { provide: GameSubscriptionService, useValue: mockGameSubscriptionService },
-            ],
+            providers: [{ provide: GameService, useValue: mockGameService }],
         });
         fixture = TestBed.createComponent(HistogramComponent);
         component = fixture.componentInstance;

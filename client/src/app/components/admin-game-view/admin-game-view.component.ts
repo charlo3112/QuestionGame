@@ -51,10 +51,9 @@ export class AdminGameViewComponent implements OnInit {
     canPanic(): boolean {
         return (
             !this.gameService.panic &&
-            this.gameService.currentQuestion !== undefined &&
             this.gameService.currentState === GameState.ASKING_QUESTION &&
-            ((this.gameService.currentQuestion.type === QuestionType.QCM && this.gameService.time > MIN_TIME_PANIC_QCM_S) ||
-                (this.gameService.currentQuestion.type === QuestionType.QRL && this.gameService.time > MIN_TIME_PANIC_QRL_S))
+            ((this.gameService.currentQuestion?.type === QuestionType.QCM && this.gameService.time > MIN_TIME_PANIC_QCM_S) ||
+                (this.gameService.currentQuestion?.type === QuestionType.QRL && this.gameService.time > MIN_TIME_PANIC_QRL_S))
         );
     }
 
