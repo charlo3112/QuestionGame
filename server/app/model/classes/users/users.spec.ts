@@ -6,7 +6,7 @@ import { Choice } from '@common/interfaces/choice';
 import { Histogram } from '@common/interfaces/histogram-data';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
-import { SinonStubbedInstance, createStubInstance } from 'sinon';
+import { SinonStubbedInstance, assert, createStubInstance, stub } from 'sinon';
 import { Users } from './users';
 
 describe('Users', () => {
@@ -147,6 +147,13 @@ describe('Users', () => {
         expect(users.totalActiveSize).toBe(1);
     });
 
+    it('totalActiveSize() should return the number of active users', () => {
+        users.addUser(user);
+        users.validateChoice('123');
+        users.hostIsPlaying = false;
+        expect(users.totalActiveSize).toBe(0);
+    });
+
     it('banUser() should return the user ID', () => {
         users.addUser(user);
         const userId = users.banUser('John');
@@ -175,6 +182,7 @@ describe('Users', () => {
         const points = 100;
         users.addUser(user);
         user.goodAnswer = jest.fn().mockReturnValue(true);
+        users.validateChoice('123');
         users.updateUsersScore(correctAnswers, points);
         expect(users.getScore('123')).toEqual({ score: 120, bonus: true });
     });
@@ -239,17 +247,13 @@ describe('Users', () => {
         expect(user.timeout[0]).toBeUndefined();
     });
 
-    // it('handleAnswer() should update the user answer and set user to active', () => {
-    //     users.addUser(user);
-    //     user.timeout = undefined;
-    //     users.handleAnswer('123', 'Test');
-    //     // expect(users.getQrlAnswers()[0]).toEqual({ user: 'John', text: 'Test', grade: Grade.Ungraded });
-    //     // expect(user.isActive).toBe(true);
-    //     // expect(user.timeout).toBeDefined();
-    //     jest.advanceTimersByTime(ACTIVE_TIME);
-    //     // expect(user.isActive).toBe(false);
-    //     expect(users['updateHistogram']).toHaveBeenCalled();
-    // });
+    it('handleAnswer() should clear the timeout', () => {
+        users.addUser(user);
+        user['isQrlActive'] = false;
+        user.validate = 1;
+        users.handleAnswer('123', 'Test');
+        expect(user['isQrlActive']).toBe(false);
+    });
 
     it('isValidate() should return false if the user is not found', () => {
         expect(users.isValidate('123')).toBe(false);
@@ -287,11 +291,36 @@ describe('Users', () => {
         expect(users.getScore('123')).toEqual({ score: points, bonus: false });
     });
 
-    // it('update() should send the Qrl answer ', () => {
-    //     users.addUser(user);
-    //     // const answer = { user: 'John', text: 'Test', grade: Grade.Ungraded } as QrlAnswer;
-    //     users.handleAnswer('123', 'Test');
-    //     users.update('123', '234');
-    //     expect(mockGameGateway.sendQrlGradedAnswer('123', Grade.Ungraded)).toHaveBeenCalled();
-    // });
+    it('update() should send the Qrl answer ', () => {
+        mockGameGateway.sendQrlGradedAnswer = stub();
+        users.addUser(user);
+        const answer = { user: 'John', text: 'Test', grade: Grade.Ungraded } as QrlAnswer;
+        users['answers'] = [answer];
+        users.update('123', '234');
+        assert.calledWith(mockGameGateway.sendQrlGradedAnswer, '234', Grade.Ungraded);
+    });
+
+    describe('handleAnswer', () => {
+        const clearTimeoutMock = jest.spyOn(global, 'clearTimeout');
+        beforeEach(() => {
+            jest.useFakeTimers();
+        });
+
+        it('should clear the timeout and set user to active', () => {
+            users.addUser(user);
+            user.timeout = setTimeout(() => {
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+            }, TIMEOUT_TIMER);
+            users.handleAnswer('123', 'Test');
+            expect(clearTimeoutMock).toHaveBeenCalled();
+            expect(user.isActive).toBe(true);
+            jest.runAllTimers();
+            expect(user.isActive).toBe(false);
+            expect(mockUpdateHistogram).toHaveBeenCalled();
+        });
+
+        afterEach(() => {
+            jest.useRealTimers();
+        });
+    });
 });
