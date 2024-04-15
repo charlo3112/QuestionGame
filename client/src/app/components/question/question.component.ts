@@ -4,12 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
 import { ChatComponent } from '@app/components/chat/chat.component';
-import { PlayerQRLComponent } from '@app/components/player-qrl/player-qrl.component';
-import { TextAnswerComponent } from '@app/components/text-answer/text-answer.component';
 import { AppMaterialModule } from '@app/modules/material.module';
-import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { Question } from '@common/interfaces/question';
 
@@ -18,21 +16,45 @@ import { Question } from '@common/interfaces/question';
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
     standalone: true,
-    imports: [CommonModule, TextAnswerComponent, RouterLink, ChatComponent, AnswersComponent, FormsModule, PlayerQRLComponent, AppMaterialModule],
+    imports: [CommonModule, RouterLink, ChatComponent, AnswersComponent, FormsModule, AppMaterialModule],
 })
 export class QuestionComponent implements OnInit {
     @Input() question: Question;
     isChatFocused: boolean = false;
-    gameState = GameState;
 
     constructor(
         readonly gameService: GameService,
-        public gameSubscriptionService: GameSubscriptionService,
         private readonly router: Router,
     ) {}
 
+    get text(): string {
+        const cent = 100;
+        const score = +this.gameService.grade * cent;
+        return this.gameService.grade === Grade.Ungraded ? "Réponse est en cours d'évaluation" : `Vous avez obtenu la note de ${score}%`;
+    }
+
+    get showText(): boolean {
+        return (
+            this.question.type === QuestionType.QRL &&
+            (this.gameService.currentState === GameState.LAST_QUESTION ||
+                this.gameService.currentState === GameState.SHOW_RESULTS ||
+                this.gameService.currentState === GameState.WAITING_FOR_ANSWERS)
+        );
+    }
+
+    get showButtonResult(): boolean {
+        return this.gameService.currentState === GameState.LAST_QUESTION && this.gameService.isHost && this.gameService.isTest;
+    }
+
+    get canValidate(): boolean {
+        return (
+            (this.gameService.currentState === GameState.ASKING_QUESTION_QCM || this.gameService.currentState === GameState.ASKING_QUESTION_QRL) &&
+            !this.gameService.isValidationDisabled
+        );
+    }
+
     @HostListener('keydown', ['$event'])
-    buttonDetect(event: KeyboardEvent) {
+    buttonDetect(event: KeyboardEvent): void {
         if (this.isChatFocused) {
             return;
         }
@@ -41,7 +63,7 @@ export class QuestionComponent implements OnInit {
             this.confirmAndDisable();
         }
         const value = parseInt(key, 10) - 1;
-        if (!isNaN(value) && value < this.question.choices.length && value >= 0) {
+        if (!isNaN(value) && this.question.type === QuestionType.QCM && value < this.question.choices.length && value >= 0) {
             this.gameService.selectChoice(value);
         }
     }
@@ -49,26 +71,17 @@ export class QuestionComponent implements OnInit {
     ngOnInit(): void {
         const savedAnswer = this.gameService.qrlAnswer;
         if (savedAnswer) {
-            this.gameSubscriptionService.answer = savedAnswer;
+            this.gameService.qrlAnswer = savedAnswer;
         }
-    }
-
-    showButtonResult() {
-        return this.gameService.currentState === GameState.LAST_QUESTION && this.gameService.isHost && this.gameService.isTest;
     }
 
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
-            this.gameService.confirmQuestion();
             if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
-                this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
-                this.gameSubscriptionService.isTextLocked = true;
+                this.gameService.sendQrlAnswer(this.gameService.qrlAnswer);
             }
+            this.gameService.confirmQuestion();
         }
-    }
-
-    canValidate(): boolean {
-        return this.gameService.currentState === GameState.ASKING_QUESTION && !this.gameService.isValidationDisabled;
     }
 
     nextStep(): void {
@@ -77,13 +90,11 @@ export class QuestionComponent implements OnInit {
         }
     }
 
-    chatFocused(focus: boolean) {
+    chatFocused(focus: boolean): void {
         this.isChatFocused = focus;
     }
 
-    onAnswerChange() {
-        this.gameService.sendActivityUpdate();
-        this.gameService.sendQrlAnswer(this.gameSubscriptionService.answer);
-        this.gameService.qrlAnswer = this.gameSubscriptionService.answer;
+    onAnswerChange(): void {
+        this.gameService.sendQrlAnswer(this.gameService.qrlAnswer);
     }
 }

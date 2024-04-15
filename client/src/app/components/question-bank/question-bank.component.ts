@@ -7,6 +7,7 @@ import { CreateQuestionComponent } from '@app/components/create-question/create-
 import { AppMaterialModule } from '@app/modules/material.module';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { DAY_IN_MS, NOT_FOUND, SNACKBAR_DURATION } from '@common/constants';
+import { QuestionType } from '@common/enums/question-type';
 import { QUESTIONS_PLACEHOLDER, Question, QuestionWithModificationDate } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 
@@ -45,7 +46,7 @@ export class QuestionBankComponent implements OnInit {
     ngOnInit(): void {
         this.loadQuestions();
     }
-    loadQuestions() {
+    loadQuestions(): void {
         const ERROR_FETCHING_QUESTIONS = 'Erreur lors de la récupération des questions';
         this.communicationService.getAllQuestionsWithModificationDates().subscribe({
             next: (response: Result<QuestionWithModificationDate[]>) => {
@@ -65,15 +66,17 @@ export class QuestionBankComponent implements OnInit {
             },
         });
     }
-    sendQuestion() {
+    sendQuestion(): void {
         const QUESTION_SELECTED_BEFORE_ADDING = "Vous devez selectionner une question avant de l'ajouter";
         if (this.highlightedQuestion) {
             this.questionToAdd = {
                 text: this.highlightedQuestion.text,
                 points: +parseInt(this.highlightedQuestion.points.toString(), 10),
-                choices: this.highlightedQuestion.choices.slice(),
                 type: this.highlightedQuestion.type,
-            };
+            } as Question;
+            if (this.highlightedQuestion.type === QuestionType.QCM && this.questionToAdd.type === QuestionType.QCM) {
+                this.questionToAdd.choices = this.highlightedQuestion.choices.slice();
+            }
             this.sendQuestionSelected.emit(this.questionToAdd);
         } else {
             this.snackBar.open(QUESTION_SELECTED_BEFORE_ADDING, undefined, {
@@ -81,7 +84,7 @@ export class QuestionBankComponent implements OnInit {
             });
         }
     }
-    filterQuestionsByType() {
+    filterQuestionsByType(): void {
         this.displayedQuestions = [...this.questions];
         if (this.selectedSort !== 'all') {
             this.displayedQuestions = this.displayedQuestions.filter((question) => question.type === this.selectedSort);
@@ -104,7 +107,7 @@ export class QuestionBankComponent implements OnInit {
         }
     }
 
-    deleteQuestion(questionMongoId: string) {
+    deleteQuestion(questionMongoId: string): void {
         this.communicationService.deleteQuestion(questionMongoId).subscribe({
             next: () => {
                 this.questions = this.questions.filter((question) => question.mongoId !== questionMongoId);
@@ -119,12 +122,12 @@ export class QuestionBankComponent implements OnInit {
         this.highlightedQuestion = question === this.highlightedQuestion ? null : question;
     }
 
-    editQuestion(question: QuestionWithModificationDate) {
+    editQuestion(question: QuestionWithModificationDate): void {
         this.highlightedQuestion = question;
         this.showChildren = true;
     }
 
-    insertQuestion(question: QuestionWithModificationDate) {
+    insertQuestion(question: QuestionWithModificationDate): void {
         const index = this.questions.findIndex((q) => q.text === question.text);
         if (index > NOT_FOUND) {
             this.questions[index] = question;
@@ -134,13 +137,13 @@ export class QuestionBankComponent implements OnInit {
         this.showChildren = false;
     }
 
-    closeCreateQuestion() {
+    closeCreateQuestion(): void {
         this.showChildren = false;
         this.loadQuestions();
         this.closeAdd.emit();
     }
 
-    closeQuestionBank() {
+    closeQuestionBank(): void {
         this.formClosed.emit();
     }
 }

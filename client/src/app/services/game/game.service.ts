@@ -9,6 +9,7 @@ import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { HOST_NAME, SNACKBAR_DURATION } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { Grade } from '@common/enums/grade';
+import { QuestionType } from '@common/enums/question-type';
 import { SortOption } from '@common/enums/sort-option';
 import { Game } from '@common/interfaces/game';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -74,9 +75,15 @@ export class GameService {
         return this.gameSubscriptionService.state;
     }
 
+    get qrlAnswers(): QrlAnswer[] {
+        return this.gameSubscriptionService.qrlAnswers;
+    }
+
     get currentQuestion(): Question | undefined {
         if (
-            this.gameSubscriptionService.state !== GameState.ASKING_QUESTION &&
+            this.gameSubscriptionService.state !== GameState.ASKING_QUESTION_QCM &&
+            this.gameSubscriptionService.state !== GameState.ASKING_QUESTION_QRL &&
+            this.gameSubscriptionService.state !== GameState.WAITING_FOR_ANSWERS &&
             this.gameSubscriptionService.state !== GameState.SHOW_RESULTS &&
             this.gameSubscriptionService.state !== GameState.LAST_QUESTION
         )
@@ -96,11 +103,7 @@ export class GameService {
             : 'Vous avez un bonus!';
     }
 
-    get qrlResultData(): Record<number, QrlAnswer[]> {
-        return this.gameSubscriptionService.qrlResultData;
-    }
-
-    get histogram(): HistogramData {
+    get histogram(): HistogramData | undefined {
         return this.gameSubscriptionService.histogramData;
     }
 
@@ -109,16 +112,14 @@ export class GameService {
     }
 
     get qrlAnswer(): string {
-        return this.sessionStorageService.qrlAnswer;
+        return this.gameSubscriptionService.answer;
     }
 
     get grade(): Grade {
         if (this.roomCodeValue.startsWith('test')) {
             return Grade.One;
         }
-        if (this.gameSubscriptionService.qrlGradedAnswer !== undefined) {
-            return this.gameSubscriptionService.qrlGradedAnswer.grade;
-        } else return Grade.Ungraded;
+        return this.gameSubscriptionService.qrlGradedAnswer;
     }
 
     get roomCodeValue(): string {
@@ -130,7 +131,7 @@ export class GameService {
     }
 
     get playersList(): Set<string> {
-        return this.gameSubscriptionService.players;
+        return this.gameSubscriptionService.users;
     }
 
     get sortOption(): SortOption {
@@ -138,16 +139,12 @@ export class GameService {
     }
 
     set qrlAnswer(qrlAnswer: string) {
-        this.sessionStorageService.qrlAnswer = qrlAnswer;
+        this.gameSubscriptionService.answer = qrlAnswer;
     }
 
     set sortOption(option: SortOption) {
         this.gameSubscriptionService.sortOption = option;
         this.gameSubscriptionService.sortUsers();
-    }
-
-    async getQrlAnswers(): Promise<QrlAnswer[]> {
-        return await this.websocketService.getQrlAnswers();
     }
 
     setChat(username: string, value: boolean): void {
@@ -162,34 +159,29 @@ export class GameService {
         this.websocketService.startPanicking();
     }
 
-    async init() {
+    async init(): Promise<void> {
         const res = await this.sessionStorageService.initUser();
         if (!res.ok) return;
 
         await this.gameSubscriptionService.initSubscriptions(res.value);
     }
 
-    reset() {
+    reset(): void {
         this.gameSubscriptionService.reset();
         this.timeService.reset();
     }
 
-    onKickPlayer(player: string) {
-        this.gameSubscriptionService.players.delete(player);
+    onKickPlayer(player: string): void {
+        this.gameSubscriptionService.users.delete(player);
         this.websocketService.banUser(player);
     }
 
-    sendGrades(answers: QrlAnswer[]) {
+    sendGrades(answers: QrlAnswer[]): void {
         this.websocketService.sendAnswers(answers);
     }
 
-    sendActivityUpdate() {
-        this.websocketService.sendActivityUpdate();
-    }
-
-    leaveRoom() {
+    leaveRoom(): void {
         if (this.gameSubscriptionService.state !== GameState.STARTING) {
-            this.sessionStorageService.qrlAnswer = '';
             this.websocketService.leaveRoom();
             this.sessionStorageService.removeUser();
             this.gameSubscriptionService.reset();
@@ -204,7 +196,7 @@ export class GameService {
         if (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) {
             return false;
         }
-        if (this.gameSubscriptionService.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined || this.gameSubscriptionService.question.type !== QuestionType.QCM) {
             return false;
         }
         const choice = this.gameSubscriptionService.question.choices[index];
@@ -215,41 +207,38 @@ export class GameService {
         if (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) {
             return false;
         }
-        if (this.gameSubscriptionService.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined || this.gameSubscriptionService.question.type !== QuestionType.QCM) {
             return false;
         }
         const choice = this.gameSubscriptionService.question.choices[index];
         return !choice.isCorrect;
     }
 
-    selectChoice(index: number) {
-        if (this.gameSubscriptionService.state === GameState.ASKING_QUESTION && !this.isValidationDisabled) {
+    selectChoice(index: number): void {
+        if (this.gameSubscriptionService.state === GameState.ASKING_QUESTION_QCM && !this.isValidationDisabled) {
             this.gameSubscriptionService.choicesSelected[index] = !this.gameSubscriptionService.choicesSelected[index];
             this.websocketService.sendChoice(this.gameSubscriptionService.choicesSelected);
         }
     }
 
-    confirmQuestion() {
-        if (this.gameSubscriptionService.state === GameState.ASKING_QUESTION) {
+    confirmQuestion(): void {
+        if (
+            this.gameSubscriptionService.state === GameState.ASKING_QUESTION_QCM ||
+            this.gameSubscriptionService.state === GameState.ASKING_QUESTION_QRL
+        ) {
             this.websocketService.validateChoice();
         }
     }
 
-    sendQrlAnswer(answer: string) {
-        const qrlAnswer: QrlAnswer = {
-            text: answer,
-            player: this.sessionStorageService.username,
-            grade: Grade.Ungraded,
-        };
-        this.sessionStorageService.qrlAnswer = '';
-        this.websocketService.sendQrlAnswer(qrlAnswer);
+    sendQrlAnswer(answer: string): void {
+        this.websocketService.sendQrlAnswer(answer);
     }
 
-    nextQuestion() {
+    nextQuestion(): void {
         this.websocketService.hostConfirm();
     }
 
-    showFinalResults() {
+    showFinalResults(): void {
         this.websocketService.showFinalResults();
     }
 
@@ -323,7 +312,7 @@ export class GameService {
     }
 
     private isResponseGood(): boolean {
-        if (this.gameSubscriptionService.question === undefined) {
+        if (this.gameSubscriptionService.question === undefined || this.gameSubscriptionService.question.type !== QuestionType.QCM) {
             return false;
         }
 

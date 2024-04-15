@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -27,14 +28,15 @@ export class WebSocketService {
     private stateSubject: Subject<GameStatePayload> = new Subject<GameStatePayload>();
     private closedSubject: Subject<string> = new Subject<string>();
     private userUpdateSubject: Subject<UserConnectionUpdate> = new Subject<UserConnectionUpdate>();
-    private qrlGradedAnswersSubject: Subject<QrlAnswer> = new Subject<QrlAnswer>();
+    private qrlGradedAnswersSubject: Subject<Grade> = new Subject<Grade>();
     private timeSubject: Subject<TimeData> = new Subject<TimeData>();
     private scoreSubject: Subject<Score> = new Subject<Score>();
     private usersStatSubject: Subject<UserStat[]> = new Subject<UserStat[]>();
     private histogramDataSubject: Subject<HistogramData> = new Subject<HistogramData>();
     private alertSubject: Subject<string> = new Subject<string>();
     private userGameInfoSubject: Subject<UserGameInfo> = new Subject<UserGameInfo>();
-    private qrlResultDataSubject: Subject<Record<number, QrlAnswer[]>> = new Subject<Record<number, QrlAnswer[]>>();
+    private qrlResultDataSubject: Subject<QrlAnswer[]> = new Subject<QrlAnswer[]>();
+    private qrlAnswerSubject: Subject<string> = new Subject<string>();
 
     constructor() {
         this.connect();
@@ -73,19 +75,15 @@ export class WebSocketService {
         this.socket.emit(WebsocketMessage.SEND_CHOICE, choice);
     }
 
-    sendAnswers(answers: QrlAnswer[]) {
+    sendAnswers(answers: QrlAnswer[]): void {
         this.socket.emit(WebsocketMessage.QRL_ANSWERS, answers);
-    }
-
-    sendActivityUpdate(): void {
-        this.socket.emit('game:activity-update');
     }
 
     validateChoice(): void {
         this.socket.emit(WebsocketMessage.VALIDATE_CHOICE);
     }
 
-    sendQrlAnswer(answer: QrlAnswer): void {
+    sendQrlAnswer(answer: string): void {
         this.socket.emit(WebsocketMessage.QRL_ANSWER, answer);
     }
 
@@ -97,7 +95,7 @@ export class WebSocketService {
         this.socket.emit(WebsocketMessage.START_TEST);
     }
 
-    showFinalResults() {
+    showFinalResults(): void {
         this.socket.emit(WebsocketMessage.RESULTS);
     }
 
@@ -182,7 +180,7 @@ export class WebSocketService {
         return this.userUpdateSubject.asObservable();
     }
 
-    getQrlGradedAnswers(): Observable<QrlAnswer> {
+    getQrlGradedAnswers(): Observable<Grade> {
         return this.qrlGradedAnswersSubject.asObservable();
     }
     getTime(): Observable<TimeData> {
@@ -197,7 +195,7 @@ export class WebSocketService {
         return this.histogramDataSubject.asObservable();
     }
 
-    getQrlResultData(): Observable<Record<number, QrlAnswer[]>> {
+    getQrlResultData(): Observable<QrlAnswer[]> {
         return this.qrlResultDataSubject.asObservable();
     }
 
@@ -207,6 +205,10 @@ export class WebSocketService {
 
     getUserGameInfo(): Observable<UserGameInfo> {
         return this.userGameInfoSubject.asObservable();
+    }
+
+    getQrlAnswer(): Observable<string> {
+        return this.qrlAnswerSubject.asObservable();
     }
 
     startPanicking(): void {
@@ -245,7 +247,7 @@ export class WebSocketService {
         return io(environment.wsUrl, { transports: ['websocket'] });
     }
 
-    private connect() {
+    private connect(): void {
         this.socket = this.createSocket();
         this.listenForMessage();
         this.listenForState();
@@ -259,77 +261,84 @@ export class WebSocketService {
         this.listenForUserGameInfo();
         this.listenForQrlGradedAnswer();
         this.listenForQrlResultData();
+        this.listenForQrlAnswer();
     }
 
-    private listenForClosedConnection() {
+    private listenForClosedConnection(): void {
         this.socket.on(WebsocketMessage.CLOSED, (message: string) => {
             this.closedSubject.next(message);
         });
     }
 
-    private listenForScoreUpdate() {
+    private listenForScoreUpdate(): void {
         this.socket.on(WebsocketMessage.SCORE, (score: Score) => {
             this.scoreSubject.next(score);
         });
     }
 
-    private listenForMessage() {
+    private listenForMessage(): void {
         this.socket.on(WebsocketMessage.MESSAGE_RECEIVED, (message: Message) => {
             this.messageSubject.next(message);
         });
     }
 
-    private listenForState() {
+    private listenForState(): void {
         this.socket.on(WebsocketMessage.STATE, (state: GameStatePayload) => {
             this.stateSubject.next(state);
         });
     }
 
-    private listenForUserUpdate() {
+    private listenForUserUpdate(): void {
         this.socket.on(WebsocketMessage.USER_UPDATE, (update: UserConnectionUpdate) => {
             this.userUpdateSubject.next(update);
         });
     }
 
-    private listenForTimeUpdate() {
+    private listenForTimeUpdate(): void {
         this.socket.on(WebsocketMessage.TIME, (time: TimeData) => {
             this.timeSubject.next(time);
         });
     }
 
-    private listenForUsersStat() {
+    private listenForUsersStat(): void {
         this.socket.on(WebsocketMessage.USER_STAT, (usersStat: UserStat[]) => {
             this.usersStatSubject.next(usersStat);
         });
     }
 
-    private listenForQrlGradedAnswer() {
-        this.socket.on('game:qrl-graded-answer', (qrlAnswer: QrlAnswer) => {
+    private listenForQrlGradedAnswer(): void {
+        this.socket.on(WebsocketMessage.QRL_GRADED_ANSWER, (qrlAnswer: Grade) => {
             this.qrlGradedAnswersSubject.next(qrlAnswer);
         });
     }
 
-    private listenForHistogramData() {
+    private listenForHistogramData(): void {
         this.socket.on(WebsocketMessage.HISTOGRAM_DATA, (histogramData: HistogramData) => {
             this.histogramDataSubject.next(histogramData);
         });
     }
 
-    private listenForQrlResultData() {
-        this.socket.on(WebsocketMessage.QRL_RESULT_DATA, (qrlResultData: Record<number, QrlAnswer[]>) => {
+    private listenForQrlResultData(): void {
+        this.socket.on(WebsocketMessage.QRL_RESULT_DATA, (qrlResultData: QrlAnswer[]) => {
             this.qrlResultDataSubject.next(qrlResultData);
         });
     }
 
-    private listenForAlert() {
+    private listenForAlert(): void {
         this.socket.on(WebsocketMessage.ALERT, (message: string) => {
             this.alertSubject.next(message);
         });
     }
 
-    private listenForUserGameInfo() {
+    private listenForUserGameInfo(): void {
         this.socket.on(WebsocketMessage.USER_GAME_INFO, (userGameInfo: UserGameInfo) => {
             this.userGameInfoSubject.next(userGameInfo);
+        });
+    }
+
+    private listenForQrlAnswer(): void {
+        this.socket.on(WebsocketMessage.QRL_ANSWER, (answer: string) => {
+            this.qrlAnswerSubject.next(answer);
         });
     }
 }
