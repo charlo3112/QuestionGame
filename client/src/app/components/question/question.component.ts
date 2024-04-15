@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AnswersComponent } from '@app/components/answers/answers.component';
@@ -18,7 +18,7 @@ import { Question } from '@common/interfaces/question';
     standalone: true,
     imports: [CommonModule, RouterLink, ChatComponent, AnswersComponent, FormsModule, AppMaterialModule],
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent {
     @Input() question: Question;
     isChatFocused: boolean = false;
 
@@ -68,16 +68,9 @@ export class QuestionComponent implements OnInit {
         }
     }
 
-    ngOnInit(): void {
-        const savedAnswer = this.gameService.qrlAnswer;
-        if (savedAnswer) {
-            this.gameService.qrlAnswer = savedAnswer;
-        }
-    }
-
     confirmAndDisable(): void {
         if (!this.gameService.isValidationDisabled) {
-            if (this.gameService.currentQuestion?.type === QuestionType.QRL) {
+            if (this.question.type === QuestionType.QRL) {
                 this.gameService.sendQrlAnswer(this.gameService.qrlAnswer);
             }
             this.gameService.confirmQuestion();

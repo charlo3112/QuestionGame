@@ -1,5 +1,5 @@
 import { HttpClientModule, HttpResponse } from '@angular/common/http';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CommunicationService } from '@app/services/communication/communication.service';
@@ -187,5 +187,21 @@ describe('QuestionBankComponent', () => {
         spyOn(component.formClosed, 'emit');
         component.closeQuestionBank();
         expect(component.formClosed.emit).toHaveBeenCalled();
+    });
+
+    describe('filterQuestionsByType', () => {
+        it('should return all questions if type is All', () => {
+            component.selectedSort = 'All';
+            component.questions = mockQuestions;
+            component.filterQuestionsByType();
+            expect(component.questions).toEqual(mockQuestions);
+        });
+
+        it('should return only QCM questions if type is QCM', () => {
+            component.selectedSort = 'QRL';
+            component.questions = mockQuestions;
+            component.filterQuestionsByType();
+            expect(component.questions[0]).toEqual(mockQuestions[0]);
+        });
     });
 });

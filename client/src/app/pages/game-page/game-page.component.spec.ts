@@ -23,6 +23,7 @@ describe('GamePageComponent', () => {
     let mockIsHost: boolean;
     let mockIsPlaying: boolean;
     let mockHistogram: HistogramData;
+    let mockFirework: boolean;
 
     beforeEach(async () => {
         mockGameService = jasmine.createSpyObj(
@@ -57,6 +58,7 @@ describe('GamePageComponent', () => {
         Object.defineProperty(mockGameService, 'currentState', { get: () => mockCurrentState });
         Object.defineProperty(mockGameService, 'isPlaying', { get: () => mockIsPlaying });
         Object.defineProperty(mockGameService, 'histogram', { get: () => mockHistogram });
+        Object.defineProperty(mockGameService, 'firework', { get: () => mockFirework });
 
         mockCurrentState = GameState.STARTING;
         mockIsHost = false;
@@ -119,5 +121,19 @@ describe('GamePageComponent', () => {
         mockGameService.init.calls.reset();
         await component.ngOnInit();
         expect(mockGameService.init).toHaveBeenCalled();
+    });
+
+    describe('launchFireworks', () => {
+        it('should set firework to true if gameService.firework is true', () => {
+            mockFirework = true;
+            component.launchFireworks();
+            expect(component.firework).toBeTrue();
+        });
+
+        it('should set firework to false if gameService.firework is false', () => {
+            mockFirework = false;
+            component.launchFireworks();
+            expect(component.firework).toBeFalse();
+        });
     });
 });
