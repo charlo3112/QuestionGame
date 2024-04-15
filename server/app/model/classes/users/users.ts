@@ -126,6 +126,8 @@ export class Users {
     }
 
     resetAnswers(): void {
+        this.answers = [];
+        this.gradeData$ = this.gradeData$ = [];
         this.users.forEach((user) => {
             user.resetChoice();
             this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
@@ -134,24 +136,17 @@ export class Users {
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
     }
 
-    resetActivity(): void {
-        this.answers = [];
-        this.gradeData$ = this.gradeData$ = [];
-        this.users.forEach((user) => {
-            user.resetChoice();
-        });
-        this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
-    }
-
     updateUsersScore(correctAnswers: boolean[], points: number): void {
         const time = new Date().getTime();
-        let users = Array.from(this.users.values());
-        users.forEach((user) => {
-            const state = user.userState;
-            user.validate = user.validate === undefined ? time : user.validate;
-            user.userState = state;
-        });
-        users = users.filter((user) => user.goodAnswer(correctAnswers)).sort((a, b) => a.validate - b.validate);
+        const users = Array.from(this.users.values())
+            .map((user) => {
+                const state = user.userState;
+                user.validate = user.validate === undefined ? time : user.validate;
+                user.userState = state;
+                return user;
+            })
+            .filter((user) => user.goodAnswer(correctAnswers))
+            .sort((a, b) => a.validate - b.validate);
         const bonus = !(users.length >= 2 && users[1].validate - users[0].validate <= BONUS_TIME);
 
         users.forEach((user) => {
@@ -184,11 +179,8 @@ export class Users {
     }
 
     setChat(hostId: string, username: string, value: boolean): string | undefined {
-        if (hostId !== this.hostId) {
-            return undefined;
-        }
         const user = Array.from(this.users.values()).find((u) => u.username === username);
-        if (!user) {
+        if (hostId !== this.hostId || !user) {
             return undefined;
         }
         user.userCanChat = value;
@@ -198,10 +190,7 @@ export class Users {
 
     canChat(userId: string): boolean {
         const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.userCanChat;
+        return user ? user.userCanChat : false;
     }
 
     userExists(name: string): boolean {
@@ -217,9 +206,7 @@ export class Users {
 
     validateChoice(userId: string): void {
         const user = this.users.get(userId);
-        if (!user) {
-            return;
-        }
+        if (!user) return;
         user.validate = new Date().getTime();
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);
@@ -236,18 +223,12 @@ export class Users {
 
     isValidate(userId: string): boolean {
         const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.validate === undefined ? false : true;
+        return user ? user.validate !== undefined : false;
     }
 
     isHost(userId: string): boolean {
         const user = this.users.get(userId);
-        if (!user) {
-            return false;
-        }
-        return user.isHost();
+        return user ? user.isHost() : false;
     }
 
     isBanned(name: string) {
@@ -256,9 +237,7 @@ export class Users {
 
     handleChoice(userId: string, choice: boolean[]) {
         const user = this.users.get(userId);
-        if (!user || user.validate !== undefined) {
-            return;
-        }
+        if (!user || user.validate !== undefined) return;
         user.newChoice = choice;
         this.gameGateway.sendUsersStatUpdate(this.hostId, this.usersStat);
         this.gameGateway.sendUserGameInfo(user.uid, user.userGameInfo);

@@ -239,9 +239,7 @@ export class RoomManagementService {
 
     leaveUser(userId: string): void {
         const user = this.getUser(userId);
-        if (!user) {
-            return;
-        }
+        if (!user) return;
 
         const removalTimeout = setTimeout(() => {
             this.performUserRemoval(userId);
@@ -269,9 +267,7 @@ export class RoomManagementService {
         const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
         this.roomMembers.delete(userId);
-        if (!game) {
-            return;
-        }
+        if (!game) return;
         const isHost = game.isHost(userId);
         this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
         game.removeUser(userId);
@@ -289,12 +285,7 @@ export class RoomManagementService {
 
     banUser(userId: string, bannedUsername: string): void {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return;
-        }
-        if (!game.isHost(userId)) {
-            return;
-        }
+        if (!game || !game.isHost(userId)) return;
         const banId = game.banUser(bannedUsername);
         if (banId) {
             this.gameWebsocket.sendUserRemoval(banId, 'Vous avez été banni');
@@ -311,9 +302,7 @@ export class RoomManagementService {
 
     async confirmAction(userId: string) {
         const user = this.getUser(userId);
-        if (!user || !user.isHost()) {
-            return;
-        }
+        if (!user || !user.isHost()) return;
         const game = this.getActiveGame(userId);
         await game.advance();
     }

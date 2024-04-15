@@ -126,10 +126,7 @@ export class UserData {
     }
 
     goodAnswer(answer: boolean[]): boolean {
-        if (this.choice === undefined) {
-            return false;
-        }
-        if (answer.length > this.choice.length) {
+        if (this.choice === undefined || answer.length > this.choice.length) {
             return false;
         }
         this.choice.slice(0, answer.length);
