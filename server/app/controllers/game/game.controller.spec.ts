@@ -1,13 +1,12 @@
 /* eslint-disable max-lines */
 import { GameData } from '@app/model/database/game';
-import { QuestionData } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { UpdateGameDto } from '@app/model/dto/game/update-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { GameService } from '@app/services/game/game.service';
 import { QuestionService } from '@app/services/question/question.service';
-import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { MAX_CHOICES_NUMBER, NUMBER_QUESTIONS_RANDOM } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
 import { HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -263,23 +262,31 @@ describe('GameController', () => {
         await controller.deleteGameById('', res);
     });
 
-    // it('getRandomGame() should return all QCM questions', async () => {
-    //     const fakeQuestions = getFakeQuestionData();
-    //     questionService.getAllQCMQuestions.resolves(fakeQuestions);
-    //     console.log(fakeQuestions);
+    it('getRandomGame() should return false when there are not enough QCM questions', async () => {
+        questionService.getAllQCMQuestions.resolves([]);
 
-    //     const res = {} as unknown as Response;
-    //     res.status = (code) => {
-    //         expect(code).toEqual(HttpStatus.OK);
-    //         return res;
-    //     };
-    //     res.json = (questions) => {
-    //         expect(questions).toEqual(fakeQuestions);
-    //         return res;
-    //     };
+        const res = {} as Response;
+        res.status = jest.fn().mockReturnValue(res);
+        res.json = jest.fn().mockReturnValue(res);
 
-    //     await controller.getRandomGame(res);
-    // });
+        await controller.getRandomGame(res);
+
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+        expect(res.json).toHaveBeenCalledWith(false);
+    });
+
+    it('getRandomGame() should return true when there are enough QCM questions', async () => {
+        questionService.getAllQCMQuestions.resolves(Array(NUMBER_QUESTIONS_RANDOM).fill({}));
+
+        const res = {} as Response;
+        res.status = jest.fn().mockReturnValue(res);
+        res.json = jest.fn().mockReturnValue(res);
+
+        await controller.getRandomGame(res);
+
+        expect(res.status).toHaveBeenCalledWith(HttpStatus.OK);
+        expect(res.json).toHaveBeenCalledWith(true);
+    });
 
     it('getRandomGame() should return BAD_REQUEST when error occurs', async () => {
         questionService.getAllQCMQuestions.rejects();
@@ -357,27 +364,6 @@ const getFakeUpdateGameDto = (): UpdateGameDto => {
         questions: getFakeQuestions(),
     };
     return gameData;
-};
-
-// const getFakeQuestionDto = (): CreateQuestionDto => {
-//     const questionData: CreateQuestionDto = {
-//         type: QuestionType.QCM,
-//         text: getRandomString(),
-//         points: 40,
-//         choices: getFakeChoices(),
-//     };
-
-//     return questionData;
-// };
-
-const getFakeQuestionData = (): QuestionData[] => {
-    const questions: QuestionData[] = [];
-    for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
-        const questionData = new QuestionData(getFakeQuestions()[i]);
-        questions.push(questionData);
-    }
-
-    return questions;
 };
 
 const BASE_36 = 36;
