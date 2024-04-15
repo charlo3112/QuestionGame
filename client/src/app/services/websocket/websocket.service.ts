@@ -117,7 +117,7 @@ export class WebSocketService {
 
     async getQrlAnswers(): Promise<QrlAnswer[]> {
         return new Promise<QrlAnswer[]>((resolve) => {
-            this.socket.emit('game:getQrlAnswers', (answers: QrlAnswer[]) => {
+            this.socket.emit(WebsocketMessage.QRL_GET_ANSWERS, (answers: QrlAnswer[]) => {
                 resolve(answers);
             });
         });
