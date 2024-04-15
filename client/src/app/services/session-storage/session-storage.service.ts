@@ -44,14 +44,6 @@ export class SessionStorageService {
         return JSON.parse(sessionStorage.getItem('login') || 'false');
     }
 
-    get qrlAnswer(): string {
-        return sessionStorage.getItem('savedAnswer') || '';
-    }
-
-    set qrlAnswer(qrlAnswer: string) {
-        sessionStorage.setItem('savedAnswer', qrlAnswer);
-    }
-
     set login(login: boolean) {
         sessionStorage.setItem('login', login ? 'true' : 'false');
     }
@@ -86,7 +78,7 @@ export class SessionStorageService {
         return res;
     }
 
-    removeUser() {
+    removeUser(): void {
         sessionStorage.removeItem('user');
         sessionStorage.removeItem('test');
     }

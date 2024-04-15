@@ -8,15 +8,17 @@ import { ChoiceData } from './choice';
 
 export type QuestionDocument = QuestionData & Document;
 
+export type QuestionDataAsQuestion = QuestionData & Question;
+
 @Schema()
-export class QuestionData implements Question {
+export class QuestionData {
     @ApiProperty()
     @Prop({ required: false })
     mongoId?: string;
 
     @ApiProperty()
     @Prop({ required: false })
-    choices: ChoiceData[];
+    choices?: ChoiceData[];
 
     @ApiProperty()
     @Prop({ required: true })
@@ -44,6 +46,10 @@ export class QuestionData implements Question {
         this.choices = questionData.choices?.map((choiceData) => {
             return new ChoiceData(choiceData);
         });
+    }
+
+    get questionDataAsQuestion(): QuestionDataAsQuestion {
+        return this as QuestionDataAsQuestion;
     }
 
     setPoints(points: number) {

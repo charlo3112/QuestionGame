@@ -21,7 +21,7 @@ export class AdminLoginComponent {
     });
 
     constructor(private readonly communicationService: CommunicationService) {}
-    async onSubmit() {
+    async onSubmit(): Promise<void> {
         if (this.loginForm.value.password) {
             const response = await lastValueFrom(this.communicationService.login(this.loginForm.value.password));
             if (response) {

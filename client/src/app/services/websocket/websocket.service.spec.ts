@@ -3,11 +3,13 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { LISTEN_HISTOGRAM_DATA, LISTEN_SCORE_UPDATE, LISTEN_TIME_UPDATE, LISTEN_USERS_STAT } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
 import { Message } from '@common/interfaces/message';
 import { PayloadJoinGame } from '@common/interfaces/payload-game';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
 import { Score } from '@common/interfaces/score';
 import { TIME_DATA, TimeData } from '@common/interfaces/time-data';
@@ -429,5 +431,70 @@ describe('WebSocketService', () => {
     it('should emit game:pause', () => {
         service.togglePause();
         expect(mockSocket.emit).toHaveBeenCalledWith(WebsocketMessage.PAUSE);
+    });
+
+    it('should get getQrlGradedAnswers', () => {
+        const expectedQrlGradedAnswers: Grade = Grade.One;
+        let qrlGradedAnswers: Grade | undefined;
+        service.getQrlGradedAnswers().subscribe((answers) => {
+            qrlGradedAnswers = answers;
+        });
+
+        const LISTEN_QRL_GRADED_ANSWERS = 10;
+
+        mockSocket.on.calls.argsFor(LISTEN_QRL_GRADED_ANSWERS)[1](expectedQrlGradedAnswers);
+        expect(qrlGradedAnswers).toEqual(expectedQrlGradedAnswers);
+    });
+
+    it('should get getQrlResultData ', () => {
+        const expectedQrlResultData: QrlAnswer[] = [{ text: 'Hello, world!', grade: Grade.One, user: 'test' }];
+        let qrlResultData: QrlAnswer[] | undefined;
+        service.getQrlResultData().subscribe((data) => {
+            qrlResultData = data;
+        });
+
+        const LISTEN_QRL_RESULT_DATA = 11;
+
+        mockSocket.on.calls.argsFor(LISTEN_QRL_RESULT_DATA)[1](expectedQrlResultData);
+        expect(qrlResultData).toEqual(expectedQrlResultData);
+    });
+
+    it('should get getQrlAnswer ', () => {
+        const expectedQrlAnswer = 'Hello, world!';
+        let qrlAnswer: string | undefined;
+        service.getQrlAnswer().subscribe((answer) => {
+            qrlAnswer = answer;
+        });
+
+        const LISTEN_QRL_ANSWER = 12;
+
+        mockSocket.on.calls.argsFor(LISTEN_QRL_ANSWER)[1](expectedQrlAnswer);
+        expect(qrlAnswer).toEqual(expectedQrlAnswer);
+    });
+
+    it('should sendAnswers', () => {
+        const expectedAnswers = [{ text: 'Hello, world!', grade: Grade.One, user: 'test' }];
+        service.sendAnswers(expectedAnswers);
+        expect(mockSocket.emit).toHaveBeenCalledWith(WebsocketMessage.QRL_ANSWERS, expectedAnswers);
+    });
+
+    it('should sendAnswer', () => {
+        const expectedAnswer = 'Hello, world!';
+        service.sendQrlAnswer(expectedAnswer);
+        expect(mockSocket.emit).toHaveBeenCalledWith(WebsocketMessage.QRL_ANSWER, expectedAnswer);
+    });
+
+    it('should get getQrlAnswers ', async () => {
+        const expectedQrlAnswers: QrlAnswer[] = [{ text: 'Hello, world!', grade: Grade.One, user: 'test' }];
+
+        mockSocket.emit.and.callFake((eventName: string, callback: (answers: QrlAnswer[]) => void) => {
+            if (eventName === WebsocketMessage.QRL_GET_ANSWERS) {
+                callback(expectedQrlAnswers);
+            }
+            return mockSocket;
+        });
+
+        const result = await service.getQrlAnswers();
+        expect(result).toEqual(expectedQrlAnswers);
     });
 });

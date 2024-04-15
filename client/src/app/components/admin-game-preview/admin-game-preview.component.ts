@@ -16,15 +16,15 @@ export class AdminGamePreviewComponent {
     @Output() export = new EventEmitter<void>();
     @Output() toggleVisibility = new EventEmitter<void>();
 
-    onDelete() {
+    onDelete(): void {
         this.delete.emit();
     }
 
-    onExport() {
+    onExport(): void {
         this.export.emit();
     }
 
-    onToggleVisibility() {
+    onToggleVisibility(): void {
         this.toggleVisibility.emit();
     }
 }

@@ -123,14 +123,7 @@ export class ValidationService {
                 duration: parsedInput.duration,
                 visibility: false,
                 lastModification: parsedInput.lastModification,
-                questions: parsedInput.questions?.map((question) => ({
-                    type: question.type,
-                    text: question.text,
-                    points: question.points,
-                    choices: question.choices?.map((choice) => {
-                        return { text: choice.text, isCorrect: choice.isCorrect };
-                    }),
-                })),
+                questions: parsedInput.questions?.map((question) => this.filterQuestionJSONInput(question)),
             };
 
             return { ok: true, value: filteredOutput };
@@ -138,5 +131,23 @@ export class ValidationService {
             const message = 'Invalid JSON';
             return { ok: false, error: message };
         }
+    }
+
+    filterQuestionJSONInput(question: Question): Question {
+        if (question.type !== QuestionType.QCM) {
+            return {
+                type: question.type,
+                text: question.text,
+                points: question.points,
+            };
+        }
+        return {
+            type: question.type,
+            text: question.text,
+            points: question.points,
+            choices: question.choices?.map((choice) => {
+                return { text: choice.text, isCorrect: choice.isCorrect };
+            }),
+        };
     }
 }

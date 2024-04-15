@@ -5,7 +5,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { QuestionData } from './question';
+import { QuestionData, QuestionDataAsQuestion } from './question';
 
 export type GameDocument = GameData & Document;
 
@@ -37,7 +37,7 @@ export class GameData implements Game {
 
     @ApiProperty()
     @Prop({ required: true })
-    questions: QuestionData[];
+    questions: QuestionDataAsQuestion[];
 
     constructor(gameData: CreateGameDto) {
         this.gameId = uuidv4();
@@ -46,7 +46,7 @@ export class GameData implements Game {
         this.duration = gameData.duration;
         this.lastModification = new Date().toISOString();
         this.questions = gameData.questions.map((questionData) => {
-            return new QuestionData(questionData);
+            return new QuestionData(questionData).questionDataAsQuestion;
         });
 
         this.visibility = false;
@@ -56,7 +56,7 @@ export class GameData implements Game {
     }
 
     addQuestion(newQuestion: CreateQuestionDto) {
-        this.questions.push(new QuestionData(newQuestion));
+        this.questions.push(new QuestionData(newQuestion).questionDataAsQuestion);
     }
 
     getGameId(): string {

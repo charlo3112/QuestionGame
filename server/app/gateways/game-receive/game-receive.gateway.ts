@@ -79,13 +79,8 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         this.roomService.handleAnswers(client.id, answers);
     }
 
-    @SubscribeMessage('game:activity-update')
-    handleActivityUpdate(client: Socket) {
-        this.roomService.handleActivityUpdate(client.id);
-    }
-
     @SubscribeMessage(WebsocketMessage.QRL_ANSWER)
-    handleQrlAnswer(client: Socket, answer: QrlAnswer) {
+    handleQrlAnswer(client: Socket, answer: string) {
         this.roomService.handleQrlAnswer(client.id, answer);
     }
 
@@ -123,7 +118,7 @@ export class GameGatewayReceive implements OnGatewayDisconnect {
         return this.roomService.getChoice(client.id);
     }
 
-    @SubscribeMessage('game:getQrlAnswers')
+    @SubscribeMessage(WebsocketMessage.QRL_GET_ANSWERS)
     getQrlAnswers(client: Socket): QrlAnswer[] {
         return this.roomService.getQrlAnswers(client.id);
     }

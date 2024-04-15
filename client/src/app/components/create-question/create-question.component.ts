@@ -44,15 +44,15 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         private readonly snackBar: MatSnackBar,
     ) {}
 
-    ngOnInit() {
-        if (this.questionData && this.questionData.choices) {
+    ngOnInit(): void {
+        if (this.questionData && this.questionData.type === QuestionType.QCM) {
             for (const choice of this.questionData.choices) {
                 if (choice.isCorrect !== undefined) this.choiceValue.push(choice.isCorrect);
             }
         }
     }
 
-    ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(changes: SimpleChanges): void {
         if (changes.questionData) {
             if (this.questionData) {
                 this.fillForm(this.questionData);
@@ -62,12 +62,12 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         }
     }
 
-    addChoice() {
+    addChoice(): void {
         this.createQuestionService.addChoice(this.choiceInput, this.choices, this.editArray);
         this.choiceInput = '';
     }
 
-    addToQuestionBank() {
+    addToQuestionBank(): void {
         const QUESTION_ALREADY_IN_BANK = 'La question est déjà dans la banque de questions.';
         if (this.questionType === QuestionType.QRL) this.choices = [];
         this.createQuestionService
@@ -84,7 +84,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
             });
     }
 
-    cancel() {
+    cancel(): void {
         for (let i = 0; i < this.choiceValue.length; i++) {
             this.choices[i].isCorrect = this.choiceValue[i];
         }
@@ -98,7 +98,7 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         moveItemInArray(this.choices, event.previousIndex, event.currentIndex);
     }
 
-    editQuestion() {
+    editQuestion(): void {
         const ERROR_MODIFYING_QUESTION = 'Erreur lors de la modification de la question';
         if (this.questionToDelete.length) {
             this.communicationService
@@ -124,27 +124,27 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
         }
     }
 
-    fillForm(question: Question) {
+    fillForm(question: Question): void {
         this.questionName = question.text;
         this.questionPoints = question.points;
-        this.choices = [...question.choices];
         this.questionType = question.type;
         this.questionToDelete = question.text;
+        this.choices = question.type === QuestionType.QCM ? [...question.choices] : [];
     }
 
-    openSnackBar(message: string) {
+    openSnackBar(message: string): void {
         this.snackBar.open(message, undefined, {
             duration: SNACKBAR_DURATION,
         });
     }
 
-    resetForm() {
+    resetForm(): void {
         this.questionName = '';
         this.questionPoints = MIN_NB_OF_POINTS;
         this.choices = [];
     }
 
-    save() {
+    save(): void {
         if (this.questionType === QuestionType.QCM) {
             if (this.createQuestionService.choiceVerif(this.questionName, this.choices)) {
                 const newQuestion: Question = {
@@ -161,18 +161,17 @@ export class CreateQuestionComponent implements OnChanges, OnInit {
                 type: this.questionType,
                 text: this.questionName,
                 points: this.questionPoints,
-                choices: this.choices,
             };
             this.questionCreated.emit(newQuestion);
             this.resetForm();
         }
     }
 
-    saveEdit(index: number) {
+    saveEdit(index: number): void {
         this.editArray[index] = false;
     }
 
-    startEdit(index: number) {
+    startEdit(index: number): void {
         this.editArray[index] = !this.editArray[index];
     }
 }

@@ -19,21 +19,20 @@ import { Subscription } from 'rxjs';
 
 @Injectable()
 export class GameSubscriptionService implements OnDestroy {
-    isTextLocked: boolean = false;
     answer: string = '';
     showBonus: boolean;
     scoreValue: number = 0;
-    players: Set<string> = new Set();
-    histogramData: HistogramData;
-    qrlResultData: Record<number, QrlAnswer[]>;
+    users: Set<string> = new Set();
+    histogramData: HistogramData | undefined = undefined;
     usersStat: UserStat[] = [];
-    qrlGradedAnswer: QrlAnswer;
+    qrlGradedAnswer: Grade = Grade.Ungraded;
     question: Question | undefined = undefined;
     choicesSelected: boolean[] = [false, false, false, false];
     title: string;
     sortOption: SortOption = SortOption.USERNAME_ASCENDING;
     isValidate: boolean = false;
     state: GameState = GameState.NOT_STARTED;
+    qrlAnswers: QrlAnswer[] = [];
     private stateSubscription: Subscription;
     private messagesSubscription: Subscription;
     private scoreSubscription: Subscription;
@@ -44,6 +43,7 @@ export class GameSubscriptionService implements OnDestroy {
     private alertSubscription: Subscription;
     private userGameInfoSubscription: Subscription;
     private qrlResultDataSubscription: Subscription;
+    private qrlAnswerSubscription: Subscription;
     // disable lint to make sure have access to all required properties
     // eslint-disable-next-line max-params
     constructor(
@@ -61,12 +61,12 @@ export class GameSubscriptionService implements OnDestroy {
         this.subscribeToAlert();
         this.subscribeToUserGameInfo();
         this.subscribeToQrlGradedAnswer();
-        this.subscribeToQrlResultData();
         this.subscribeToQrlGradedAnswer();
         this.subscribeToQrlResultData();
+        this.subscribeToQrlAnswer();
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         const subscriptionsToUnsubscribe = [
             this.stateSubscription,
             this.messagesSubscription,
@@ -78,6 +78,7 @@ export class GameSubscriptionService implements OnDestroy {
             this.userGameInfoSubscription,
             this.qrlGradedAnswersSubscription,
             this.qrlResultDataSubscription,
+            this.qrlAnswerSubscription,
         ];
         subscriptionsToUnsubscribe.forEach((subscription) => {
             if (subscription) {
@@ -86,17 +87,17 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    async initSubscriptions(state: GameStatePayload) {
+    async initSubscriptions(state: GameStatePayload): Promise<void> {
         const score = await this.websocketService.getScore();
         this.scoreValue = score.score;
         this.showBonus = score.bonus;
-        this.players.clear();
-        (await this.websocketService.getUsers()).forEach((u) => this.players.add(u));
-        this.players.delete(HOST_NAME);
+        this.users.clear();
+        (await this.websocketService.getUsers()).forEach((u) => this.users.add(u));
+        this.users.delete(HOST_NAME);
         this.setState(state);
     }
 
-    reset() {
+    reset(): void {
         this.question = undefined;
         this.state = GameState.NOT_STARTED;
         this.scoreValue = 0;
@@ -142,7 +143,7 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToClosedConnection() {
+    private subscribeToClosedConnection(): void {
         this.messagesSubscription = this.websocketService.getClosedConnection().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
@@ -155,21 +156,15 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToStateUpdate() {
+    private subscribeToStateUpdate(): void {
         this.stateSubscription = this.websocketService.getState().subscribe({
             next: (state: GameStatePayload) => {
                 this.setState(state);
-                if (this.state === GameState.SHOW_RESULTS) {
-                    this.isTextLocked = false;
-                    this.answer = '';
-                } else if (this.state === GameState.ASKING_QUESTION && this.qrlGradedAnswer !== undefined) {
-                    this.qrlGradedAnswer.grade = Grade.Ungraded;
-                }
             },
         });
     }
 
-    private subscribeToScoreUpdate() {
+    private subscribeToScoreUpdate(): void {
         this.scoreSubscription = this.websocketService.getScoreUpdate().subscribe({
             next: (score: Score) => {
                 this.scoreValue = score.score;
@@ -178,19 +173,19 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToUserUpdate() {
+    private subscribeToUserUpdate(): void {
         this.userSubscription = this.websocketService.getUserUpdate().subscribe({
             next: (userUpdate: UserConnectionUpdate) => {
                 if (userUpdate.isConnected) {
-                    this.players.add(userUpdate.username);
+                    this.users.add(userUpdate.username);
                 } else {
-                    this.players.delete(userUpdate.username);
+                    this.users.delete(userUpdate.username);
                 }
             },
         });
     }
 
-    private subscribeToUsersStatUpdate() {
+    private subscribeToUsersStatUpdate(): void {
         this.usersStatSubscription = this.websocketService.getUsersStat().subscribe({
             next: (usersStat: UserStat[]) => {
                 this.usersStat = usersStat;
@@ -199,23 +194,15 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToQrlGradedAnswer() {
+    private subscribeToQrlGradedAnswer(): void {
         this.qrlGradedAnswersSubscription = this.websocketService.getQrlGradedAnswers().subscribe({
-            next: (qrlAnswer: QrlAnswer) => {
+            next: (qrlAnswer: Grade) => {
                 this.qrlGradedAnswer = qrlAnswer;
             },
         });
     }
 
-    private subscribeToQrlResultData() {
-        this.qrlResultDataSubscription = this.websocketService.getQrlResultData().subscribe({
-            next: (qrlResultData: Record<number, QrlAnswer[]>) => {
-                this.qrlResultData = qrlResultData;
-            },
-        });
-    }
-
-    private subscribeToHistogramData() {
+    private subscribeToHistogramData(): void {
         this.histogramDataSubscription = this.websocketService.getHistogramData().subscribe({
             next: (histogramData: HistogramData) => {
                 this.histogramData = histogramData;
@@ -223,7 +210,7 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToAlert() {
+    private subscribeToAlert(): void {
         this.alertSubscription = this.websocketService.getAlert().subscribe({
             next: (message: string) => {
                 this.snackBarService.open(message, undefined, { duration: SNACKBAR_DURATION });
@@ -231,7 +218,7 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private subscribeToUserGameInfo() {
+    private subscribeToUserGameInfo(): void {
         this.userGameInfoSubscription = this.websocketService.getUserGameInfo().subscribe({
             next: (userGameInfo: UserGameInfo) => {
                 this.choicesSelected = userGameInfo.choice;
@@ -240,7 +227,23 @@ export class GameSubscriptionService implements OnDestroy {
         });
     }
 
-    private setState(state: GameStatePayload) {
+    private subscribeToQrlResultData(): void {
+        this.qrlResultDataSubscription = this.websocketService.getQrlResultData().subscribe({
+            next: (qrlResultData: QrlAnswer[]) => {
+                this.qrlAnswers = qrlResultData;
+            },
+        });
+    }
+
+    private subscribeToQrlAnswer(): void {
+        this.qrlAnswerSubscription = this.websocketService.getQrlAnswer().subscribe({
+            next: (answer: string) => {
+                this.answer = answer;
+            },
+        });
+    }
+
+    private setState(state: GameStatePayload): void {
         this.state = state.state;
 
         switch (this.state) {
@@ -252,7 +255,9 @@ export class GameSubscriptionService implements OnDestroy {
                 break;
             case GameState.SHOW_RESULTS:
             case GameState.LAST_QUESTION:
-            case GameState.ASKING_QUESTION:
+            case GameState.ASKING_QUESTION_QCM:
+            case GameState.ASKING_QUESTION_QRL:
+            case GameState.WAITING_FOR_ANSWERS:
                 this.question = state.payload as Question;
                 this.setRoute('/game');
                 break;
@@ -268,7 +273,7 @@ export class GameSubscriptionService implements OnDestroy {
         }
     }
 
-    private setRoute(route: string) {
+    private setRoute(route: string): void {
         if (this.routerService.url !== route) {
             this.routerService.navigate([route]);
         }

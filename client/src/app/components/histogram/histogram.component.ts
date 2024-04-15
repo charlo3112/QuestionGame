@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AppMaterialModule } from '@app/modules/material.module';
-import { GameSubscriptionService } from '@app/services/game-subscription/game-subscription.service';
 import { GameService } from '@app/services/game/game.service';
 import { GameState } from '@common/enums/game-state';
 import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { Choice } from '@common/interfaces/choice';
+import { Histogram } from '@common/interfaces/histogram-data';
+import { Question } from '@common/interfaces/question';
 
 @Component({
     selector: 'app-histogram',
@@ -18,21 +19,66 @@ import { Choice } from '@common/interfaces/choice';
 export class HistogramComponent {
     @Input() showArrows: boolean = true;
     indexQuestionDisplayed: number = 0;
-    questionType = QuestionType;
 
-    constructor(
-        readonly gameService: GameService,
-        readonly gameSubscriptionService: GameSubscriptionService,
-    ) {}
+    constructor(readonly gameService: GameService) {}
 
     get indexQuestion(): number {
-        if (this.showArrows) {
+        if (this.showArrows || this.gameService.histogram === undefined) {
             return this.indexQuestionDisplayed;
         }
         return Math.min(this.gameService.histogram.indexCurrentQuestion, this.gameService.histogram.question.length - 1);
     }
 
-    previousQuestion() {
+    get gradeData(): Grade[] {
+        return this.histogram?.type === QuestionType.QRL ? this.histogram.grades : [];
+    }
+
+    get histogram(): Histogram | undefined {
+        return this.gameService.histogram?.histogram[this.indexQuestion];
+    }
+
+    get question(): Question | undefined {
+        return this.gameService.histogram?.question[this.indexQuestion];
+    }
+
+    get maxCounter(): number {
+        if (this.question?.type !== QuestionType.QCM || this.histogram?.type !== QuestionType.QCM) return 0;
+        let max = 0;
+        for (let i = 0; i < this.question.choices.length; i++) {
+            if (this.histogram.choicesCounters[i] > max) {
+                max = this.histogram.choicesCounters[i];
+            }
+        }
+        return max;
+    }
+
+    get zeroGrade(): number {
+        return this.gradeData.filter((grade) => grade === Grade.Zero).length;
+    }
+
+    get halfGrade(): number {
+        return this.gradeData.filter((grade) => grade === Grade.Half).length;
+    }
+
+    get perfectGrade(): number {
+        return this.gradeData.filter((grade) => grade === Grade.One).length;
+    }
+
+    get maxQRL(): number {
+        const histogram = this.gameService.histogram?.histogram[this.indexQuestion];
+        return histogram?.type === QuestionType.QRL ? Math.max(histogram.active, histogram.inactive) : 0;
+    }
+
+    get maxQRLResult(): number {
+        return Math.max(this.zeroGrade, this.halfGrade, this.perfectGrade);
+    }
+
+    get isFinalQrlResult(): boolean {
+        return !(this.question?.type === QuestionType.QRL || this.gameService.currentState !== GameState.SHOW_FINAL_RESULTS);
+    }
+
+    previousQuestion(): void {
+        if (this.gameService.histogram === undefined) return;
         if (this.indexQuestionDisplayed !== 0) {
             this.indexQuestionDisplayed--;
         } else {
@@ -40,7 +86,8 @@ export class HistogramComponent {
         }
     }
 
-    nextQuestion() {
+    nextQuestion(): void {
+        if (this.gameService.histogram === undefined) return;
         if (this.indexQuestionDisplayed !== this.gameService.histogram.question.length - 1) {
             this.indexQuestionDisplayed++;
         } else {
@@ -48,68 +95,11 @@ export class HistogramComponent {
         }
     }
 
-    getMaxCounter(): number {
-        let max = 0;
-        for (let i = 0; i < this.gameService.histogram.question[this.indexQuestion].choices.length; i++) {
-            if (this.gameService.histogram.choicesCounters[this.indexQuestion][i] > max) {
-                max = this.gameService.histogram.choicesCounters[this.indexQuestion][i];
-            }
-        }
-        return max;
-    }
-
     getChoiceIndex(choice: Choice): number {
-        return this.gameService.histogram.question[this.indexQuestion].choices.indexOf(choice);
+        return this.question?.type === QuestionType.QCM ? this.question.choices.indexOf(choice) : 0;
     }
+
     getCounter(choice: Choice): number {
-        return this.gameService.histogram.choicesCounters[this.indexQuestion][this.getChoiceIndex(choice)];
-    }
-    getActive(): number {
-        return this.gameSubscriptionService.usersStat.filter((user) => user.isActive).length;
-    }
-    getInactive(): number {
-        return this.gameSubscriptionService.usersStat.filter((user) => !user.isActive).length;
-    }
-    getMaxQRL(): number {
-        return Math.max(this.getActive(), this.getInactive());
-    }
-
-    getZeroGrade(): number {
-        if (!this.isFinalQrlResult()) {
-            return 0;
-        } else {
-            if (this.gameService.qrlResultData[this.indexQuestionDisplayed] !== undefined) {
-                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.Zero).length;
-            }
-            return 0;
-        }
-    }
-    getHalfGrade(): number {
-        if (!this.isFinalQrlResult()) {
-            return 0;
-        } else {
-            if (this.gameService.qrlResultData[this.indexQuestionDisplayed]) {
-                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.Half).length;
-            }
-
-            return 0;
-        }
-    }
-    getPerfectGrade(): number {
-        if (!this.isFinalQrlResult()) {
-            return 0;
-        } else {
-            if (this.gameService.qrlResultData[this.indexQuestionDisplayed]) {
-                return this.gameService.qrlResultData[this.indexQuestionDisplayed].filter((answer) => answer.grade === Grade.One).length;
-            }
-
-            return 0;
-        }
-    }
-    getMaxQRLResult(): number {
-        return Math.max(this.getZeroGrade(), this.getHalfGrade(), this.getPerfectGrade());
-    }
-    isFinalQrlResult(): boolean {
-        return !(this.gameService.currentQuestion?.type === QuestionType.QRL || this.gameService.currentState !== GameState.SHOW_FINAL_RESULTS);
+        return this.histogram?.type === QuestionType.QCM ? this.histogram.choicesCounters[this.getChoiceIndex(choice)] : 0;
     }
 }

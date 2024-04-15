@@ -253,4 +253,25 @@ describe('ValidationService', () => {
             expect(result).toEqual({ ok: true, value: expectedGame });
         });
     });
+
+    it('Should return nothing when the is Qrl in checkQCM', () => {
+        const question = {
+            type: QuestionType.QRL,
+            text: 'Question test',
+            points: 8,
+        };
+        const error: string[] = [];
+        service.checkQCM(question, error);
+        expect(error).toEqual([]);
+    });
+
+    it('filterQuestionJSONInput should return a question without choices', () => {
+        const question = {
+            type: QuestionType.QRL,
+            text: 'Question test',
+            points: 8,
+        } as Question;
+        const result = service.filterQuestionJSONInput(question);
+        expect(result).toEqual(question);
+    });
 });

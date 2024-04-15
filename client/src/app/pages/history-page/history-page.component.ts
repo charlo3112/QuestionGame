@@ -18,7 +18,7 @@ export class HistoryPageComponent implements OnInit {
         private readonly adminService: AdminService,
     ) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         if (!this.adminService.login) {
             this.router.navigate(['/admin']);
         }

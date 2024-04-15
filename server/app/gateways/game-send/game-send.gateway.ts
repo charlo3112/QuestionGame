@@ -1,3 +1,4 @@
+import { Grade } from '@common/enums/grade';
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HistogramData } from '@common/interfaces/histogram-data';
@@ -47,12 +48,16 @@ export class GameGatewaySend {
         this.server.to(userId).emit(WebsocketMessage.USER_STAT, usersStat);
     }
 
-    sendQrlResultData(roomId: string, qrlResultData: Record<number, QrlAnswer[]>): void {
+    sendQrlResultData(roomId: string, qrlResultData: QrlAnswer[]): void {
         this.server.to(roomId).emit(WebsocketMessage.QRL_RESULT_DATA, qrlResultData);
     }
 
-    sendQrlGradedAnswer(userId: string, qrlAnswer: QrlAnswer): void {
-        this.server.to(userId).emit('game:qrl-graded-answer', qrlAnswer);
+    sendQrlGradedAnswer(userId: string, qrlAnswer: Grade): void {
+        this.server.to(userId).emit(WebsocketMessage.QRL_GRADED_ANSWER, qrlAnswer);
+    }
+
+    sendQrlAnswer(userId: string, qrlAnswer: string): void {
+        this.server.to(userId).emit(WebsocketMessage.QRL_ANSWER, qrlAnswer);
     }
 
     sendHistogramDataUpdate(roomId: string, histogramData: HistogramData): void {
