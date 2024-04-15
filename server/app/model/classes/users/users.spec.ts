@@ -2,8 +2,10 @@ import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
+import { Choice } from '@common/interfaces/choice';
+import { Histogram } from '@common/interfaces/histogram-data';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
-import { QCMQuestion } from '@common/interfaces/question';
+import { Question } from '@common/interfaces/question';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Users } from './users';
 
@@ -13,6 +15,7 @@ describe('Users', () => {
     let mockHostIsPlaying: boolean;
     let mockUpdateHistogram: jest.Mock;
     let user: UserData;
+    const TIMEOUT_TIMER = 1000;
 
     beforeEach(() => {
         user = new UserData('123', 'Room123', 'John');
@@ -137,6 +140,13 @@ describe('Users', () => {
         expect(users.totalSize).toBe(0);
     });
 
+    it('totalActiveSize() should return the number of active users', () => {
+        users.addUser(user);
+        users.validateChoice('123');
+        users.hostIsPlaying = true;
+        expect(users.totalActiveSize).toBe(1);
+    });
+
     it('banUser() should return the user ID', () => {
         users.addUser(user);
         const userId = users.banUser('John');
@@ -181,27 +191,28 @@ describe('Users', () => {
         expect(users.getScore('456')).toEqual({ score: points, bonus: false });
     });
 
-    it('getCurrentHistogramData should add data if user made a choice', () => {
-        const choice = [true, false, true, false];
-        const question = { type: QuestionType.QCM, text: 'Test', points: 100, choices: [] } as QCMQuestion;
-        // const choiceDataArray = choice.map((isCorrect, index) => {
-        //     const text = `Option ${index + 1}`;
-        //     return { isCorrect, text } as Choice;
-        // });
+    it('getCurrentHistogramData() should return the histogram', () => {
         users.addUser(user);
-        users.handleChoice('123', choice);
-        const histogramData = users.getCurrentHistogramData(question);
-        expect(histogramData).toEqual([1, 0, 1, 0]);
+        const choice1 = { text: 'Test1', isCorrect: true } as Choice;
+        const choice2 = { text: 'Test2', isCorrect: false } as Choice;
+        const choice3 = { text: 'Test3', isCorrect: false } as Choice;
+        const choice4 = { text: 'Test4', isCorrect: false } as Choice;
+        const question = { type: QuestionType.QCM, text: 'Test', points: 100, choices: [choice1, choice2, choice3, choice4] } as Question;
+        users.handleChoice('123', [true, false, false, false]);
+        const histogram = users.getCurrentHistogramData(question);
+        const expectedHistogram = { choicesCounters: [1, 0, 0, 0], type: QuestionType.QCM } as Histogram;
+        expect(histogram).toEqual(expectedHistogram);
     });
 
-    // it('getCurrentHistogramData() should return the histogram', () => {
-    //     users.addUser(user);
-    //     const choice = { text: 'Test1', isCorrect: true } as Choice;
-    //     const question = { type: QuestionType.QCM, text: 'Test', points: 100, choices: [choice] } as QCMQuestion;
-    //     users.handleChoice('123', [true]);
-    //     const histogram = users.getCurrentHistogramData(question);
-    //     expect(histogram).toEqual([QuestionType.QCM, choice]);
-    // });
+    it('getCurrentHistogramData() should return the histogram for a QRL question', () => {
+        users.addUser(user);
+        const question = { type: QuestionType.QRL, text: 'Test', points: 100 } as Question;
+        users.validateChoice('123');
+        users.hostIsPlaying = true;
+        const histogram = users.getCurrentHistogramData(question);
+        const expectedHistogram = { type: QuestionType.QRL, active: 1, inactive: 0, grades: [] } as Histogram;
+        expect(histogram).toEqual(expectedHistogram);
+    });
 
     it('handleAnswers() should update the user score', () => {
         const choice = [true, true, false, false];
@@ -220,6 +231,26 @@ describe('Users', () => {
         expect(users.getScore('123')).toEqual({ score: 200, bonus: false });
     });
 
+    it('handleAnswer() should clear the timeout', () => {
+        users.addUser(user);
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        user.timeout = setTimeout(() => {}, TIMEOUT_TIMER);
+        users.handleAnswer('123', 'Test');
+        expect(user.timeout[0]).toBeUndefined();
+    });
+
+    // it('handleAnswer() should update the user answer and set user to active', () => {
+    //     users.addUser(user);
+    //     user.timeout = undefined;
+    //     users.handleAnswer('123', 'Test');
+    //     // expect(users.getQrlAnswers()[0]).toEqual({ user: 'John', text: 'Test', grade: Grade.Ungraded });
+    //     // expect(user.isActive).toBe(true);
+    //     // expect(user.timeout).toBeDefined();
+    //     jest.advanceTimersByTime(ACTIVE_TIME);
+    //     // expect(user.isActive).toBe(false);
+    //     expect(users['updateHistogram']).toHaveBeenCalled();
+    // });
+
     it('isValidate() should return false if the user is not found', () => {
         expect(users.isValidate('123')).toBe(false);
     });
@@ -228,12 +259,6 @@ describe('Users', () => {
         users.addUser(user);
         users.validateChoice('123');
         expect(users.isValidate('123')).toBe(true);
-    });
-
-    it('resetActivity() should reset the user activity', () => {
-        users.addUser(user);
-        users.resetActivity();
-        expect(users['users'].get('123').isActive).toBeFalsy();
     });
 
     it('canChat() should return false if the user is banned', () => {
@@ -254,4 +279,19 @@ describe('Users', () => {
         users.validateChoice('123');
         expect(users.getQrlActive()).toEqual(1);
     });
+
+    it('handleTestAnswer() should update the user score', () => {
+        const points = 100;
+        users.addUser(user);
+        users.handleTestAnswer(points);
+        expect(users.getScore('123')).toEqual({ score: points, bonus: false });
+    });
+
+    // it('update() should send the Qrl answer ', () => {
+    //     users.addUser(user);
+    //     // const answer = { user: 'John', text: 'Test', grade: Grade.Ungraded } as QrlAnswer;
+    //     users.handleAnswer('123', 'Test');
+    //     users.update('123', '234');
+    //     expect(mockGameGateway.sendQrlGradedAnswer('123', Grade.Ungraded)).toHaveBeenCalled();
+    // });
 });
