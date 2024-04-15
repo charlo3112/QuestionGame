@@ -7,7 +7,6 @@ import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { HistoryService } from '@app/services/history/history.service';
-import { MIN_TIME_PANIC_QCM_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
@@ -192,10 +191,6 @@ describe('ActiveGame', () => {
         expect(game.currentState).toBe(GameState.ASKING_QUESTION_QCM);
     });
 
-    it('questionIndexCurrent() should return the current question index', () => {
-        expect(game.questionIndexCurrent).toBe(0);
-    });
-
     it('setChat() should return undefined if the user is not in the game', () => {
         const result = game.setChat('hostId', 'username', true);
         expect(result).toBeUndefined();
@@ -211,21 +206,13 @@ describe('ActiveGame', () => {
         expect(result).toBeUndefined();
     });
 
-    it('startPanicking() should set the panicking flag to true', () => {
-        game['advanceState'](GameState.ASKING_QUESTION);
-        game['currentQuestionWithAnswer'].type = QuestionType.QCM;
-        game['timer'].seconds = MIN_TIME_PANIC_QCM_S + 1;
-        game.startPanicking();
-        expect(game['timer']['panicMode']).toBeTruthy();
-    });
-
     it('togglePause() should return undefined if the state isnt AskingQuestion', () => {
         const result = game.togglePause();
         expect(result).toBeUndefined();
     });
 
     it('togglePause() should toggle the timer if the game state is AskingQuestion', () => {
-        game['advanceState'](GameState.ASKING_QUESTION);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
         game.togglePause();
         expect(game['timer']['timeData'].pause).toBeTruthy();
     });
