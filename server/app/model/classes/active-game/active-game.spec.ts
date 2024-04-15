@@ -63,7 +63,7 @@ describe('ActiveGame', () => {
     it('currentQuestionWithAnswers() should return the current question with answers', () => {
         const expectedQuestion = mockGameData.questions[0];
 
-        const currentQuestionWithAnswers = game.currentQuestionWithAnswer;
+        const currentQuestionWithAnswers = game['game'].currentQuestionWithAnswer;
         expect(currentQuestionWithAnswers).toStrictEqual(expectedQuestion);
     });
 
@@ -81,13 +81,8 @@ describe('ActiveGame', () => {
             }),
         };
 
-        const currentQuestionWithoutAnswers = game.currentQuestionWithoutAnswer;
+        const currentQuestionWithoutAnswers = game['game'].currentQuestionWithoutAnswer;
         expect(currentQuestionWithoutAnswers).toStrictEqual(expectedQuestionWithoutCorrectAnswer);
-    });
-
-    it('gameData() should return the game data', () => {
-        const gameData = game.gameData;
-        expect(gameData).toBeDefined();
     });
 
     it('gameStatePayload() should return game title as payload when state is Starting', () => {
@@ -99,7 +94,7 @@ describe('ActiveGame', () => {
 
     it('gameStatePayload() should return question with answers as payload when state is SHOW_RESULTS', () => {
         game['advanceState'](GameState.SHOW_RESULTS);
-        const expectedPayload = { state: GameState.SHOW_RESULTS, payload: game.currentQuestionWithAnswer };
+        const expectedPayload = { state: GameState.SHOW_RESULTS, payload: game['game'].currentQuestionWithAnswer };
         const receivedPayload = game.gameStatePayload;
         expect(receivedPayload).toStrictEqual(expectedPayload);
     });
@@ -110,7 +105,7 @@ describe('ActiveGame', () => {
     });
 
     it('banUser() should return undefined when currentstate !== WAIT', () => {
-        game['advanceState'](GameState.ASKING_QUESTION);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
         const result = game.banUser('userId');
         expect(result).toBeUndefined();
     });
@@ -134,7 +129,7 @@ describe('ActiveGame', () => {
         const mockUserData = new UserData('userId', 'roomId', 'username');
         mockUserData.validate = 2;
         game.addUser(mockUserData);
-        game['advanceState'](GameState.ASKING_QUESTION);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
         const result = game.handleChoice('userId', [false, false, false, false]);
         expect(result).toBeUndefined();
     });
@@ -143,7 +138,7 @@ describe('ActiveGame', () => {
         const mockUserData = new UserData('userId', 'roomId', 'username');
         game.addUser(mockUserData);
         const sendUserSelectedChoiceMock = jest.spyOn(game, 'sendUserSelectedChoice');
-        game['advanceState'](GameState.ASKING_QUESTION);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
         game.handleChoice('userId', [false, false, false, false]);
         expect(sendUserSelectedChoiceMock).toHaveBeenCalled();
     });
@@ -207,8 +202,8 @@ describe('ActiveGame', () => {
     // });
 
     it('advanceState() should modify the state of the Game', () => {
-        game['advanceState'](GameState.ASKING_QUESTION);
-        expect(game.currentState).toBe(GameState.ASKING_QUESTION);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        expect(game.currentState).toBe(GameState.ASKING_QUESTION_QCM);
     });
 
     // it('askQuestion() should update the histogram, calculate the scores and advance state', async () => {

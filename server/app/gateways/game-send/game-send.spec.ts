@@ -77,7 +77,7 @@ describe('GameGatewaySend', () => {
 
     it('sendStateUpdate should emit state update', () => {
         const roomId = 'testRoom';
-        const state = { state: GameState.ASKING_QUESTION } as GameStatePayload;
+        const state = { state: GameState.ASKING_QUESTION_QCM } as GameStatePayload;
         gateway.sendStateUpdate(roomId, state);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
         expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.STATE, state);
