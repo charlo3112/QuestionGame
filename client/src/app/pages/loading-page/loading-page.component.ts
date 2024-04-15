@@ -23,20 +23,20 @@ export class LoadingPageComponent implements OnInit, OnDestroy {
         this.gameService.reset();
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         await this.gameService.init();
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.gameService.leaveRoom();
     }
 
-    onToggleLock() {
+    onToggleLock(): void {
         this.roomLocked = !this.roomLocked;
         this.websocketService.toggleClosed(this.roomLocked);
     }
 
-    onStartGame() {
+    onStartGame(): void {
         this.websocketService.hostConfirm();
     }
 }

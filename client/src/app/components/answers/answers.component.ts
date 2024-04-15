@@ -16,7 +16,7 @@ export class AnswersComponent {
 
     constructor(readonly gameService: GameService) {}
 
-    getAnswerClass() {
+    getAnswerClass(): string {
         return `answers-${this.choices.length}`;
     }
 }

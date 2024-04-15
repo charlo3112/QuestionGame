@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { AdminService } from '@app/services/admin/admin.service';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
+import { QuestionType } from '@common/enums/question-type';
 import { Choice } from '@common/interfaces/choice';
 import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
@@ -56,15 +57,23 @@ describe('AdminService', () => {
             title: GAME_PLACEHOLDER.title,
             description: GAME_PLACEHOLDER.description,
             duration: GAME_PLACEHOLDER.duration,
-            questions: GAME_PLACEHOLDER.questions.map((question: Question) => ({
-                type: question.type,
-                text: question.text,
-                points: question.points,
-                choices: question.choices?.map((choice: Choice) => ({
-                    text: choice.text,
-                    isCorrect: choice.isCorrect,
-                })),
-            })),
+            questions: GAME_PLACEHOLDER.questions.map((question: Question) =>
+                question.type === QuestionType.QCM
+                    ? {
+                          type: question.type,
+                          text: question.text,
+                          points: question.points,
+                          choices: question.choices?.map((choice: Choice) => ({
+                              text: choice.text,
+                              isCorrect: choice.isCorrect,
+                          })),
+                      }
+                    : {
+                          type: question.type,
+                          text: question.text,
+                          points: question.points,
+                      },
+            ),
         };
 
         const mockResponse: HttpResponse<string> = new HttpResponse({

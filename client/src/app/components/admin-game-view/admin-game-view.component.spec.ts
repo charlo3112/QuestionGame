@@ -1,5 +1,3 @@
-/*
-/*
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
@@ -11,9 +9,10 @@ import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData, HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { HISTOGRAM_DATA, HistogramData } from '@common/interfaces/histogram-data';
+import { Message } from '@common/interfaces/message';
 import { Question } from '@common/interfaces/question';
-import { of } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AdminGameViewComponent } from './admin-game-view.component';
 
 describe('AdminGameViewComponent', () => {
@@ -25,26 +24,28 @@ describe('AdminGameViewComponent', () => {
     let mockPanic: boolean;
     let mockCurrentQuestion: Question | undefined;
     let mockTime: number;
-    const mockMessage = {
-        name: 'test',
-        message: 'test',
-        timestamp: 0,
-    };
-    const mockGameStatePayloadString: GameStatePayload = {
-        state: GameState.Starting,
-        payload: 'test',
-    };
+    let mockCurrentState: GameState;
+    const mockMessage: Subject<Message> = new Subject<Message>();
+    let mockGameStatePayloadString: Subject<GameStatePayload>;
 
     beforeEach(() => {
         const mockHistogramData: HistogramData = HISTOGRAM_DATA;
+        mockGameStatePayloadString = new Subject<GameStatePayload>();
 
         mockPanic = false;
         mockCurrentQuestion = undefined;
         mockTime = 0;
-        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['getState', 'getMessage', 'subscribe']);
-        mockGameService = jasmine.createSpyObj('GameService', ['init', 'histogram', 'startPanic', 'togglePause', 'currentQuestion', 'getMessage'], {
-            currentState: GameState.STARTING,
-        });
+        mockWebSocketService = jasmine.createSpyObj('WebSocketService', ['getState', 'getMessage', 'getMessages']);
+        mockGameService = jasmine.createSpyObj('GameService', [
+            'init',
+            'histogram',
+            'startPanic',
+            'togglePause',
+            'currentQuestion',
+            'getMessage',
+            'nextQuestion',
+            'showFinalResults',
+        ]);
         Object.defineProperty(mockGameService, 'histogram', {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
         });
@@ -60,9 +61,10 @@ describe('AdminGameViewComponent', () => {
         Object.defineProperty(mockGameService, 'currentState', {
             get: jasmine.createSpy('currentState.get').and.callFake(() => mockCurrentState),
         });
-        mockCurrentState = GameState.ASKING_QUESTION;
-        mockWebSocketService.getMessage.and.returnValue(of(mockMessage));
-        mockWebSocketService.getState.and.returnValue(of(mockGameStatePayloadString));
+        mockCurrentState = GameState.ASKING_QUESTION_QCM;
+        mockWebSocketService.getMessage.and.returnValue(mockMessage.asObservable());
+        mockWebSocketService.getState.and.returnValue(mockGameStatePayloadString.asObservable());
+        mockWebSocketService.getMessages.and.returnValue(Promise.resolve([]));
         TestBed.configureTestingModule({
             imports: [AdminGameViewComponent, BrowserAnimationsModule, NoopAnimationsModule, LeaderboardComponent, HistogramComponent, ChatComponent],
             providers: [
@@ -82,27 +84,27 @@ describe('AdminGameViewComponent', () => {
     describe('canPanic', () => {
         it('should return false if panic is true', () => {
             mockPanic = true;
-            expect(component.canPanic()).toBeFalse();
+            expect(component.canPanic).toBeFalse();
         });
 
         it('should return false if currentQuestion is undefined', () => {
             mockPanic = false;
             mockCurrentQuestion = undefined;
-            expect(component.canPanic()).toBeFalse();
+            expect(component.canPanic).toBeFalse();
         });
 
         it('should return true', () => {
             mockPanic = false;
             mockCurrentQuestion = { type: QuestionType.QCM, text: 'test', points: 0, choices: [] };
             mockTime = MIN_TIME_PANIC_QCM_S + 1;
-            expect(component.canPanic()).toBeTrue();
+            expect(component.canPanic).toBeTrue();
         });
 
         it('should return true', () => {
             mockPanic = false;
-            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0, choices: [] };
+            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0 };
             mockTime = MIN_TIME_PANIC_QRL_S + 1;
-            expect(component.canPanic()).toBeTrue();
+            expect(component.canPanic).toBeTrue();
         });
     });
 
@@ -115,16 +117,51 @@ describe('AdminGameViewComponent', () => {
 
     describe('startPanicking', () => {
         it('should do nothing if canPanic is false', () => {
-            spyOn(component, 'canPanic').and.returnValue(false);
+            mockPanic = true;
             component.startPanicking();
             expect(mockGameService.startPanic).not.toHaveBeenCalled();
         });
 
         it('should call startPanic on gameService if canPanic is true', () => {
-            spyOn(component, 'canPanic').and.returnValue(true);
+            mockPanic = false;
+            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0 };
+            mockTime = MIN_TIME_PANIC_QRL_S + 1;
             component.startPanicking();
             expect(mockGameService.startPanic).toHaveBeenCalled();
         });
     });
+
+    describe('nextStep', () => {
+        it('should call showFinalResults on gameService if currentState is LAST_QUESTION', () => {
+            mockCurrentState = GameState.LAST_QUESTION;
+            component.nextStep();
+            expect(mockGameService.showFinalResults).toHaveBeenCalled();
+        });
+
+        it('should call nextQuestion on gameService if currentState is not LAST_QUESTION', () => {
+            mockCurrentState = GameState.ASKING_QUESTION_QCM;
+            component.nextStep();
+            expect(mockGameService.nextQuestion).toHaveBeenCalled();
+        });
+    });
+
+    describe('qrlCorrected', () => {
+        it('should emit answersCorrected and set gradesSent to true', () => {
+            spyOn(component.answersCorrected, 'emit');
+            component.qrlCorrected();
+            expect(component.answersCorrected.emit).toHaveBeenCalled();
+        });
+    });
+
+    describe('buttonText', () => {
+        it('should return "Résultats" if currentState is LAST_QUESTION', () => {
+            mockCurrentState = GameState.LAST_QUESTION;
+            expect(component.buttonText).toBe('Résultats');
+        });
+
+        it('should return "Prochaine Question" if currentState is not LAST_QUESTION', () => {
+            mockCurrentState = GameState.ASKING_QUESTION_QCM;
+            expect(component.buttonText).toBe('Prochaine Question');
+        });
+    });
 });
-*/

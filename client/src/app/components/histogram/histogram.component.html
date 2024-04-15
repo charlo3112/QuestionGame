@@ -1,9 +1,9 @@
 <div class="main-container">
     <mat-card class="content-container">
         <mat-card-header>
-            <h2 class="question-title">Question {{ indexQuestion + 1 }} : {{ this.gameService.histogram.question[indexQuestion].text }}</h2>
+            <h2 class="question-title">Question {{ indexQuestion + 1 }} : {{ this.question?.text }}</h2>
         </mat-card-header>
-        <mat-card-content *ngIf="this.gameService.histogram.question[indexQuestion].type === questionType.QRL && showArrows">
+        <mat-card-content *ngIf="this.question?.type === 'QRL' && showArrows">
             <div class="histogram">
                 <div class="choice-container">
                     <div class="bar-container">
@@ -12,9 +12,9 @@
                             [ngStyle]="{
                                 'background-color': 'Red'
                             }"
-                            [style.width]="(getZeroGrade() / getMaxQRLResult()) * 100 + '%'"
+                            [style.width]="(zeroGrade / maxQRLResult) * 100 + '%'"
                         >
-                            {{ getZeroGrade() }}
+                            {{ zeroGrade }}
                         </div>
                     </div>
                     <span class="choice-text">0%</span>
@@ -26,9 +26,9 @@
                             [ngStyle]="{
                                 'background-color': 'Yellow'
                             }"
-                            [style.width]="(getHalfGrade() / getMaxQRLResult()) * 100 + '%'"
+                            [style.width]="(halfGrade / maxQRLResult) * 100 + '%'"
                         >
-                            {{ getHalfGrade() }}
+                            {{ halfGrade }}
                         </div>
                     </div>
                     <span class="choice-text">50%</span>
@@ -40,50 +40,38 @@
                             [ngStyle]="{
                                 'background-color': 'Green'
                             }"
-                            [style.width]="(getPerfectGrade() / getMaxQRLResult()) * 100 + '%'"
+                            [style.width]="(perfectGrade / maxQRLResult) * 100 + '%'"
                         >
-                            {{ getPerfectGrade() }}
+                            {{ perfectGrade }}
                         </div>
                     </div>
                     <span class="choice-text">100%</span>
                 </div>
             </div>
         </mat-card-content>
-        <mat-card-content *ngIf="this.gameService.histogram.question[indexQuestion].type === questionType.QRL && !showArrows">
+        <mat-card-content *ngIf="this.histogram && this.histogram.type === 'QRL' && !showArrows">
             <div class="histogram">
                 <div class="choice-container">
                     <div class="bar-container">
-                        <div
-                            class="bar"
-                            [ngStyle]="{
-                                'background-color': 'Green'
-                            }"
-                            [style.width]="(getActive() / getMaxQRL()) * 100 + '%'"
-                        >
-                            {{ getActive() }}
+                        <div class="bar" [ngStyle]="{ 'background-color': 'Green' }" [style.width]="(this.histogram.active / maxQRL) * 100 + '%'">
+                            {{ this.histogram.active }}
                         </div>
                     </div>
                     <span class="choice-text">Actifs</span>
                 </div>
                 <div class="choice-container">
                     <div class="bar-container">
-                        <div
-                            class="bar"
-                            [ngStyle]="{
-                                'background-color': 'Red'
-                            }"
-                            [style.width]="(getInactive() / getMaxQRL()) * 100 + '%'"
-                        >
-                            {{ getInactive() }}
+                        <div class="bar" [ngStyle]="{ 'background-color': 'Red' }" [style.width]="(this.histogram.inactive / maxQRL) * 100 + '%'">
+                            {{ this.histogram.inactive }}
                         </div>
                     </div>
                     <span class="choice-text">Non-actifs</span>
                 </div>
             </div>
         </mat-card-content>
-        <mat-card-content *ngIf="this.gameService.histogram.question[indexQuestion].type === questionType.QCM">
+        <mat-card-content *ngIf="this.question && this.question.type === 'QCM'">
             <div class="histogram">
-                <div *ngFor="let choice of this.gameService.histogram.question[indexQuestion]?.choices" class="choice-container">
+                <div *ngFor="let choice of question.choices" class="choice-container">
                     <div class="bar-container">
                         <div
                             *ngIf="getCounter(choice) > 0"
@@ -91,7 +79,7 @@
                             [ngStyle]="{
                                 'background-color': choice.isCorrect ? 'Green' : 'Red'
                             }"
-                            [style.width]="(getCounter(choice) / getMaxCounter()) * 100 + '%'"
+                            [style.width]="(getCounter(choice) / maxCounter) * 100 + '%'"
                         >
                             {{ getCounter(choice) }}
                         </div>
@@ -102,7 +90,7 @@
             </div>
         </mat-card-content>
     </mat-card>
-    <div *ngIf="!(this.gameService.histogram.question.length <= 1) && showArrows" class="icon-container">
+    <div *ngIf="this.gameService.histogram && !(this.gameService.histogram.question.length <= 1) && showArrows" class="icon-container">
         <button mat-icon-button aria-label="Before" (click)="previousQuestion()">
             <mat-icon>navigate_before</mat-icon>
         </button>

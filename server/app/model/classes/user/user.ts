@@ -1,6 +1,5 @@
 import { HOST_NAME } from '@common/constants';
 import { UserState } from '@common/enums/user-state';
-import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { UserGameInfo } from '@common/interfaces/user-game-info';
 
@@ -13,7 +12,7 @@ export class UserData {
     private bonus: number;
     private roomId: string;
     private choice: boolean[] | undefined;
-    private answerQrl: QrlAnswer | undefined;
+    private answerQrl: string;
     private timeValidate: number | undefined;
     private isBonus: boolean;
     private state: UserState;
@@ -31,6 +30,7 @@ export class UserData {
         this.state = UserState.NO_INTERACTION;
         this.canChat = true;
         this.isQrlActive = false;
+        this.answerQrl = '';
     }
 
     get username() {
@@ -46,7 +46,7 @@ export class UserData {
     }
 
     get isActive() {
-        return this.isQrlActive;
+        return this.isQrlActive || this.timeValidate !== undefined;
     }
 
     get userCanChat() {
@@ -73,7 +73,7 @@ export class UserData {
         return this.bonus;
     }
 
-    get qrlAnswer() {
+    get qrlAnswer(): string {
         return this.answerQrl;
     }
 
@@ -102,8 +102,9 @@ export class UserData {
         this.state = UserState.FIRST_INTERACTION;
     }
 
-    set newAnswer(answer: QrlAnswer) {
+    set newAnswer(answer: string) {
         this.answerQrl = answer;
+        this.state = UserState.FIRST_INTERACTION;
     }
 
     set validate(time: number) {
@@ -116,6 +117,8 @@ export class UserData {
         this.timeValidate = undefined;
         this.isBonus = false;
         this.state = UserState.NO_INTERACTION;
+        this.answerQrl = '';
+        this.isActive = false;
     }
 
     isHost(): boolean {

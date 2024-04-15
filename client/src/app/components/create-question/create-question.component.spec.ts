@@ -34,7 +34,6 @@ describe('CreateQuestionComponent', () => {
             'addToQuestionBank',
             'addChoice',
             'choiceVerif',
-            'addToQuestionBank',
         ]);
 
         await TestBed.configureTestingModule({
@@ -86,7 +85,10 @@ describe('CreateQuestionComponent', () => {
             type: QuestionType.QCM,
             text: '',
             points: 0,
-            choices: [],
+            choices: [
+                { text: 'Choice 1', isCorrect: false },
+                { text: 'Choice 2', isCorrect: true },
+            ],
         };
         const changesObj = {
             questionData: new SimpleChange(null, question, true),
@@ -95,6 +97,18 @@ describe('CreateQuestionComponent', () => {
         spyOn(component, 'fillForm');
         component.ngOnChanges(changesObj);
         expect(component.fillForm).toHaveBeenCalled();
+    });
+
+    it('should call fillForm method when questionData changes and is not null', () => {
+        const question: Question = {
+            type: QuestionType.QRL,
+            text: '',
+            points: 0,
+        };
+        component.fillForm(question);
+        expect(component.questionName).toBe('');
+        expect(component.questionPoints).toBe(0);
+        expect(component.choices.length).toBe(0);
     });
 
     it('should call resetForm when questionData is not provided', () => {
@@ -138,8 +152,21 @@ describe('CreateQuestionComponent', () => {
     });
 
     // test de la fonction addToQuestionBank()
-    it('should add the question to the question bank', async () => {
+    it('should add the question to the question bank QCM', async () => {
         component.fillForm(mockValidQuestion);
+        createQuestionServiceSpy.addToQuestionBank.and.resolveTo(mockValidQuestion);
+        spyOn(component.questionCreated, 'emit');
+        spyOn(component.closeForm, 'emit');
+        await component.addToQuestionBank();
+        expect(component.questionCreated.emit).toHaveBeenCalledWith({
+            ...mockValidQuestion,
+        });
+        expect(component.closeForm.emit).toHaveBeenCalled();
+    });
+
+    it('should add the question to the question bank QRL', async () => {
+        component.fillForm(mockValidQuestion);
+        component.questionType = QuestionType.QRL;
         createQuestionServiceSpy.addToQuestionBank.and.resolveTo(mockValidQuestion);
         spyOn(component.questionCreated, 'emit');
         spyOn(component.closeForm, 'emit');
@@ -241,15 +268,15 @@ describe('CreateQuestionComponent', () => {
         component.fillForm(mockValidQuestion);
         expect(component.questionName).toBe(mockValidQuestion.text);
         expect(component.questionPoints).toBe(mockValidQuestion.points);
-        expect(component.choices).toEqual(mockValidQuestion.choices);
+        if (mockValidQuestion.type === QuestionType.QCM) expect(component.choices).toEqual(mockValidQuestion.choices);
     });
 
     // test de la fonction save() et hasAnswer()
-    it('should emit questionCreated event with correct data on save', () => {
+    it('should emit questionCreated event with correct data on save for QCM', () => {
         spyOn(component.questionCreated, 'emit');
         component.questionName = mockValidQuestion.text;
         component.questionPoints = mockValidQuestion.points;
-        component.choices = mockValidQuestion.choices;
+        if (mockValidQuestion.type === QuestionType.QCM) component.choices = mockValidQuestion.choices;
         component.questionType = QuestionType.QCM;
         createQuestionServiceSpy.choiceVerif.and.returnValue(true);
         component.save();
@@ -258,18 +285,20 @@ describe('CreateQuestionComponent', () => {
         });
     });
 
-    it('should emit questionCreated event with correct data on save when question type is QRL', () => {
+    it('should emit questionCreated event with correct data on save for QRL', () => {
+        mockValidQuestion = {
+            text: 'Quelle est la capitale du Canada ?',
+            points: MIN_NB_OF_POINTS,
+            type: QuestionType.QRL,
+        };
         spyOn(component.questionCreated, 'emit');
         component.questionName = mockValidQuestion.text;
         component.questionPoints = mockValidQuestion.points;
-        component.choices = mockValidQuestion.choices;
         component.questionType = QuestionType.QRL;
+        createQuestionServiceSpy.choiceVerif.and.returnValue(true);
         component.save();
         expect(component.questionCreated.emit).toHaveBeenCalledWith({
-            type: QuestionType.QRL,
-            text: mockValidQuestion.text,
-            points: mockValidQuestion.points,
-            choices: mockValidQuestion.choices,
+            ...mockValidQuestion,
         });
     });
 

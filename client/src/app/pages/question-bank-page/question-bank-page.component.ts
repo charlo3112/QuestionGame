@@ -19,17 +19,17 @@ export class QuestionBankPageComponent implements OnInit {
         private readonly adminService: AdminService,
     ) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         if (!this.adminService.login) {
             this.router.navigate(['/admin']);
         }
     }
 
-    handleCloseAdd() {
+    handleCloseAdd(): void {
         this.showAddQuestion = false;
     }
 
-    handleCreateQuestion() {
+    handleCreateQuestion(): void {
         this.showAddQuestion = true;
         this.child.toggleHighlight(null);
     }

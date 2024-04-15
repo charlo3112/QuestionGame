@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-// We need every method and parameter in this file
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
 import { UserData } from '@app/model/classes/user/user';
@@ -55,15 +53,7 @@ export class RoomManagementService {
         game.handleAnswers(userId, answers);
     }
 
-    handleActivityUpdate(userId: string): void {
-        const game = this.getActiveGame(userId);
-        if (!game) {
-            return;
-        }
-        game.handleActivityUpdate(userId);
-    }
-
-    handleQrlAnswer(userId: string, answer: QrlAnswer) {
+    handleQrlAnswer(userId: string, answer: string) {
         const game = this.getActiveGame(userId);
         if (!game) {
             return;
@@ -119,7 +109,6 @@ export class RoomManagementService {
         const game: GameData = {
             title: 'mode aléatoire',
             questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM) as QuestionData[],
-            description: 'mode aléatoire',
             duration: 20,
         } as GameData;
 
@@ -156,14 +145,14 @@ export class RoomManagementService {
     startPanicking(userId: string) {
         const activeGame = this.getActiveGame(userId);
         if (activeGame.isHost(userId)) {
-            this.getActiveGame(userId).startPanicking();
+            activeGame.startPanicking();
         }
     }
 
     togglePause(userId: string) {
         const activeGame = this.getActiveGame(userId);
         if (activeGame.isHost(userId)) {
-            this.getActiveGame(userId).togglePause();
+            activeGame.togglePause();
         }
     }
 
@@ -187,14 +176,6 @@ export class RoomManagementService {
     getChoice(userId: string): boolean[] {
         const game = this.getActiveGame(userId);
         return game ? game.getChoice(userId) : [false, false, false, false];
-    }
-
-    getQrlResultData(userId: string): Record<number, QrlAnswer[]> {
-        const game = this.getActiveGame(userId);
-        if (!game) {
-            return [];
-        }
-        return game.getQRLResultData();
     }
 
     getQrlAnswers(userId: string): QrlAnswer[] {
@@ -291,16 +272,10 @@ export class RoomManagementService {
         if (!game) {
             return;
         }
+        const isHost = game.isHost(userId);
         this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
-        if (game.isHost(userId)) {
-            this.deleteRoomChatGateway(roomId);
-            this.gameWebsocket.sendDeleteRoom(roomId);
-            this.gameState.delete(roomId);
-            game.stopGame();
-            return;
-        }
         game.removeUser(userId);
-        if (game.needToClosed() && game.currentState !== GameState.WAIT) {
+        if (isHost || (game.needToClosed() && game.currentState !== GameState.WAIT)) {
             this.deleteRoomChatGateway(roomId);
             this.gameWebsocket.sendDeleteRoom(roomId);
             this.gameState.delete(roomId);

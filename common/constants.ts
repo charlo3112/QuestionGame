@@ -66,3 +66,5 @@ export const SORT_DELAY_MS = 10;
 export const QRL_TIME = 60;
 
 export const ACTIVE_TIME = 5000;
+
+export const TIME_CHECK_FIREWORK = 200;

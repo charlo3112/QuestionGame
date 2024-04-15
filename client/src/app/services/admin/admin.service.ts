@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CommunicationService } from '@app/services/communication/communication.service';
 import { SessionStorageService } from '@app/services/session-storage/session-storage.service';
-import { Choice } from '@common/interfaces/choice';
+import { ValidationService } from '@app/services/validation/validation.service';
 import { Game } from '@common/interfaces/game';
 import { Question } from '@common/interfaces/question';
 
@@ -12,6 +12,7 @@ export class AdminService {
     constructor(
         private readonly communicationService: CommunicationService,
         private readonly sessionStorageService: SessionStorageService,
+        private readonly validationService: ValidationService,
     ) {}
 
     get login(): boolean {
@@ -40,15 +41,7 @@ export class AdminService {
                             title: game.title,
                             description: game.description,
                             duration: game.duration,
-                            questions: game.questions.map((question: Question) => ({
-                                type: question.type,
-                                text: question.text,
-                                points: question.points,
-                                choices: question.choices?.map((choice: Choice) => ({
-                                    text: choice.text,
-                                    isCorrect: choice.isCorrect,
-                                })),
-                            })),
+                            questions: game.questions.map((question: Question) => this.validationService.filterQuestionJSONInput(question)),
                         };
                         resolve(filteredOutput);
                     } else {
@@ -76,7 +69,7 @@ export class AdminService {
             });
         });
     }
-    downloadFile(data: Partial<Game>, filename: string) {
+    downloadFile(data: Partial<Game>, filename: string): void {
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const a = document.createElement('a');
         const objectUrl = URL.createObjectURL(blob);

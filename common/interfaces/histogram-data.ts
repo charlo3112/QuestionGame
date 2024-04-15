@@ -1,8 +1,23 @@
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { Question } from './question';
 
+export interface HistogramQCM {
+    type: QuestionType.QCM;
+    choicesCounters: number[];
+}
+
+export interface HistogramQRL {
+    type: QuestionType.QRL;
+    active: number;
+    inactive: number;
+    grades: Grade[];
+}
+
+export type Histogram = HistogramQCM | HistogramQRL;
+
 export interface HistogramData {
-    choicesCounters: number[][];
+    histogram: Histogram[];
     question: Question[];
     indexCurrentQuestion: number;
 }
@@ -21,20 +36,22 @@ export const HISTOGRAM_DATA: HistogramData = {
             ],
         },
         {
-            type: QuestionType.QCM,
+            type: QuestionType.QRL,
             text: 'Pourquoi le jus de lichi est bon?',
             points: 69,
-            choices: [
-                { text: 'Guillaume en boit', isCorrect: true },
-                { text: 'Guillaume en a apporté 2 boites', isCorrect: false },
-                { text: "C'est du lichi", isCorrect: false },
-                { text: 'Guillaume en a bu à 9h du matin', isCorrect: false },
-            ],
         },
     ],
     indexCurrentQuestion: 0,
-    choicesCounters: [
-        [10, 0, 0, 0],
-        [0, 0, 10, 0],
+    histogram: [
+        {
+            type: QuestionType.QCM,
+            choicesCounters: [0, 10, 0, 0],
+        },
+        {
+            type: QuestionType.QRL,
+            active: 1,
+            inactive: 2,
+            grades: [Grade.Zero, Grade.Half, Grade.One],
+        },
     ],
 };

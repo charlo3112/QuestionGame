@@ -108,7 +108,38 @@ describe('CreateQuestionService', () => {
         expect(result).not.toBeNull();
         expect(result?.text).toEqual(questionName);
         expect(result?.points).toEqual(questionPoints);
-        expect(result?.choices).toEqual(choices);
+        if (result.type === QuestionType.QCM) expect(result?.choices).toEqual(choices);
+    });
+
+    it('should add a question to the bank if input is valid', async () => {
+        const questionName = 'Test question';
+        const questionPoints = 10;
+        const questionType = QuestionType.QRL;
+        const choices: Choice[] = [];
+        const question: Question = {
+            type: QuestionType.QRL,
+            text: questionName,
+            points: questionPoints,
+        };
+
+        const mockResponse = new HttpResponse({ body: question, status: RESPONSE_CREATED });
+        communicationServiceSpy.addQuestion.and.returnValue(of(mockResponse));
+
+        const result = await createQuestionService.addToQuestionBank(questionName, questionPoints, choices, questionType);
+
+        expect(result).not.toBeNull();
+        expect(result?.text).toEqual(questionName);
+        expect(result?.points).toEqual(questionPoints);
+    });
+
+    it('should throw an error if communicationService.addQuestion fails', async () => {
+        const questionName = 'Test question';
+        const questionPoints = 10;
+        const questionType = QuestionType.QRL;
+        const choices: Choice[] = [];
+
+        communicationServiceSpy.addQuestion.and.returnValue(throwError(() => new HttpResponse({ status: HttpStatusCode.Unauthorized })));
+        await expectAsync(createQuestionService.addToQuestionBank(questionName, questionPoints, choices, questionType)).toBeRejected();
     });
 
     it('should return null if input is invalid', async () => {

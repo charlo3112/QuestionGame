@@ -15,11 +15,11 @@ export class StartGameExpansionComponent {
     @Output() startGame = new EventEmitter<void>();
     @Output() testGame = new EventEmitter<void>();
 
-    onStartGame() {
+    onStartGame(): void {
         this.startGame.emit();
     }
 
-    onTestGame() {
+    onTestGame(): void {
         this.testGame.emit();
     }
 }

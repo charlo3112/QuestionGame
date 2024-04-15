@@ -13,6 +13,7 @@ import { SortOption } from '@common/enums/sort-option';
 import { GAME_PLACEHOLDER, Game } from '@common/interfaces/game';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { QUESTION_PLACEHOLDER, Question } from '@common/interfaces/question';
 import { Result } from '@common/interfaces/result';
 import { USER, User } from '@common/interfaces/user';
@@ -33,6 +34,7 @@ describe('GameService', () => {
     let mockUsername: string;
     let mockRoomCode: string;
     let mockPlay: boolean;
+    let mockTest: boolean;
 
     beforeEach(() => {
         mockWebSocketService = jasmine.createSpyObj('WebSocketService', [
@@ -51,6 +53,8 @@ describe('GameService', () => {
             'showFinalResults',
             'togglePause',
             'startPanicking',
+            'sendQrlAnswer',
+            'sendAnswers',
         ]);
         mockCommunicationService = jasmine.createSpyObj('CommunicationService', ['getGameByID']);
         mockTime = jasmine.createSpyObj('TimeService', ['reset']);
@@ -66,12 +70,20 @@ describe('GameService', () => {
         Object.defineProperty(mockSessionStorageService, 'play', {
             get: jasmine.createSpy('play.get').and.callFake(() => mockPlay),
         });
+        Object.defineProperty(mockSessionStorageService, 'test', {
+            get: jasmine.createSpy('test.get').and.callFake(() => mockTest),
+            set: jasmine.createSpy('test.set').and.callFake((value: boolean) => {
+                mockTest = value;
+            }),
+        });
+
         mockPlay = true;
+        mockTest = false;
 
         mockGameSubscriptionService = jasmine.createSpyObj('GameSubscriptionService', ['initSubscriptions', 'reset', 'sortUsers']);
         mockGameSubscriptionService.sortOption = SortOption.USERNAME_ASCENDING;
         mockGameSubscriptionService.choicesSelected = [false, false, false, false];
-        mockGameSubscriptionService.players = new Set();
+        mockGameSubscriptionService.users = new Set();
 
         mockTime.maxTime = 20;
 
@@ -104,6 +116,13 @@ describe('GameService', () => {
             const score = 10;
             mockGameSubscriptionService.scoreValue = score;
             expect(gameService.score).toEqual(score);
+        });
+
+        it('should get isTest', () => {
+            mockTest = true;
+            expect(gameService.isTest).toBeTrue();
+            mockTest = false;
+            expect(gameService.isTest).toBeFalse();
         });
 
         it('should get isPlaying', () => {
@@ -152,8 +171,13 @@ describe('GameService', () => {
             expect(gameService.currentState).toEqual(GameState.NOT_STARTED);
         });
 
+        it('should get qrlAnswers', () => {
+            mockGameSubscriptionService.qrlAnswers = [];
+            expect(gameService.qrlAnswers).toEqual([]);
+        });
+
         describe('currentQuestion', () => {
-            it('should return undefined if the state is not ASKING_QUESTION or SHOW_RESULTS or LAST_QUESTION', () => {
+            it('should return undefined if the state is not ASKING_QUESTION_QCM or SHOW_RESULTS or LAST_QUESTION', () => {
                 mockGameSubscriptionService.state = GameState.NOT_STARTED;
                 expect(gameService.currentQuestion).toBeUndefined();
 
@@ -161,22 +185,47 @@ describe('GameService', () => {
                 expect(gameService.currentQuestion).toBeUndefined();
             });
 
-            it('should return the current question if the state is ASKING_QUESTION', () => {
-                mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+            it('should return the current question if the state is ASKING_QUESTION_QCM', () => {
+                mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
                 mockGameSubscriptionService.question = QUESTION_PLACEHOLDER;
                 expect(gameService.currentQuestion).toEqual(QUESTION_PLACEHOLDER);
             });
         });
 
+        describe('firework', () => {
+            it('should return false if state is not SHOW_RESULTS', () => {
+                mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
+                expect(gameService.firework).toBeFalse();
+            });
+
+            it('should return true if state is SHOW_RESULTS and isResponseGood returns true', () => {
+                mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
+                mockGameSubscriptionService.question = {
+                    type: 'QCM',
+                    text: 'Question text',
+                    choices: [
+                        { text: 'Choice 1', isCorrect: true },
+                        { text: 'Choice 2', isCorrect: false },
+                        { text: 'Choice 3', isCorrect: false },
+                        { text: 'Choice 4', isCorrect: false },
+                    ],
+                } as Question;
+                mockGameSubscriptionService.choicesSelected = [true, false, false, false];
+                mockGameSubscriptionService.showBonus = true;
+                expect(gameService.firework).toBeTrue();
+            });
+        });
+
         describe('message', () => {
             it('should return undefined if state is not SHOW_RESULTS', () => {
-                mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+                mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
                 expect(gameService.message).toBeUndefined();
             });
 
             it('should return "Vous avez un bonus!" if state is SHOW_RESULTS, isResponseGood returns true, and showBonus is true', () => {
                 mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
                 mockGameSubscriptionService.question = {
+                    type: 'QCM',
                     text: 'Question text',
                     choices: [
                         { text: 'Choice 1', isCorrect: true },
@@ -201,6 +250,17 @@ describe('GameService', () => {
             expect(gameService.usernameValue).toEqual('user');
         });
 
+        it('should get grade', () => {
+            mockGameSubscriptionService.qrlGradedAnswer = 1;
+            expect(gameService.grade).toEqual(1);
+        });
+
+        it('should get grade', () => {
+            mockGameSubscriptionService.qrlGradedAnswer = 0;
+            mockRoomCode = 'test';
+            expect(gameService.grade).toEqual(1);
+        });
+
         it('should get room code value', () => {
             mockRoomCode = 'roomCode';
             expect(gameService.roomCodeValue).toEqual('roomCode');
@@ -213,9 +273,15 @@ describe('GameService', () => {
             expect(gameService.isHost).toBeFalse();
         });
 
-        it('should get players list', () => {
-            mockGameSubscriptionService.players = new Set(['player1', 'player2']);
-            expect(gameService.playersList).toEqual(new Set(['player1', 'player2']));
+        it('should get users list', () => {
+            mockGameSubscriptionService.users = new Set(['player1', 'player2']);
+            expect(gameService.usersList).toEqual(new Set(['player1', 'player2']));
+        });
+
+        it('should set and get qrlAnswer', () => {
+            gameService.qrlAnswer = 'answer';
+            expect(mockGameSubscriptionService.answer).toEqual('answer');
+            expect(gameService.qrlAnswer).toEqual('answer');
         });
 
         it('should set and get the correct sort option', () => {
@@ -271,17 +337,25 @@ describe('GameService', () => {
 
     describe('onKickPlayer', () => {
         it('should kick a player', () => {
-            mockGameSubscriptionService.players = new Set(['player']);
-            spyOn(mockGameSubscriptionService.players, 'delete');
+            mockGameSubscriptionService.users = new Set(['player']);
+            spyOn(mockGameSubscriptionService.users, 'delete');
             gameService.onKickPlayer('player');
-            expect(mockGameSubscriptionService.players.delete).toHaveBeenCalled();
+            expect(mockGameSubscriptionService.users.delete).toHaveBeenCalled();
             expect(mockWebSocketService.banUser).toHaveBeenCalled();
+        });
+    });
+
+    describe('sendGrades', () => {
+        it('should send grades', () => {
+            const answers: QrlAnswer[] = [];
+            gameService.sendGrades(answers);
+            expect(mockWebSocketService.sendAnswers).toHaveBeenCalled();
         });
     });
 
     describe('leaveRoom', () => {
         it('should leave room if state is not Starting', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             gameService.leaveRoom();
             expect(mockWebSocketService.leaveRoom).toHaveBeenCalled();
             expect(mockSessionStorageService.removeUser).toHaveBeenCalled();
@@ -311,6 +385,7 @@ describe('GameService', () => {
         it('should return true if choice is correct', () => {
             mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = {
+                type: 'QCM',
                 choices: [
                     { text: '', isCorrect: true },
                     { text: '', isCorrect: false },
@@ -335,7 +410,7 @@ describe('GameService', () => {
         });
 
         it('should return false if state is not SHOW_RESULTS or LAST_QUESTION', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -358,6 +433,7 @@ describe('GameService', () => {
         it('should return true if choice is incorrect', () => {
             mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             mockGameSubscriptionService.question = {
+                type: 'QCM',
                 choices: [
                     { text: '', isCorrect: true },
                     { text: '', isCorrect: false },
@@ -382,7 +458,7 @@ describe('GameService', () => {
         });
 
         it('should return false if state is not SHOW_RESULTS or LAST_QUESTION', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             mockGameSubscriptionService.question = {
                 choices: [
                     { text: '', isCorrect: true },
@@ -402,15 +478,15 @@ describe('GameService', () => {
     });
 
     describe('selectChoice', () => {
-        it('should select a choice if in the ASKING_QUESTION state and validation is not disabled', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+        it('should select a choice if in the ASKING_QUESTION_QCM state and validation is not disabled', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             mockGameSubscriptionService.isValidate = false;
             gameService.selectChoice(0);
             expect(mockWebSocketService.sendChoice).toHaveBeenCalled();
         });
 
         it('should not select a choice if validation is disabled', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             mockGameSubscriptionService.isValidate = true;
             gameService.selectChoice(0);
             expect(mockWebSocketService.sendChoice).not.toHaveBeenCalled();
@@ -418,16 +494,23 @@ describe('GameService', () => {
     });
 
     describe('confirmQuestion', () => {
-        it('should confirm a question if in the ASKING_QUESTION state', () => {
-            mockGameSubscriptionService.state = GameState.ASKING_QUESTION;
+        it('should confirm a question if in the ASKING_QUESTION_QCM state', () => {
+            mockGameSubscriptionService.state = GameState.ASKING_QUESTION_QCM;
             gameService.confirmQuestion();
             expect(mockWebSocketService.validateChoice).toHaveBeenCalled();
         });
 
-        it('should not confirm a question if not in the ASKING_QUESTION state', () => {
+        it('should not confirm a question if not in the ASKING_QUESTION_QCM state', () => {
             mockGameSubscriptionService.state = GameState.SHOW_RESULTS;
             gameService.confirmQuestion();
             expect(mockWebSocketService.validateChoice).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('sendQrlAnswer', () => {
+        it('should send a QRL answer if in the ASKING_QUESTION_QRL state', () => {
+            gameService.sendQrlAnswer('answer');
+            expect(mockWebSocketService.sendQrlAnswer).toHaveBeenCalled();
         });
     });
 
@@ -530,6 +613,7 @@ describe('GameService', () => {
     describe('isResponseGood', () => {
         beforeEach(() => {
             mockGameSubscriptionService.question = {
+                type: 'QCM',
                 text: 'Question text',
                 choices: [
                     { text: 'Choice 1', isCorrect: true },

@@ -4,50 +4,36 @@
             <section *ngIf="question.type === 'QCM'" id="answer-container">
                 <app-answers [choices]="question.choices"></app-answers>
             </section>
-            <section
-                *ngIf="
-                    question.type === 'QRL' &&
-                    gameService.currentState !== gameState.SHOW_RESULTS &&
-                    gameService.currentState !== gameState.LAST_QUESTION
-                "
-                id="answer-container"
-            >
+            <section *ngIf="question.type === 'QRL'" id="answer-container">
                 <div class="text-area-container">
                     <textarea
                         matInput
-                        [(ngModel)]="gameSubscriptionService.answer"
+                        [(ngModel)]="gameService.qrlAnswer"
                         maxlength="200"
                         class="text-area"
-                        [disabled]="gameSubscriptionService.isTextLocked"
+                        [disabled]="!this.canValidate"
                         (keydown.enter)="$event.preventDefault()"
                         (ngModelChange)="onAnswerChange()"
                     >
                     </textarea>
-                    <mat-hint class="char-count" align="end">{{ 200 - gameSubscriptionService.answer.length }} </mat-hint>
+                    <mat-hint class="char-count" align="end">{{ 200 - gameService.qrlAnswer.length }} </mat-hint>
                 </div>
             </section>
-            <section
-                *ngIf="
-                    question.type === 'QRL' &&
-                    (gameService.currentState === gameState.LAST_QUESTION || gameService.currentState === gameState.SHOW_RESULTS)
-                "
-            >
-                <app-player-qrl></app-player-qrl>
+            <section *ngIf="showText">
+                <h1>{{ text }}</h1>
             </section>
             <button
-                *ngIf="question.type !== 'QRL' || gameService.currentState === gameState.ASKING_QUESTION"
                 mat-raised-button
                 id="confirm-button"
                 (click)="confirmAndDisable()"
                 color="primary"
-                [disabled]="!this.canValidate()"
-            >
+                [disabled]="!this.canValidate">
                 Confirmer
             </button>
         </div>
         <div id="right-container">
             <app-chat (isChatFocused)="chatFocused($event)"></app-chat>
-            <button *ngIf="this.showButtonResult()" mat-raised-button (click)="nextStep()" color="primary">Résultats</button>
+            <button *ngIf="this.showButtonResult" mat-raised-button (click)="nextStep()" color="primary">Résultats</button>
         </div>
     </div>
     <div class="bottom" [ngStyle]="{ 'bottom.%': (-gameService.time / gameService.maxTime) * 85 - 15 }"></div>

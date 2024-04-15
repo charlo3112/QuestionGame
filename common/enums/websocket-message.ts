@@ -34,4 +34,6 @@ export enum WebsocketMessage {
     QRL_ANSWERS = 'game:qrl-answers',
     QRL_ANSWER = 'game:qrl-answer',
     QRL_RESULT_DATA = 'game:qrl-result-data',
+    QRL_GRADED_ANSWER = 'game:qrl-graded-answer',
+    QRL_GET_ANSWERS = 'game:getQrlAnswers',
 }

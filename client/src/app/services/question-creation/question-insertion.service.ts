@@ -21,13 +21,13 @@ export class QuestionInsertionService {
         }
     }
 
-    insertQuestionFromBank(question: Question, isEditingQuestion: boolean, questions: Question[]) {
+    insertQuestionFromBank(question: Question, isEditingQuestion: boolean, questions: Question[]): void {
         if (this.verifyQuestion(question, questions, isEditingQuestion)) {
             this.insertQuestion(question, questions);
         }
     }
 
-    insertQuestionFromCreate(question: Question, isEditingQuestion: boolean, questionTitleToEdit: string, questions: Question[]) {
+    insertQuestionFromCreate(question: Question, isEditingQuestion: boolean, questionTitleToEdit: string, questions: Question[]): void {
         if (this.verifyQuestion(question, questions, isEditingQuestion)) {
             if (!questionTitleToEdit.length) {
                 if (question.points === 0) {
