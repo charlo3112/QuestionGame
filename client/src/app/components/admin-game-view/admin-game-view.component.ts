@@ -6,12 +6,9 @@ import { HistogramComponent } from '@app/components/histogram/histogram.componen
 import { LeaderboardComponent } from '@app/components/leaderboard/leaderboard.component';
 import { AppMaterialModule } from '@app/modules/material.module';
 import { GameService } from '@app/services/game/game.service';
-import { WebSocketService } from '@app/services/websocket/websocket.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { QuestionType } from '@common/enums/question-type';
-import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -24,34 +21,35 @@ import { Question } from '@common/interfaces/question';
 export class AdminGameViewComponent implements OnInit {
     @Output() answersCorrected: EventEmitter<void> = new EventEmitter<void>();
     currentQuestion: Question;
-    qrlAnswers: QrlAnswer[];
     readyForGrading: boolean = false;
     gradesSent: boolean = false;
 
-    constructor(
-        private readonly websocketService: WebSocketService,
-        readonly gameService: GameService,
-    ) {}
+    constructor(readonly gameService: GameService) {}
 
     get buttonText(): string {
         return this.gameService.currentState === GameState.LAST_QUESTION ? 'Résultats' : 'Prochaine Question';
     }
 
-    enableNextStepButton(): boolean {
-        return (
-            (this.gradesSent || this.gameService.currentQuestion?.type !== QuestionType.QRL) &&
-            (this.gameService.currentState === GameState.SHOW_RESULTS || this.gameService.currentState === GameState.LAST_QUESTION)
-        );
+    get showPanel(): boolean {
+        return this.gameService.currentState !== GameState.WAITING_FOR_ANSWERS;
     }
 
-    canPause(): boolean {
-        return this.gameService.currentState === GameState.ASKING_QUESTION;
+    get showCorrectAnswers(): boolean {
+        return this.gameService.currentState === GameState.WAITING_FOR_ANSWERS;
     }
 
-    canPanic(): boolean {
+    get enableNextStepButton(): boolean {
+        return this.gameService.currentState === GameState.SHOW_RESULTS || this.gameService.currentState === GameState.LAST_QUESTION;
+    }
+
+    get canPause(): boolean {
+        return this.gameService.currentState === GameState.ASKING_QUESTION_QCM || this.gameService.currentState === GameState.ASKING_QUESTION_QRL;
+    }
+
+    get canPanic(): boolean {
         return (
             !this.gameService.panic &&
-            this.gameService.currentState === GameState.ASKING_QUESTION &&
+            (this.gameService.currentState === GameState.ASKING_QUESTION_QCM || this.gameService.currentState === GameState.ASKING_QUESTION_QRL) &&
             ((this.gameService.currentQuestion?.type === QuestionType.QCM && this.gameService.time > MIN_TIME_PANIC_QCM_S) ||
                 (this.gameService.currentQuestion?.type === QuestionType.QRL && this.gameService.time > MIN_TIME_PANIC_QRL_S))
         );
@@ -71,29 +69,19 @@ export class AdminGameViewComponent implements OnInit {
     }
 
     startPanicking(): void {
-        if (!this.canPanic()) {
+        if (!this.canPanic) {
             return;
         }
         this.gameService.startPanic();
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         if (this.gameService.currentQuestion) {
             this.currentQuestion = this.gameService.currentQuestion;
         }
-        this.websocketService.getState().subscribe(async (statePayload: GameStatePayload) => {
-            if (statePayload.state === GameState.SHOW_RESULTS && this.gameService.currentQuestion?.type === QuestionType.QRL) {
-                this.qrlAnswers = await this.gameService.getQrlAnswers();
-                this.readyForGrading = true;
-            } else {
-                this.readyForGrading = false;
-                this.gradesSent = false;
-            }
-        });
     }
 
-    qrlCorrected() {
+    qrlCorrected(): void {
         this.answersCorrected.emit();
-        this.gradesSent = true;
     }
 }

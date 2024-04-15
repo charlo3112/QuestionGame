@@ -6,7 +6,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { GameService } from '@app/services/game/game.service';
 import { Grade } from '@common/enums/grade';
-import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Question } from '@common/interfaces/question';
 
 @Component({
@@ -18,7 +17,7 @@ import { Question } from '@common/interfaces/question';
 })
 export class AdminQrlComponent implements OnInit {
     @Output() answersCorrected: EventEmitter<void> = new EventEmitter<void>();
-    @Input() answers: QrlAnswer[];
+    @Input() answers = this.gameService.qrlAnswers;
     gradeSent: boolean = false;
     question: Question;
 
@@ -32,18 +31,18 @@ export class AdminQrlComponent implements OnInit {
 
     constructor(readonly gameService: GameService) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.sortAnswers();
         if (this.gameService.currentQuestion) {
             this.question = this.gameService.currentQuestion;
         }
     }
 
-    sortAnswers() {
-        this.answers.sort((a, b) => a.player.localeCompare(b.player));
+    sortAnswers(): void {
+        this.answers.sort((a, b) => a.user.localeCompare(b.user));
     }
 
-    onGradeChange(index: number, newGrade: Grade) {
+    onGradeChange(index: number, newGrade: Grade): void {
         this.answers[index].grade = newGrade;
     }
 
@@ -51,7 +50,7 @@ export class AdminQrlComponent implements OnInit {
         return this.answers.every((answer) => answer.grade !== Grade.Ungraded);
     }
 
-    sendGrades() {
+    sendGrades(): void {
         this.gameService.sendGrades(this.answers);
         this.gradeSent = true;
         this.answersCorrected.emit();
