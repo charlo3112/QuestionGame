@@ -1,7 +1,9 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
-import { ChoiceData } from '@app/model/database/choice';
+import { Grade } from '@common/enums/grade';
+import { QuestionType } from '@common/enums/question-type';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
+import { QCMQuestion } from '@common/interfaces/question';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { Users } from './users';
 
@@ -9,14 +11,16 @@ describe('Users', () => {
     let users: Users;
     let mockGameGateway: SinonStubbedInstance<GameGatewaySend>;
     let mockHostIsPlaying: boolean;
+    let mockUpdateHistogram: jest.Mock;
     let user: UserData;
 
     beforeEach(() => {
         user = new UserData('123', 'Room123', 'John');
         mockGameGateway = createStubInstance(GameGatewaySend);
         mockHostIsPlaying = false;
+        mockUpdateHistogram = jest.fn();
 
-        users = new Users(mockGameGateway, mockHostIsPlaying);
+        users = new Users(mockGameGateway, mockHostIsPlaying, mockUpdateHistogram);
     });
 
     it('should add a user', () => {
@@ -179,29 +183,40 @@ describe('Users', () => {
 
     it('getCurrentHistogramData should add data if user made a choice', () => {
         const choice = [true, false, true, false];
-        const choiceDataArray = choice.map((isCorrect, index) => {
-            const text = `Option ${index + 1}`;
-            return new ChoiceData({ isCorrect, text });
-        });
+        const question = { type: QuestionType.QCM, text: 'Test', points: 100, choices: [] } as QCMQuestion;
+        // const choiceDataArray = choice.map((isCorrect, index) => {
+        //     const text = `Option ${index + 1}`;
+        //     return { isCorrect, text } as Choice;
+        // });
         users.addUser(user);
         users.handleChoice('123', choice);
-        const histogramData = users.getCurrentHistogramData(choiceDataArray);
+        const histogramData = users.getCurrentHistogramData(question);
         expect(histogramData).toEqual([1, 0, 1, 0]);
     });
+
+    // it('getCurrentHistogramData() should return the histogram', () => {
+    //     users.addUser(user);
+    //     const choice = { text: 'Test1', isCorrect: true } as Choice;
+    //     const question = { type: QuestionType.QCM, text: 'Test', points: 100, choices: [choice] } as QCMQuestion;
+    //     users.handleChoice('123', [true]);
+    //     const histogram = users.getCurrentHistogramData(question);
+    //     expect(histogram).toEqual([QuestionType.QCM, choice]);
+    // });
 
     it('handleAnswers() should update the user score', () => {
         const choice = [true, true, false, false];
         const qrlAnswersArray = choice.map((isCorrect, index) => {
-            const player = 'John';
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            const user = 'John';
             const text = `Option ${index + 1}`;
             const grade = isCorrect ? 1 : 0;
 
-            return { player, text, grade } as QrlAnswer;
+            return { user, text, grade } as QrlAnswer;
         });
         const points = 100;
         users.addUser(user);
         user.goodAnswer = jest.fn().mockReturnValue(true);
-        users.handleAnswers('123', qrlAnswersArray, points);
+        users.handleAnswers(qrlAnswersArray, points);
         expect(users.getScore('123')).toEqual({ score: 200, bonus: false });
     });
 
@@ -229,23 +244,14 @@ describe('Users', () => {
 
     it('getQrlAnswer() should return the user answer', () => {
         users.addUser(user);
-        const answer = { player: 'John', text: 'Test', grade: 1 } as QrlAnswer;
-        users.handleAnswer('123', answer);
+        const answer = { user: 'John', text: 'Test', grade: Grade.Ungraded } as QrlAnswer;
+        users.handleAnswer('123', 'Test');
         expect(users.getQrlAnswers()[0]).toEqual(answer);
     });
 
-    it('handleQrlActivityUpdate() should update the user activity and set the timeout', () => {
+    it('getQrlActive() should return the active users', () => {
         users.addUser(user);
-        users.handleQrlActivityUpdate('123');
-        expect(users['users'].get('123').isActive).toBeTruthy();
-        expect(users['users'].get('123').timeout).not.toBeNull();
-    });
-
-    it('handleQrlActivityUpdate() should clear the timeout if the user is already active', () => {
-        users.addUser(user);
-        users.handleQrlActivityUpdate('123');
-        const timeout = users['users'].get('123').timeout;
-        users.handleQrlActivityUpdate('123');
-        expect(users['users'].get('123').timeout).not.toBe(timeout);
+        users.validateChoice('123');
+        expect(users.getQrlActive()).toEqual(1);
     });
 });
