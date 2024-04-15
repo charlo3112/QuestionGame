@@ -1,4 +1,5 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
+import { GamePlay } from '@app/model/classes/game-play/game-play';
 import { CountDownTimer } from '@app/model/classes/time/time';
 import { UserData } from '@app/model/classes/user/user';
 import { Users } from '@app/model/classes/users/users';
@@ -7,27 +8,24 @@ import { CreateHistoryDto } from '@app/model/dto/history/create-history.dto';
 import { HistoryService } from '@app/services/history/history.service';
 import { MIN_TIME_PANIC_QCM_S, MIN_TIME_PANIC_QRL_S, QRL_TIME, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
-import { HistogramData } from '@common/interfaces/histogram-data';
+import { HistogramData, HistogramQCM, HistogramQRL } from '@common/interfaces/histogram-data';
 import { QrlAnswer } from '@common/interfaces/qrl-answer';
-import { Question } from '@common/interfaces/question';
 import { Score } from '@common/interfaces/score';
 
 export class ActiveGame {
     isLocked: boolean;
     private users: Users;
-    private game: GameData;
+    private game: GamePlay;
     private state: GameState = GameState.WAIT;
     private roomId: string;
-    private questionIndex: number;
     private histogramData: HistogramData;
     private timer: CountDownTimer;
     private gameGateway: GameGatewaySend;
     private historyService: HistoryService | undefined;
     private isActive: boolean;
-    private qrlResultData: Record<number, QrlAnswer[]> = {};
-    private alreadySub: boolean = true;
 
     // Every line is needed
     // eslint-disable-next-line max-params
@@ -39,64 +37,45 @@ export class ActiveGame {
         hostIsPlaying: boolean = false,
     ) {
         this.gameGateway = gameWebsocket;
-        this.game = game;
+        this.game = new GamePlay(game);
         this.roomId = roomId;
         this.timer = new CountDownTimer(roomId, gameWebsocket);
         this.isLocked = false;
         this.state = GameState.WAIT;
-        this.users = new Users(gameWebsocket, hostIsPlaying);
+        this.users = new Users(gameWebsocket, hostIsPlaying, this.sendUserSelectedChoice.bind(this));
         this.historyService = historyService;
+        Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]);
         this.histogramData = {
-            choicesCounters: Array.from({ length: this.game.questions.length }, () => [0, 0, 0, 0]),
+            histogram: this.game.questions.map((question) => {
+                return question.type === QuestionType.QCM
+                    ? ({ type: question.type, choicesCounters: [0, 0, 0, 0] } as HistogramQCM)
+                    : ({ type: question.type, active: 0, inactive: 0, grades: [] } as HistogramQRL);
+            }),
             question: this.game.questions,
             indexCurrentQuestion: 0,
         };
         this.isActive = true;
-        this.questionIndex = 0;
     }
 
     get currentState(): GameState {
         return this.state;
     }
 
-    get gameData(): GameData {
-        return this.game;
-    }
-
-    get currentQuestionWithAnswer(): Question {
-        return this.game.questions[this.questionIndex] as Question;
-    }
-
-    get currentQuestionWithoutAnswer(): Question {
-        const data = this.game.questions[this.questionIndex] as Question;
-        return {
-            type: data.type,
-            text: data.text,
-            points: data.points,
-            choices: data.choices.map((choice) => {
-                return {
-                    text: choice.text,
-                    isCorrect: false,
-                };
-            }),
-        };
-    }
-
     get gameStatePayload(): GameStatePayload {
         if (this.state === GameState.STARTING) {
             return { state: this.state, payload: this.game.title };
         }
-        if (this.state === GameState.ASKING_QUESTION) {
-            return { state: this.state, payload: this.currentQuestionWithoutAnswer };
+        if (
+            this.state === GameState.ASKING_QUESTION_QCM ||
+            this.state === GameState.ASKING_QUESTION_QRL ||
+            this.state === GameState.WAITING_FOR_ANSWERS
+        ) {
+            return { state: this.state, payload: this.game.currentQuestionWithoutAnswer };
         }
         if (this.state === GameState.SHOW_RESULTS || this.state === GameState.LAST_QUESTION) {
-            return { state: this.state, payload: this.currentQuestionWithAnswer };
+            return { state: this.state, payload: this.game.currentQuestionWithAnswer };
         }
         return { state: this.state };
-    }
-
-    get questionIndexCurrent(): number {
-        return this.questionIndex;
     }
 
     get usersArray(): string[] {
@@ -134,37 +113,29 @@ export class ActiveGame {
         return this.users.getUser(userId);
     }
 
-    getQRLResultData(): Record<number, QrlAnswer[]> {
-        return this.qrlResultData;
-    }
-
     handleChoice(userId: string, choice: boolean[]): void {
-        if (this.state !== GameState.ASKING_QUESTION) {
+        if (this.state !== GameState.ASKING_QUESTION_QCM) {
             return;
         }
         this.users.handleChoice(userId, choice);
-
         this.sendUserSelectedChoice();
     }
 
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
-        this.users.handleAnswers(userId, answers, this.currentQuestionWithAnswer.points);
-        this.qrlResultData[this.questionIndex] = answers;
-        this.gameGateway.sendQrlResultData(this.roomId, this.qrlResultData);
-        this.users.resetActivity();
+        if (this.currentState !== GameState.WAITING_FOR_ANSWERS || this.users.hostId !== userId) {
+            return;
+        }
+        this.users.handleAnswers(answers, this.game.currentQuestionWithAnswer.points);
+        this.showResult();
     }
 
-    handleActivityUpdate(userId: string): void {
-        this.users.handleQrlActivityUpdate(userId);
-        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
-    }
-
-    handleQrlAnswer(userId: string, answer: QrlAnswer): void {
-        if (this.roomId.startsWith('test') && !this.alreadySub) {
-            this.users.handleTestAnswer(userId, this.currentQuestionWithoutAnswer.points);
-            this.alreadySub = true;
+    handleQrlAnswer(userId: string, answer: string): void {
+        if (this.currentState !== GameState.ASKING_QUESTION_QRL) {
+            return;
         }
         this.users.handleAnswer(userId, answer);
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
+        this.sendUserSelectedChoice();
     }
 
     isValidate(userId: string): boolean {
@@ -188,19 +159,23 @@ export class ActiveGame {
         if (this.state === GameState.WAIT) {
             this.users.removeUser(userId);
         }
+        if (this.users.allHaveValidated && (this.state === GameState.ASKING_QUESTION_QCM || this.state === GameState.ASKING_QUESTION_QRL)) {
+            this.timer.stop();
+        }
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
+        if (this.state === GameState.ASKING_QUESTION_QRL) this.sendUserSelectedChoice();
     }
 
     sendUserSelectedChoice(): void {
-        this.histogramData.choicesCounters[this.questionIndex] = this.users.getCurrentHistogramData(this.game.questions[this.questionIndex].choices);
+        this.histogramData.histogram[this.game.questionIndex] = this.users.getCurrentHistogramData(this.game.currentQuestionWithAnswer);
         this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
     }
 
     showFinalResults(): void {
-        this.advanceState(GameState.SHOW_FINAL_RESULTS);
-        this.users.resetFinalResults();
         this.gameGateway.sendUsersStatUpdate(this.roomId, this.users.usersStat);
         this.gameGateway.sendHistogramDataUpdate(this.roomId, this.histogramData);
+        this.advanceState(GameState.SHOW_FINAL_RESULTS);
+        this.users.resetFinalResults();
     }
 
     setChat(hostId: string, username: string, value: boolean): string | undefined {
@@ -217,6 +192,9 @@ export class ActiveGame {
         if (isHost || this.currentState === GameState.SHOW_FINAL_RESULTS) {
             this.gameGateway.sendUsersStatUpdate(newId, this.users.usersStat);
             this.gameGateway.sendHistogramDataUpdate(newId, this.histogramData);
+            if (this.currentState === GameState.WAITING_FOR_ANSWERS) {
+                this.gameGateway.sendQrlResultData(this.users.hostId, this.users.getQrlAnswers());
+            }
         }
     }
 
@@ -233,7 +211,7 @@ export class ActiveGame {
 
     stopGame(): void {
         delete this.users;
-        this.users = new Users(this.gameGateway, false);
+        this.users = new Users(this.gameGateway, false, this.sendUserSelectedChoice.bind(this));
         this.roomId = '';
         this.isActive = false;
         this.timer.stop();
@@ -241,9 +219,9 @@ export class ActiveGame {
 
     startPanicking(): void {
         if (
-            this.state !== GameState.ASKING_QUESTION ||
-            (this.currentQuestionWithAnswer.type === 'QCM' && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
-            (this.currentQuestionWithAnswer.type === 'QRL' && this.timer.seconds <= MIN_TIME_PANIC_QRL_S)
+            (this.state !== GameState.ASKING_QUESTION_QCM && this.state !== GameState.ASKING_QUESTION_QRL) ||
+            (this.game.currentQuestionWithAnswer.type === QuestionType.QCM && this.timer.seconds <= MIN_TIME_PANIC_QCM_S) ||
+            (this.game.currentQuestionWithAnswer.type === QuestionType.QRL && this.timer.seconds <= MIN_TIME_PANIC_QRL_S)
         ) {
             return;
         }
@@ -251,7 +229,7 @@ export class ActiveGame {
     }
 
     togglePause(): void {
-        if (this.state !== GameState.ASKING_QUESTION) {
+        if (this.state !== GameState.ASKING_QUESTION_QCM && this.state !== GameState.ASKING_QUESTION_QRL) {
             return;
         }
         this.timer.toggle();
@@ -266,9 +244,9 @@ export class ActiveGame {
                 await this.launchGame();
                 break;
             case GameState.SHOW_RESULTS:
-                if (this.questionIndex < this.game.questions.length) {
+                if (this.game.questionIndex < this.game.questions.length) {
                     await this.timer.start(TIME_CONFIRM_S);
-                    ++this.questionIndex;
+                    this.game.addIndexCurrentQuestion();
                     await this.askQuestion();
                 } else {
                     this.advanceState(GameState.SHOW_FINAL_RESULTS);
@@ -281,26 +259,40 @@ export class ActiveGame {
 
     async askQuestion(): Promise<void> {
         if (!this.isActive) return;
-        this.histogramData.indexCurrentQuestion = this.questionIndex;
-        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
-        this.gameGateway.sendHistogramDataUpdate(this.users.hostId, this.histogramData);
+        this.users.resetActivity();
         this.users.resetAnswers();
-        this.advanceState(GameState.ASKING_QUESTION);
-        if (this.currentQuestionWithoutAnswer.type === QuestionType.QCM) {
+        this.gameGateway.sendQrlGradedAnswer(this.roomId, Grade.Ungraded);
+        this.histogramData.indexCurrentQuestion = this.game.questionIndex;
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
+        this.sendUserSelectedChoice();
+        if (this.game.currentQuestionWithoutAnswer.type === QuestionType.QCM) {
+            this.advanceState(GameState.ASKING_QUESTION_QCM);
             await this.timer.start(this.game.duration);
-        } else if (this.currentQuestionWithoutAnswer.type === QuestionType.QRL) {
+        } else if (this.game.currentQuestionWithoutAnswer.type === QuestionType.QRL) {
+            this.advanceState(GameState.ASKING_QUESTION_QRL);
             await this.timer.start(QRL_TIME);
         }
-        this.timer.panic = false;
         if (!this.isActive) return;
 
-        const correctAnswers = this.game.questions[this.questionIndex].choices.map((choice) => choice.isCorrect);
-        this.users.updateUsersScore(correctAnswers, this.game.questions[this.questionIndex].points);
-        this.advanceState(GameState.SHOW_RESULTS);
-        if (this.roomId.startsWith('test')) this.alreadySub = false;
-        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
+        if (this.game.currentQuestionWithAnswer.type === QuestionType.QCM) {
+            const correctAnswers = this.game.currentQuestionWithAnswer.choices.map((choice) => choice.isCorrect);
+            this.users.updateUsersScore(correctAnswers, this.game.questions[this.game.questionIndex].points);
+            this.showResult();
+        } else {
+            if (this.roomId.startsWith('test')) {
+                this.users.handleTestAnswer(this.game.currentQuestionWithoutAnswer.points);
+                this.showResult();
+                return;
+            }
+            this.advanceState(GameState.WAITING_FOR_ANSWERS);
+            this.gameGateway.sendQrlResultData(this.users.hostId, this.users.getQrlAnswers());
+        }
+    }
 
-        if (this.questionIndex + 1 === this.game.questions.length) {
+    async showResult(): Promise<void> {
+        this.advanceState(GameState.SHOW_RESULTS);
+        this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
+        if (this.game.questionIndex + 1 === this.game.questions.length) {
             this.advanceState(GameState.LAST_QUESTION);
             if (this.historyService) {
                 const history: CreateHistoryDto = {
@@ -318,7 +310,7 @@ export class ActiveGame {
             }
         } else if (this.users.hostIsPlaying) {
             await this.timer.start(TIME_CONFIRM_S);
-            ++this.questionIndex;
+            this.game.addIndexCurrentQuestion();
             this.askQuestion();
         }
     }

@@ -1,17 +1,27 @@
 import { QuestionType } from '../enums/question-type';
 import { Choice } from './choice';
 
-export interface Question {
-    type: QuestionType;
+export interface QCMQuestion {
+    type: QuestionType.QCM;
     text: string;
     points: number;
     choices: Choice[];
 }
 
-export interface QuestionWithModificationDate extends Question {
+export interface QRLQuestion {
+    type: QuestionType.QRL;
+    text: string;
+    points: number;
+}
+
+export type Question = QCMQuestion | QRLQuestion;
+
+interface ModificationDetails {
     lastModification: Date;
     mongoId: string;
 }
+
+export type QuestionWithModificationDate = Question & ModificationDetails;
 
 export const QUESTIONS_PLACEHOLDER: Question[] = [
     {

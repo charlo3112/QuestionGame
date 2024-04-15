@@ -1,8 +1,23 @@
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { Question } from './question';
 
+export interface HistogramQCM {
+    type: QuestionType.QCM;
+    choicesCounters: number[];
+}
+
+export interface HistogramQRL {
+    type: QuestionType.QRL;
+    active: number;
+    inactive: number;
+    grades: Grade[];
+}
+
+export type Histogram = HistogramQCM | HistogramQRL;
+
 export interface HistogramData {
-    choicesCounters: number[][];
+    histogram: Histogram[];
     question: Question[];
     indexCurrentQuestion: number;
 }
@@ -33,8 +48,14 @@ export const HISTOGRAM_DATA: HistogramData = {
         },
     ],
     indexCurrentQuestion: 0,
-    choicesCounters: [
-        [10, 0, 0, 0],
-        [0, 0, 10, 0],
+    histogram: [
+        {
+            type: QuestionType.QCM,
+            choicesCounters: [0, 0, 0, 0],
+        },
+        {
+            type: QuestionType.QCM,
+            choicesCounters: [0, 10, 0, 0],
+        },
     ],
 };
