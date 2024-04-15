@@ -74,7 +74,7 @@ export class HistogramComponent {
     }
 
     get isFinalQrlResult(): boolean {
-        return !(this.gameService.currentQuestion?.type === QuestionType.QRL || this.gameService.currentState !== GameState.SHOW_FINAL_RESULTS);
+        return !(this.question?.type === QuestionType.QRL || this.gameService.currentState !== GameState.SHOW_FINAL_RESULTS);
     }
 
     previousQuestion(): void {

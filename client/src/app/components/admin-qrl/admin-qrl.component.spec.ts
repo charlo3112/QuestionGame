@@ -17,8 +17,8 @@ describe('AdminQrlComponent', () => {
         fixture = TestBed.createComponent(AdminQrlComponent);
         component = fixture.componentInstance;
         component.answers = [
-            { player: 'player1', grade: 0, text: 'answer1' },
-            { player: 'player2', grade: 0, text: 'answer2' },
+            { user: 'player1', grade: 0, text: 'answer1' },
+            { user: 'player2', grade: 0, text: 'answer2' },
         ];
         fixture.detectChanges();
     });

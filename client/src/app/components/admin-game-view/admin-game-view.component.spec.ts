@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ChatComponent } from '@app/components/chat/chat.component';
 import { HistogramComponent } from '@app/components/histogram/histogram.component';
@@ -45,9 +45,7 @@ describe('AdminGameViewComponent', () => {
             'getMessage',
             'nextQuestion',
             'showFinalResults',
-            'getQrlAnswers',
         ]);
-        mockGameService.getQrlAnswers.and.returnValue(Promise.resolve([]));
         Object.defineProperty(mockGameService, 'histogram', {
             get: jasmine.createSpy('histogram').and.returnValue(mockHistogramData),
         });
@@ -63,7 +61,7 @@ describe('AdminGameViewComponent', () => {
         Object.defineProperty(mockGameService, 'currentState', {
             get: jasmine.createSpy('currentState.get').and.callFake(() => mockCurrentState),
         });
-        mockCurrentState = GameState.ASKING_QUESTION;
+        mockCurrentState = GameState.ASKING_QUESTION_QCM;
         mockWebSocketService.getMessage.and.returnValue(mockMessage.asObservable());
         mockWebSocketService.getState.and.returnValue(mockGameStatePayloadString.asObservable());
         mockWebSocketService.getMessages.and.returnValue(Promise.resolve([]));
@@ -86,27 +84,27 @@ describe('AdminGameViewComponent', () => {
     describe('canPanic', () => {
         it('should return false if panic is true', () => {
             mockPanic = true;
-            expect(component.canPanic()).toBeFalse();
+            expect(component.canPanic).toBeFalse();
         });
 
         it('should return false if currentQuestion is undefined', () => {
             mockPanic = false;
             mockCurrentQuestion = undefined;
-            expect(component.canPanic()).toBeFalse();
+            expect(component.canPanic).toBeFalse();
         });
 
         it('should return true', () => {
             mockPanic = false;
             mockCurrentQuestion = { type: QuestionType.QCM, text: 'test', points: 0, choices: [] };
             mockTime = MIN_TIME_PANIC_QCM_S + 1;
-            expect(component.canPanic()).toBeTrue();
+            expect(component.canPanic).toBeTrue();
         });
 
         it('should return true', () => {
             mockPanic = false;
-            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0, choices: [] };
+            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0 };
             mockTime = MIN_TIME_PANIC_QRL_S + 1;
-            expect(component.canPanic()).toBeTrue();
+            expect(component.canPanic).toBeTrue();
         });
     });
 
@@ -119,13 +117,15 @@ describe('AdminGameViewComponent', () => {
 
     describe('startPanicking', () => {
         it('should do nothing if canPanic is false', () => {
-            spyOn(component, 'canPanic').and.returnValue(false);
+            mockPanic = true;
             component.startPanicking();
             expect(mockGameService.startPanic).not.toHaveBeenCalled();
         });
 
         it('should call startPanic on gameService if canPanic is true', () => {
-            spyOn(component, 'canPanic').and.returnValue(true);
+            mockPanic = false;
+            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0 };
+            mockTime = MIN_TIME_PANIC_QRL_S + 1;
             component.startPanicking();
             expect(mockGameService.startPanic).toHaveBeenCalled();
         });
@@ -139,40 +139,10 @@ describe('AdminGameViewComponent', () => {
         });
 
         it('should call nextQuestion on gameService if currentState is not LAST_QUESTION', () => {
-            mockCurrentState = GameState.ASKING_QUESTION;
+            mockCurrentState = GameState.ASKING_QUESTION_QCM;
             component.nextStep();
             expect(mockGameService.nextQuestion).toHaveBeenCalled();
         });
-    });
-
-    describe('ngOnInit', () => {
-        it('should set currentQuestion if currentQuestion is defined', () => {
-            mockCurrentQuestion = { type: QuestionType.QCM, text: 'test', points: 0, choices: [] };
-            component.ngOnInit();
-            expect(component.currentQuestion).toEqual(mockCurrentQuestion);
-        });
-
-        it('should not set currentQuestion if currentQuestion is undefined', () => {
-            mockCurrentQuestion = undefined;
-            component.ngOnInit();
-            expect(component.currentQuestion).toBeUndefined();
-        });
-
-        it('should set readyForGrading to true if state is SHOW_RESULTS and currentQuestion is QRL', fakeAsync(() => {
-            mockCurrentState = GameState.SHOW_RESULTS;
-            mockCurrentQuestion = { type: QuestionType.QRL, text: 'test', points: 0, choices: [] };
-            mockGameStatePayloadString.next({ state: GameState.SHOW_RESULTS });
-            tick();
-            expect(component.readyForGrading).toBeTrue();
-        }));
-
-        it('should set readyForGrading to false if state is not SHOW_RESULTS', fakeAsync(() => {
-            mockCurrentState = GameState.ASKING_QUESTION;
-            mockCurrentQuestion = { type: QuestionType.QCM, text: 'test', points: 0, choices: [] };
-            mockGameStatePayloadString.next({ state: GameState.ASKING_QUESTION });
-            tick();
-            expect(component.readyForGrading).toBeFalse();
-        }));
     });
 
     describe('qrlCorrected', () => {
@@ -180,7 +150,6 @@ describe('AdminGameViewComponent', () => {
             spyOn(component.answersCorrected, 'emit');
             component.qrlCorrected();
             expect(component.answersCorrected.emit).toHaveBeenCalled();
-            expect(component.gradesSent).toBeTrue();
         });
     });
 
@@ -191,7 +160,7 @@ describe('AdminGameViewComponent', () => {
         });
 
         it('should return "Prochaine Question" if currentState is not LAST_QUESTION', () => {
-            mockCurrentState = GameState.ASKING_QUESTION;
+            mockCurrentState = GameState.ASKING_QUESTION_QCM;
             expect(component.buttonText).toBe('Prochaine Question');
         });
     });

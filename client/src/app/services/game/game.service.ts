@@ -130,7 +130,7 @@ export class GameService {
         return this.sessionStorageService.username === HOST_NAME;
     }
 
-    get playersList(): Set<string> {
+    get usersList(): Set<string> {
         return this.gameSubscriptionService.users;
     }
 
