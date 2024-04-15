@@ -31,36 +31,36 @@ export class ChatComponent implements OnDestroy, OnInit {
     }
 
     @HostListener('keydown', ['$event'])
-    buttonDetect(event: KeyboardEvent) {
+    buttonDetect(event: KeyboardEvent): void {
         const key = event.key;
         if (key === 'Enter') {
             this.chatSubmit();
         }
     }
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         this.chat = await this.webSocketService.getMessages();
         this.sortMessages();
     }
 
-    chatSubmit() {
+    chatSubmit(): void {
         if (this.chatInput.trim()) {
             this.webSocketService.sendMessage(this.chatInput);
             this.chatInput = '';
         }
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         if (this.messagesSubscription) {
             this.messagesSubscription.unsubscribe();
         }
     }
 
-    onFocus() {
+    onFocus(): void {
         this.isChatFocused.emit(true);
     }
 
-    onFocusOut() {
+    onFocusOut(): void {
         this.isChatFocused.emit(false);
     }
 
@@ -71,7 +71,7 @@ export class ChatComponent implements OnDestroy, OnInit {
         return `${hours}:${minutes}`;
     }
 
-    private subscribeToRealTimeMessages() {
+    private subscribeToRealTimeMessages(): void {
         this.messagesSubscription = this.webSocketService.getMessage().subscribe({
             next: (message: Message) => {
                 this.chat.push(message);
@@ -80,7 +80,7 @@ export class ChatComponent implements OnDestroy, OnInit {
         });
     }
 
-    private sortMessages() {
+    private sortMessages(): void {
         this.chat = this.chat.sort((a, b) => {
             return b.timestamp - a.timestamp;
         });

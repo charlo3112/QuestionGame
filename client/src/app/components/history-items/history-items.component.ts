@@ -41,11 +41,11 @@ export class HistoryItemsComponent implements OnInit {
         private readonly dialog: MatDialog,
     ) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.getHistory();
     }
 
-    emptyHistory() {
+    emptyHistory(): void {
         const DELETE_ERROR = "Erreur lors de la suppression de l'historique";
         this.communicationService.deleteHistories().subscribe((response) => {
             if (response.ok) {
@@ -56,7 +56,7 @@ export class HistoryItemsComponent implements OnInit {
         });
     }
 
-    getHistory() {
+    getHistory(): void {
         const FETCH_ERROR = "Erreur lors de la récupération de l'historique";
         this.communicationService.getHistories().subscribe((histories) => {
             if (histories.ok) {
@@ -73,7 +73,7 @@ export class HistoryItemsComponent implements OnInit {
         });
     }
 
-    openEraseDialog() {
+    openEraseDialog(): void {
         const dialogRef = this.dialog.open(EraseHistoryDialogComponent);
         dialogRef.afterClosed().subscribe((result) => {
             if (result) {
@@ -82,13 +82,13 @@ export class HistoryItemsComponent implements OnInit {
         });
     }
 
-    openSnackBar(message: string) {
+    openSnackBar(message: string): void {
         this.snackBar.open(message, undefined, {
             duration: SNACKBAR_DURATION,
         });
     }
 
-    onSortOptionChange(value: string) {
+    onSortOptionChange(value: string): void {
         this.selectedSort = value;
         if (value === 'creationDate') {
             this.selectedSortOrder = 'recent';
@@ -98,12 +98,12 @@ export class HistoryItemsComponent implements OnInit {
         this.sortItems(this.selectedSort, this.selectedSortOrder);
     }
 
-    onSortOrderChange(value: string) {
+    onSortOrderChange(value: string): void {
         this.selectedSortOrder = value;
         this.sortItems(this.selectedSort, this.selectedSortOrder);
     }
 
-    sortItems(value: string, order: string) {
+    sortItems(value: string, order: string): void {
         this.historyItems.sort((a, b) => {
             if (value === 'name') {
                 if (order === 'az') return a.name.localeCompare(b.name);

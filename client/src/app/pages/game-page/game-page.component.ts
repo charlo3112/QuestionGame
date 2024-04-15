@@ -70,7 +70,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
     }
 
-    launchFireworks() {
+    launchFireworks(): void {
         if (this.gameService.firework) {
             this.body.style.backgroundColor = 'black';
             this.firework = true;

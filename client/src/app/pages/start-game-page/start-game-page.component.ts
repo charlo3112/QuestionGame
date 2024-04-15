@@ -65,7 +65,7 @@ export class StartGamePageComponent implements OnInit {
         }
     }
 
-    async startRandomGame() {
+    async startRandomGame(): Promise<void> {
         if (this.canCreateRandom) {
             if (await this.gameService.startRandomGame()) {
                 return;

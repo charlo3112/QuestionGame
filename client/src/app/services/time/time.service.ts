@@ -19,7 +19,7 @@ export class TimeService implements OnDestroy {
         this.audio.loop = true;
     }
 
-    reset() {
+    reset(): void {
         this.panicMode = false;
         this.pause = false;
         this.audio.pause();
@@ -28,13 +28,13 @@ export class TimeService implements OnDestroy {
         this.maxTime = 0;
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         if (this.timeSubscription) {
             this.timeSubscription.unsubscribe();
         }
     }
 
-    private subscribeToTimeUpdate() {
+    private subscribeToTimeUpdate(): void {
         this.timeSubscription = this.websocketService.getTime().subscribe({
             next: (time: TimeData) => {
                 this.serverTime = time.seconds;
@@ -44,7 +44,7 @@ export class TimeService implements OnDestroy {
         });
     }
 
-    private updateEvent(panic: boolean, pause: boolean) {
+    private updateEvent(panic: boolean, pause: boolean): void {
         if ((panic && !this.panicMode) || !panic) {
             this.audio.currentTime = 0;
         }

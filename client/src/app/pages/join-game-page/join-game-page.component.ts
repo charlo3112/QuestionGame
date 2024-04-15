@@ -30,7 +30,7 @@ export class JoinGamePageComponent {
         private readonly sessionStorageService: SessionStorageService,
     ) {}
 
-    async onSubmit() {
+    async onSubmit(): Promise<void> {
         if (this.connectForm.get('code')?.errors || this.connectForm.get('name')?.errors) {
             this.entryError = true;
         } else {
@@ -39,7 +39,7 @@ export class JoinGamePageComponent {
         }
     }
 
-    private async joinGame() {
+    private async joinGame(): Promise<void> {
         if (this.connectForm.value.code && this.connectForm.value.name) {
             const res = await this.webSocketService.joinRoom(this.connectForm.value.code, this.connectForm.value.name);
             if (res.ok) {

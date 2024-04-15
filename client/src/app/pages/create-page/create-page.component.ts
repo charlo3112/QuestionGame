@@ -59,7 +59,7 @@ export class CreatePageComponent implements OnInit {
         private route: ActivatedRoute,
     ) {}
 
-    ngOnInit() {
+    ngOnInit(): void {
         if (!this.adminService.login) {
             this.router.navigate(['/admin']);
             return;
@@ -79,11 +79,11 @@ export class CreatePageComponent implements OnInit {
     insertQuestion(question: Question): void {
         this.questionInsertionService.insertQuestion(question, this.questions);
     }
-    insertQuestionFromBank(question: Question) {
+    insertQuestionFromBank(question: Question): void {
         this.questionInsertionService.insertQuestionFromBank(question, this.isEditingQuestion, this.questions);
         this.closeQuestionBank();
     }
-    insertQuestionFromCreate(question: Question) {
+    insertQuestionFromCreate(question: Question): void {
         this.questionInsertionService.insertQuestionFromCreate(question, this.isEditingQuestion, this.questionTitleToEdit, this.questions);
         this.closeCreateQuestion();
     }
@@ -96,24 +96,24 @@ export class CreatePageComponent implements OnInit {
     drop(event: CdkDragDrop<Question[]>): void {
         moveItemInArray(this.questions, event.previousIndex, event.currentIndex);
     }
-    editQuestion(question: Question) {
+    editQuestion(question: Question): void {
         this.isEditingQuestion = true;
         this.questionTitleToEdit = question.text;
         this.selectedQuestion = question;
         this.showChildren = true;
     }
-    openQuestionBank() {
+    openQuestionBank(): void {
         this.showPage = false;
         this.selectedQuestion = EMPTY_QUESTION;
     }
-    closeQuestionBank() {
+    closeQuestionBank(): void {
         this.showPage = true;
     }
-    openCreateQuestion() {
+    openCreateQuestion(): void {
         this.showChildren = true;
         this.selectedQuestion = EMPTY_QUESTION;
     }
-    closeCreateQuestion() {
+    closeCreateQuestion(): void {
         this.showChildren = false;
         this.isEditingQuestion = false;
     }
@@ -129,7 +129,7 @@ export class CreatePageComponent implements OnInit {
         this.gameCreationService.updateGame(game);
     }
 
-    loadGameData(gameId: string) {
+    loadGameData(gameId: string): void {
         const ERROR_LOADING_GAME = 'Erreur lors du chargement du jeu';
         this.communicationService.getGameById(gameId).subscribe({
             next: (game) => {
@@ -144,7 +144,7 @@ export class CreatePageComponent implements OnInit {
         });
     }
 
-    fillForm(game: Game, id: string) {
+    fillForm(game: Game, id: string): void {
         this.isEditing = true;
         this.id = id;
         this.title = game.title;
@@ -154,7 +154,7 @@ export class CreatePageComponent implements OnInit {
         this.visibility = game.visibility;
     }
 
-    resetForm() {
+    resetForm(): void {
         this.isEditing = false;
         this.title = '';
         this.description = '';

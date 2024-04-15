@@ -15,7 +15,7 @@ export class CreateQuestionService {
         private snackBar: MatSnackBar,
     ) {}
 
-    openSnackBar(message: string) {
+    openSnackBar(message: string): void {
         this.snackBar.open(message, undefined, {
             duration: SNACKBAR_DURATION,
         });
@@ -65,7 +65,6 @@ export class CreateQuestionService {
                 type: questionType,
                 text: questionName,
                 points: +parseInt(questionPoints.toString(), 10),
-                choices,
             };
             return new Promise<Question>((resolve, reject) => {
                 this.communicationService.addQuestion(newQuestion).subscribe({

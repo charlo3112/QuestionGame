@@ -17,11 +17,11 @@ import { GameService } from '@app/services/game/game.service';
 export class ResultPageComponent implements OnDestroy, OnInit {
     constructor(private readonly gameService: GameService) {}
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         await this.gameService.init();
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this.gameService.leaveRoom();
     }
 }

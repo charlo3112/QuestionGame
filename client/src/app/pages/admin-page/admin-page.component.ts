@@ -34,12 +34,12 @@ export class AdminPageComponent implements OnInit {
         private readonly dialog: MatDialog,
     ) {}
 
-    async ngOnInit() {
+    async ngOnInit(): Promise<void> {
         this.login = this.adminService.login;
         await this.loadGames();
     }
 
-    deleteGame(id: string) {
+    deleteGame(id: string): void {
         const ERROR_DELETING_GAME = 'Erreur lors de la suppression du jeu';
         this.adminService
             .deleteGame(id)
@@ -52,7 +52,7 @@ export class AdminPageComponent implements OnInit {
                 }
             });
     }
-    exportGame(id: string) {
+    exportGame(id: string): void {
         const ERROR_EXPORTING_GAME = "Erreur lors de l'exportation du jeu";
         const ERROR_NO_DATA = 'Aucune données reçues';
         this.adminService
@@ -70,7 +70,7 @@ export class AdminPageComponent implements OnInit {
                 this.games = this.games.filter((g) => g.gameId !== id);
             });
     }
-    handleLogin(success: boolean) {
+    handleLogin(success: boolean): void {
         this.login = success;
         this.adminService.handleLogin(this.login);
     }
@@ -111,13 +111,13 @@ export class AdminPageComponent implements OnInit {
             }
         });
     }
-    openSnackBar(message: string) {
+    openSnackBar(message: string): void {
         this.snackBar.open(message, undefined, {
             duration: SNACKBAR_DURATION,
         });
     }
 
-    async toggleGameVisibility(id: string) {
+    async toggleGameVisibility(id: string): Promise<void> {
         const ERROR_GAME_VISIBILITY = 'Erreur lors du changement de visibilité';
         const game = this.games.find((g) => g.gameId === id);
         if (!game) {
@@ -135,7 +135,7 @@ export class AdminPageComponent implements OnInit {
         }
     }
 
-    private downloadFile(data: Partial<Game>, filename: string) {
+    private downloadFile(data: Partial<Game>, filename: string): void {
         this.adminService.downloadFile(data, filename);
     }
 }
