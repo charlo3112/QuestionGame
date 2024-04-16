@@ -67,6 +67,16 @@ describe('GamePlay', () => {
         expect(hasAnAnswer).toBeFalsy();
     });
 
+    it('should return the current question without the answers', () => {
+        let hasAnAnswer: boolean;
+        gamePlay.addIndexCurrentQuestion();
+        const question = gamePlay.currentQuestionWithoutAnswer;
+        if (question.type === 'QCM') {
+            hasAnAnswer = question.choices[0].isCorrect || question.choices[1].isCorrect;
+        }
+        expect(hasAnAnswer).toBeFalsy();
+    });
+
     it('should return the current question with the answers', () => {
         let hasAnAnswer: boolean;
         const question = gamePlay.currentQuestionWithAnswer;
