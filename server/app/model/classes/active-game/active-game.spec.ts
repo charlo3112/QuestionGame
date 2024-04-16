@@ -1,5 +1,6 @@
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
+import { Users } from '@app/model/classes/users/users';
 import { ChoiceData } from '@app/model/database/choice';
 import { GameData } from '@app/model/database/game';
 import { QuestionData } from '@app/model/database/question';
@@ -7,8 +8,11 @@ import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { HistoryService } from '@app/services/history/history.service';
+import { MIN_TIME_PANIC_QCM_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { ActiveGame } from './active-game';
 
@@ -17,6 +21,8 @@ describe('ActiveGame', () => {
     let mockRoomId: string;
     let game: ActiveGame;
     let mockHostIsPlaying: boolean;
+    let mockUpdateHistogram: jest.Mock;
+    let users: Users;
 
     let mockGameGateway: SinonStubbedInstance<GameGatewaySend>;
     let mockHistoryService: SinonStubbedInstance<HistoryService>;
@@ -55,6 +61,7 @@ describe('ActiveGame', () => {
         mockHostIsPlaying = false;
 
         game = new ActiveGame(mockGameData, mockRoomId, mockGameGateway, mockHistoryService, mockHostIsPlaying);
+        users = new Users(mockGameGateway, mockHostIsPlaying, mockUpdateHistogram);
     });
     it('should be defined', () => {
         expect(ActiveGame).toBeDefined();
@@ -225,30 +232,102 @@ describe('ActiveGame', () => {
         });
     });
 
-    /* it('advance() should launch the game if game state is wait and game locked', async () => {
-        jest.setTimeout(10000);
-        game['advanceState'](GameState.Wait);
+    it('advance() should launch the game if game state is wait and game locked', async () => {
+        game['advanceState'](GameState.WAIT);
         game.isLocked = true;
         const launchGameMock = jest.spyOn(game, 'launchGame');
         return game.advance().then(() => {
             expect(launchGameMock).toHaveBeenCalled();
         });
-    });*/
+    });
 
-    /* it('advance() should start the timer ', async () => {
-        // Set the initial conditions
-        jest.setTimeout(10000);
-        game['advanceState'](GameState.Wait);
-        game['isLocked'] = true; // Assuming isLocked is true in this scenario
-        game['questionIndex'] = 1;
-
-        // Spy on the start method of the timer
-        jest.spyOn(game['timer'], 'start');
-
-        // Call the advance function
+    it('advance() should start the timer ', async () => {
+        jest.useFakeTimers();
+        game['advanceState'](GameState.SHOW_RESULTS);
+        game.isLocked = true;
+        game['questionIndex'] = 0;
+        game['game'].questions.length = 1;
+        jest.advanceTimersByTime(TIME_CONFIRM_S);
+        const startTimerMock = jest.spyOn(game['timer'], 'start');
         await game.advance();
+        expect(startTimerMock).toHaveBeenCalled();
+    });
+    // it('advance() should show final results  ', async () => {
+    //     jest.useFakeTimers();
+    //     game['advanceState'](GameState.SHOW_RESULTS);
+    //     game.isLocked = true;
+    //     game['questionIndex'] = 2;
+    //     game['game'].questions.length = 1;
+    //     const advanceStateMock = jest.spyOn(game, 'advanceState');
 
-        // Expect that the start method of the timer is called
-        expect(game['timer'].start(TIME_CONFIRM_S)).toHaveBeenCalled();
-    }); */
+    //     await game.advance();
+    //     expect(advanceStateMock).toHaveBeenCalledWith(GameState.SHOW_FINAL_RESULTS);
+    // });
+
+    it('advance() should break if in different state than SHOW_RESULTS', async () => {
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        const advanceMock = jest.spyOn(game, 'advance');
+        await game.advance();
+        expect(advanceMock).toReturn();
+    });
+
+    it('getQrlAnswers() should return an empty array if the user is not in the game', () => {
+        const result = game.getQrlAnswers();
+        expect(result).toStrictEqual([]);
+    });
+
+    it('handleAnswers() should return undefined if the user is not in the game', () => {
+        const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
+        const result = game.handleAnswers('userId', answer);
+        expect(result).toBeUndefined();
+    });
+
+    // it('handleAnswers() should call handleAnswers if the user is in the game', () => {
+    //     const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
+    //     const handleAnswersMock = jest.spyOn(game['users'], 'handleAnswers');
+    //     const user = new UserData('userId', 'roomId', 'username');
+    //     game.addUser(user);
+    //     // game['users'].user
+    //     jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
+    //     console.log(game['users'].hostId);
+    //     game['advanceState'](GameState.ASKING_QUESTION_QRL);
+    //     game.handleAnswers('userId', answer);
+    //     expect(handleAnswersMock).toHaveBeenCalled();
+    // });
+
+    it('handleQrlAnswer() should return undefined if the user is not in the game', () => {
+        const result = game.handleQrlAnswer('userId', 'answer');
+        expect(result).toBeUndefined();
+    });
+
+    it('handleQrlAnswer() should call handleAnswer if the user is in the game', () => {
+        const handleAnswerMock = jest.spyOn(game['users'], 'handleAnswer');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.ASKING_QUESTION_QRL);
+        game.handleQrlAnswer('userId', 'answer');
+        expect(handleAnswerMock).toHaveBeenCalled();
+    });
+
+    it('removeUser() should stop the timer if all users have validated their answers', () => {
+        const stopTimerMock = jest.spyOn(game['timer'], 'stop');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        game.removeUser('userId');
+        expect(stopTimerMock).toHaveBeenCalled();
+    });
+
+    it('startPanicking() should set the panicking flag to true', () => {
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        game['timer']['seconds'] = MIN_TIME_PANIC_QCM_S + 1;
+        game.startPanicking();
+        expect(game['timer']['panicMode']).toBeTruthy();
+    });
+
+    it('launchGame() should call the start method of the timer', () => {
+        const startTimerMock = jest.spyOn(game['timer'], 'start');
+        game.launchGame();
+        expect(startTimerMock).toHaveBeenCalledWith(WAITING_TIME_S);
+    });
 });
