@@ -7,6 +7,7 @@ import { SinonStubbedInstance, createStubInstance, stub } from 'sinon';
 import { BroadcastOperator, Server, Socket } from 'socket.io';
 
 describe('ChatGateway', () => {
+    let mockServer: SinonStubbedInstance<Server>;
     let gateway: ChatGateway;
     let logger: SinonStubbedInstance<Logger>;
     let socket: SinonStubbedInstance<Socket>;
@@ -15,6 +16,7 @@ describe('ChatGateway', () => {
 
     beforeEach(async () => {
         logger = createStubInstance(Logger);
+        mockServer = createStubInstance(Server) as unknown as SinonStubbedInstance<Server>;
         socket = createStubInstance<Socket>(Socket);
         server = createStubInstance<Server>(Server);
         roomManagementService = createStubInstance(RoomManagementService);
@@ -99,5 +101,20 @@ describe('ChatGateway', () => {
         stub(socket, 'rooms').value(new Set());
         const res = await gateway.handleGetMessages(socket);
         expect(res).toEqual([]);
+    });
+
+    it('should send a system message when some condition is met', () => {
+        mockServer = {
+            to: jest.fn().mockReturnThis(),
+            emit: jest.fn(),
+            // we need the any type here because we are mocking the server object
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any;
+        gateway['server'] = mockServer;
+        const roomId = 'testRoom';
+        const message = 'System message test';
+        roomManagementService.getRoomId.returns(roomId);
+        gateway['sendSystemMessage'](roomId, message);
+        expect(mockServer.to).toHaveBeenCalledWith(roomId);
     });
 });
