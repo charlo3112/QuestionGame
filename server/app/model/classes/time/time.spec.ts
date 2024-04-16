@@ -54,4 +54,10 @@ describe('Time', () => {
         await restartPromise;
         expect(timer['controller']).toBeDefined();
     });
+
+    it('should toggle the pause state and send time update', () => {
+        const initialTimeData = timer.timeData;
+        timer.toggle();
+        expect(timer.timeData.pause).not.toBe(initialTimeData.pause);
+    });
 });
