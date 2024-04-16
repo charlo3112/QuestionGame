@@ -7,6 +7,7 @@ import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { HistoryService } from '@app/services/history/history.service';
 import { QuestionService } from '@app/services/question/question.service';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { RoomManagementService } from './room-management.service';
@@ -253,6 +254,26 @@ describe('RoomManagementService', () => {
         const getActiveGameSpy = jest.spyOn(service, 'getActiveGame');
         await service.confirmAction(hostUser.userId);
         expect(getActiveGameSpy).toHaveBeenCalled();
+    });
+
+    it('should return undefined if there is no active game for the user', () => {
+        jest.spyOn(service, 'getActiveGame').mockReturnValue(undefined);
+        const result = service.handleAnswers('user1', [{ user: 'Answer', text: 'Answer', grade: Grade.One }]);
+        expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if no active game exists for the user', () => {
+        jest.spyOn(service, 'getActiveGame').mockReturnValue(undefined);
+        const result = service.handleQrlAnswer('user1', 'Some answer');
+        expect(result).toBeUndefined();
+    });
+
+    it('should do nothing if there is no active game for the host', () => {
+        jest.spyOn(service, 'getActiveGame').mockReturnValue(undefined);
+
+        const spyAlert = jest.spyOn(mockGateway, 'sendAlert');
+        service.setChat('hostId', 'username', true);
+        expect(spyAlert).not.toHaveBeenCalled();
     });
 });
 
