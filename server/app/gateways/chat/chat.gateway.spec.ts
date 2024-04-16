@@ -113,8 +113,10 @@ describe('ChatGateway', () => {
         gateway['server'] = mockServer;
         const roomId = 'testRoom';
         const message = 'System message test';
+        gateway['roomMessages'].set(roomId, []);
         roomManagementService.getRoomId.returns(roomId);
         gateway['sendSystemMessage'](roomId, message);
         expect(mockServer.to).toHaveBeenCalledWith(roomId);
+        expect(gateway['roomMessages'].get(roomId)?.length).toBe(1);
     });
 });
