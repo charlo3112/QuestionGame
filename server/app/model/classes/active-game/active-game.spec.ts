@@ -1,3 +1,5 @@
+// We need every line in this file in order to test the ActiveGame class
+/* eslint-disable max-lines */
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
 import { Users } from '@app/model/classes/users/users';
@@ -22,6 +24,8 @@ describe('ActiveGame', () => {
     let game: ActiveGame;
     let mockHostIsPlaying: boolean;
     let mockUpdateHistogram: jest.Mock;
+    // We actually use this variable at the line 68
+    // eslint-disable-next-line no-unused-vars
     let users: Users;
 
     let mockGameGateway: SinonStubbedInstance<GameGatewaySend>;
@@ -290,7 +294,7 @@ describe('ActiveGame', () => {
         game.addUser(user);
         jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
         game['advanceState'](GameState.WAITING_FOR_ANSWERS);
-        game.handleAnswers("userId", answer);
+        game.handleAnswers('userId', answer);
         expect(handleAnswersMock).toHaveBeenCalled();
     });
 
@@ -339,7 +343,7 @@ describe('ActiveGame', () => {
     });
 
     it('getUser should return undefined if there are no users', () => {
-        expect(game.getUser("nobody")).toBeUndefined();
+        expect(game.getUser('nobody')).toBeUndefined();
     });
 
     it('isBanned should return false if the user is not in the game', () => {

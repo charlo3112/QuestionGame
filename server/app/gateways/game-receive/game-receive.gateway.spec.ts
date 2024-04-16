@@ -1,10 +1,14 @@
 import { ActiveGame } from '@app/model/classes/active-game/active-game';
+import { UserData } from '@app/model/classes/user/user';
 import { GameData } from '@app/model/database/game';
 import { GameService } from '@app/services/game/game.service';
 import { RoomManagementService } from '@app/services/room-management/room-management.service';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Result } from '@common/interfaces/result';
+import { SetChatPayload } from '@common/interfaces/set-chat-payload';
 import { User } from '@common/interfaces/user';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -195,4 +199,62 @@ describe('GameGatewayReceive', () => {
         const result = gateway.getUsers(socket);
         expect(result).toEqual(mockUsers);
     });
+
+    it('handleCreateGameRandom should create a game and join a room when creation is successful', async () => {
+        const expectedUser = createUserDataAsUser(new UserData('userId', 'roomId', 'John Doe'));
+        roomManagementService.createRandomGame.returns(Promise.resolve({ ok: true, value: expectedUser }));
+        const result = await gateway.handleCreateGameRandom(socket);
+        expect(result).toEqual(expectedUser);
+    });
+
+    it('handleCreateGameRandom should return undefined if the game creation fails', async () => {
+        roomManagementService.createRandomGame.returns(Promise.resolve({ ok: false, error: 'failed' }));
+        const result = await gateway.handleCreateGameRandom(socket);
+        expect(result).toBeUndefined();
+    });
+
+    it('handleStartTest should start the test', () => {
+        roomManagementService.getActiveGame.returns(activeGame);
+        gateway.handleStartTest(socket);
+        expect(roomManagementService.getActiveGame.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('handleAnswers should forward answers to RoomManagementService', () => {
+        const mockAnswers: QrlAnswer[] = [{ user: 'user1', text: 'ans1', grade: Grade.Ungraded }];
+        gateway.handleAnswers(socket, mockAnswers);
+        expect(roomManagementService.handleAnswers.calledWith(socket.id, mockAnswers)).toBeTruthy();
+    });
+
+    it('handleQrlAnswer should forward the QRL answer to RoomManagementService', () => {
+        const mockAnswer = "User's response to a question";
+        gateway.handleQrlAnswer(socket, mockAnswer);
+        expect(roomManagementService.handleQrlAnswer.calledWith(socket.id, mockAnswer)).toBeTruthy();
+    });
+
+    it('getQrlAnswer should return the qrlAnswer', () => {
+        gateway.getQrlAnswers(socket);
+        expect(roomManagementService.getQrlAnswers.calledWith(socket.id)).toBeTruthy();
+    });
+
+    it('setChat should forward chat settings to RoomManagementService', () => {
+        const mockPayload: SetChatPayload = { username: 'JohnDoe', value: true };
+        gateway.setChat(socket, mockPayload);
+        expect(roomManagementService.setChat.calledWith(socket.id, mockPayload.username, mockPayload.value)).toBeTruthy();
+    });
+
+    it('togglePause should forward the toggle pause request to RoomManagementService', () => {
+        gateway.togglePause(socket);
+        expect(roomManagementService.togglePause.calledWith(socket.id)).toBeTruthy();
+    });
+    it('startPanicking should forward the panic start request to RoomManagementService', () => {
+        gateway.startPanicking(socket);
+        expect(roomManagementService.startPanicking.calledWith(socket.id)).toBeTruthy();
+    });
+});
+
+const createUserDataAsUser = (userData: UserData): User => ({
+    userId: userData.uid,
+    roomId: userData.userRoomId,
+    name: userData.username,
+    play: true,
 });

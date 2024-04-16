@@ -250,6 +250,21 @@ describe('QuestionServiceEndToEnd', () => {
         await questionModel.create(question);
         expect((await service.getAllQCMQuestions()).length).toEqual(1);
     });
+
+    it('validateQuestion() should set answersAreCorrect to true for QCM type question with multiple correct choices', async () => {
+        const question = getFakeCreateQuestionDtoAllCorrect();
+        const result = await service.validateQuestion(question);
+        expect(result).toBe(true);
+    });
+
+    it('validateQuestion() should set areChoicesCorrect to true for QRL type question with maximum choices', async () => {
+        const choices = getFakeChoices(MAX_CHOICES_NUMBER);
+        const question = getFakeCreateQuestionDto();
+        question.type = QuestionType.QRL;
+        question.choices = choices;
+        const result = await service.validateQuestion(question);
+        expect(result).toBe(true);
+    });
 });
 
 const getFakeCreateQuestionDto = (): CreateQuestionDto => {
@@ -258,6 +273,16 @@ const getFakeCreateQuestionDto = (): CreateQuestionDto => {
         text: getRandomString(),
         points: 40,
         choices: getFakeChoicesDto(),
+    };
+    return questionData;
+};
+
+const getFakeCreateQuestionDtoAllCorrect = (): CreateQuestionDto => {
+    const questionData: CreateQuestionDto = {
+        type: QuestionType.QCM,
+        text: getRandomString(),
+        points: 40,
+        choices: getFakeChoicesDtoAllCorrect(),
     };
     return questionData;
 };
@@ -293,6 +318,17 @@ const getFakeChoicesDto = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoic
     for (let i = 0; i < numChoices; i++) {
         const text = getRandomString();
         const isCorrect = i === 0;
+        choices.push({ text, isCorrect } as CreateChoiceDto);
+    }
+
+    return choices;
+};
+
+const getFakeChoicesDtoAllCorrect = (numChoices: number = MAX_CHOICES_NUMBER): CreateChoiceDto[] => {
+    const choices: CreateChoiceDto[] = [];
+    for (let i = 0; i < numChoices; i++) {
+        const text = getRandomString();
+        const isCorrect = true;
         choices.push({ text, isCorrect } as CreateChoiceDto);
     }
 

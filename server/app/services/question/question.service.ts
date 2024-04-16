@@ -26,6 +26,7 @@ export class QuestionService {
     async getAllQCMQuestions(): Promise<QuestionData[]> {
         const questions = await this.questionModel.find<QuestionData>({ type: QuestionType.QCM });
         for (const question of questions) {
+            // _id is an MongoDB attribute
             // eslint-disable-next-line no-underscore-dangle
             question.mongoId = question._id;
         }
