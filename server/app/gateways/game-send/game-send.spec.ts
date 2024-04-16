@@ -1,7 +1,9 @@
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { WebsocketMessage } from '@common/enums/websocket-message';
 import { GameStatePayload } from '@common/interfaces/game-state-payload';
 import { HISTOGRAM_DATA } from '@common/interfaces/histogram-data';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { Score } from '@common/interfaces/score';
 import { TIME_DATA } from '@common/interfaces/time-data';
 import { USER_GAME_INFO } from '@common/interfaces/user-game-info';
@@ -121,5 +123,29 @@ describe('GameGatewaySend', () => {
         gateway.sendUserGameInfo(userId, userGameInfo);
         expect(mockServer.to).toHaveBeenCalledWith(userId);
         expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.USER_GAME_INFO, userGameInfo);
+    });
+
+    it('sendQrlResultData should emit qrl result data', () => {
+        const roomId = 'testRoom';
+        const qrlResultData = [] as QrlAnswer[];
+        gateway.sendQrlResultData(roomId, qrlResultData);
+        expect(mockServer.to).toHaveBeenCalledWith(roomId);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.QRL_RESULT_DATA, qrlResultData);
+    });
+
+    it('sendQrlGradedAnswer should emit qrl graded answer', () => {
+        const userId = 'testUser';
+        const grade: Grade = Grade.One;
+        gateway.sendQrlGradedAnswer(userId, grade);
+        expect(mockServer.to).toHaveBeenCalledWith(userId);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.QRL_GRADED_ANSWER, grade);
+    });
+
+    it('sendQrlAnswer should emit qrl answer', () => {
+        const userId = 'testUser';
+        const qrlAnswer = 'Some QRL answer';
+        gateway.sendQrlAnswer(userId, qrlAnswer);
+        expect(mockServer.to).toHaveBeenCalledWith(userId);
+        expect(mockServer.emit).toHaveBeenCalledWith(WebsocketMessage.QRL_ANSWER, qrlAnswer);
     });
 });

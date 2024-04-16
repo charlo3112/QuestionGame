@@ -58,6 +58,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.intervalSubscription.unsubscribe();
+        this.body.style.backgroundColor = this.bodyBackground;
     }
 
     openAbandonDialog(): void {

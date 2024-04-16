@@ -92,13 +92,17 @@ export class GameService {
     }
 
     get firework(): boolean {
-        return this.gameSubscriptionService.state !== GameState.SHOW_RESULTS || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
-            ? false
-            : true;
+        return !(
+            (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) ||
+            !this.isResponseGood() ||
+            !this.gameSubscriptionService.showBonus
+        );
     }
 
     get message(): string | undefined {
-        return this.gameSubscriptionService.state !== GameState.SHOW_RESULTS || !this.isResponseGood() || !this.gameSubscriptionService.showBonus
+        return (this.gameSubscriptionService.state !== GameState.SHOW_RESULTS && this.gameSubscriptionService.state !== GameState.LAST_QUESTION) ||
+            !this.isResponseGood() ||
+            !this.gameSubscriptionService.showBonus
             ? undefined
             : 'Vous avez un bonus!';
     }
