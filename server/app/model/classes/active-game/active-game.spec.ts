@@ -293,7 +293,6 @@ describe('ActiveGame', () => {
         const user = new UserData('userId', 'roomId', 'username');
         game.addUser(user);
         jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
-        // console.log(game['users'].hostId);
         game['advanceState'](GameState.WAITING_FOR_ANSWERS);
         game.handleAnswers('userId', answer);
         expect(handleAnswersMock).toHaveBeenCalled();
@@ -380,5 +379,20 @@ describe('ActiveGame', () => {
         game['state'] = GameState.SHOW_RESULTS;
         await game.advance();
         expect(game.currentState).toBe(GameState.SHOW_FINAL_RESULTS);
+    });
+
+    it('should send user stats update and advance state when showing results', async () => {
+        jest.spyOn(game, 'showFinalResults');
+        game['users']['hostIsPlaying'] = true;
+        await game.showResult();
+        expect(game.showFinalResults).toHaveBeenCalled();
+    });
+
+    it('should send user stats update and advance state when showing results', async () => {
+        jest.spyOn(game, 'askQuestion');
+        game['game']['questionIndex$'] = -1;
+        game['users']['hostIsPlaying'] = true;
+        await game.showResult();
+        expect(game.askQuestion).toHaveBeenCalled();
     });
 });
