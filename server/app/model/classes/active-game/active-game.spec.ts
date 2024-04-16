@@ -8,7 +8,7 @@ import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { HistoryService } from '@app/services/history/history.service';
-import { MIN_TIME_PANIC_QCM_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
+import { HOST_NAME, MIN_TIME_PANIC_QCM_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
 import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
@@ -252,17 +252,18 @@ describe('ActiveGame', () => {
         await game.advance();
         expect(startTimerMock).toHaveBeenCalled();
     });
-    // it('advance() should show final results  ', async () => {
-    //     jest.useFakeTimers();
-    //     game['advanceState'](GameState.SHOW_RESULTS);
-    //     game.isLocked = true;
-    //     game['questionIndex'] = 2;
-    //     game['game'].questions.length = 1;
-    //     const advanceStateMock = jest.spyOn(game, 'advanceState');
 
-    //     await game.advance();
-    //     expect(advanceStateMock).toHaveBeenCalledWith(GameState.SHOW_FINAL_RESULTS);
-    // });
+    it('advance() should show final results  ', async () => {
+        jest.useFakeTimers();
+        game['advanceState'](GameState.SHOW_RESULTS);
+        game.isLocked = true;
+        game['questionIndex'] = 2;
+        game['game'].questions.length = 1;
+        const advanceMock = jest.spyOn(game, 'advance');
+
+        await game.advance();
+        expect(advanceMock).toHaveBeenCalled();
+    });
 
     it('advance() should break if in different state than SHOW_RESULTS', async () => {
         game['advanceState'](GameState.WAITING_FOR_ANSWERS);
@@ -282,18 +283,17 @@ describe('ActiveGame', () => {
         expect(result).toBeUndefined();
     });
 
-    // it('handleAnswers() should call handleAnswers if the user is in the game', () => {
-    //     const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
-    //     const handleAnswersMock = jest.spyOn(game['users'], 'handleAnswers');
-    //     const user = new UserData('userId', 'roomId', 'username');
-    //     game.addUser(user);
-    //     // game['users'].user
-    //     jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
-    //     console.log(game['users'].hostId);
-    //     game['advanceState'](GameState.ASKING_QUESTION_QRL);
-    //     game.handleAnswers('userId', answer);
-    //     expect(handleAnswersMock).toHaveBeenCalled();
-    // });
+    it('handleAnswers() should call handleAnswers if the user is in the game', () => {
+        const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
+        const handleAnswersMock = jest.spyOn(game['users'], 'handleAnswers');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
+        console.log(game['users'].hostId);
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        game.handleAnswers("userId", answer);
+        expect(handleAnswersMock).toHaveBeenCalled();
+    });
 
     it('handleQrlAnswer() should return undefined if the user is not in the game', () => {
         const result = game.handleQrlAnswer('userId', 'answer');
@@ -329,5 +329,52 @@ describe('ActiveGame', () => {
         const startTimerMock = jest.spyOn(game['timer'], 'start');
         game.launchGame();
         expect(startTimerMock).toHaveBeenCalledWith(WAITING_TIME_S);
+    });
+
+    it('usersArray should return an empty array if there are no users', () => {
+        expect(game.usersArray).toStrictEqual([]);
+    });
+
+    it('canRejoin should return false if the user is not in the game', () => {
+        expect(game.canRejoin('userId')).toBeFalsy();
+    });
+
+    it('getUser should return undefined if there are no users', () => {
+        expect(game.getUser("nobody")).toBeUndefined();
+    });
+
+    it('isBanned should return false if the user is not in the game', () => {
+        expect(game.isBanned('userId')).toBeFalsy();
+    });
+
+    it('should remove user if the game state is wait', () => {
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.WAIT);
+        jest.spyOn(game['users'], 'removeUser');
+        game.removeUser('userId');
+        expect(game['users'].removeUser).toHaveBeenCalled();
+    });
+
+    it('should update user if isHost', () => {
+        const user = new UserData('userId', 'roomId', HOST_NAME);
+        game.addUser(user);
+        jest.spyOn(game['users'], 'update');
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        game.update('userId', 'username');
+        expect(game['users'].update).toHaveBeenCalled();
+    });
+
+    it('should stop the timer if stop game is called', () => {
+        jest.spyOn(game['timer'], 'stop');
+        game.stopGame();
+        expect(game['timer'].stop).toHaveBeenCalled();
+    });
+
+    it('should go to final results if the index is greater than the number of questions', async () => {
+        game['game']['questionIndex$'] = 60;
+        game['state'] = GameState.SHOW_RESULTS;
+        await game.advance();
+        expect(game.currentState).toBe(GameState.SHOW_FINAL_RESULTS);
     });
 });

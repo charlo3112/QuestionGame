@@ -117,7 +117,7 @@ export class ActiveGame {
     }
 
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
-        if (this.currentState !== GameState.WAITING_FOR_ANSWERS || this.users.hostId !== userId) return;
+        if (this.currentState !== GameState.WAITING_FOR_ANSWERS || !this.users.isHost(userId)) return;
         this.users.handleAnswers(answers, this.game.currentQuestionWithAnswer.points);
         this.showResult();
     }
