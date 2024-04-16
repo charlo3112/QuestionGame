@@ -81,7 +81,7 @@ export class RoomManagementService {
     }
 
     canChat(userId: string): boolean {
-        return this.getActiveGame(userId).canChat(userId);
+        return this.getActiveGame(userId)?.canChat(userId);
     }
 
     async createGame(userId: string, game: GameData): Promise<User> {
@@ -108,7 +108,7 @@ export class RoomManagementService {
 
         const game: GameData = {
             title: 'mode aléatoire',
-            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM) as QuestionData[],
+            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM),
             duration: 20,
         } as GameData;
 
@@ -144,7 +144,7 @@ export class RoomManagementService {
 
     startPanicking(userId: string) {
         const activeGame = this.getActiveGame(userId);
-        if (activeGame.isHost(userId)) {
+        if (activeGame?.isHost(userId)) {
             activeGame.startPanicking();
         }
     }
@@ -170,7 +170,7 @@ export class RoomManagementService {
     }
 
     showFinalResults(userId: string) {
-        this.getActiveGame(userId).showFinalResults();
+        this.getActiveGame(userId)?.showFinalResults();
     }
 
     getChoice(userId: string): boolean[] {
@@ -295,7 +295,7 @@ export class RoomManagementService {
         }
     }
 
-    getActiveGame(userId: string): ActiveGame {
+    getActiveGame(userId: string): ActiveGame | undefined {
         const roomId = this.roomMembers.get(userId);
         return roomId ? this.gameState.get(roomId) : undefined;
     }
@@ -320,7 +320,7 @@ export class RoomManagementService {
         return game ? game.getUser(userId) : undefined;
     }
 
-    private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {
+    private shuffleAndSliceQuestions(questions: QuestionData[], number: number): QuestionData[] {
         for (let i = questions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [questions[i], questions[j]] = [questions[j], questions[i]];
