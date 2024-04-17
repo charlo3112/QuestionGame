@@ -1,16 +1,17 @@
-import { Logger } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Connection, Model } from 'mongoose';
-import { QuestionService } from './question.service';
-
+/* eslint-disable max-lines */
+// We need every line of this file to cover the service
 import { ChoiceData } from '@app/model/database/choice';
 import { QuestionData, QuestionDocument, questionSchema } from '@app/model/database/question';
 import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { MAX_CHOICES_NUMBER } from '@common/constants';
 import { QuestionType } from '@common/enums/question-type';
+import { Logger } from '@nestjs/common';
 import { MongooseModule, getConnectionToken, getModelToken } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import { MongoMemoryServer } from 'mongodb-memory-server';
+import { Connection, Model } from 'mongoose';
+import { QuestionService } from './question.service';
 
 describe('QuestionService', () => {
     let service: QuestionService;
@@ -257,11 +258,27 @@ describe('QuestionServiceEndToEnd', () => {
         expect(result).toBe(true);
     });
 
-    it('validateQuestion() should set areChoicesCorrect to true for QRL type question with maximum choices', async () => {
-        const choices = getFakeChoices(MAX_CHOICES_NUMBER);
+    it('validateQuestion() should set areChoicesCorrect to true for QCM type question with maximum choices', async () => {
+        const choices: ChoiceData[] = [];
+        for (let i = 0; i < MAX_CHOICES_NUMBER; i++) {
+            const choiceData: CreateChoiceDto = {
+                text: getRandomString(),
+                isCorrect: false,
+            };
+            choices.push(new ChoiceData(choiceData));
+        }
         const question = getFakeCreateQuestionDto();
-        question.type = QuestionType.QRL;
+        question.type = QuestionType.QCM;
         question.choices = choices;
+        const result = await service.validateQuestion(question);
+        expect(result).toBe(true);
+    });
+
+    it('validateQuestion() should set areChoicesCorrect to true for QRL type question', async () => {
+        const question = getFakeCreateQuestionDto();
+        const choices = getFakeChoicesDto(MAX_CHOICES_NUMBER + 1);
+        question.choices = choices;
+        question.type = QuestionType.QRL;
         const result = await service.validateQuestion(question);
         expect(result).toBe(true);
     });
