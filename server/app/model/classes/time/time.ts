@@ -55,7 +55,6 @@ export class CountDownTimer {
                     this.controller = new AbortController();
                     continue;
                 }
-                throw error;
             }
             if (!this.pause) {
                 --this.seconds;
