@@ -51,10 +51,8 @@ export class CountDownTimer {
                     await setTimeout(TIMEOUT_DURATION, undefined, { signal: this.controller.signal });
                 }
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    this.controller = new AbortController();
-                    continue;
-                }
+                this.controller = new AbortController();
+                continue;
             }
             if (!this.pause) {
                 --this.seconds;

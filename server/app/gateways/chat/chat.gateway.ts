@@ -42,7 +42,7 @@ export class ChatGateway {
         if (!this.roomMessages.has(roomId)) {
             this.roomMessages.set(roomId, []);
         }
-        this.roomMessages.get(roomId)?.push(messageToSend);
+        this.roomMessages.get(roomId).push(messageToSend);
 
         this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);
     }
@@ -63,7 +63,7 @@ export class ChatGateway {
         };
 
         if (this.roomMessages.has(roomId)) {
-            this.roomMessages.get(roomId)?.push(messageToSend);
+            this.roomMessages.get(roomId).push(messageToSend);
         }
 
         this.server.to(roomId).emit(WebsocketMessage.MESSAGE_RECEIVED, messageToSend);

@@ -28,8 +28,6 @@ describe('Time', () => {
         expect(timer).toBeDefined();
     });
 
-
-
     it('should catch AbortError and restart', async () => {
         timer.seconds = 5;
         timer.start(5);
@@ -48,6 +46,14 @@ describe('Time', () => {
     it('should stop', async () => {
         const TIME_VALUE = 4;
         await timer.start(TIME_VALUE);
+        await timer.stop();
+        expect(timer).toBeDefined();
+    });
+
+    it('should stop', async () => {
+        const TIME_VALUE = 4;
+        timer.seconds = TIME_VALUE;
+        timer.restart();
         await timer.stop();
         expect(timer).toBeDefined();
     });

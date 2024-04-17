@@ -193,6 +193,10 @@ describe('RoomManagementService', () => {
             service.startPanicking('user2');
             expect(gameRoom['timer']['panicMode']).toBeFalsy();
         });
+
+        it('should not panic if the game does not exist', () => {
+            service.startPanicking('user1');
+        });
     });
 
     describe('togglePause', () => {
@@ -330,10 +334,8 @@ describe('RoomManagementService', () => {
     });
 
     describe('leaveUser', () => {
-        jest.useFakeTimers();
-
         beforeEach(() => {
-            jest.clearAllTimers();
+            jest.useFakeTimers();
         });
 
         it('leaveUser() should not ban a user from the game', async () => {
@@ -348,18 +350,19 @@ describe('RoomManagementService', () => {
             expect(service.leaveUser('user2')).toBeUndefined();
         });
 
-        // it('should set a removal timer when leaving a user', () => {
-        //     const game = getFakeGame();
-        //     service.createGame('user2', game);
+        it('should set a removal timer when leaving a user', () => {
+            const game = getFakeGame();
+            service.createGame('user2', game);
 
-        //     service.performUserRemoval = jest.fn();
-        //     service.leaveUser('user2');
-        //     expect(service['disconnectionTimers'].has('user2')).toBe(true);
+            const mockFunction = jest.fn();
+            service.performUserRemoval = mockFunction;
+            service.leaveUser('user2');
+            expect(service['disconnectionTimers'].has('user2')).toBe(true);
 
-        //     jest.advanceTimersByTime(TIMEOUT_DURATION + 1);
+            jest.runAllTimers();
 
-        //     expect(service.performUserRemoval).toHaveBeenCalledWith('user2');
-        // });
+            expect(mockFunction).toHaveBeenCalledWith('user2');
+        });
 
         afterEach(() => {
             jest.useRealTimers();
@@ -376,6 +379,15 @@ describe('RoomManagementService', () => {
 
     it('should not allow a user to fetch the users of a game hes no playing', async () => {
         expect(service.getUsers('user1')).toStrictEqual([]);
+    });
+
+    it('should return undefined if the game does not exist', () => {
+        service['roomMembers'].set('user1', 'room1');
+        expect(service.getUsers('user1')).toStrictEqual([]);
+    });
+
+    it('should return undefined if the game does not exist', () => {
+        expect(service.showFinalResults('user1')).toBeUndefined();
     });
 
     it('getRoomId() should return the id of the room', async () => {
@@ -440,6 +452,16 @@ describe('RoomManagementService', () => {
 
             const spyAlert = jest.spyOn(mockGateway, 'sendAlert');
             service.setChat('hostId', 'username', true);
+            expect(spyAlert).toHaveBeenCalled();
+        });
+
+        it('should send an alert to the host if there is an active game', async () => {
+            const game = getFakeGame();
+            const hostUser = await service.createGame('hostId', game);
+            service.joinRoom('userId', hostUser.roomId, 'username');
+
+            const spyAlert = jest.spyOn(mockGateway, 'sendAlert');
+            service.setChat('hostId', 'username', false);
             expect(spyAlert).toHaveBeenCalled();
         });
     });

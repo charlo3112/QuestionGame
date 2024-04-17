@@ -75,10 +75,6 @@ export class GameData implements Game {
         return this.duration;
     }
 
-    getLastModification(): string {
-        return this.lastModification;
-    }
-
     getQuestions(): QuestionData[] {
         return this.questions;
     }
