@@ -1,0 +1,27 @@
+<div class="main-content">
+    <div class="qrl-choice-list">
+        <mat-card
+            class="qrl-choice"
+            *ngFor="let answer of answers; let i = index"
+            [ngClass]="{
+                'grade-zero': answer.grade === grade.Zero,
+                'grade-half': answer.grade === grade.Half,
+                'grade-one': answer.grade === grade.One
+            }"
+        >
+            <div class="content-wrapper">
+                <div class="info">
+                    <div class="qrl-title">Joueur: {{ answer.user }}</div>
+                    <div class="qrl-answer">Réponse: {{ answer.text }}</div>
+                </div>
+                <mat-form-field class="qrl-grade">
+                    <mat-label>Note</mat-label>
+                    <mat-select [(value)]="answer.grade" (valueChange)="onGradeChange(i, $event)" [disabled]="gradeSent">
+                        <mat-option *ngFor="let grade of gradeOptions" [value]="grade.value">{{ grade.viewValue }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </mat-card>
+    </div>
+    <button class="next-question" mat-raised-button color="primary" (click)="sendGrades()" [disabled]="!allGraded() || gradeSent">Soumettre</button>
+</div>

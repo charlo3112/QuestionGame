@@ -1,0 +1,13 @@
+<mat-card class="chat">
+    <h2 class="title">{{ this.gameService.usernameValue }}</h2>
+    <mat-divider></mat-divider>
+    <div class="chat-text">
+        <p *ngFor="let text of chat">{{ text.name }} ({{ calculateTime(text.timestamp) }}): {{ text.message }}</p>
+    </div>
+    <mat-form-field class="chat-input">
+        <input matInput [(ngModel)]="chatInput" (focus)="this.onFocus()" (focusout)="this.onFocusOut()" maxlength="{{ this.maxLength }}" />
+        <button matSuffix mat-icon-button (click)="chatSubmit()">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+    </mat-form-field>
+</mat-card>

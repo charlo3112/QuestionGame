@@ -1,0 +1,61 @@
+.loading-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 2em;
+}
+
+.left-content,
+.middle-content,
+.right-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.left-content {
+    width: 20em;
+}
+
+.player {
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1em;
+}
+
+.room-lock-button {
+    width: 3.69em;
+    height: 3.69em;
+}
+
+.start-game-button {
+    height: 3.69em;
+}
+
+.kick-button {
+    margin: 0;
+}
+
+.row-player {
+    height: 2em;
+}
+
+#abandon-button {
+    background-color: red;
+    color: white;
+    font-weight: bolder;
+    height: 60%;
+    border-radius: 3px;
+}
+
+#logo {
+    cursor: pointer;
+}

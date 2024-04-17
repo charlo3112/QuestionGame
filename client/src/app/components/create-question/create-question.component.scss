@@ -1,0 +1,83 @@
+.edit-card {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-bottom: 20px; /* Add padding to create space between content and bottom buttons */
+}
+
+.question-field,
+.choice-field,
+.question-weight {
+    width: 100%;
+}
+
+.choice-field {
+    display: flex;
+    align-items: flex-end; /* Align the add choice button to the bottom of the input field */
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.choice-field mat-form-field {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.bottom-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.bottom-buttons button {
+    margin-left: 10px; /* Add some space between buttons */
+}
+
+.choice-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.choice-value {
+    flex: 1;
+    cursor: pointer;
+    display: block;
+    max-width: 80%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.edit-input {
+    flex: 1;
+}
+
+.delete-button {
+    margin-left: 10px;
+}
+
+.delete-button:hover {
+    background-color: transparent;
+}
+
+.choice-content:hover .delete-button {
+    display: block;
+}
+
+.choice-content:hover .mat-slide-toggle {
+    opacity: 0.7;
+}
+
+.mat-slide-toggle {
+    margin-left: 10px;
+}
+
+.list-container {
+    margin-top: 20px;
+}
+
+.question-weight {
+    margin-top: 20px;
+}

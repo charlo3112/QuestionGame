@@ -1,0 +1,20 @@
+<div
+    class="answers-container"
+    [ngClass]="{
+        'four-answers': choices.length === 4,
+        'three-answers': choices.length === 3,
+        'two-answers': choices.length === 2
+    }"
+>
+    <button
+        mat-raised-button
+        class="answer"
+        [ngClass]="{ selected: gameService.isChoiceSelected(i), 'good': gameService.isChoiceCorrect(i), 'bad': gameService.isChoiceIncorrect(i) }"
+        (click)="gameService.selectChoice(i)"
+        *ngFor="let choice of choices; let i = index"
+    >   
+        <span> {{ (i + 1).toString() + ' - ' + choice.text }} </span>
+        <mat-icon *ngIf="gameService.isChoiceCorrect(i)" aria-hidden="false" fontIcon="check" class="solution good"></mat-icon>
+        <mat-icon *ngIf="gameService.isChoiceIncorrect(i)" aria-hidden="false" fontIcon="close" class="solution bad"></mat-icon>
+    </button>
+</div>

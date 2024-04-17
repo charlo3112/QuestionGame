@@ -1,0 +1,25 @@
+<mat-card class="admin-game-preview">
+    <mat-card-header>
+        <mat-card-title> {{ gameDetails.title }} </mat-card-title>
+        <mat-card-subtitle class="last-modified">{{ gameDetails.lastModification }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+        <img [src]="gameDetails.image" alt="Game preview" />
+    </mat-card-content>
+    <mat-card-actions align="end">
+        <button mat-icon-button (click)="onDelete()">
+            <mat-icon class="admin-delete">delete</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onExport()">
+            <mat-icon class="admin-export">file_download</mat-icon>
+        </button>
+        <button mat-icon-button routerLink="/admin/game/{{ gameDetails.gameId }}">
+            <mat-icon class="admin-edit">mode_edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onToggleVisibility()">
+            <mat-icon class="admin-visibility">
+                {{ gameDetails.visibility ? 'visibility' : 'visibility_off' }}
+            </mat-icon>
+        </button>
+    </mat-card-actions>
+</mat-card>

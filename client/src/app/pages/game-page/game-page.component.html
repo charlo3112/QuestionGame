@@ -1,6 +1,26 @@
-<div class="container">
-    <app-sidebar id="sidebar"></app-sidebar>
-    <section class="play-area-container">
-        <app-play-area class="play-area" tabindex="0"></app-play-area>
-    </section>
+<mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar-row color="primary" class="toolbar">
+        <a><img src="assets/logo.png" id="logo" (click)="openAbandonDialog()" /></a>
+        <h1 *ngIf="question" class="title">{{ question.text }}</h1>
+        <h1 *ngIf="isStartingGame()" class="title">{{ gameService.gameTitle }}</h1>
+        <span class="spacer"></span>
+        <span *ngIf="question" id="points" class="big-text">{{ question.points }} points</span>
+    </mat-toolbar-row>
+    <mat-toolbar-row *ngIf="!isStartingGame()" class="row-container">
+        <p *ngIf="!gameService.isHost || this.gameService.isPlaying" class="big-text">Score total : {{ gameService.score }}</p>
+        <h1 *ngIf="gameService.message" class="title">{{ gameService.message }}</h1>
+        <p class="big-text">Temps restant : {{ gameService.time }}</p>
+        <button mat-raised-button id="abandon-button" (click)="openAbandonDialog()">Abandonner</button>
+    </mat-toolbar-row>
+</mat-toolbar>
+
+
+<div *ngIf="firework">
+    <div class="firework"></div>
+    <div class="firework"></div>
+    <div class="firework"></div>
 </div>
+
+<app-countdown *ngIf="isStartingGame()"></app-countdown>
+<app-question *ngIf="question && this.gameService.isPlaying" [question]="question!" tabindex="0"></app-question>
+<app-admin-game-view *ngIf="question && !gameService.isPlaying" class="admin-view" (answersCorrected)="qrlCorrected = true"></app-admin-game-view>

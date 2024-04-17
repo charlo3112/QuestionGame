@@ -1,0 +1,88 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="/"><img src="assets/logo.png" class="logo" /></a>
+    <h1 class="title">{{ pageTitle }}</h1>
+    <span class="spacer"></span>
+    <button routerLink="/admin/question-bank" mat-flat-button>Banque de Questions</button>
+    <button routerLink="/admin" mat-flat-button>Admin</button>
+</mat-toolbar>
+
+<div class="form-container">
+    <mat-card class="left">
+        <mat-card-header>
+            <h2>Informations</h2>
+        </mat-card-header>
+        <mat-card-content class="information-content">
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Nom</mat-label>
+                <input class="input-field" matInput name="title" [(ngModel)]="title" required />
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Mode de jeu</mat-label>
+                <mat-select class="input-field" required>
+                    <mat-option value="one">Classique</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Description du jeu</mat-label>
+                <textarea class="input-field" matInput [(ngModel)]="description" required=""></textarea>
+            </mat-form-field>
+            <mat-form-field class="information-field">
+                <mat-label class="input-label">Temps alloué : </mat-label>
+                <input class="input-field" matInput type="number" min="10" max="60" step="1" [(ngModel)]="duration" required />
+            </mat-form-field>
+        </mat-card-content>
+        <mat-card-actions class="information-button">
+            <button mat-raised-button color="primary" (click)="openQuestionBank()">Selectionner une question depuis la banque</button>
+        </mat-card-actions>
+        <mat-card-actions class="information-button">
+            <button mat-raised-button color="primary" (click)="save()">Enregistrer le jeu</button>
+        </mat-card-actions>
+    </mat-card>
+
+    <mat-card *ngIf="!showChildren && showPage" class="right">
+        <mat-card-header>
+            <h2>Questions</h2>
+        </mat-card-header>
+        <mat-card-content>
+            <div cdkDropList (cdkDropListDropped)="drop($event)">
+                <mat-card *ngFor="let question of questions; let i = index" cdkDrag class="question-content">
+                    <mat-card-header>
+                        <mat-card-title>{{ i + 1 }}. {{ question.text }} - [{{ question.type }}]</mat-card-title>
+                    </mat-card-header>
+                    <mat-card-actions>
+                        <button mat-icon-button aria-label="Modifier" color="accent" (click)="editQuestion(question)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                        <button mat-icon-button aria-label="Supprimer" color="warn" (click)="deleteQuestion(i)">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-card-actions>
+                </mat-card>
+            </div>
+        </mat-card-content>
+        <mat-card-actions>
+            <button class="add-button" mat-fab color="primary" aria-label="Ajouter une question" (click)="openCreateQuestion()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+
+    <app-create-question
+        *ngIf="showChildren"
+        class="right"
+        [questionData]="selectedQuestion"
+        [isEditingFromCreate]="isEditingQuestion"
+        (questionCreated)="insertQuestionFromCreate($event)"
+        (closeForm)="closeCreateQuestion()"
+    ></app-create-question>
+
+    <app-question-bank
+        *ngIf="!showPage"
+        class="right"
+        (sendQuestionSelected)="insertQuestionFromBank($event)"
+        (closeForm)="closeQuestionBank()"
+        (formClosed)="closeQuestionBank()"
+        [adminMode]="false"
+    >
+    </app-question-bank>
+</div>

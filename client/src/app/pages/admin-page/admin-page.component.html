@@ -1,0 +1,27 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Page admin</h1>
+    <span class="spacer"></span>
+    <button *ngIf="login" routerLink="/admin/history" mat-flat-button>Historique</button>
+    <button *ngIf="login" class="upload-button" (click)="openImportDialog()" mat-flat-button>Importer JSON</button>
+    <button *ngIf="login" routerLink="/admin/question-bank" mat-flat-button>Banque de Questions</button>
+    <button *ngIf="login" routerLink="/admin/game" mat-flat-button>Création de jeu</button>
+</mat-toolbar>
+
+<div *ngIf="!login" class="admin-page">
+    <div class="admin-login-container">
+        <app-admin-login (loginSuccess)="handleLogin($event)"></app-admin-login>
+    </div>
+</div>
+
+<div *ngIf="login" class="admin-game-preview-container">
+    <div *ngFor="let game of games">
+        <app-admin-game-preview
+            [gameDetails]="game"
+            (delete)="deleteGame(game.gameId)"
+            (export)="exportGame(game.gameId)"
+            (toggleVisibility)="toggleGameVisibility(game.gameId)"
+        >
+        </app-admin-game-preview>
+    </div>
+</div>
