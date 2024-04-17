@@ -86,11 +86,8 @@ export class ActiveGame {
         this.users.addUser(user);
     }
 
-    banUser(name: string): string {
-        if (this.currentState !== GameState.WAIT) {
-            return undefined;
-        }
-        return this.users.banUser(name);
+    banUser(name: string): string | undefined {
+        return this.currentState === GameState.WAIT ? this.users.banUser(name) : undefined;
     }
 
     canRejoin(userId: string): boolean {
@@ -114,25 +111,19 @@ export class ActiveGame {
     }
 
     handleChoice(userId: string, choice: boolean[]): void {
-        if (this.state !== GameState.ASKING_QUESTION_QCM) {
-            return;
-        }
+        if (this.state !== GameState.ASKING_QUESTION_QCM) return;
         this.users.handleChoice(userId, choice);
         this.sendUserSelectedChoice();
     }
 
     handleAnswers(userId: string, answers: QrlAnswer[]): void {
-        if (this.currentState !== GameState.WAITING_FOR_ANSWERS || this.users.hostId !== userId) {
-            return;
-        }
+        if (this.currentState !== GameState.WAITING_FOR_ANSWERS || !this.users.isHost(userId)) return;
         this.users.handleAnswers(answers, this.game.currentQuestionWithAnswer.points);
         this.showResult();
     }
 
     handleQrlAnswer(userId: string, answer: string): void {
-        if (this.currentState !== GameState.ASKING_QUESTION_QRL) {
-            return;
-        }
+        if (this.currentState !== GameState.ASKING_QUESTION_QRL) return;
         this.users.handleAnswer(userId, answer);
         this.gameGateway.sendUsersStatUpdate(this.users.hostId, this.users.usersStat);
         this.sendUserSelectedChoice();
@@ -238,16 +229,14 @@ export class ActiveGame {
     async advance(): Promise<void> {
         switch (this.state) {
             case GameState.WAIT:
-                if (!this.isLocked) {
-                    return;
-                }
-                await this.launchGame();
+                if (!this.isLocked) return;
+                this.launchGame();
                 break;
             case GameState.SHOW_RESULTS:
                 if (this.game.questionIndex < this.game.questions.length) {
                     await this.timer.start(TIME_CONFIRM_S);
                     this.game.addIndexCurrentQuestion();
-                    await this.askQuestion();
+                    this.askQuestion();
                 } else {
                     this.advanceState(GameState.SHOW_FINAL_RESULTS);
                 }
@@ -259,7 +248,6 @@ export class ActiveGame {
 
     async askQuestion(): Promise<void> {
         if (!this.isActive) return;
-        this.users.resetActivity();
         this.users.resetAnswers();
         this.gameGateway.sendQrlGradedAnswer(this.roomId, Grade.Ungraded);
         this.histogramData.indexCurrentQuestion = this.game.questionIndex;
@@ -318,7 +306,7 @@ export class ActiveGame {
     async launchGame(): Promise<void> {
         this.advanceState(GameState.STARTING);
         await this.timer.start(WAITING_TIME_S);
-        await this.askQuestion();
+        this.askQuestion();
     }
 
     private advanceState(state: GameState): void {

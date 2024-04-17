@@ -108,6 +108,17 @@ describe('HistoryServiceEndToEnd', () => {
         const finalGameNb = await historyModel.countDocuments();
         expect(await service.getAllHistories()).toHaveLength(finalGameNb);
     });
+
+    it('addHistory() should reject if the history is not added to the DB', async () => {
+        const historyDto = getFakeCreateHistoryDto();
+        historyModel.create = jest.fn().mockRejectedValue('error');
+        await expect(service.addHistory(historyDto)).rejects.toMatch('Failed to insert history: error');
+    });
+
+    it('deleteHistories() should reject if the histories are not deleted from the DB', async () => {
+        historyModel.deleteMany = jest.fn().mockRejectedValue('error');
+        await expect(service.deleteHistories()).rejects.toMatch('Failed to delete histories: error');
+    });
 });
 
 const getFakeCreateHistoryDto = (): CreateHistoryDto => {

@@ -1,5 +1,8 @@
+// We need every line in this file in order to test the ActiveGame class
+/* eslint-disable max-lines */
 import { GameGatewaySend } from '@app/gateways/game-send/game-send.gateway';
 import { UserData } from '@app/model/classes/user/user';
+import { Users } from '@app/model/classes/users/users';
 import { ChoiceData } from '@app/model/database/choice';
 import { GameData } from '@app/model/database/game';
 import { QuestionData } from '@app/model/database/question';
@@ -7,8 +10,11 @@ import { CreateChoiceDto } from '@app/model/dto/choice/create-choice.dto';
 import { CreateGameDto } from '@app/model/dto/game/create-game.dto';
 import { CreateQuestionDto } from '@app/model/dto/question/create-question.dto';
 import { HistoryService } from '@app/services/history/history.service';
+import { HOST_NAME, MIN_TIME_PANIC_QCM_S, TIME_CONFIRM_S, WAITING_TIME_S } from '@common/constants';
 import { GameState } from '@common/enums/game-state';
+import { Grade } from '@common/enums/grade';
 import { QuestionType } from '@common/enums/question-type';
+import { QrlAnswer } from '@common/interfaces/qrl-answer';
 import { SinonStubbedInstance, createStubInstance } from 'sinon';
 import { ActiveGame } from './active-game';
 
@@ -17,6 +23,10 @@ describe('ActiveGame', () => {
     let mockRoomId: string;
     let game: ActiveGame;
     let mockHostIsPlaying: boolean;
+    let mockUpdateHistogram: jest.Mock;
+    // We actually use this variable at the line 68
+    // eslint-disable-next-line no-unused-vars
+    let users: Users;
 
     let mockGameGateway: SinonStubbedInstance<GameGatewaySend>;
     let mockHistoryService: SinonStubbedInstance<HistoryService>;
@@ -55,6 +65,7 @@ describe('ActiveGame', () => {
         mockHostIsPlaying = false;
 
         game = new ActiveGame(mockGameData, mockRoomId, mockGameGateway, mockHistoryService, mockHostIsPlaying);
+        users = new Users(mockGameGateway, mockHostIsPlaying, mockUpdateHistogram);
     });
     it('should be defined', () => {
         expect(ActiveGame).toBeDefined();
@@ -179,49 +190,209 @@ describe('ActiveGame', () => {
         expect(validationResult).toBeUndefined();
     });
 
-    it('advance() should not start the game if the room in unlocked', async () => {
+    it('advance() should not start the game if the room is unlocked', async () => {
         game.isLocked = false;
         jest.spyOn(game, 'launchGame');
         await game.advance();
         expect(game.launchGame).not.toHaveBeenCalled();
     });
 
-    // it('advance() should start the game if the room in locked', async () => {
-    //     game.isLocked = true;
-    //     const launchGameMock = jest.spyOn(game, 'launchGame');
-    //     await game.advance();
-    //     expect(launchGameMock).toHaveBeenCalled();
-    // });
-
-    // it('advance() should showQuestion if the game is in state Show Results', async () => {
-    //     game.isLocked = true;
-    //     game['advanceState'](GameState.SHOW_RESULTS);
-    //     const askQuestionMock = jest.spyOn(game, 'askQuestion');
-    //     await game.advance();
-    //     expect(askQuestionMock).toHaveBeenCalled();
-    // });
-
     it('advanceState() should modify the state of the Game', () => {
         game['advanceState'](GameState.ASKING_QUESTION_QCM);
         expect(game.currentState).toBe(GameState.ASKING_QUESTION_QCM);
     });
 
-    // it('askQuestion() should update the histogram, calculate the scores and advance state', async () => {
-    //     const initState = game.currentState;
-    //     await game.askQuestion();
-    //     const finalState = game.currentState;
-    //     expect(finalState).toBeGreaterThanOrEqual(initState);
-    // });
+    it('setChat() should return undefined if the user is not in the game', () => {
+        const result = game.setChat('hostId', 'username', true);
+        expect(result).toBeUndefined();
+    });
 
-    // it('launchGame() should change game state', async () => {
-    //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
-    //     await game.launchGame();
-    //     expect(game.currentState).toBe(GameState.STARTING);
-    // });
+    it('canChat() should return false if the user is not in the game', () => {
+        const result = game.canChat('userId');
+        expect(result).toBeFalsy();
+    });
 
-    // it('testGame() should change game state', async () => {
-    //     const game = new ActiveGame(mockGameData, 'roomId', jest.fn(), jest.fn(), jest.fn(), jest.fn(), jest.fn());
-    //     await game.testGame();
-    //     expect(game.currentState).toBe(GameState.STARTING);
-    // });
+    it('startPanicking() should return undefined if the state is not AskingQuestion', () => {
+        const result = game.startPanicking();
+        expect(result).toBeUndefined();
+    });
+
+    it('togglePause() should return undefined if the state isnt AskingQuestion', () => {
+        const result = game.togglePause();
+        expect(result).toBeUndefined();
+    });
+
+    it('togglePause() should toggle the timer if the game state is AskingQuestion', () => {
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        game.togglePause();
+        expect(game['timer']['timeData'].pause).toBeTruthy();
+    });
+
+    it('advance() should return undefined if game state is wait and game not locked', async () => {
+        game['advanceState'](GameState.WAIT);
+        game.isLocked = false;
+        return game.advance().then((result) => {
+            expect(result).toBeUndefined();
+        });
+    });
+
+    it('advance() should launch the game if game state is wait and game locked', async () => {
+        game['advanceState'](GameState.WAIT);
+        game.isLocked = true;
+        const launchGameMock = jest.spyOn(game, 'launchGame');
+        return game.advance().then(() => {
+            expect(launchGameMock).toHaveBeenCalled();
+        });
+    });
+
+    it('advance() should start the timer ', async () => {
+        jest.useFakeTimers();
+        game['advanceState'](GameState.SHOW_RESULTS);
+        game.isLocked = true;
+        game['questionIndex'] = 0;
+        game['game'].questions.length = 1;
+        jest.advanceTimersByTime(TIME_CONFIRM_S);
+        const startTimerMock = jest.spyOn(game['timer'], 'start');
+        await game.advance();
+        expect(startTimerMock).toHaveBeenCalled();
+    });
+
+    it('advance() should show final results  ', async () => {
+        jest.useFakeTimers();
+        game['advanceState'](GameState.SHOW_RESULTS);
+        game.isLocked = true;
+        game['questionIndex'] = 2;
+        game['game'].questions.length = 1;
+        const advanceMock = jest.spyOn(game, 'advance');
+
+        await game.advance();
+        expect(advanceMock).toHaveBeenCalled();
+    });
+
+    it('advance() should break if in different state than SHOW_RESULTS', async () => {
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        const advanceMock = jest.spyOn(game, 'advance');
+        await game.advance();
+        expect(advanceMock).toReturn();
+    });
+
+    it('getQrlAnswers() should return an empty array if the user is not in the game', () => {
+        const result = game.getQrlAnswers();
+        expect(result).toStrictEqual([]);
+    });
+
+    it('handleAnswers() should return undefined if the user is not in the game', () => {
+        const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
+        const result = game.handleAnswers('userId', answer);
+        expect(result).toBeUndefined();
+    });
+
+    it('handleAnswers() should call handleAnswers if the user is in the game', () => {
+        const answer = [{ user: 'userId', text: 'answer', grade: Grade.One }] as QrlAnswer[];
+        const handleAnswersMock = jest.spyOn(game['users'], 'handleAnswers');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        jest.spyOn(game['users'], 'isHost').mockReturnValue(true);
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        game.handleAnswers('userId', answer);
+        expect(handleAnswersMock).toHaveBeenCalled();
+    });
+
+    it('handleQrlAnswer() should return undefined if the user is not in the game', () => {
+        const result = game.handleQrlAnswer('userId', 'answer');
+        expect(result).toBeUndefined();
+    });
+
+    it('handleQrlAnswer() should call handleAnswer if the user is in the game', () => {
+        const handleAnswerMock = jest.spyOn(game['users'], 'handleAnswer');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.ASKING_QUESTION_QRL);
+        game.handleQrlAnswer('userId', 'answer');
+        expect(handleAnswerMock).toHaveBeenCalled();
+    });
+
+    it('removeUser() should stop the timer if all users have validated their answers', () => {
+        const stopTimerMock = jest.spyOn(game['timer'], 'stop');
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        game.removeUser('userId');
+        expect(stopTimerMock).toHaveBeenCalled();
+    });
+
+    it('startPanicking() should set the panicking flag to true', () => {
+        game['advanceState'](GameState.ASKING_QUESTION_QCM);
+        game['timer']['seconds'] = MIN_TIME_PANIC_QCM_S + 1;
+        game.startPanicking();
+        expect(game['timer']['panicMode']).toBeTruthy();
+    });
+
+    it('launchGame() should call the start method of the timer', () => {
+        const startTimerMock = jest.spyOn(game['timer'], 'start');
+        game.launchGame();
+        expect(startTimerMock).toHaveBeenCalledWith(WAITING_TIME_S);
+    });
+
+    it('usersArray should return an empty array if there are no users', () => {
+        expect(game.usersArray).toStrictEqual([]);
+    });
+
+    it('canRejoin should return false if the user is not in the game', () => {
+        expect(game.canRejoin('userId')).toBeFalsy();
+    });
+
+    it('getUser should return undefined if there are no users', () => {
+        expect(game.getUser('nobody')).toBeUndefined();
+    });
+
+    it('isBanned should return false if the user is not in the game', () => {
+        expect(game.isBanned('userId')).toBeFalsy();
+    });
+
+    it('should remove user if the game state is wait', () => {
+        const user = new UserData('userId', 'roomId', 'username');
+        game.addUser(user);
+        game['advanceState'](GameState.WAIT);
+        jest.spyOn(game['users'], 'removeUser');
+        game.removeUser('userId');
+        expect(game['users'].removeUser).toHaveBeenCalled();
+    });
+
+    it('should update user if isHost', () => {
+        const user = new UserData('userId', 'roomId', HOST_NAME);
+        game.addUser(user);
+        jest.spyOn(game['users'], 'update');
+        game['advanceState'](GameState.WAITING_FOR_ANSWERS);
+        game.update('userId', 'username');
+        expect(game['users'].update).toHaveBeenCalled();
+    });
+
+    it('should stop the timer if stop game is called', () => {
+        jest.spyOn(game['timer'], 'stop');
+        game.stopGame();
+        expect(game['timer'].stop).toHaveBeenCalled();
+    });
+
+    it('should go to final results if the index is greater than the number of questions', async () => {
+        game['game']['questionIndex$'] = 60;
+        game['state'] = GameState.SHOW_RESULTS;
+        await game.advance();
+        expect(game.currentState).toBe(GameState.SHOW_FINAL_RESULTS);
+    });
+
+    it('should send user stats update and advance state when showing results', async () => {
+        jest.spyOn(game, 'showFinalResults');
+        game['users']['hostIsPlaying'] = true;
+        await game.showResult();
+        expect(game.showFinalResults).toHaveBeenCalled();
+    });
+
+    it('should send user stats update and advance state when showing results', async () => {
+        jest.spyOn(game, 'askQuestion');
+        game['game']['questionIndex$'] = -1;
+        game['users']['hostIsPlaying'] = true;
+        await game.showResult();
+        expect(game.askQuestion).toHaveBeenCalled();
+    });
 });

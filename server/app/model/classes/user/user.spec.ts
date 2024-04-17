@@ -64,4 +64,20 @@ describe('UserData', () => {
         userData.addBonus(SCORE);
         expect(userData.userScore.score).toBe(BONUS_SCORE);
     });
+
+    it('userCanChat should set the chat permission', () => {
+        userData.userCanChat = false;
+        expect(userData.userCanChat).toBeFalsy();
+    });
+
+    it('userState should set the user state', () => {
+        userData.userState = 1;
+        expect(userData.userState).toBe(1);
+    });
+
+    it('newAnswer should set the new answer', () => {
+        const mockText = 'Test';
+        userData.newAnswer = mockText;
+        expect(userData['answerQrl']).toBe(mockText);
+    });
 });

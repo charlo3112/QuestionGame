@@ -81,7 +81,7 @@ export class RoomManagementService {
     }
 
     canChat(userId: string): boolean {
-        return this.getActiveGame(userId).canChat(userId);
+        return this.getActiveGame(userId)?.canChat(userId);
     }
 
     async createGame(userId: string, game: GameData): Promise<User> {
@@ -108,7 +108,7 @@ export class RoomManagementService {
 
         const game: GameData = {
             title: 'mode aléatoire',
-            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM) as QuestionData[],
+            questions: this.shuffleAndSliceQuestions(questions, NUMBER_QUESTIONS_RANDOM),
             duration: 20,
         } as GameData;
 
@@ -144,7 +144,7 @@ export class RoomManagementService {
 
     startPanicking(userId: string) {
         const activeGame = this.getActiveGame(userId);
-        if (activeGame.isHost(userId)) {
+        if (activeGame?.isHost(userId)) {
             activeGame.startPanicking();
         }
     }
@@ -170,7 +170,7 @@ export class RoomManagementService {
     }
 
     showFinalResults(userId: string) {
-        this.getActiveGame(userId).showFinalResults();
+        this.getActiveGame(userId)?.showFinalResults();
     }
 
     getChoice(userId: string): boolean[] {
@@ -239,9 +239,7 @@ export class RoomManagementService {
 
     leaveUser(userId: string): void {
         const user = this.getUser(userId);
-        if (!user) {
-            return;
-        }
+        if (!user) return;
 
         const removalTimeout = setTimeout(() => {
             this.performUserRemoval(userId);
@@ -269,9 +267,7 @@ export class RoomManagementService {
         const username = this.getUsername(userId);
         const roomId = this.roomMembers.get(userId);
         this.roomMembers.delete(userId);
-        if (!game) {
-            return;
-        }
+        if (!game) return;
         const isHost = game.isHost(userId);
         this.gameWebsocket.sendUserRemoval(userId, 'Vous avez été déconnecté');
         game.removeUser(userId);
@@ -289,12 +285,7 @@ export class RoomManagementService {
 
     banUser(userId: string, bannedUsername: string): void {
         const game = this.getActiveGame(userId);
-        if (!game) {
-            return;
-        }
-        if (!game.isHost(userId)) {
-            return;
-        }
+        if (!game || !game.isHost(userId)) return;
         const banId = game.banUser(bannedUsername);
         if (banId) {
             this.gameWebsocket.sendUserRemoval(banId, 'Vous avez été banni');
@@ -304,16 +295,14 @@ export class RoomManagementService {
         }
     }
 
-    getActiveGame(userId: string): ActiveGame {
+    getActiveGame(userId: string): ActiveGame | undefined {
         const roomId = this.roomMembers.get(userId);
         return roomId ? this.gameState.get(roomId) : undefined;
     }
 
     async confirmAction(userId: string) {
         const user = this.getUser(userId);
-        if (!user || !user.isHost()) {
-            return;
-        }
+        if (!user || !user.isHost()) return;
         const game = this.getActiveGame(userId);
         await game.advance();
     }
@@ -331,7 +320,7 @@ export class RoomManagementService {
         return game ? game.getUser(userId) : undefined;
     }
 
-    private shuffleAndSliceQuestions(questions: unknown[], number: number): unknown[] {
+    private shuffleAndSliceQuestions(questions: QuestionData[], number: number): QuestionData[] {
         for (let i = questions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [questions[i], questions[j]] = [questions[j], questions[i]];
