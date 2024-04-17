@@ -28,30 +28,20 @@ describe('Time', () => {
         expect(timer).toBeDefined();
     });
 
-    it('should restart', async () => {
-        const TIME_VALUE = 4;
+    it('should catch AbortError and restart', async () => {
+        timer.seconds = 5;
+        timer.start(5);
         timer['panicMode'] = true;
-        timer.seconds = TIME_VALUE;
-        await timer.restart();
-        expect(timer).toBeDefined();
+
+        const promise = timer.restart();
+        const tenSeconds = 10000;
+        jest.advanceTimersByTime(tenSeconds);
+
+        expect(timer.seconds).toBeDefined();
+
+        timer.stop();
+        await promise;
     });
-
-    // jest.useFakeTimers();
-
-    // it('should restart if panicMode is true', async () => {
-    //     const TIME_VALUE = 4;
-    //     timer['panicMode'] = true;
-    //     const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
-
-    //     await timer.start(TIME_VALUE);
-    //     const restartPromise = timer.restart();
-
-    //     jest.advanceTimersByTime(TIME_VALUE * 1000);
-    //     await restartPromise;
-
-    //     expect(setTimeoutSpy).toHaveBeenCalled();
-    //     expect(setTimeoutSpy).toHaveBeenCalledWith(PANIC_DURATION, undefined, { signal: timer['controller'].signal });
-    // });
 
     it('should stop', async () => {
         const TIME_VALUE = 4;
