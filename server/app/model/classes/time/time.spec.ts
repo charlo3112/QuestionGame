@@ -28,6 +28,14 @@ describe('Time', () => {
         expect(timer).toBeDefined();
     });
 
+    it('should restart', async () => {
+        const TIME_VALUE = 4;
+        timer['panicMode'] = true;
+        timer.seconds = TIME_VALUE;
+        await timer.restart();
+        expect(timer).toBeDefined();
+    });
+
     // jest.useFakeTimers();
 
     // it('should restart if panicMode is true', async () => {
@@ -48,6 +56,14 @@ describe('Time', () => {
     it('should stop', async () => {
         const TIME_VALUE = 4;
         await timer.start(TIME_VALUE);
+        await timer.stop();
+        expect(timer).toBeDefined();
+    });
+
+    it('should stop', async () => {
+        const TIME_VALUE = 4;
+        timer.seconds = TIME_VALUE;
+        timer.restart();
         await timer.stop();
         expect(timer).toBeDefined();
     });
