@@ -1,0 +1,55 @@
+.form-container {
+    display: flex;
+    padding: 20px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.left {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.right {
+    width: 50%;
+}
+
+.information-field {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.information-content {
+    flex: 1;
+}
+
+.information-button {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.question-content {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.icons-container {
+    display: flex;
+    align-items: center;
+}
+
+.edit-icon,
+.delete-icon {
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.add-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}

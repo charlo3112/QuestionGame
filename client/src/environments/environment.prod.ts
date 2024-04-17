@@ -1,4 +1,5 @@
 export const environment = {
     production: true,
-    serverUrl: 'myServerURL', // TODO: Add remote server URL
+    serverUrl: 'https://api.gagolino.com/api',
+    wsUrl: 'wss://api.gagolino.com',
 };

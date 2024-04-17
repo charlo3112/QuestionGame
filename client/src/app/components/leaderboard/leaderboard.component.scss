@@ -1,0 +1,49 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.title {
+    text-align: center;
+}
+
+.disconnect {
+    text-decoration: line-through;
+}
+
+.no-interaction {
+    color: #ff0000;
+}
+
+.first-interaction {
+    color: #ffff00;
+}
+
+.answer-confirmed {
+    color: #00ff00;
+}
+
+.leaderboard-table td {
+    background-color: map.get(constant.$blue-palette, 200);
+    text-align: left;
+}
+
+.leaderboard-table th {
+    text-align: center;
+    background-color: map.get(constant.$orange-palette, 100);
+    color: #333;
+    font-weight: bold;
+}
+
+.sort {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.sort-title {
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.sort-table :hover {
+    cursor: pointer;
+}

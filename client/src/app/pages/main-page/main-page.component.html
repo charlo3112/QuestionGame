@@ -1,22 +1,21 @@
 <div class="container justified">
-    <h1 class="header-item">Bienvenue au cours {{ title }}</h1>
-    <img src="https://bit.ly/3QofL1J" alt="Logo Projet" />
-    <section id="server-message" class="justified">
-        <p>Petit message du serveur : {{ message.getValue() }}</p>
-        <div class="justified">
-            <button class="button" (click)="getMessagesFromServer()">Récupérer un message du serveur</button>
-            <button class="button" (click)="sendTimeToServer()">Envoyer un message au serveur</button>
-            <button class="button" routerLink="/material">Voir la page démo Angular Material</button>
-        </div>
-    </section>
+    <h1 class="header-item">Crab Quiz</h1>
+    <img src="assets/logo.png" class="logo" alt="Logo Projet" />
 
-    <button class="button" routerLink="/game">Jouer!</button>
-
+    <div class="justified gap-10px">
+        <button class="button" id="game" routerLink="/join" mat-raised-button color="primary">Joindre une partie</button>
+        <button class="button" id="new" routerLink="/new" mat-raised-button color="primary">Créer une partie</button>
+        <button class="button" id="admin" routerLink="/admin" mat-raised-button color="primary">Administrer les jeux</button>
+    </div>
     <footer class="footer-item">
-        <h4 class="team-name">Équipe Poly</h4>
-        <p>
-            <span>Coéquipier #1</span>, <span>Coéquipier #2</span>, <span>Coéquipier #3</span>, 
-            <span>Coéquipier #4</span>, <span>Coéquipier #5</span>, <span>Coéquipier #6</span>
-        </p>
+        <h4 class="team-name">Équipe 202 - Les crustacés</h4>
+        <div>
+            <span>Marc-Antoine Manningham</span>
+            <span>Charles-Olivier Caron</span>
+            <span>Guillaume St-Pierre</span>
+            <span>Guilhem Desage-Mainville</span>
+            <span>Gaëtan Florio</span>
+            <span>Nicolas Mayr</span>
+        </div>
     </footer>
 </div>

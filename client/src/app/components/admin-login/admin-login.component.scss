@@ -1,0 +1,17 @@
+.admin-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 8em;
+}
+
+.admin-login-input {
+    margin-bottom: -1.25em;
+}
+  
+.admin-login-error {
+    color: red;
+    display: flex;
+    align-items: center;
+}

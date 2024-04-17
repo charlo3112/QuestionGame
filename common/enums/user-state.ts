@@ -1,0 +1,7 @@
+export enum UserState {
+    NO_INTERACTION,
+    FIRST_INTERACTION,
+    ANSWER_CONFIRMED,
+    FINAL_RESULTS,
+    DISCONNECT,
+}

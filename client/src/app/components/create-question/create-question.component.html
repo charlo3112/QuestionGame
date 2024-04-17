@@ -1,0 +1,65 @@
+<mat-card class="edit-card">
+    <mat-card-header>
+        <h2>Édition de question</h2>
+    </mat-card-header>
+    <mat-card-content>
+        <mat-form-field class="question-field">
+            <mat-label>Question</mat-label>
+            <input matInput [(ngModel)]="questionName" required />
+        </mat-form-field>
+        <mat-form-field class="question-field">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="questionType" required>
+                <mat-option *ngFor="let option of questionTypeOptions" [value]="option">
+                    {{ option }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <h2 *ngIf="questionType === 'QCM'">Liste des choix de réponse</h2>
+
+        <div *ngIf="questionType === 'QCM'" class="choice-field">
+            <mat-form-field>
+                <mat-label>Choix</mat-label>
+                <input matInput [(ngModel)]="choiceInput" (keyup.enter)="addChoice()" />
+            </mat-form-field>
+            <button mat-icon-button (click)="addChoice()" aria-label="Ajouter un choix">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+
+        <div *ngIf="choices.length > 0 && questionType === 'QCM'" class="list-container">
+            <mat-list cdkDropList (cdkDropListDropped)="drop($event)">
+                <mat-list-item *ngFor="let choice of choices; let i = index" cdkDrag>
+                    <div cdkDropList class="choice-content">
+                        <div *ngIf="!editArray[i]; else editMode" class="choice-value" (click)="startEdit(i)">{{ i + 1 }}. {{ choice.text }}</div>
+                        <ng-template #editMode>
+                            <mat-form-field class="edit-input">
+                                <input matInput [(ngModel)]="choice.text" (blur)="saveEdit(i)" (keyup.enter)="saveEdit(i)" />
+                            </mat-form-field>
+                        </ng-template>
+                        <mat-slide-toggle *ngIf="!editArray[i]" [(ngModel)]="choice.isCorrect"></mat-slide-toggle>
+                        <button mat-icon-button *ngIf="!editArray[i]" class="delete-button" aria-label="Supprimer le choix" (click)="deleteChoice(i)">
+                            <mat-icon class="delete-icon" color="warn">close</mat-icon>
+                        </button>
+                    </div>
+                </mat-list-item>
+            </mat-list>
+        </div>
+
+        <mat-form-field class="question-weight">
+            <mat-label>Pondération</mat-label>
+            <mat-select [(ngModel)]="questionPoints" required>
+                <mat-option *ngFor="let weight of weights" [value]="weight">{{ weight }}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions class="bottom-buttons">
+        <button mat-raised-button color="primary" (click)="addToQuestionBank()" *ngIf="!isInQuestionBank && !isEditingFromCreate">
+            Ajouter au jeu et à la banque
+        </button>
+        <button mat-raised-button color="primary" (click)="save()" *ngIf="!isInQuestionBank && !isEditingFromCreate">Ajouter au jeu</button>
+        <button mat-raised-button color="primary" (click)="editQuestion()" *ngIf="isInQuestionBank">Sauvegarder</button>
+        <button mat-raised-button color="primary" (click)="save()" *ngIf="isEditingFromCreate">Enregister les modifications</button>
+        <button mat-raised-button color="primary" (click)="cancel()">Annuler</button>
+    </mat-card-actions>
+</mat-card>

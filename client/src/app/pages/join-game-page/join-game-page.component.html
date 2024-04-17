@@ -1,0 +1,20 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a routerLink="#"><img src="assets/logo.png" /></a>
+    <h1 class="title">Joindre une partie</h1>
+    <span class="spacer"></span>
+</mat-toolbar>
+
+<div class="form-container">
+    <form [formGroup]="connectForm" (ngSubmit)="onSubmit()" class="form-wrapper">
+        <mat-form-field class="name-input">
+            <mat-label> Nom d'utilisateur </mat-label>
+            <input type="name" formControlName="name" matInput required />
+        </mat-form-field>
+        <mat-form-field class="code-input">
+            <mat-label> Code de partie </mat-label>
+            <input type="code" formControlName="code" matInput required pattern="[0-9]{4}" />
+            <mat-error *ngIf="entryError"> Code ou nom invalide </mat-error>
+        </mat-form-field>
+        <button mat-raised-button type="submit" class="join-button" color="primary">Rejoindre</button>
+    </form>
+</div>

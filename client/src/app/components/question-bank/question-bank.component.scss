@@ -1,0 +1,56 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.question {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white;
+    background-color: map.get(constant.$green-palette, 1000);
+    margin: 1%;
+    cursor: pointer;
+}
+
+.option {
+    margin: 1%;
+}
+
+.edit-button,
+.delete-button {
+    color: white;
+    background-color: map.get(constant.$green-palette, 1000);
+    border: none;
+}
+.edit-button:hover,
+.delete-button:hover {
+    color: lightgray;
+}
+
+.admin-mode-time {
+    margin-left: auto;
+    color: white;
+    text-align: center;
+    align-items: center;
+}
+
+.question-content {
+    text-align: center;
+    align-items: center;
+    padding-bottom: 16px;
+    font-size: 1.2em;
+}
+
+.highlighted {
+    background-color: map.get(constant.$blue-palette, 800);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.add-button-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    margin-top: 15px;
+}

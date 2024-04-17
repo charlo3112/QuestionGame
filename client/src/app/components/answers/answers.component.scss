@@ -1,0 +1,61 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.answers-container {
+    display: grid;
+    gap: 0.69em;
+    .good {
+        background-color: map.get(constant.$green-palette, 600);
+    }
+    
+    .bad {
+        background-color: map.get(constant.$red-palette, 500);
+    }
+}
+
+.two-answers {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.three-answers {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.three-answers .answer:nth-child(3) {
+    grid-column: span 2;
+    justify-self: center;
+    width: 50%;
+}
+
+.four-answers {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.answer {
+    &:hover {
+        background-color: map.get(constant.$orange-palette, 400);
+    }
+    font-size: 2em;
+    font-weight: 500;
+    width: 30vw;
+    height: 30vh;
+    button {
+        display: flex;
+    }
+}
+
+.selected {
+    border: 0.2em solid map.get(constant.$orange-palette, 300);
+}
+
+.selected.good {
+    border-color: map.get(constant.$green-palette, 200);
+}
+
+.selected.bad {
+    border-color: map.get(constant.$red-palette, 300);
+}
+
+.solution {
+    transform: scale(2);
+}

@@ -1,0 +1,27 @@
+@use 'sass:map';
+@use '../../../constant.scss';
+
+.main-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em;
+    gap: 1em;
+}
+
+.flex {
+    display: flex;
+    gap: 0.5em;
+}
+
+.column {
+    flex-direction: column;
+}
+
+.histogram {
+    width: 100%;
+}
+
+.stat-container {
+    width: 100%;
+    height: 70%;
+}

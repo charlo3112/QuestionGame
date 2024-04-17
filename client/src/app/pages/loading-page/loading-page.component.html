@@ -1,0 +1,49 @@
+<mat-toolbar color="primary" class="toolbar">
+    <a><img src="assets/logo.png" id="logo" routerLink="#" /></a>
+    <h1 class="title">Joindre une partie</h1>
+    <span class="spacer"></span>
+    <button mat-raised-button id="abandon-button" routerLink="#">Abandonner</button>
+</mat-toolbar>
+
+<div class="loading-container">
+    <mat-card>
+        <mat-card-content class="left-content">
+            <span class="player">Joueurs</span>
+            <div class="row row-player" *ngFor="let player of gameService.usersList" i as index>
+                <mat-icon matListItemAvatar>person</mat-icon>
+                <div matListItemTitle class="player-name">{{ player }}</div>
+                <button *ngIf="gameService.isHost" mat-icon-button class="kick-button" (click)="gameService.onKickPlayer(player)">
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+        </mat-card-content>
+    </mat-card>
+
+    <div class="middle-content">
+        <h1 class="room-code">Salle: {{ gameService.roomCodeValue }}</h1>
+        <img src="assets/loading.svg" alt="loading" class="loading-bar__image" />
+        <h1 class="loading-text">En attente des joueurs</h1>
+
+        <div class="row" *ngIf="gameService.isHost">
+            <button mat-fab class="room-lock-button" (click)="onToggleLock()">
+                <mat-icon class="room-lock-icon">{{ roomLocked ? 'lock' : 'lock_open' }} </mat-icon>
+            </button>
+
+            <button
+                class="start-game-button"
+                mat-raised-button
+                [disabled]="!roomLocked || (gameService.usersList.size < 1 && !gameService.isPlaying)"
+                matTooltip="La partie sera démarrée avec les joueurs dans la salle d'attente"
+                (click)="onStartGame()"
+            >
+                Démarrer la partie
+            </button>
+        </div>
+    </div>
+
+    <div class="right-content">
+        <div class="chat">
+            <app-chat></app-chat>
+        </div>
+    </div>
+</div>
