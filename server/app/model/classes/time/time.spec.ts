@@ -29,8 +29,9 @@ describe('Time', () => {
     });
 
     it('should catch AbortError and restart', async () => {
-        timer.seconds = 5;
-        timer.start(5);
+        const TIME_VALUE = 5;
+        timer.seconds = TIME_VALUE;
+        timer.start(TIME_VALUE);
         timer['panicMode'] = true;
 
         const promise = timer.restart();
