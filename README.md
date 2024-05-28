@@ -24,7 +24,7 @@ This project was created for the class LOG2990 at Polytechnique Montreal.
 
 ## Using the website
 
-1. The website was previously deployed on AWS, but due to the costs we had to cancel the service and you can use our website only on your local machine.
+1. The website was previously deployed on AWS, but the service was cancelled due to the cost. The website can still be used on your local machine.
 2. Clone the project in your local machine
 3. Navigate to the server directory and install the dependencies using this command:
 ```bash
